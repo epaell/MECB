@@ -1,1 +1,0 @@
-asm6809 src/combined.asm -l combined.lst -B -v -o combined.bin
