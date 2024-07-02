@@ -1,0 +1,2 @@
+asm6809 src/flash_test.asm -l flash_test.lst -S -v -o flash_test.s19
+
