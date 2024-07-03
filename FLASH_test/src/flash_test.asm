@@ -39,38 +39,49 @@ START       JSR     GET_SW_ID       ; Get the software ID data from the FLASH RO
             LDX     #$8000
             JSR     ERASE_SEC
             BEQ     ERASE_OK
-            STX     SW_COUNT
+            STX     TMP_WORD
             pdata1  STR_ERASEF      ; Erase failure message
-            LDX     #SW_COUNT
+            LDX     #TMP_WORD
             out4hs
             pcrlf
             monitr  1
 ;
-ERASE_OK    STX     SW_COUNT
+ERASE_OK    STX     TMP_WORD
             pdata1  STR_ERASE       ; Erase success message
-            LDX     #SW_COUNT
+            LDX     #TMP_WORD 
             out4hs
             pcrlf
 ;
 ; Write a sequence of bytes to the FLASH ROM
 ;
-            LDX     #$8000          
-            LDY     #TEST_BYTES
-            LDD     #TEST_END-TEST_BYTES
-            JSR     WRITE_BYTES
+            LDU     #TEST_END-TEST_BYTES
+            STU     TMP_WORD        ; Save the number of bytes to write
+            pdata1  STR_DO_WR       ; Log to terminal
+            LDX     #TMP_WORD
+            out4hs
+            pcrlf
+            LDU     TMP_WORD        ; Restore the number of bytes to write
+            LDY     #TEST_BYTES     ; Source of data
+            LDX     #$8000          ; Destination to write to
+            JSR     WRITE_BYTES     ; Do the write
             BEQ     WRITE_OK        ; Check it write succeeded
-            STX     SW_COUNT
+            STX     TMP_WORD        ; Save the location that failed to write
             pdata1  STR_WR_FAIL     ; No, it failed
-            LDX     #SW_COUNT
+            LDX     #TMP_WORD
             out4hs
             monitr  1               ; Return to ASSIST09 monitor
 ;
-WRITE_OK    STX     SW_COUNT
+WRITE_OK    STX     TMP_WORD   
             pdata1  STR_WR_OK       ; Write succeeded
-            LDX     #SW_COUNT
+            LDX     #TMP_WORD   
             out4hs
             monitr  1               ; Return to ASSIST09 monitor
 
+;
+; Variables used by test program
+;
+TMP_WORD    RMB     2               ; Used to hold data for hex output to terminal
+;
 ;
 ; Test sequence of bytes to write to FLASH ROM
 ;
@@ -87,11 +98,13 @@ STR_SW_ID2  FCC     "Chip ID: "
             FCB     EOT
 STR_WR_OK   FCC     "Write to FLASH succeeded. X=0x"
             FCB     EOT
-STR_WR_FAIL FCC     "Write to FLASH failed at location: 0x"
+STR_WR_FAIL FCC     "Write to FLASH failed at location: X=0x"
             FCB     EOT
-STR_ERASE   FCC     "Sector erase succeeded. X=0x"
+STR_ERASE   FCC     "Sector erase succeeded: X=0x"
             FCB     EOT
-STR_ERASEF  FCC     "Sector erase failed at location: 0x"
+STR_ERASEF  FCC     "Sector erase failed at location: X=0x"
+            FCB     EOT
+STR_DO_WR   FCC     "Number of bytes to write: 0x"
             FCB     EOT
 
 ;
@@ -100,31 +113,28 @@ STR_ERASEF  FCC     "Sector erase failed at location: 0x"
 ; On Entry:
 ;       X = location to write to
 ;       Y = source location
-;       D = number of bytes to transfer
+;       U = number of bytes to transfer
 ; On Exit:
 ;       if write succeeded, Z is set
 ;       if write failed, Z is clear
 ;       X = final location written to + 1 (on failure points to failed location of write)
 ;       Y = final location read from + 1
 ;       All other register contents conserved
-WRITE_BYTES PSHS    D               ; Save A and B registers
-            STD     SW_COUNT        ; Save byte count
-            STX     SW_WPTR         ; Save write pointer
+WRITE_BYTES PSHS    U               ; Save U
 WR_NEXT     LDA     ,Y+             ; Read a byte
-            JSR     WRITE_BYTE      ; Write to FLASH
+            BSR     WRITE_BYTE      ; Write to FLASH
             BNE     WR_BYES_NOK     ; If it failed then exit
-            LEAX    1,X             ; Increment write pointer
-            STX     SW_WPTR         ; Save it
-            LDX     SW_COUNT        ; Decrement number of bytes to transfer
-            LEAX    -1,X
-            BEQ     WR_BYTES_OK     ; If it is done then exit
-            STX     SW_COUNT
-            LDX     SW_WPTR         ; Get the write pointer
-            BRA     WR_NEXT
+            LEAU    -1,U            ; Decrement byte counter
+            CMPU    #$0000
+            BNE     WR_NEXT         ; More to do, loop back
 ;
-WR_BYTES_OK LDX     SW_WPTR         ; Restore the write pointer
-            ORCC    #$04            ; Set the Z flag because write was OK
-WR_BYES_NOK PULS    D               ; Restore A and B registers
+WR_BYTES_OK PULS    U               ; Restore U
+            sez
+            RTS
+;
+WR_BYES_NOK PULS    U               ; Restore U
+            LEAX    -1,X            ; Point to failed location
+            clz
             RTS                     ; Done
 
 ;
@@ -135,18 +145,15 @@ WR_BYES_NOK PULS    D               ; Restore A and B registers
 ; On Exit:
 ;       if write succeeded, Z is set
 ;       if write failed, Z is clear
+;       X = location that was written + 1
 ;       Register contents are conserved.
-WRITE_BYTE  PSHS    A,X             ; Save X
+WRITE_BYTE  STX     SW_WPTR         ; Save write pointer
             LDX     #BYTE_PROG      ; Send the program control sequence
-            JSR     SEND_CMD
-            PULS    A,X             ; Restore X
+            BSR     SEND_CMD
+            LDX     SW_WPTR         ; Restore write pointer
             STA     ,X              ; Write the value
-            PSHS    X
-            LDX     #10             ; ~26.7 uS delay
-WDELAY      LEAX    -1,X            ; 5 cycles
-            BNE     WDELAY          ; 3 cycles 8/3 = 2.67 uS
-            PULS    X
-            CMPA    ,X              ; Check what was written
+            BSR     SW_WAIT         ; Wait for operation to complete
+            CMPA    ,X+             ; Check what was written
             RTS                     ; Return
 
 ;
@@ -161,13 +168,12 @@ WDELAY      LEAX    -1,X            ; 5 cycles
 ERASE_SEC   PSHS    A,Y             ; Save A and Y
             STX     SW_WPTR         ; Save start of erase location
             LDX     #SEC_ERASE      ; Send the command to initiate erase
-            JSR     SEND_CMD
+            BSR     SEND_CMD
             LDA     #$30            ; Initiate erasure of the sector
             LDX     SW_WPTR         ; By writing $30 to the sector
             STA     ,X
-            LDX     #9400           ; ~25mS wait for command to complete
-SW_LOOP2    LEAX    -1,X            ; 5 cycles
-            BNE     SW_LOOP2        ; 3 cycles
+            LDA     #$FF            ; Erased value
+            BSR     SW_WAIT
             LDY     #$1000          ; Size of the sector
 ; Verify that the erase worked
             LDX     SW_WPTR         ; Check all bytes in the sector
@@ -181,8 +187,31 @@ SW_VERIFY   LDA     ,X+
 ;
 ERASE_NOK   LEAX    -1,X            ; Restore X to point to failed location
             PULS    A,Y             ; Restore registers
-            ANDCC   #$FB            ; Reset the zero flag to mark an error
+            clz                     ; Reset the zero flag to mark an error
             RTS
+
+;
+; Wait for FLASH operation to complete
+; On Entry:
+;       A = Data that was written
+;       X = Location that was written
+; On Exit:
+;       All registers are conserved
+;
+SW_WAIT     STA     SW_WDATA        ; Save data that was written
+            ANDA    #$80            ; Check for Bit 7 value
+            BNE     SW_WAIT1        ; Waiting for Bit 7 = 1
+;
+SW_WAIT0    LDA     ,X              ; Get FLASH status
+            ANDA    #$80            ; Check for completion, Bit 7 = 0
+            BNE     SW_WAIT0        ; Bit 7 = 1, not ready yet
+            BRA     SW_WAIT_END     ; Bit 7 = 0, pperation complete
+;
+SW_WAIT1    LDA     ,X              ; Get FLASH status
+            ANDA    #$80            ; Check for completion, Bit 7 = 1
+            BEQ     SW_WAIT1        ; Bit 7 = 0, not ready yet
+SW_WAIT_END LDA     SW_WDATA        ; Restore register
+            RTS                     ; Return
 
 ;
 ; Get the software ID for the ROM
@@ -195,13 +224,13 @@ ERASE_NOK   LEAX    -1,X            ; Restore X to point to failed location
 ;
 GET_SW_ID   PSHS    X
             LDX     #SW_ID_ENTER    ; Software ID entry sequence
-            JSR     SEND_CMD
+            BSR     SEND_CMD
             LDA     $8000           ; Read the ID of the manufacturer
             LDX     #SW_ID_ENTER    ; Software ID entry sequence
-            JSR     SEND_CMD
+            BSR     SEND_CMD
             LDB     $8001           ; Read the ID of the chip
             LDX     #SW_ID_EXIT     ; Software ID exit sequence
-            JSR     SEND_CMD
+            BSR     SEND_CMD
             PULS    X
             RTS
 
@@ -224,12 +253,12 @@ SENDEX      PULS    A,X,Y           ; Restore registers
             RTS
 
 ;
-; Variables
+; Variables used by FLASH routines
 ;
 SW_ID1      RMB     1               ; Storage for Manufacturer ID
 SW_ID2      RMB     1               ; Storage for Chip ID
-SW_COUNT    RMB     2               ; Bytes remaining to write
 SW_WPTR     RMB     2               ; Current Write location
+SW_WDATA    RMB     1               ; Current Data being written
 
 ;
 ; FLASH Commands

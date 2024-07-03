@@ -101,3 +101,14 @@ _ECHO   EQU     50              ; ECHO/LOAD AND NULL BKPT FLAG
 _PTM    EQU     52              ; PTM ADDRESS (ELENC END Changed "." to "d" to enable compilation)
 NUMVTR  EQU     52/2+1          ; NUMBER OF VECTORS
 HIVTR   EQU     52              ; HIGHEST VECTOR OFFSET
+
+;
+; Convenience Macros
+;
+sez             MACRO                   ; Macro to set zero flag
+                ORCC    #$04
+                ENDM
+;
+clz             MACRO                   ; Macro to clear zero flag
+                ANDCC    #$FB
+                ENDM
