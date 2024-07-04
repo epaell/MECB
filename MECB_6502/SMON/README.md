@@ -16,36 +16,7 @@ The best description of SMON's commands and capabilities is the article in the
 64'er magazine (in German) [available here](https://archive.org/details/64er_sonderheft_1985_08/page/n121/mode/2up).
 For English speakers, C64Wiki has a brief [overview of SMON commands](https://www.c64-wiki.com/wiki/SMON).
 
-## SMON for 6502
-
-The version published here is an adaptation of SMON for a simple MOS6502-based 
-computer, such as the one built by [Ben Eater](https://eater.net/6502) in his 
-[YouTube video series](https://www.youtube.com/watch?v=LnzuMJLZRdU&list=PLowKtXNTBypFbtuVMUVXNR0z1mu7dp7eH).
-The following original SMON functions are **not** available in this version:
-  - Loading and saving programs/data to disk or tape (L/S/I commands)
-  - Sending output to a printer (P command)
-  - Producing BASIC DATA statements for memory content (B command)
-  - Disk monitor mode and other extensions
-  
-The following new commands have been added in this version
-  - H - show a help screen with a brief overview of available commands
-  - L - load files in Intel HEX format into the 6502 by pasting them into the terminal
-  - MS - check and print size of installed memory
-  - MT - test memory
-
-## Installing and running SMON 6502
-
-If you are using Ben Eater's standard setup (16k RAM at $0-$3FFF, ACIA at $5000, VIA at $6000, ROM at $8000-$FFFF, 1MHz clock)
-you can just download the [smon.bin](https://github.com/dhansel/smon6502/raw/main/smon.bin) file from
-this repository and burn it to the EEROM.
-
-Connect your terminal or USB-to-serial converter to the 65C51N ACIA as described by Ben in his videos.
-
-Configure your terminal (program) for 9600 baud, 8 data bits, 1 stop bit and no parity. After turning
-on the 6502 you should see SMON showing the 6502 register contents and command prompt.
-
-If you are using a non-standard setup, SMON can easily be adapted by changing the settings
-in the `config.asm` file (see below).
+The version adapted here is based on a version by [David Hansel](https://github.com/dhansel/smon6502) but modified for use with the [DigiCool MECB 6502 board](https://github.com/DigicoolThings/MECB)
 
 ## Basic usage
 
@@ -170,51 +141,6 @@ of data to it and checking whether the data reads back the same. Each time a dif
 the corresponding address is printed. The optional "nn" parameter specifies a repetition count
 (defaults to 1). At the end of each test, a "+" is printed.
 
-## Configuring SMON 6502
-
-There are three basic settings that can be changed by modifying the `config.asm` file:
-  - RAM size (default: 16k). RAM is assumed to occupy the address space from $0 to the RAMTOP setting.
-    For example, if you have 32K of RAM then set RAMTOP to $7FFF
-  - VIA location (default: $6000). Change this if the location of the VIA differs from the default setting.
-  - Clock speed (default: 1000000). Change this if your system's clock is running at a different rate
-    than the standart 1MHz. This setting is used for UART timing.
-  - UART driver. Communication with SMON works via RS232 protocol. The following UARTs are supported at this point:
-    - *WCS 65C51N ACIA (default)*. This is the UART Ben Eater is using in his project. The serial parameters are
-      set to 9600 baud, 8 data bits, 1 stop bit and no parity. You can change the serial parameters and base
-      address for the ACIA at the top of the `uart_6551.asm` file.
-    - *Pseudo-UART using 6522 VIA*.  This emulates a UART using the 6522 VIA present in Ben Eater's design. 
-      The serial parameters can be modified at the top of `uart_6522.asm` and default to 1200 baud 8N1.
-      Note that on a 1MHz system baud rates above 1200 may lead to corruption of received data.
-      Connect your terminal (or serial-to-usb adapter) to the VIA as follows: 
-        - Receive (RX) pin of the terminal goes to pin 39 (CA2) of the VIA.
-        - Transmit (TX) pin of the terminal goes to pin 40 (CA1) **and** pin 2 (PA0) of the VIA.
-        - Make sure the VIA's pin 21 (IRQ) is connected to the 6502 CPU's pin 4 (IRQ)
-      The RX and TX pins can also be configured at the top of `uart_6522.asm`.
-    - *Motorola MC6850*. If you choose this UART in the config.asm file you can configure it in the `uart_6850.asm` file,
-      most importantly the base address (default is $8100) and the serial parameters.
-
-
-## Compiling SMON 6502
-
-To produce a binary file that can be programmed into an EEPROM for the 6502 computer,
-do the following:
-  1. Download the `*.asm` files from this repository (there are only 7)
-  2. Download the VASM compiler ([vasm6502_oldstyle_Win64.zip](http://sun.hasenbraten.de/vasm/bin/rel/vasm6502_oldstyle_Win64.zip)).
-  3. Extract `vasm6502_oldstyle.exe` from the archive and put it into the same directory as the .asm files
-  4. Issue the following command: `vasm6502_oldstyle.exe -dotdir -Fbin -o smon.bin smon.asm`
-
-Then just burn the generated smon.bin file to the EEPROM using whichever programmer
-you have been using.
-
-## Running Commodore BASIC
-
-After implementing the C64 kernal functions necessary to get SMON to work I realized that
-the same functions are enough to run Commodore BASIC. Installing and/or compiling BASIC
-follows the same rules as SMON (just use `basic.bin` or `basic.asm`).
-
-Note that this is more of a toy example since only very simple BASIC programs will work
-(nothing with graphics or sound). Also saving or loading programs is obviously not supported.
-
 ## Credits
 
 The SMON machine language monitor was originally published in three parts in the 
@@ -237,15 +163,15 @@ The [code](https://github.com/dhansel/smon6502/blob/main/uart_6551.asm) for hand
 65C51N ACIA chip was put together and tested by Chris McBrien, based on the ACIA code from 
 [Adrien Kohlbecker](https://github.com/adrienkohlbecker/65C816/blob/ep.30/software/lib/acia.a).
 
+This version is based on an adaptation by [David Hansel](https://github.com/dhansel/smon6502).
+
 ## MECB
 
-This version of SMON has been modified to work with the DigiCool MECB 6502 system:
-
-    https://github.com/DigicoolThings/MECB
+This version of SMON has been modified to work with the [DigiCool MECB 6502](https://github.com/DigicoolThings/MECB) system:
 
 The modified code assumes the following MECB set-up:
 
-MECB Memory map (32 KB)
+MECB Memory map (32 KB ROM)
 
     $0000-$BFFF RAM
     
@@ -261,7 +187,7 @@ MECB Memory map (32 KB)
     
         $E800-$FFFE SMON
 
-MECB Memory map (16 KB)
+MECB Memory map (16 KB ROM)
 
     $0000-$BFFF RAM
     
@@ -277,7 +203,7 @@ MECB Memory map (16 KB)
     
         $E800-$FFFE SMON
 
-MECB Memory map (8 KB)
+MECB Memory map (8 KB ROM)
 
     $0000-$CFFF RAM
     
