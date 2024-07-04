@@ -1,12 +1,5 @@
 # ASSIST09
-The combined version of ASSIST09 is based on the Jeff Tranter's SBC version of the software but adapted for MECB. It contains Extended Microsoft BASIC, a disassembler, tracing software and ASSIST09 itself.
-
-    https://github.com/jefftranter/6809/tree/master/sbc/combined
-
-for use with DigicoolThings MECB:
-
-    https://github.com/DigicoolThings/MECB
-
+The combined version of ASSIST09 is based on the [Jeff Tranter's SBC version](https://github.com/jefftranter/6809/tree/master/sbc/combined) of the software but adapted for [DigiCoolThings MECB 6809](https://github.com/DigicoolThings/MECB). It contains Extended Microsoft BASIC, a disassembler, tracing software and ASSIST09 itself.
 
 The modified code assumes the following MECB set-up:
 
