@@ -1,0 +1,7 @@
+ca65 -D ACIA='$C008'--cpu 6502 -l osi_bas_16KB.lst -o osi_bas_16KB.o src/osi_bas.asm  
+ca65 -D ACIA='$C008'--cpu 6502 -l osi_bas_32KB.lst -o osi_bas_32KB.o src/osi_bas.asm  
+ca65 -D ACIA='$E008'--cpu 6502 -l osi_bas_8KB.lst -o osi_bas_8KB.o src/osi_bas.asm  
+ld65 -C cfg/osi_bas.cfg -o osi_bas_8KB.bin osi_bas_8KB.o
+ld65 -C cfg/osi_bas.cfg -o osi_bas_16KB.bin osi_bas_16KB.o
+ld65 -C cfg/osi_bas.cfg -o osi_bas_32KB.bin osi_bas_32KB.o
+
