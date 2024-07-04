@@ -2,7 +2,8 @@
 ;;; ---------------------- UART communication functions  -----------------------
 ;;; ----------------------------------------------------------------------------
 
-UART    = $E008
+;UART    = $C008 ; This should be passed as a define during compilation to
+                 ; allow for different set-ups
 UARTS   = UART+0
 UARTD   = UART+1
 
