@@ -29,7 +29,7 @@
 ;;; This code is based on the SMON disassembly found at:
 ;;; https://github.com/cbmuser/smon-reassembly
 
- .include "src/config.asm"        
+ .include "config.asm"        
 
 PCHSAVE         = $02A8         ; PC hi
 PCLSAVE         = $02A9         ; PC lo
@@ -47,8 +47,11 @@ CHROUT          = $FFD2         ; Kernal output routine
 STOP            = $FFE1         ; Kernal test STOP routine
 GETIN           = $FFE4         ; Kernal get input routine
 
-        .org    $8000
-        .org    $E800
+        .segment    "ROM"       ; ld65 linker - cfg defined ROM segment ($8000)
+        .org    $8000           ; Retained for backward compatibility
+        .byte   $00             ; ca65 bodge to force 32KB resulting .bin
+        .segment    "CODE"      ; ld65 linker - cfg defined CODE segment ($E800)
+        .org    $E800           ; Retained for backward compatibility
 
 ENTRY:  lda     #<SMON                        ; set break-vector to program start
         sta     BRK_LO
@@ -989,7 +992,7 @@ COMMA:  ldx     #$80            ; set "comma" flag
 LC701:  stx     $AA
         jsr     GETWRD          ; get word (address) from command line
         lda     #$25            ; set last input char (37)
-        sta     LASTCOL
+        sta     z:LASTCOL       ; Force Zero Page reference (for ca65)
         bit     $02B1           ; skip the following if "comma" flag NOT set
         bpl     LC717
         ldx     #$0A            ; skip 10 characters (for "," command)
@@ -1643,7 +1646,7 @@ MTL7:   tya
         rts
         
 ; TRACE (Tx)
-TRACE:  .if     VIA == 0
+TRACE:  .if     VIA = 0         ; changed from == to ca65 equal syntax
         jmp     ERROR           ; can only do trace if we have a VIA
         .endif
         pla
@@ -1730,7 +1733,7 @@ TWINT:  lda     #$40            ; clear VIA timer 1 interrupt flag
         sta     VIA_IFR
         jsr     LCDE5           ; restore IRQ vector
         cld                     ; make sure "decimal" flag is not set
-        .if UART_TYPE==6522     ; if VIA is also used as UART
+        .if UART_TYPE = 6522    ; if VIA is also used as UART
         lda     #$40            ; set T1 free run, T2 clock ?2
         sta     VIA_ACR         ; set VIA 1 ACR
         lda	#$40		; disable VIA timer 1 interrupt
@@ -1835,7 +1838,7 @@ LCD60:  sta     $02BC
         jsr     LCC65
         lda     $02BC
         beq     LCDA9
-LCD72:  .if UART_TYPE==6522     ; if VIA is also used as UART
+LCD72:  .if UART_TYPE = 6522    ; if VIA is also used as UART
         lda     VIA_IER         ; get enabled VIA interrupts
         and     #$60            ; isolate T1 and T2 interrupts
         bne     LCD72           ; wait until both disabled (UART is idle)
@@ -1939,4 +1942,4 @@ PRL3:   DEY
         RTS
 PRPOW:  .word 1, 10, 100, 1000, 10000
         
-        .include "src/kernal.asm"
+        .include "kernal.asm"
