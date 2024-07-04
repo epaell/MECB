@@ -236,3 +236,59 @@ and (heavily) adapted from the VIC-20 kernal, using Lee Davidson's
 The [code](https://github.com/dhansel/smon6502/blob/main/uart_6551.asm) for handling RS232 communication via the 
 65C51N ACIA chip was put together and tested by Chris McBrien, based on the ACIA code from 
 [Adrien Kohlbecker](https://github.com/adrienkohlbecker/65C816/blob/ep.30/software/lib/acia.a).
+
+## MECB
+
+This version of SMON has been modified to work with the DigiCool MECB 6502 system:
+
+    https://github.com/DigicoolThings/MECB
+
+The modified code assumes the following MECB set-up:
+
+MECB Memory map (32 KB)
+
+    $0000-$BFFF RAM
+    
+       $0000-$00FF SMON use
+       
+    $C000-$C100 I/O
+    
+        $C000 PTM
+        
+        $C008 ACIA
+        
+    $8000-FFFF  ROM
+    
+        $E800-$FFFE SMON
+
+MECB Memory map (16 KB)
+
+    $0000-$BFFF RAM
+    
+       $0000-$00FF SMON use
+       
+    $C000-$C100 I/O
+    
+        $C000 PTM
+        
+        $C008 ACIA
+        
+    $C100-FFFF  ROM
+    
+        $E800-$FFFE SMON
+
+MECB Memory map (8 KB)
+
+    $0000-$CFFF RAM
+    
+       $0000-$00FF SMON use
+       
+    $D000-$D100 I/O
+    
+        $D000 PTM
+        
+        $D008 ACIA
+        
+    $D100-FFFF  ROM
+    
+        $E800-$FFFE SMON

@@ -1,5 +1,9 @@
 # Assemble the passed source file
-ca65 --cpu 6502 -l smon.lst -o smon.o src/smon.asm
+ca65 -D UART='$C008' --cpu 6502 -l smon_32KB.lst -o smon_32KB.o src/smon.asm
+ca65 -D UART='$C008' --cpu 6502 -l smon_16KB.lst -o smon_16KB.o src/smon.asm
+ca65 -D UART='$E008' --cpu 6502 -l smon_8KB.lst -o smon_8KB.o src/smon.asm
 # Link the assembled object file to a .bin using specified config
-ld65 -C cfg/ld65_mecb.cfg -o smon.bin smon.o
+ld65 -C cfg/ld65_mecb.cfg -o AT28C256_SMON_32KB.bin smon_32KB.o
+ld65 -C cfg/ld65_mecb.cfg -o AT28C256_SMON_16KB.bin smon_16KB.o
+ld65 -C cfg/ld65_mecb.cfg -o AT28C256_SMON_8KB.bin smon_8KB.o
 # We're done!
