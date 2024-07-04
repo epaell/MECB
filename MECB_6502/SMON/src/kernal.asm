@@ -155,7 +155,7 @@ GLL2:   INY                     ; Y now is first space character pos
         STY     CSRCOL          ; => input start at first column
         SEC
         RTS
-GLL3:   CPY     CSRCOL          ; do we have any non-space characters
+GLL3    CPY     CSRCOL          ; do we have any non-space characters
         BEQ     GLRETC          ; jump if CSRCOL==TERMCOL, i.e. no input
         BCS     GLRET           ; after initial cursor position?
         STY     CSRCOL          ; no => set beginning=end of input
@@ -249,7 +249,7 @@ MAPCHR: PHA
         BEQ     MCINUL          ; if so then ignore NL
         BNE     MCICR           ; return CR
 MC1:            
-        .if     INPUT_UCASE <> 0
+        .if     INPUT_UCASE
         CMP     #'a'
         BCC     MC2
         CMP     #'z'+1
@@ -394,7 +394,7 @@ KCHROUT:STA     LASTPRNT
         JSR     PROCCR          ; print CR/LF and clear line buffer
         JMP     CHRODN          ; done
 CHROL3:
-        .if     SUPPRESS_NP <> 0
+        .if     SUPPRESS_NP
         CMP     #$80            ; ignore
         BCS     CHRODN          ; non-printable
         CMP     #$20            ; characters
@@ -466,7 +466,7 @@ PREOL0: CPY     TERMCOL         ; have we reached the cursor column yet?
         DEY
 PREOL1: INY
         LDA     (LINEPTR),Y     ; get character
-        .if     SUPPRESS_NP <> 0
+        .if     SUPPRESS_NP
         CMP     #$80            ; ignore
         BCS     PREOL3          ; non-printable
         CMP     #$20            ; characters
@@ -492,9 +492,9 @@ IRQ:    PHA
         TSX
         LDA     $0104,X         ; get status byte from stack
         AND     #$10            ; "B" (BRK) flag set
-        BEQ     NBRK            ; jump if (BRK) flag not set 
+        BEQ     BRK             ; jump if not
         JMP     ($0316)         ; jump to BREAK vector
-NBRK:   JMP     ($0314)         ; jump to IRQ vector
+BRK:    JMP     ($0314)         ; jump to IRQ vector
 
         ;; interrupt stub function
 ISTUB:  RTI
@@ -530,16 +530,16 @@ RESET:  SEI                     ; prevent IRQ interrupts
 ;;; ---------------------- UART communication functions  -----------------------
 ;;; ----------------------------------------------------------------------------
 
- .if UART_TYPE = 6522
+ .if UART_TYPE==6522
    .include "uart_6522.asm"
  .else 
-   .if UART_TYPE = 6551
+   .if UART_TYPE==6551
      .include "uart_6551.asm"
    .else
-     .if UART_TYPE = 6850
+     .if UART_TYPE==6850
        .include "uart_6850.asm"
      .else
-       .error "invalid UART_TYPE"
+       .err "invalid UART_TYPE"
      .endif
    .endif
  .endif
@@ -547,8 +547,8 @@ RESET:  SEI                     ; prevent IRQ interrupts
 ;;; ----------------------------------------------------------------------------
 ;;; -------------------------  C64 kernal jump table  --------------------------
 ;;; ----------------------------------------------------------------------------
-        .segment    "JUMPTAB"   ; ld65 linker - cfg defined JUMPTAB segment ($FF81)
-        .org    $FF81           ; Retained for backward compatibility
+
+        .org    $FF81
         JMP     KSTUB           ; FF81:
         JMP     KSTUB           ; FF84:
         JMP     KSTUB           ; FF87:
@@ -592,8 +592,8 @@ RESET:  SEI                     ; prevent IRQ interrupts
 ;;; ----------------------------------------------------------------------------
 ;;; -------------------------  6502 hardware vectors   -------------------------
 ;;; ----------------------------------------------------------------------------
-        .segment    "VECTORS"   ; ld65 linker - cfg defined VECTORS segment ($FFFA)
-        .org    $FFFA           ; Retained for backward compatibility
+        
+        .org    $FFFA
         .word   NMI             ; hardware NMI vector
         .word   RESET           ; hardware RESET vector
         .word   IRQ             ; hardware IRQ/BRK vector

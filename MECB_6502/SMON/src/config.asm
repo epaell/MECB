@@ -8,7 +8,7 @@ VIA = $0000
 
 ; Highest address of installed RAM - all RAM is assumed to be
 ; in one consecutive range from 0-RAMTOP
-RAMTOP = $7FFF
+RAMTOP = $DFFF
 
 ; main CPU clock rate (used for UART timing)
 CPU_CLOCK_RATE  = 1000000

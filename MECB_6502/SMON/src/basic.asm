@@ -1,8 +1,6 @@
         .include "config.asm"
 
-        .segment    "ROM"       ; ld65 linker - cfg defined ROM segment ($8000)
-        .org    $8000           ; Retained for backward compatibility
-;        .byte   $00             ; ca65 bodge to force 32KB resulting .bin
+        .org    $8000
 
         ;; C64 BASIC ROM (A000-BFFF)
         .org    $A000
