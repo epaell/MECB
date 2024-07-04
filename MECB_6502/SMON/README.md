@@ -16,7 +16,7 @@ The best description of SMON's commands and capabilities is the article in the
 64'er magazine (in German) [available here](https://archive.org/details/64er_sonderheft_1985_08/page/n121/mode/2up).
 For English speakers, C64Wiki has a brief [overview of SMON commands](https://www.c64-wiki.com/wiki/SMON).
 
-The version adapted here is based on a version by [David Hansel](https://github.com/dhansel/smon6502) but modified for use with the [DigiCool MECB 6502 board](https://github.com/DigicoolThings/MECB)
+The version adapted here is based on a version by [David Hansel](https://github.com/dhansel/smon6502) but modified for use with the [DigiCoolThings MECB 6502 board](https://github.com/DigicoolThings/MECB).
 
 ## Basic usage
 
@@ -165,9 +165,11 @@ The [code](https://github.com/dhansel/smon6502/blob/main/uart_6551.asm) for hand
 
 This version is based on an adaptation by [David Hansel](https://github.com/dhansel/smon6502).
 
+Special thanks to DigicoolThings for providing adaptations to allow the code to compile with ca65/ld65.
+
 ## MECB
 
-This version of SMON has been modified to work with the [DigiCool MECB 6502](https://github.com/DigicoolThings/MECB) system:
+This version of SMON has been modified to work with the [DigicoolThings MECB 6502](https://github.com/DigicoolThings/MECB) system:
 
 The modified code assumes the following MECB set-up:
 
