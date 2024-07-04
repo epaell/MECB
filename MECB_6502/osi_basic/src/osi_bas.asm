@@ -12,7 +12,7 @@
 ; 1. Control-C call changed
 ; 2. Load/save calls changed
 ; 3. RAM start set to $0200 instead of $0300
-; 4. ROM start set to $C000
+; 4. ROM start set to $C100
 ; 5. Second letter of error messages back to ASCII value (instead of $80+val)
 ; ==================================================================================
 ;
@@ -229,7 +229,7 @@ CHRGOT2 = <(GENERIC_CHRGOT2-GENERIC_CHRGET + CHRGET)
 RNDSEED = <(GENERIC_RNDSEED-GENERIC_CHRGET + CHRGET)
 
 .segment "CODE"
-.org $C000
+.org $E000
 TOKEN_ADDRESS_TABLE:
 		.word END-1
 		.word FOR-1
@@ -578,7 +578,7 @@ L2300:
         dex
         bpl     L2300
         jsr     GARBAG
-        ldx     #TEMP1-FAC+1
+        ldx     #<(TEMP1-FAC+1) ; (epaell added "<")
 L230B:
         pla
         sta     FAC,x
@@ -4458,7 +4458,7 @@ FDIVT:
         jsr     ADD_EXPONENTS
         inc     FAC
         beq     JOV
-        ldx     #-MANTISSA_BYTES
+        ldx     #<-MANTISSA_BYTES ; (epaell added "<")
         lda     #$01
 L39A1:
         ldy     ARG+1
@@ -5009,7 +5009,7 @@ L3C8C:
         lda     #<CON_BILLION
         ldy     #>CON_BILLION
         jsr     FMULT
-        lda     #-6 ; exponent adjustment
+        lda     #<-6 ; exponent adjustment (epaell added "<")
 L3C95:
         sta     INDX
 ; ----------------------------------------------------------------------------
@@ -5768,7 +5768,7 @@ QT_BYTES_FREE:
 
 ; STARTUP AND SERIAL I/O ROUTINES ===========================================================
 ; BY G. SEARLE 2013 =========================================================================
-ACIA := $A000
+;ACIA := $C008
 ACIAControl := ACIA+0
 ACIAStatus := ACIA+0
 ACIAData := ACIA+1
