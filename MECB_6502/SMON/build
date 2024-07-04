@@ -1,0 +1,5 @@
+# Assemble the passed source file
+ca65 --cpu 6502 -l smon.lst -o smon.o src/smon.asm
+# Link the assembled object file to a .bin using specified config
+ld65 -C cfg/ld65_mecb.cfg -o smon.bin smon.o
+# We're done!
