@@ -5851,7 +5851,7 @@ LOAD:
 SAVE:
 	RTS
 	
-.segment "VECTS"
+.segment "VECTORS"
 .org $FFFA
 	.word	Reset		; NMI 
 	.word	Reset		; RESET 
