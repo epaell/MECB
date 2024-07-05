@@ -76,6 +76,7 @@ HLPMSG: .byte   "A xxxx - Assemble starting at x (end assembly with 'f', use Mxx
         .byte   "MS - Check and print memory size",0
         .byte   "MT xxxx yyyy (nn) - Test memory x-y (repeat n times)",0
         .byte   "O xxxx yyyy aa - Fill memory x-y with a",0
+        .byte   "R - Display the contents of the CPU registers",0
         .if     VIA > 0
         .byte   "TW xxxx - Trace walk (single step)",0
         .byte   "TB xxxx nn - Trace break (set break point at x, stop when hit n times)",0
