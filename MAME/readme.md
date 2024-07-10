@@ -45,7 +45,7 @@ cp $MAMESRC/mecb68008.cpp $MAMEDST/src/mame/homebrew/.
 
 cp -R $MAMESRC/mecb68008 $MAMEDST/roms/.
 
-make SUBTARGET=mecb SOURCES=src/mame/homebrew/mecb6502.cpp,src/mame/homebrew/mecb6502b.cpp,src/mame/homebrew/mecb6809.cpp,src/mame/homebrew/mecb68008.cpp,src/mame/homebrew/mecb68008t.cpp TOOLS=1 REGENIE=1 -j5
+make SUBTARGET=mecb SOURCES=src/mame/homebrew/mecb6502.cpp,src/mame/homebrew/mecb6502b.cpp,src/mame/homebrew/mecb6809.cpp,src/mame/homebrew/mecb68008.cpp,src/mame/homebrew/mecb68008t.cpp,src/mame/homebrew/mecb68008b.cpp TOOLS=1 REGENIE=1 -j5
 
 # mecb_68008t
 This emulates a hypothetical MECB 68008 board with ROM from 0x0000-0x3FFF; Memory from 0x4000-0x1FFFF and ACIA at 0x20000. The ROM contains a modified version of Tutor. In the preparation steps listed above, also include the following:
@@ -56,7 +56,18 @@ cp -R $MAMESRC/mecb68008t $MAMEDST/roms/.
 
 To include this in the mecb MAME build use the following command:
 
-make SUBTARGET=mecb SOURCES=src/mame/homebrew/mecb6502.cpp,src/mame/homebrew/mecb6502b.cpp,src/mame/homebrew/mecb6809.cpp,src/mame/homebrew/mecb68008.cpp,src/mame/homebrew/mecb68008t.cpp TOOLS=1 REGENIE=1 -j5
+make SUBTARGET=mecb SOURCES=src/mame/homebrew/mecb6502.cpp,src/mame/homebrew/mecb6502b.cpp,src/mame/homebrew/mecb6809.cpp,src/mame/homebrew/mecb68008.cpp,src/mame/homebrew/mecb68008t.cpp,src/mame/homebrew/mecb68008b.cpp TOOLS=1 REGENIE=1 -j5
+
+# mecb_68008b
+This emulates a hypothetical MECB 68008 board with ROM from 0x0000-0x3FFF; Memory from 0x4000-0x1FFFF and ACIA at 0x20000. The ROM contains a modified version of BASIC. In the preparation steps listed above, also include the following:
+
+cp $MAMESRC/mecb68008b.cpp $MAMEDST/src/mame/homebrew/.
+
+cp -R $MAMESRC/mecb68008b $MAMEDST/roms/.
+
+To include this in the mecb MAME build use the following command:
+
+make SUBTARGET=mecb SOURCES=src/mame/homebrew/mecb6502.cpp,src/mame/homebrew/mecb6502b.cpp,src/mame/homebrew/mecb6809.cpp,src/mame/homebrew/mecb68008.cpp,src/mame/homebrew/mecb68008t.cpp,src/mame/homebrew/mecb68008b.cpp TOOLS=1 REGENIE=1 -j5
 
 # Compile with your own software
 You can update the ROMS with your own version. The supplied bin2rom.py script modifies the current ROMS for the MECB system to work with MAME. It does so by removing the parts of the ROM that are not visible to the system. Note that you will need to re-calculate the CRC and SHA1 codes and add them to the appropriate source code file for the system otherwise MAME will complain that the checksums do not match.

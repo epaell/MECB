@@ -130,3 +130,30 @@ os.system("crc32 mecb68008t.bin")
 os.system("sha1sum mecb68008t.bin")
 os.system("cp mecb68008t.bin mecb68008t/.")
 
+
+# This is the original combined binary produced by the build
+f_bin = "MECB68008_basic_16KB.bin"
+# This is file that will produce a 8 KB binary ROM for use with MAME
+f_rom= "mecb68008b.bin"
+os.system("cp ../MECB_68008/BASIC/basic68k.bin %s" %(f_bin))
+
+# Read the combined binary
+fin = open(f_bin, "rb")
+bin_contents = fin.read()
+fin.close()
+
+# Read the actual code part of the ROM that is contained within the combined.bin binary
+lower_rom = bin_contents
+print("%d bytes" %(len(lower_rom)))
+upper_rom = bytearray(np.full(0x4000-len(lower_rom), 0xFF, np.ubyte))
+# Write the 16 KB binary that is more easily burned to FLASH ROM
+fout = open(f_rom, "wb")
+fout.write(lower_rom)
+fout.write(upper_rom)
+fout.close()
+
+print("mecb68008b checksums")
+os.system("crc32 mecb68008b.bin")
+os.system("sha1sum mecb68008b.bin")
+os.system("cp mecb68008b.bin mecb68008b/.")
+
