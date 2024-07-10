@@ -19,3 +19,5 @@ The code has been adapted to work with vasmm68k_mot:
    http://sun.hasenbraten.de/vasm/
 
 To compile the combined version simply run "build.sh".
+
+TODO: Note that the vector table needs work as the Motorola system had a different set up in the lower part of memory space. Currently only the reset vector is set up.
