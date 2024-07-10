@@ -1,4 +1,4 @@
-# zBug
+# TUTOR
 The modified version of the Motorola MC68000 Educational Computer Board Tutor monitor based on the [Teeside adaptation](http://www.easy68k.com/paulrsm/mecb/mecb.htm) of the software but adapted for a hypothetical [DigiCoolThings MECB 68008](https://github.com/DigicoolThings/MECB). 
 
 The modified code assumes the following MECB set-up:
