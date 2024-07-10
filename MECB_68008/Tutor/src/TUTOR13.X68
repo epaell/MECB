@@ -66,7 +66,7 @@ RESET    EQU     $43            MASTER RESET FOR ACIA
 *  N O T E:  Ram locations:   starting at zero                 *
 ****************************************************************
 
-         ORG     $000000
+         ORG     $004000
 
 *                               DEC HEX  DESCRIPTION
          DS.L    1              0   $00  AREA OVERLAID BY ROM SR
@@ -365,7 +365,7 @@ ECHOPT1  DS.L    1              ECHO FLAG TO PORT ONE
 
 
 * THE FOLLOWING MUST REMAIN AS IS
-*  User docomentation DEPENDS upon it!
+*  User documentation DEPENDS upon it!
 *
 OPTIONS  DS.W    0              FORCE WORD BOUNDRY
          DS.B    1              X-ON CHARACTER
@@ -480,7 +480,7 @@ LDATA    EQU     $FFFFFFC4      DS.B    1
 *-------------------------------------------------------------------------
 * File B         Init Vectors+Ram                                 05/29/82
 
-         ORG     $040000
+         ORG     $00000
 
 FIRST    DC.L    REGA7          SUPERVISOR STACK
          DC.L    START          PROGRAM COUNTER
@@ -3618,7 +3618,7 @@ MSG031   DC.B    CR,LF,'OPTIONS@',EOT
 RAMTEST  DS      0
          MOVE.L  A0,D3          D3 = BEGINNING ADDRESS
          MOVE.L  D3,A2          USE A2 AS POINTER IN MEMORY
-WALK3    MOVEQ   #$FE,D0        PREPARE FOR "WALKING BIT" TEST
+WALK3    MOVEQ   #-2,D0         PREPARE FOR "WALKING BIT" TEST
 WALK0
          MOVE.W  D0,(A2)        STORE D0 INTO MEMORY
          MOVE.W  (A2),D1        D1 CONTAINS RAM DATA
@@ -3648,7 +3648,7 @@ MTCLR
          CMP.L   A1,A2          DONE?
          BNE.S   MTCLR          NO... ZERO ALL OF MEMORY
 
-         MOVEQ   #$FF,D2        SET D2 = FFFF
+         MOVEQ   #-1,D2         SET D2 = FFFF
 MTSTOR1
          MOVE.W  -(A2),D1       FIRST READ BACK MEMORY
          CMP.W   D0,D1          CHK AGAINST WHAT WAS WRITTEN
@@ -3716,7 +3716,7 @@ P2CMD01  MOVE.B  #BLANK,(A6)+
          MOVE.B  D0,(A0)
 P2CMD2   BTST.B  #$0,(A0)      READ STATUS
          BEQ.S   P2CMD2
-         MOVE.B  2(A0),D0       RECEIVE CHAR FROM PORT 1
+         MOVE.B  1(A0),D0       RECEIVE CHAR FROM PORT 1
          ANDI.B  #$7F,D0
          CMP.B   D7,D0          SEE IF QUIT CHARACTER (CTL A USUALLY)
          BNE.S   P2CMD2
@@ -3732,7 +3732,7 @@ P2CMD2   BTST.B  #$0,(A0)      READ STATUS
 P2CMD4   SUBQ.L  #1,D0          DELAY; ALLOW HOST TO SYNC
          BNE.S   P2CMD4
          BSR     GETSER2
-         MOVE.B  D7,2(A0)       SEND CHAR
+         MOVE.B  D7,1(A0)       SEND CHAR
 P2CMD6   BRA     MACSBUG
 
 MSG006   DC.B    '*TRANSPARENT* EXIT=$',EOT
@@ -4128,7 +4128,7 @@ OUT1CR   MOVE.B  #CR,(A6)+
          RTS                    GO DO IT
 
 OUT1CRX  MOVE.L  OUTPORT1,-(A7) GO TO I/O ADDRESS
-         RTS                    (THIS NORMALLY GOES TO OUT1CR0)
+         RTS                    ; (THIS NORMALLY GOES TO OUT1CR0)
 *
 OUT1CR0  DS      0
 *
@@ -4148,7 +4148,7 @@ OUTPUT2  MOVE.B  #$D,(A6)+      TACK ON A "CR"
          RTS                    GO DO IT
 
 OUTPUT2X MOVE.L  OUTPORT2,-(A7) GO TO IO ROUTINE
-         RTS                    (THIS NORMALLY GOES TO OUTPUT20)
+         RTS                    ; (THIS NORMALLY GOES TO OUTPUT20)
 *
 OUTPUT20 DS      0
 *
@@ -4327,8 +4327,8 @@ PITTCR   SET     $0F0021        TIMER CONTROL REGISTER
 PSTATUS  SET     $B             PRINTER STATUS
 PBDATA   SET     3              PRINTER CONTROL--BUSY,PAPER,SELECT
 PDATA    SET     1              PRINTER DATA
-SER1     SET     $0F0040        TERMINAL
-SER2     SET     $0F0041        SERIAL PORT2 ADDRESS
+SER1     SET     $020000        TERMINAL
+SER2     SET     $0F0004        SERIAL PORT2 ADDRESS
 
 *        PRINTER DRIVER
 *
@@ -4418,7 +4418,7 @@ OUTCH    BSR.S   CHKBRK         CHECK FOR BREAK
          MOVE.B  (A0),D1        READ STATUS AGAIN
          ANDI.B  #$2,D1         CHECK FOR READY TO SEND
          BEQ.S   OUTCH          STILL NOT READY
-         MOVE.B  D0,2(A0)       SEND CHARACTER  ****************
+         MOVE.B  D0,1(A0)       SEND CHARACTER  ****************
 
 * IF PRINT FLAG SET GOTO PRINTER
          BEQ.S   OUTCH21        NULL; IGNORE SENDING TO PRINTER
@@ -4431,7 +4431,7 @@ OUTCH21  DS      0
          MOVE.B  (A0),D1        READ STATUS
          ANDI.B  #1,D1
          BEQ.S   CTLW9          CHAR NOT READY
-         MOVE.B  2(A0),D1       READ CHARACTER
+         MOVE.B  1(A0),D1       READ CHARACTER
          CMPI.B  #CTLW,D1
          BNE.S   CTLW9          NOT CNTL/W
 CTLWH    BSR.S   CHKBRK         CHECK FOR BREAK
@@ -4453,12 +4453,12 @@ CHKBRK   MOVE.L  A0,-(A7)       SAVE A0 * * *
 *    WHAT TO DO WHEN THE BREAK IS PRESSED
 *
 
-BREAK2   CLR.B   2(A0)          SEND NULL TO ACIA TO RESET
+BREAK2   CLR.B   1(A0)          SEND NULL TO ACIA TO RESET
 BREAK1   BTST.B  #1,(A0)        CHECK IF "TRANSMIT READY"
          BEQ.S   BREAK1         WAIT FOR READY
 
-         MOVE.B  2(A0),D0       READ TWO CHARS
-         MOVE.B  2(A0),D0       *
+         MOVE.B  1(A0),D0       READ TWO CHARS
+         MOVE.B  1(A0),D0       *
 
          BTST.B  #4,(A0)        SEE IF BREAK BUTTON RELEASED
          BNE     BREAK2         NO... KEEP LOOPING
@@ -4598,7 +4598,7 @@ INCHNE   MOVE.B  (A0),D1        (INCH NO ECHO) LOAD STATUS SIDE
          MOVE.B  (A0),D1        LOAD STATUS SIDE
          ANDI.B  #1,D1          SEE IF READY
          BEQ.S   INCHNE         IF NOT READY
-         MOVE.B  2(A0),D0       READ DATA SIDE   *****************
+         MOVE.B  1(A0),D0       READ DATA SIDE   *****************
          ANDI.B  #$7F,D0        DROP PARITY BIT
          RTS
 
@@ -4614,7 +4614,7 @@ PORTIN2  TST.L   INFROM         SEE IF ALTERNATE ADDRESS
          MOVE.L  INFROM,-(A7)
          RTS                    GO DO IT
 PORTIN2X MOVE.L  INPORT2,-(A7)  GO TO IO ROUTINE
-         RTS                    (THIS NORMALLY GOES TO PORTIN20)
+         RTS                    ; (THIS NORMALLY GOES TO PORTIN20)
 *
 PORTIN20 MOVEM.L D1-D3/A0/A3,-(A7)  SAVE WORKING REGISTERS
 
@@ -4668,7 +4668,7 @@ MSG030   DC.B    'TIMEOUT',EOT
 P2READY  MOVE.B  (A0),D1        CHECK FOR ACTIVITY ON PORT1
          ANDI.B  #$10,D1        CHECK FOR BREAK
          BNE     BREAK
-         MOVE.B  2(A0),D1       READ POSSIBLE CHAR PORT 1; IGNORE
+         MOVE.B  1(A0),D1       READ POSSIBLE CHAR PORT 1; IGNORE
 
          MOVE.B  (A3),D1        READ STATUS OF PORT2
          ANDI.B  #1,D1          SEE IF CHARACTER SENT
@@ -4679,7 +4679,7 @@ RES      MOVE.B  2(A3),D1       D1 = CHAR READ FROM PORT2
 
          TST.W   ECHOPT1        SEE IF ECHO ON
          BEQ.S   RES140
-         MOVE.B  D1,2(A0)       SEND TO DATA SIDE (PORT1)
+         MOVE.B  D1,1(A0)       SEND TO DATA SIDE (PORT1)
 RES140
 
          CMPI.B  #CR,D1
@@ -4762,7 +4762,7 @@ TAPEIN40 MOVE.B  (A0),D2        CHECK FOR ACTIVITY ON PORT1
          MOVE.B  (A0),D2        SEE IF CHARACTER SENT
          ANDI.B  #1,D2
          BEQ.S   TAPEIN41       NONE SENT.
-         MOVE.B  2(A0),D2       READ WHAT WAS SENT
+         MOVE.B  1(A0),D2       READ WHAT WAS SENT
 TAPEIN41 MOVE.B  PITPCDR,D2     READ PI/T
          ASR.B   #1,D2          DATA INTO CARRY
          RTS
@@ -4787,7 +4787,7 @@ TAPEIN50 BSR     TAPEIN20       GET ONE CHARACTER FROM TAPE
 TAPEIN51 ANDI.B  #$7F,D1        DROP PARITY BIT
          TST.W   ECHOPT1        SEE IF ECHO ON
          BEQ.S   TAPEIN52
-         MOVE.B  D1,2(A0)       SEND TO PORT1
+         MOVE.B  D1,1(A0)       SEND TO PORT1
 TAPEIN52 CMPI.B  #LF,D1         END OF LINE?
          BNE.S   TAPEIN53       NO.
          MOVEM.L (A7)+,D1-D4/A0-A3  RESTORE REGISTERS
@@ -5358,7 +5358,7 @@ EA8BIT:
 
 EA8BITS:
          BSR.S   EA8BITC        JUST CHECK FOR -127 <= D5 <= 128.
-         RTS                    (BSR PUTS NEEDED ADDRESS ON STACK!)
+         RTS                    ; (BSR PUTS NEEDED ADDRESS ON STACK!)
 
 EA8BITC  MOVEQ   #$7F,D1        D1  <--  2^8 - 1.
 
@@ -7528,22 +7528,22 @@ ICCCC    MOVEQ   #$0F,D0        APPEND CONDITION CODE
          MOVE.B  D1,(A5)+
 ICCCC9   RTS
 
-BRTBL    DC.B    ' T'      'T '  BRA ACCEPTED
-         DC.B    ' F'      'F '
-         DC.B    'IH'      'HI'
-         DC.B    'SL'      'LS'
-         DC.B    'CC'      'CC'
-         DC.B    'SC'      'CS'
-         DC.B    'EN'      'NE'
-         DC.B    'QE'      'EQ'
-         DC.B    'CV'      'VC'
-         DC.B    'SV'      'VS'
-         DC.B    'LP'      'PL'
-         DC.B    'IM'      'MI'
-         DC.B    'EG'      'GE'
-         DC.B    'TL'      'LT'
-         DC.B    'TG'      'GT'
-         DC.B    'EL'      'LE'
+BRTBL    DC.B    ' T'      ; 'T '  BRA ACCEPTED
+         DC.B    ' F'      ; 'F '
+         DC.B    'IH'      ; 'HI'
+         DC.B    'SL'      ; 'LS'
+         DC.B    'CC'      ; 'CC'
+         DC.B    'SC'      ; 'CS'
+         DC.B    'EN'      ; 'NE'
+         DC.B    'QE'      ; 'EQ'
+         DC.B    'CV'      ; 'VC'
+         DC.B    'SV'      ; 'VS'
+         DC.B    'LP'      ; 'PL'
+         DC.B    'IM'      ; 'MI'
+         DC.B    'EG'      ; 'GE'
+         DC.B    'TL'      ; 'LT'
+         DC.B    'TG'      ; 'GT'
+         DC.B    'EL'      ; 'LE'
 
 *   BIT  5432109876543210
 *        ....RRRMMM......    DESTINATION REGISTER MODE
