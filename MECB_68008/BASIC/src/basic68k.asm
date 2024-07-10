@@ -75,18 +75,274 @@ nobrk		EQU	0				* null response to INPUT causes a break
 *************************************************************************************
 
 
-	INCLUDE	"basic68k.inc"
+	INCLUDE	"src/basic68k.inc"
 							* RAM offset definitions
 
 * Use this value to run out of ROM
-	ORG		$00C000			* past the vectors in a real system
+	     ORG		$000000			* past the vectors in a real system
+*                               DEC HEX  DESCRIPTION
+         DC.L    ram_addr+ram_size+1             ; 0   $00  SR
+         DC.L    code_start     1   $01  RESET
+         DS.L    1              2   $02  BUS ERROR            "BUS "
+         DS.L    1              3   $03  ADDRESS ERROR        "ADDR"
+         DS.L    1              4   $04  ILL INSTRUCTION      "OPCO"
+         DS.L    1              5   $05  DIVIDE BY ZERO       "DIV0"
+         DS.L    1              6   $06  CHECK TRAP           "CHCK"
+         DS.L    1              7   $07  TRAP V               "TP V"
+         DS.L    1              8   $08  PRIVILEDGE VIOLATION "PRIV"
+         DS.L    1              9   $09  TRACE
+         DS.L    1              10  $0A  1010 LINE EMULATION  "1010"
+         DS.L    1              11  $0B  1111 LINE EMULATION  "1111"
+         DS.L    1              12  $0C  UNASSIGNED
+         DS.L    1              13  $0D  UNASSIGNED
+         DS.L    1              14  $0E  UNASSIGNED
+         DS.L    1              15  $0F  UNINITIALIZED INTERRUPT VECTOR
+         DS.L    1              16  $10  UNASSIGNED
+         DS.L    1              17  $11  UNASSIGNED
+         DS.L    1              18  $12  UNASSIGNED
+         DS.L    1              19  $13  UNASSIGNED
+         DS.L    1              20  $14  UNASSIGNED
+         DS.L    1              21  $15  UNASSIGNED
+         DS.L    1              22  $16  UNASSIGNED
+         DS.L    1              23  $17  UNASSIGNED
+AV24     DS.L    1              24  $18  SPURIOUS INTERRUPT
+         DS.L    1              25  $19  LEVEL 1 INTERRUPT
+         DS.L    1              26  $1A  LEVEL 2 INTERRUPT
+         DS.L    1              27  $1B  LEVEL 3 INTERRUPT
+         DS.L    1              28  $1C  LEVEL 4 INTERRUPT
+         DS.L    1              29  $1D  LEVEL 5 INTERRUPT
+         DS.L    1              30  $1E  LEVEL 6 INTERRUPT
+AV31     DS.L    1              31  $1F  LEVEL 7 INTERRUPT
+         DS.L    1              32  $20   TRAP  0
+         DS.L    1              33  $21   TRAP  1
+         DS.L    1              34  $22   TRAP  2
+         DS.L    1              35  $23   TRAP  3
+         DS.L    1              36  $24   TRAP  4
+         DS.L    1              37  $25   TRAP  5
+         DS.L    1              38  $26   TRAP  6
+         DS.L    1              39  $27   TRAP  7
+         DS.L    1              40  $28   TRAP  8
+         DS.L    1              41  $29   TRAP  9
+         DS.L    1              42  $2A   TRAP 10
+         DS.L    1              43  $2B   TRAP 11
+         DS.L    1              44  $2C   TRAP 12
+         DS.L    1              45  $2D   TRAP 13
+AV46     DS.L    1              46  $2E   TRAP 14
+AV47     DS.L    1              47  $2F   TRAP 15
+AV48     DS.L    1              48  $30   UNASSIGNED
+         DS.L    1              49  $31   UNASSIGNED
+         DS.L    1              50  $32   UNASSIGNED
+         DS.L    1              51  $33   UNASSIGNED
+         DS.L    1              52  $34   UNASSIGNED
+         DS.L    1              53  $35   UNASSIGNED
+         DS.L    1              54  $36   UNASSIGNED
+         DS.L    1              55  $37   UNASSIGNED
+         DS.L    1              56  $38   UNASSIGNED
+         DS.L    1              57  $39   UNASSIGNED
+         DS.L    1              58  $3A   UNASSIGNED
+         DS.L    1              59  $3B   UNASSIGNED
+         DS.L    1              60  $3C   UNASSIGNED
+         DS.L    1              61  $3D   UNASSIGNED
+         DS.L    1              62  $3E   UNASSIGNED
+         DS.L    1              63  $3F   UNASSIGNED
+         DS.L    1              64  $40   USER INTERRUPT
+         DS.L    1              65  $41   USER INTERRUPT
+         DS.L    1              66  $42   USER INTERRUPT
+         DS.L    1              67  $43   USER INTERRUPT
+         DS.L    1              68  $44   USER INTERRUPT
+         DS.L    1              69  $45   USER INTERRUPT
+         DS.L    1              70  $46   USER INTERRUPT
+         DS.L    1              71  $47   USER INTERRUPT
+         DS.L    1              72  $48   USER INTERRUPT
+         DS.L    1              73  $49   USER INTERRUPT
+         DS.L    1              74  $4A   USER INTERRUPT
+         DS.L    1              75  $4B   USER INTERRUPT
+         DS.L    1              76  $4C   USER INTERRUPT
+         DS.L    1              77  $4D   USER INTERRUPT
+         DS.L    1              78  $4E   USER INTERRUPT
+         DS.L    1              79  $4F   USER INTERRUPT
+         DS.L    1              80  $50   USER INTERRUPT
+         DS.L    1              81  $51   USER INTERRUPT
+         DS.L    1              82  $52   USER INTERRUPT
+         DS.L    1              83  $53   USER INTERRUPT
+         DS.L    1              84  $54   USER INTERRUPT
+         DS.L    1              85  $55   USER INTERRUPT
+         DS.L    1              86  $56   USER INTERRUPT
+         DS.L    1              87  $57   USER INTERRUPT
+         DS.L    1              88  $58   USER INTERRUPT
+         DS.L    1              89  $59   USER INTERRUPT
+         DS.L    1              90  $5A   USER INTERRUPT
+         DS.L    1              91  $5B   USER INTERRUPT
+         DS.L    1              92  $5C   USER INTERRUPT
+         DS.L    1              93  $5D   USER INTERRUPT
+         DS.L    1              94  $5E   USER INTERRUPT
+         DS.L    1              95  $5F   USER INTERRUPT
+         DS.L    1              96  $60   USER INTERRUPT
+         DS.L    1              97  $61   USER INTERRUPT
+         DS.L    1              98  $62   USER INTERRUPT
+         DS.L    1              99  $63   USER INTERRUPT
+         DS.L    1              100  $64  USER INTERRUPT
+         DS.L    1              101  $65  USER INTERRUPT
+         DS.L    1              102  $66  USER INTERRUPT
+         DS.L    1              103  $67  USER INTERRUPT
+         DS.L    1              104  $68  USER INTERRUPT
+         DS.L    1              105  $69  USER INTERRUPT
+         DS.L    1              106  $6A  USER INTERRUPT
+         DS.L    1              107  $6B  USER INTERRUPT
+         DS.L    1              108  $6C  USER INTERRUPT
+         DS.L    1              109  $6D  USER INTERRUPT
+         DS.L    1              110  $6E  USER INTERRUPT
+         DS.L    1              111  $6F  USER INTERRUPT
+         DS.L    1              112  $70  USER INTERRUPT
+         DS.L    1              113  $71  USER INTERRUPT
+         DS.L    1              114  $72  USER INTERRUPT
+         DS.L    1              115  $73  USER INTERRUPT
+         DS.L    1              116  $74  USER INTERRUPT
+         DS.L    1              117  $75  USER INTERRUPT
+         DS.L    1              118  $76  USER INTERRUPT
+         DS.L    1              119  $77  USER INTERRUPT
+         DS.L    1              120  $78  USER INTERRUPT
+         DS.L    1              121  $79  USER INTERRUPT
+         DS.L    1              122  $7A  USER INTERRUPT
+         DS.L    1              123  $7B  USER INTERRUPT
+         DS.L    1              124  $7C  USER INTERRUPT
+         DS.L    1              125  $7D  USER INTERRUPT
+         DS.L    1              126  $7E  USER INTERRUPT
+         DS.L    1              127  $7F  USER INTERRUPT
+         DS.L    1              128  $80  USER INTERRUPT
+         DS.L    1              129  $81  USER INTERRUPT
+         DS.L    1              130  $82  USER INTERRUPT
+         DS.L    1              131  $83  USER INTERRUPT
+         DS.L    1              132  $84  USER INTERRUPT
+         DS.L    1              133  $85  USER INTERRUPT
+         DS.L    1              134  $86  USER INTERRUPT
+         DS.L    1              135  $87  USER INTERRUPT
+         DS.L    1              136  $88  USER INTERRUPT
+         DS.L    1              137  $89  USER INTERRUPT
+         DS.L    1              138  $8A  USER INTERRUPT
+         DS.L    1              139  $8B  USER INTERRUPT
+         DS.L    1              140  $8C  USER INTERRUPT
+         DS.L    1              141  $8D  USER INTERRUPT
+         DS.L    1              142  $8E  USER INTERRUPT
+         DS.L    1              143  $8F  USER INTERRUPT
+         DS.L    1              144  $90  USER INTERRUPT
+         DS.L    1              145  $91  USER INTERRUPT
+         DS.L    1              146  $92  USER INTERRUPT
+         DS.L    1              147  $93  USER INTERRUPT
+         DS.L    1              148  $94  USER INTERRUPT
+         DS.L    1              149  $95  USER INTERRUPT
+         DS.L    1              150  $96  USER INTERRUPT
+         DS.L    1              151  $97  USER INTERRUPT
+         DS.L    1              152  $98  USER INTERRUPT
+         DS.L    1              153  $99  USER INTERRUPT
+         DS.L    1              154  $9A  USER INTERRUPT
+         DS.L    1              155  $9B  USER INTERRUPT
+         DS.L    1              156  $9C  USER INTERRUPT
+         DS.L    1              157  $9D  USER INTERRUPT
+         DS.L    1              158  $9E  USER INTERRUPT
+         DS.L    1              159  $9F  USER INTERRUPT
+         DS.L    1              160  $A0  USER INTERRUPT
+         DS.L    1              161  $A1  USER INTERRUPT
+         DS.L    1              162  $A2  USER INTERRUPT
+         DS.L    1              163  $A3  USER INTERRUPT
+         DS.L    1              164  $A4  USER INTERRUPT
+         DS.L    1              165  $A5  USER INTERRUPT
+         DS.L    1              166  $A6  USER INTERRUPT
+         DS.L    1              167  $A7  USER INTERRUPT
+         DS.L    1              168  $A8  USER INTERRUPT
+         DS.L    1              169  $A9  USER INTERRUPT
+         DS.L    1              170  $AA  USER INTERRUPT
+         DS.L    1              171  $AB  USER INTERRUPT
+         DS.L    1              172  $AC  USER INTERRUPT
+         DS.L    1              173  $AD  USER INTERRUPT
+         DS.L    1              174  $AE  USER INTERRUPT
+         DS.L    1              175  $AF  USER INTERRUPT
+         DS.L    1              176  $B0  USER INTERRUPT
+         DS.L    1              177  $B1  USER INTERRUPT
+         DS.L    1              178  $B2  USER INTERRUPT
+         DS.L    1              179  $B3  USER INTERRUPT
+         DS.L    1              180  $B4  USER INTERRUPT
+         DS.L    1              181  $B5  USER INTERRUPT
+         DS.L    1              182  $B6  USER INTERRUPT
+         DS.L    1              183  $B7  USER INTERRUPT
+         DS.L    1              184  $B8  USER INTERRUPT
+         DS.L    1              185  $B9  USER INTERRUPT
+         DS.L    1              186  $BA  USER INTERRUPT
+         DS.L    1              187  $BB  USER INTERRUPT
+         DS.L    1              188  $BC  USER INTERRUPT
+         DS.L    1              189  $BD  USER INTERRUPT
+         DS.L    1              190  $BE  USER INTERRUPT
+         DS.L    1              191  $BF  USER INTERRUPT
+         DS.L    1              192  $C0  USER INTERRUPT
+         DS.L    1              193  $C1  USER INTERRUPT
+         DS.L    1              194  $C2  USER INTERRUPT
+         DS.L    1              195  $C3  USER INTERRUPT
+         DS.L    1              196  $C4  USER INTERRUPT
+         DS.L    1              197  $C5  USER INTERRUPT
+         DS.L    1              198  $C6  USER INTERRUPT
+         DS.L    1              199  $C7  USER INTERRUPT
+         DS.L    1              200  $C8  USER INTERRUPT
+         DS.L    1              201  $C9  USER INTERRUPT
+         DS.L    1              202  $CA  USER INTERRUPT
+         DS.L    1              203  $CB  USER INTERRUPT
+         DS.L    1              204  $CC  USER INTERRUPT
+         DS.L    1              205  $CD  USER INTERRUPT
+         DS.L    1              206  $CE  USER INTERRUPT
+         DS.L    1              207  $CF  USER INTERRUPT
+         DS.L    1              208  $D0  USER INTERRUPT
+         DS.L    1              209  $D1  USER INTERRUPT
+         DS.L    1              210  $D2  USER INTERRUPT
+         DS.L    1              211  $D3  USER INTERRUPT
+         DS.L    1              212  $D4  USER INTERRUPT
+         DS.L    1              213  $D5  USER INTERRUPT
+         DS.L    1              214  $D6  USER INTERRUPT
+         DS.L    1              215  $D7  USER INTERRUPT
+         DS.L    1              216  $D8  USER INTERRUPT
+         DS.L    1              217  $D9  USER INTERRUPT
+         DS.L    1              218  $DA  USER INTERRUPT
+         DS.L    1              219  $DB  USER INTERRUPT
+         DS.L    1              220  $DC  USER INTERRUPT
+         DS.L    1              221  $DD  USER INTERRUPT
+         DS.L    1              222  $DE  USER INTERRUPT
+         DS.L    1              223  $DF  USER INTERRUPT
+         DS.L    1              224  $E0  USER INTERRUPT
+         DS.L    1              225  $E1  USER INTERRUPT
+         DS.L    1              226  $E2  USER INTERRUPT
+         DS.L    1              227  $E3  USER INTERRUPT
+         DS.L    1              228  $E4  USER INTERRUPT
+         DS.L    1              229  $E5  USER INTERRUPT
+         DS.L    1              230  $E6  USER INTERRUPT
+         DS.L    1              231  $E7  USER INTERRUPT
+         DS.L    1              232  $E8  USER INTERRUPT
+         DS.L    1              233  $E9  USER INTERRUPT
+         DS.L    1              234  $EA  USER INTERRUPT
+         DS.L    1              235  $EB  USER INTERRUPT
+         DS.L    1              236  $EC  USER INTERRUPT
+         DS.L    1              237  $ED  USER INTERRUPT
+         DS.L    1              238  $EE  USER INTERRUPT
+         DS.L    1              239  $EF  USER INTERRUPT
+         DS.L    1              240  $F0  USER INTERRUPT
+         DS.L    1              241  $F1  USER INTERRUPT
+         DS.L    1              242  $F2  USER INTERRUPT
+         DS.L    1              243  $F3  USER INTERRUPT
+         DS.L    1              244  $F4  USER INTERRUPT
+         DS.L    1              245  $F5  USER INTERRUPT
+         DS.L    1              246  $F6  USER INTERRUPT
+         DS.L    1              247  $F7  USER INTERRUPT
+         DS.L    1              248  $F8  USER INTERRUPT
+         DS.L    1              249  $F9  USER INTERRUPT
+         DS.L    1              250  $FA  USER INTERRUPT
+         DS.L    1              251  $FB  USER INTERRUPT
+         DS.L    1              252  $FC  USER INTERRUPT
+         DS.L    1              253  $FD  USER INTERRUPT
+         DS.L    1              254  $FE  USER INTERRUPT
+         DS.L    1              255  $FF  USER INTERRUPT
+*    
 * Use this value to run out of RAM
 *	ORG		$000800			* past the vectors in a real system
 
-ACIA_1   =      $00010040        * Console ACIA base address
-ACIA_2   =      $00010041        * Auxiliary ACIA base address
-
-         BRA    code_start       * For convenience, so you can start from first address
+ACIA_1   =      $00020000        * Console ACIA base address
+ACIA_2   =      $000F0041        * Auxiliary ACIA base address
 
 *************************************************************************************
 *
@@ -101,7 +357,7 @@ TXNOTREADY
         MOVE.B   (A0),D1        * Read ACIA status
         BTST     #1,D1          * Test TDRE bit
         BEQ.S    TXNOTREADY     * Until ACIA Tx ready
-        MOVE.B   D0,2(A0)       * Write character to send
+        MOVE.B   D0,1(A0)       * Write character to send
         MOVEM.L  (A7)+,A0/D1    * Restore working registers
         RTS
 
@@ -116,7 +372,7 @@ TXNOTREADY1
         MOVE.B   (A0),D1        * Read ACIA status
         BTST     #1,D1          * Test TDRE bit
         BEQ.s    TXNOTREADY1    * Until ACIA Tx ready
-        MOVE.B   D0,2(A0)       * Write character to send
+        MOVE.B   D0,1(A0)       * Write character to send
         MOVEM.L  (A7)+,A0/D1    * Restore working registers
         RTS
 
@@ -159,7 +415,7 @@ VEC_IN
         MOVE.B   (A0),D1        * Read ACIA status
         BTST     #0,D1          * Test RDRF bit
         BEQ.S    RXNOTREADY     * Branch if ACIA Rx not ready
-        MOVE.B   2(A0),D0       * Read character received
+        MOVE.B   1(A0),D0       * Read character received
         MOVEM.L  (A7)+,A0/D1    * Restore working registers
         ORI.B    #1,CCR         * Set the carry, flag we got a byte
         RTS                     * Return
@@ -215,7 +471,7 @@ RXNOTREADY2
         MOVE.B   (A0),D1        * Read ACIA status
         BTST     #0,D1          * Test RDRF bit
         BEQ.S    RXNOTREADY2    * Branch if ACIA Rx not ready
-        MOVE.B   2(A0),D0       * Read character received
+        MOVE.B   1(A0),D0       * Read character received
 
 * Check for end of file character ('~') and if found, redirect
 * input back to console port.
@@ -541,7 +797,7 @@ LAB_UVER
 	ADD.l		d0,d0				* .......$ .......& ........ .......0
 	SWAP		d0				* ........ .......0 .......$ .......&
 	ROR.b		#1,d0				* ........ .......0 .......$ &.......
-	LSR.w		#1,d0				* ........ .......0 0....... $&.....­.
+	LSR.w		#1,d0				* ........ .......0 0....... $&.....ï¿½.
 	AND.b		#$C0,d0			* mask the type bits
 	MOVE.b	d0,Dtypef(a3)		* save the data type
 
@@ -1801,8 +2057,8 @@ LAB_174B
 
 LAB_174E
 	MOVE.b	(a5)+,d0			* faster increment past THEN
-	MOVEQ		#TK_ELSE,d3			* set search for ELSE token
-	MOVEQ		#TK_IF,d4			* set search for IF token
+	MOVEQ		#-87,d3			* set search for ELSE token
+	MOVEQ		#-117,d4			* set search for IF token
 	MOVEQ		#0,d5				* clear the nesting depth
 LAB_1750
 	MOVE.b	(a5)+,d0			* get next BASIC byte & increment ptr
@@ -2914,7 +3170,7 @@ LAB_GBYT
 	CMP.b		#$3A,d0			* compare with ":"
 	BCC.s		RTS_001			* exit if >= (not numeric, carry clear)
 
-	MOVEQ		#$D0,d6			* set -"0"
+	MOVEQ		#-48,d6			* set -"0"
 	ADD.b		d6,d0				* add -"0"
 	SUB.b		d6,d0				* subtract -"0"
 RTS_001						* carry set if byte = "0"-"9"
@@ -3560,7 +3816,7 @@ LAB_1DD7
 	ADD.l		d1,d1				* .......$ .......& ........ .......0
 	SWAP		d1				* ........ .......0 .......$ .......&
 	ROR.b		#1,d1				* ........ .......0 .......$ &.......
-	LSR.w		#1,d1				* ........ .......0 0....... $&.....­.
+	LSR.w		#1,d1				* ........ .......0 0....... $&.....ï¿½.
 	AND.b		#$C0,d1			* mask the type bits
 	MOVE.b	d1,Dtypef(a3)		* save the data type
 
@@ -4707,7 +4963,7 @@ LAB_GTBY
 LAB_EVBY
 	BSR		LAB_EVPI			* evaluate positive integer expression
 							* result in d0 and Itemp
-	MOVEQ		#$80,d1			* set mask/2
+	MOVEQ		#-128,d1			* set mask/2
 	ADD.l		d1,d1				* =$FFFFFF00
 	AND.l		d0,d1				* check top 24 bits
 	BNE		LAB_FCER			* if <> 0 do function call error/warm start
@@ -5820,7 +6076,7 @@ LAB_2831
 	BEQ.s		LAB_284J			* branch if mantissa = 0
 
 	MOVE.l	d1,-(sp)			* save d1
-	MOVEQ		#$A0,d1			* set for no floating bits
+	MOVEQ		#-96,d1			* set for no floating bits
 	SUB.b		FAC1_e(a3),d1		* subtract FAC1 exponent
 	BCS		LAB_OFER			* do overflow if too big
 
@@ -5858,7 +6114,7 @@ LAB_284J
 * perform INT()
 
 LAB_INT
-	MOVEQ		#$A0,d0			* set for no floating bits
+	MOVEQ		#-96,d0			* set for no floating bits
 	SUB.b		FAC1_e(a3),d0		* subtract FAC1 exponent
 	BLS.s		LAB_IRTS			* exit if exponent >= $A0
 							* (too big for fraction part!)
@@ -6661,7 +6917,7 @@ LAB_ATGO
 	MOVE.b	#$FF,cosout(a3)		* set inverse result needed
 LAB_ATLE
 	MOVE.l	FAC1_m(a3),d0		* get FAC1 mantissa
-	MOVEQ		#$82,d1			* set to correct exponent
+	MOVEQ		#-126,d1			* set to correct exponent
 	SUB.b		FAC1_e(a3),d1		* subtract FAC1 exponent (always <= 1)
 	LSR.l		d1,d0				* shift in two integer part bits
 	LEA		TAB_ATNC(pc),a0		* get pointer to arctan table
