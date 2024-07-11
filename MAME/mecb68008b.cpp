@@ -35,8 +35,8 @@ private:
 void mecb68008b_state::mecb68008b_mem(address_map &map)
 {
 	map.unmap_value_high();
-	map(0x000000, 0x003fff).rom();
-	map(0x004000, 0x01ffff).ram();
+	map(0x000000, 0x007fff).rom();
+	map(0x008000, 0x01ffff).ram();
 	map(0x020000, 0x020003).rw("acia", FUNC(acia6850_device::read), FUNC(acia6850_device::write)); //.umask16(0x00ff);
 }
 
@@ -73,9 +73,9 @@ void mecb68008b_state::mecb68008b(machine_config &config)
 }
 
 ROM_START(mecb68008b)
-	ROM_REGION(0x4000, "maincpu", 0)
+	ROM_REGION(0x8000, "maincpu", 0)
 //    ROM_LOAD("t68k.bin",   0x00000, 0x2f78, CRC(20a8d0d0) SHA1(544fd8bd8ed017115388c8b0f7a7a59a32253e43) )
-	ROM_LOAD("mecb68008b.bin",   0x00000, 0x4000, CRC(ef5536dc) SHA1(5ec80648f04f2949dcb51e63eadb9619af7c7935) )
+	ROM_LOAD("mecb68008b.bin",   0x00000, 0x8000, CRC(f2026990) SHA1(d8d45dda31d5513f233b19d1e7425571f61061ee) )
 ROM_END
 
 } // anonymous namespace

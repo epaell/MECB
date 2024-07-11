@@ -1,6 +1,6 @@
 * THIS VERSION MODIFIED FOR TEESSIDE X68K PC-2.2 CROSS ASSEMBLER
 *     ftp://nyquist.ee.ualberta.ca/pub/motorola/m68k/x68k.zip
-
+*
 *     CHANGES FROM ORIGINAL MOTOROLA SOURCE:
 *         MANY "MOVE.L" CHANGED TO "MOVEQ"
 *             SIMILAR CHANGES ON A FEW OTHER COMMANDS WHERE
@@ -11,6 +11,7 @@
 *     ONE DIFFERENCE REMAINS IN A "DON'T CARE" BYTE
 *         $008FE0 1A3C00FF  MOVE.B  #-1,D5
 *                     ^^ $00 INSTEAD OF $FF
+* SUBSEQUENTLY MODIFIED FOR USE ON DIGICOOL THING MECB 68008 (EMULATED)
 
 *=======================================================================*
 * MOTOROLA EDUCATION COMPUTER BOARD ROM PROGRAM "TUTOR"  REVISION # 1.3 *
@@ -37,6 +38,8 @@ SV\@     DS      0
 
 
 *-------------------------------------------------------------------------
+
+RAM_START EQU   $8000
 
 * EQUATES (in alphabetical order)
 
@@ -66,7 +69,7 @@ RESET    EQU     $43            MASTER RESET FOR ACIA
 *  N O T E:  Ram locations:   starting at zero                 *
 ****************************************************************
 
-         ORG     $004000
+         ORG     RAM_START
 
 *                               DEC HEX  DESCRIPTION
          DS.L    1              0   $00  AREA OVERLAID BY ROM SR
@@ -374,6 +377,7 @@ OPTIONS  DS.W    0              FORCE WORD BOUNDRY
          DS.B    1              SHORT FORM REGISTER DISPLAY
          DS.B    1              TM  trailing character
          DS.B    1              TM  exit character
+
 XONOFF   EQU     OPTIONS
 TMCHARS  EQU     OPTIONS+4
 
@@ -482,8 +486,263 @@ LDATA    EQU     $FFFFFFC4      DS.B    1
 
          ORG     $00000
 
-FIRST    DC.L    REGA7          SUPERVISOR STACK
-         DC.L    START          PROGRAM COUNTER
+FIRST    DC.L    REGA7              ; 0   $00  SR
+         DC.L    START              ; 1   $01  RESET
+         DC.L    BERRMSG            ; 2   $02  BUS ERROR            "BUS "
+         DC.L    ADDRMSG            ; 3   $03  ADDRESS ERROR        "ADDR"
+         DC.L    VECT               ; 4   $04  ILL INSTRUCTION      "OPCO"
+         DC.L    VECT5              ; 5   $05  DIVIDE BY ZERO       "DIV0"
+         DC.L    VECT6              ; 6   $06  CHECK TRAP           "CHCK"
+         DC.L    VECT7              ; 7   $07  TRAP V               "TP V"
+         DC.L    VECT8              ; 8   $08  PRIVILEDGE VIOLATION "PRIV"
+         DC.L    TRACE              ; 9   $09  TRACE
+         DC.L    VECT10             ; 10  $0A  1010 LINE EMULATION  "1010"
+         DC.L    VECT11             ; 11  $0B  1111 LINE EMULATION  "1111"
+         DS.L    1              12  $0C  UNASSIGNED
+         DS.L    1              13  $0D  UNASSIGNED
+         DS.L    1              14  $0E  UNASSIGNED
+         DS.L    1              15  $0F  UNINITIALIZED INTERRUPT VECTOR
+         DS.L    1              16  $10  UNASSIGNED
+         DS.L    1              17  $11  UNASSIGNED
+         DS.L    1              18  $12  UNASSIGNED
+         DS.L    1              19  $13  UNASSIGNED
+         DS.L    1              20  $14  UNASSIGNED
+         DS.L    1              21  $15  UNASSIGNED
+         DS.L    1              22  $16  UNASSIGNED
+         DS.L    1              23  $17  UNASSIGNED
+         DC.L    VECT24         24  $18  SPURIOUS INTERRUPT
+         DC.L    VECT25         25  $19  LEVEL 1 INTERRUPT
+         DC.L    VECT26         26  $1A  LEVEL 2 INTERRUPT
+         DC.L    VECT27         27  $1B  LEVEL 3 INTERRUPT
+         DC.L    VECT28         28  $1C  LEVEL 4 INTERRUPT
+         DC.L    VECT29         29  $1D  LEVEL 5 INTERRUPT
+         DC.L    VECT30         30  $1E  LEVEL 6 INTERRUPT
+         DC.L    VECT31         31  $1F  LEVEL 7 INTERRUPT
+         DC.L    VECT32         32  $20   TRAP  0
+         DC.L    VECT33         33  $21   TRAP  1
+         DC.L    VECT34         34  $22   TRAP  2
+         DC.L    VECT35         35  $23   TRAP  3
+         DC.L    VECT36         36  $24   TRAP  4
+         DC.L    VECT37         37  $25   TRAP  5
+         DC.L    VECT38         38  $26   TRAP  6
+         DC.L    VECT39         39  $27   TRAP  7
+         DC.L    VECT40         40  $28   TRAP  8
+         DC.L    VECT41         41  $29   TRAP  9
+         DC.L    VECT42         42  $2A   TRAP 10
+         DC.L    VECT43         43  $2B   TRAP 11
+         DC.L    VECT44         44  $2C   TRAP 12
+         DC.L    VECT45         45  $2D   TRAP 13
+         DC.L    VECT46         46  $2E   TRAP 14
+         DC.L    VECT47         47  $2F   TRAP 15
+         DS.L    1              48  $30   UNASSIGNED
+         DS.L    1              49  $31   UNASSIGNED
+         DS.L    1              50  $32   UNASSIGNED
+         DS.L    1              51  $33   UNASSIGNED
+         DS.L    1              52  $34   UNASSIGNED
+         DS.L    1              53  $35   UNASSIGNED
+         DS.L    1              54  $36   UNASSIGNED
+         DS.L    1              55  $37   UNASSIGNED
+         DS.L    1              56  $38   UNASSIGNED
+         DS.L    1              57  $39   UNASSIGNED
+         DS.L    1              58  $3A   UNASSIGNED
+         DS.L    1              59  $3B   UNASSIGNED
+         DS.L    1              60  $3C   UNASSIGNED
+         DS.L    1              61  $3D   UNASSIGNED
+         DS.L    1              62  $3E   UNASSIGNED
+         DS.L    1              63  $3F   UNASSIGNED
+         DS.L    1              64  $40   USER INTERRUPT
+         DS.L    1              65  $41   USER INTERRUPT
+         DS.L    1              66  $42   USER INTERRUPT
+         DS.L    1              67  $43   USER INTERRUPT
+         DS.L    1              68  $44   USER INTERRUPT
+         DS.L    1              69  $45   USER INTERRUPT
+         DS.L    1              70  $46   USER INTERRUPT
+         DS.L    1              71  $47   USER INTERRUPT
+         DS.L    1              72  $48   USER INTERRUPT
+         DS.L    1              73  $49   USER INTERRUPT
+         DS.L    1              74  $4A   USER INTERRUPT
+         DS.L    1              75  $4B   USER INTERRUPT
+         DS.L    1              76  $4C   USER INTERRUPT
+         DS.L    1              77  $4D   USER INTERRUPT
+         DS.L    1              78  $4E   USER INTERRUPT
+         DS.L    1              79  $4F   USER INTERRUPT
+         DS.L    1              80  $50   USER INTERRUPT
+         DS.L    1              81  $51   USER INTERRUPT
+         DS.L    1              82  $52   USER INTERRUPT
+         DS.L    1              83  $53   USER INTERRUPT
+         DS.L    1              84  $54   USER INTERRUPT
+         DS.L    1              85  $55   USER INTERRUPT
+         DS.L    1              86  $56   USER INTERRUPT
+         DS.L    1              87  $57   USER INTERRUPT
+         DS.L    1              88  $58   USER INTERRUPT
+         DS.L    1              89  $59   USER INTERRUPT
+         DS.L    1              90  $5A   USER INTERRUPT
+         DS.L    1              91  $5B   USER INTERRUPT
+         DS.L    1              92  $5C   USER INTERRUPT
+         DS.L    1              93  $5D   USER INTERRUPT
+         DS.L    1              94  $5E   USER INTERRUPT
+         DS.L    1              95  $5F   USER INTERRUPT
+         DS.L    1              96  $60   USER INTERRUPT
+         DS.L    1              97  $61   USER INTERRUPT
+         DS.L    1              98  $62   USER INTERRUPT
+         DS.L    1              99  $63   USER INTERRUPT
+         DS.L    1              100  $64  USER INTERRUPT
+         DS.L    1              101  $65  USER INTERRUPT
+         DS.L    1              102  $66  USER INTERRUPT
+         DS.L    1              103  $67  USER INTERRUPT
+         DS.L    1              104  $68  USER INTERRUPT
+         DS.L    1              105  $69  USER INTERRUPT
+         DS.L    1              106  $6A  USER INTERRUPT
+         DS.L    1              107  $6B  USER INTERRUPT
+         DS.L    1              108  $6C  USER INTERRUPT
+         DS.L    1              109  $6D  USER INTERRUPT
+         DS.L    1              110  $6E  USER INTERRUPT
+         DS.L    1              111  $6F  USER INTERRUPT
+         DS.L    1              112  $70  USER INTERRUPT
+         DS.L    1              113  $71  USER INTERRUPT
+         DS.L    1              114  $72  USER INTERRUPT
+         DS.L    1              115  $73  USER INTERRUPT
+         DS.L    1              116  $74  USER INTERRUPT
+         DS.L    1              117  $75  USER INTERRUPT
+         DS.L    1              118  $76  USER INTERRUPT
+         DS.L    1              119  $77  USER INTERRUPT
+         DS.L    1              120  $78  USER INTERRUPT
+         DS.L    1              121  $79  USER INTERRUPT
+         DS.L    1              122  $7A  USER INTERRUPT
+         DS.L    1              123  $7B  USER INTERRUPT
+         DS.L    1              124  $7C  USER INTERRUPT
+         DS.L    1              125  $7D  USER INTERRUPT
+         DS.L    1              126  $7E  USER INTERRUPT
+         DS.L    1              127  $7F  USER INTERRUPT
+         DS.L    1              128  $80  USER INTERRUPT
+         DS.L    1              129  $81  USER INTERRUPT
+         DS.L    1              130  $82  USER INTERRUPT
+         DS.L    1              131  $83  USER INTERRUPT
+         DS.L    1              132  $84  USER INTERRUPT
+         DS.L    1              133  $85  USER INTERRUPT
+         DS.L    1              134  $86  USER INTERRUPT
+         DS.L    1              135  $87  USER INTERRUPT
+         DS.L    1              136  $88  USER INTERRUPT
+         DS.L    1              137  $89  USER INTERRUPT
+         DS.L    1              138  $8A  USER INTERRUPT
+         DS.L    1              139  $8B  USER INTERRUPT
+         DS.L    1              140  $8C  USER INTERRUPT
+         DS.L    1              141  $8D  USER INTERRUPT
+         DS.L    1              142  $8E  USER INTERRUPT
+         DS.L    1              143  $8F  USER INTERRUPT
+         DS.L    1              144  $90  USER INTERRUPT
+         DS.L    1              145  $91  USER INTERRUPT
+         DS.L    1              146  $92  USER INTERRUPT
+         DS.L    1              147  $93  USER INTERRUPT
+         DS.L    1              148  $94  USER INTERRUPT
+         DS.L    1              149  $95  USER INTERRUPT
+         DS.L    1              150  $96  USER INTERRUPT
+         DS.L    1              151  $97  USER INTERRUPT
+         DS.L    1              152  $98  USER INTERRUPT
+         DS.L    1              153  $99  USER INTERRUPT
+         DS.L    1              154  $9A  USER INTERRUPT
+         DS.L    1              155  $9B  USER INTERRUPT
+         DS.L    1              156  $9C  USER INTERRUPT
+         DS.L    1              157  $9D  USER INTERRUPT
+         DS.L    1              158  $9E  USER INTERRUPT
+         DS.L    1              159  $9F  USER INTERRUPT
+         DS.L    1              160  $A0  USER INTERRUPT
+         DS.L    1              161  $A1  USER INTERRUPT
+         DS.L    1              162  $A2  USER INTERRUPT
+         DS.L    1              163  $A3  USER INTERRUPT
+         DS.L    1              164  $A4  USER INTERRUPT
+         DS.L    1              165  $A5  USER INTERRUPT
+         DS.L    1              166  $A6  USER INTERRUPT
+         DS.L    1              167  $A7  USER INTERRUPT
+         DS.L    1              168  $A8  USER INTERRUPT
+         DS.L    1              169  $A9  USER INTERRUPT
+         DS.L    1              170  $AA  USER INTERRUPT
+         DS.L    1              171  $AB  USER INTERRUPT
+         DS.L    1              172  $AC  USER INTERRUPT
+         DS.L    1              173  $AD  USER INTERRUPT
+         DS.L    1              174  $AE  USER INTERRUPT
+         DS.L    1              175  $AF  USER INTERRUPT
+         DS.L    1              176  $B0  USER INTERRUPT
+         DS.L    1              177  $B1  USER INTERRUPT
+         DS.L    1              178  $B2  USER INTERRUPT
+         DS.L    1              179  $B3  USER INTERRUPT
+         DS.L    1              180  $B4  USER INTERRUPT
+         DS.L    1              181  $B5  USER INTERRUPT
+         DS.L    1              182  $B6  USER INTERRUPT
+         DS.L    1              183  $B7  USER INTERRUPT
+         DS.L    1              184  $B8  USER INTERRUPT
+         DS.L    1              185  $B9  USER INTERRUPT
+         DS.L    1              186  $BA  USER INTERRUPT
+         DS.L    1              187  $BB  USER INTERRUPT
+         DS.L    1              188  $BC  USER INTERRUPT
+         DS.L    1              189  $BD  USER INTERRUPT
+         DS.L    1              190  $BE  USER INTERRUPT
+         DS.L    1              191  $BF  USER INTERRUPT
+         DS.L    1              192  $C0  USER INTERRUPT
+         DS.L    1              193  $C1  USER INTERRUPT
+         DS.L    1              194  $C2  USER INTERRUPT
+         DS.L    1              195  $C3  USER INTERRUPT
+         DS.L    1              196  $C4  USER INTERRUPT
+         DS.L    1              197  $C5  USER INTERRUPT
+         DS.L    1              198  $C6  USER INTERRUPT
+         DS.L    1              199  $C7  USER INTERRUPT
+         DS.L    1              200  $C8  USER INTERRUPT
+         DS.L    1              201  $C9  USER INTERRUPT
+         DS.L    1              202  $CA  USER INTERRUPT
+         DS.L    1              203  $CB  USER INTERRUPT
+         DS.L    1              204  $CC  USER INTERRUPT
+         DS.L    1              205  $CD  USER INTERRUPT
+         DS.L    1              206  $CE  USER INTERRUPT
+         DS.L    1              207  $CF  USER INTERRUPT
+         DS.L    1              208  $D0  USER INTERRUPT
+         DS.L    1              209  $D1  USER INTERRUPT
+         DS.L    1              210  $D2  USER INTERRUPT
+         DS.L    1              211  $D3  USER INTERRUPT
+         DS.L    1              212  $D4  USER INTERRUPT
+         DS.L    1              213  $D5  USER INTERRUPT
+         DS.L    1              214  $D6  USER INTERRUPT
+         DS.L    1              215  $D7  USER INTERRUPT
+         DS.L    1              216  $D8  USER INTERRUPT
+         DS.L    1              217  $D9  USER INTERRUPT
+         DS.L    1              218  $DA  USER INTERRUPT
+         DS.L    1              219  $DB  USER INTERRUPT
+         DS.L    1              220  $DC  USER INTERRUPT
+         DS.L    1              221  $DD  USER INTERRUPT
+         DS.L    1              222  $DE  USER INTERRUPT
+         DS.L    1              223  $DF  USER INTERRUPT
+         DS.L    1              224  $E0  USER INTERRUPT
+         DS.L    1              225  $E1  USER INTERRUPT
+         DS.L    1              226  $E2  USER INTERRUPT
+         DS.L    1              227  $E3  USER INTERRUPT
+         DS.L    1              228  $E4  USER INTERRUPT
+         DS.L    1              229  $E5  USER INTERRUPT
+         DS.L    1              230  $E6  USER INTERRUPT
+         DS.L    1              231  $E7  USER INTERRUPT
+         DS.L    1              232  $E8  USER INTERRUPT
+         DS.L    1              233  $E9  USER INTERRUPT
+         DS.L    1              234  $EA  USER INTERRUPT
+         DS.L    1              235  $EB  USER INTERRUPT
+         DS.L    1              236  $EC  USER INTERRUPT
+         DS.L    1              237  $ED  USER INTERRUPT
+         DS.L    1              238  $EE  USER INTERRUPT
+         DS.L    1              239  $EF  USER INTERRUPT
+         DS.L    1              240  $F0  USER INTERRUPT
+         DS.L    1              241  $F1  USER INTERRUPT
+         DS.L    1              242  $F2  USER INTERRUPT
+         DS.L    1              243  $F3  USER INTERRUPT
+         DS.L    1              244  $F4  USER INTERRUPT
+         DS.L    1              245  $F5  USER INTERRUPT
+         DS.L    1              246  $F6  USER INTERRUPT
+         DS.L    1              247  $F7  USER INTERRUPT
+         DS.L    1              248  $F8  USER INTERRUPT
+         DS.L    1              249  $F9  USER INTERRUPT
+         DS.L    1              250  $FA  USER INTERRUPT
+         DS.L    1              251  $FB  USER INTERRUPT
+         DS.L    1              252  $FC  USER INTERRUPT
+         DS.L    1              253  $FD  USER INTERRUPT
+         DS.L    1              254  $FE  USER INTERRUPT
+         DS.L    1              255  $FF  USER INTERRUPT
+
 V2       BRA     TRACE
 
 
@@ -987,97 +1246,97 @@ VECTI2   MOVE.L  A0,(A1)+       MOVE ADDRESS TO VECTOR
 VECT     MOVE.L  #'OPCO',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT5
-         MOVE.L  #'DIV0',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT5    MOVE.L  #'DIV0',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT5
-         MOVE.L  #'CHCK',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT6    MOVE.L  #'CHCK',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT5
-         MOVE.L  #'TP V',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT7    MOVE.L  #'TP V',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT5
-         MOVE.L  #'PRIV',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT8    MOVE.L  #'PRIV',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT5
-         MOVE.L  #'TRAC',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT9    MOVE.L  #'TRAC',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT5
-         MOVE.L  #'1010',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT10   MOVE.L  #'1010',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT5
-         MOVE.L  #'1111',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT11   MOVE.L  #'1111',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT5
-         MOVE.L  #'SPUR',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT24   MOVE.L  #'SPUR',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
 EVECT5   BRA.S   EVECT6
-         MOVE.L  #'AV#1',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT25   MOVE.L  #'AV#1',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT6
-         MOVE.L  #'AV#2',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT26   MOVE.L  #'AV#2',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT6
-         MOVE.L  #'AV#3',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT27   MOVE.L  #'AV#3',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT6
-         MOVE.L  #'AV#4',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT28   MOVE.L  #'AV#4',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT6
-         MOVE.L  #'AV#5',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT29   MOVE.L  #'AV#5',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT6
-         MOVE.L  #'AV#6',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT30   MOVE.L  #'AV#6',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT6
-         MOVE.L  #'AV#7',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT31   MOVE.L  #'AV#7',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
 EVECT6   BRA.S   EVECT7
-         MOVE.L  #'UT 0',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT32   MOVE.L  #'UT 0',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT7
-         MOVE.L  #'UT 1',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT33   MOVE.L  #'UT 1',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT7
-         MOVE.L  #'UT 2',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT34   MOVE.L  #'UT 2',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT7
-         MOVE.L  #'UT 3',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT35   MOVE.L  #'UT 3',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT7
-         MOVE.L  #'UT 4',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT36   MOVE.L  #'UT 4',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT7
-         MOVE.L  #'UT 5',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT37   MOVE.L  #'UT 5',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT7
-         MOVE.L  #'UT 6',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT38   MOVE.L  #'UT 6',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT7
-         MOVE.L  #'UT 7',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT39   MOVE.L  #'UT 7',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
 EVECT7   BRA.S   EVECT
-         MOVE.L  #'UT 8',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT40   MOVE.L  #'UT 8',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT
-         MOVE.L  #'UT 9',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT41   MOVE.L  #'UT 9',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT
-         MOVE.L  #'UT A',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT42   MOVE.L  #'UT A',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT
-         MOVE.L  #'UT B',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT43   MOVE.L  #'UT B',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT
-         MOVE.L  #'UT C',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT44   MOVE.L  #'UT C',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT
-         MOVE.L  #'UT D',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT45   MOVE.L  #'UT D',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BRA.S   EVECT
-         MOVE.L  #'UT E',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT46   MOVE.L  #'UT E',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
          BSR.S   EVECT
-         MOVE.L  #'UT F',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
+VECT47   MOVE.L  #'UT F',$30    MOVE TO $30, USE SHORT BRANCHES AND PRINT IT
 
 
 *

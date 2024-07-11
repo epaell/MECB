@@ -88,8 +88,8 @@ load_filename  = $05EC
 prg_strt    = $05EC
 
 * Use these two lines when running from ROM
-ram_addr	EQU	$04000		* RAM start address
-ram_size	EQU	$1C000		* RAM size
+ram_addr	EQU	$08000		* RAM start address
+ram_size	EQU	$18000		* RAM size
 
 * Use these two lines when running from RAM
 *ram_addr	EQU	$04000		* RAM start address

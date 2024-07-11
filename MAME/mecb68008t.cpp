@@ -14,29 +14,29 @@
 
 namespace {
 
-class mecb68008_state : public driver_device
+class mecb68008t_state : public driver_device
 {
 public:
-	mecb68008_state(const machine_config &mconfig, device_type type, const char *tag)
+	mecb68008t_state(const machine_config &mconfig, device_type type, const char *tag)
 		: driver_device(mconfig, type, tag)
 		, m_maincpu(*this, "maincpu")
 		, m_acia(*this, "acia")
 	{ }
 
-	void mecb68008(machine_config &config);
+	void mecb68008t(machine_config &config);
 
 private:
-	void mecb68008_mem(address_map &map);
+	void mecb68008t_mem(address_map &map);
 
 	required_device<cpu_device> m_maincpu;
 	required_device<acia6850_device> m_acia;
 };
 
-void mecb68008_state::mecb68008_mem(address_map &map)
+void mecb68008t_state::mecb68008t_mem(address_map &map)
 {
 	map.unmap_value_high();
-	map(0x000000, 0x003fff).rom();
-	map(0x004000, 0x01ffff).ram();
+	map(0x000000, 0x007fff).rom();
+	map(0x008000, 0x01ffff).ram();
 	map(0x020000, 0x020003).rw("acia", FUNC(acia6850_device::read), FUNC(acia6850_device::write)); //.umask16(0x00ff);
 }
 
@@ -49,11 +49,11 @@ static DEVICE_INPUT_DEFAULTS_START( terminal )
 	DEVICE_INPUT_DEFAULTS( "RS232_STOPBITS", 0xff, RS232_STOPBITS_1 )
 DEVICE_INPUT_DEFAULTS_END
 
-void mecb68008_state::mecb68008(machine_config &config)
+void mecb68008t_state::mecb68008t(machine_config &config)
 {
 	/* basic machine hardware */
 	M68008(config, m_maincpu, XTAL(8'000'000));
-	m_maincpu->set_addrmap(AS_PROGRAM, &mecb68008_state::mecb68008_mem);
+	m_maincpu->set_addrmap(AS_PROGRAM, &mecb68008t_state::mecb68008t_mem);
 
 	// Configure UART (via m_acia)
 	ACIA6850(config, m_acia, 0);
@@ -72,14 +72,14 @@ void mecb68008_state::mecb68008(machine_config &config)
 
 }
 
-ROM_START(mecb68008)
-	ROM_REGION(0x4000, "maincpu", 0)
+ROM_START(mecb68008t)
+	ROM_REGION(0x8000, "maincpu", 0)
 //    ROM_LOAD("t68k.bin",   0x00000, 0x2f78, CRC(20a8d0d0) SHA1(544fd8bd8ed017115388c8b0f7a7a59a32253e43) )
-	ROM_LOAD("mecb68008t.bin",   0x00000, 0x4000, CRC(c4673c66) SHA1(ffbb6aa9aea5337f368320e28483357ccd72bf0b) )
+	ROM_LOAD("mecb68008t.bin",   0x00000, 0x8000, CRC(8dd8e099) SHA1(4a93779a3bf8fa81174ead0bf05b285653e363ef) )
 ROM_END
 
 } // anonymous namespace
 
 
 //    YEAR  NAME         PARENT    COMPAT  MACHINE   INPUT    CLASS         INIT           COMPANY           FULLNAME                FLAGS
-COMP( 2024, mecb68008,      0,        0,      mecb68008, 0,  mecb68008_state, empty_init,    "DigicoolThings",   "MECB 68008 zBug",  MACHINE_NO_SOUND_HW )
+COMP( 2024, mecb68008t,      0,        0,      mecb68008t, 0,  mecb68008t_state, empty_init,    "DigicoolThings",   "MECB 68008 Tutor",  MACHINE_NO_SOUND_HW )

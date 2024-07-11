@@ -5,9 +5,9 @@ The modified code assumes the following MECB set-up:
 
 MECB Memory map
 
-    $00000-$03FFF ROM
+    $00000-$07FFF ROM
     
-    $04000-$1FFFF RAM
+    $08000-$1FFFF RAM
     $20000-$20100 I/O
     
         $20000-$20001 ACIA (Note that the ACIA on the 68000 was original set up on even bytes only).
