@@ -490,7 +490,7 @@ FIRST    DC.L    REGA7              ; 0   $00  SR
          DC.L    START              ; 1   $01  RESET
          DC.L    BERRMSG            ; 2   $02  BUS ERROR            "BUS "
          DC.L    ADDRMSG            ; 3   $03  ADDRESS ERROR        "ADDR"
-         DC.L    VECT               ; 4   $04  ILL INSTRUCTION      "OPCO"
+         DC.L    CHKBP              ; 4   $04  ILL INSTRUCTION      "OPCO"
          DC.L    VECT5              ; 5   $05  DIVIDE BY ZERO       "DIV0"
          DC.L    VECT6              ; 6   $06  CHECK TRAP           "CHCK"
          DC.L    VECT7              ; 7   $07  TRAP V               "TP V"
@@ -517,7 +517,7 @@ FIRST    DC.L    REGA7              ; 0   $00  SR
          DC.L    VECT28         28  $1C  LEVEL 4 INTERRUPT
          DC.L    VECT29         29  $1D  LEVEL 5 INTERRUPT
          DC.L    VECT30         30  $1E  LEVEL 6 INTERRUPT
-         DC.L    VECT31         31  $1F  LEVEL 7 INTERRUPT
+         DC.L    ABORTB         31  $1F  LEVEL 7 INTERRUPT
          DC.L    VECT32         32  $20   TRAP  0
          DC.L    VECT33         33  $21   TRAP  1
          DC.L    VECT34         34  $22   TRAP  2
@@ -532,7 +532,7 @@ FIRST    DC.L    REGA7              ; 0   $00  SR
          DC.L    VECT43         43  $2B   TRAP 11
          DC.L    VECT44         44  $2C   TRAP 12
          DC.L    VECT45         45  $2D   TRAP 13
-         DC.L    VECT46         46  $2E   TRAP 14
+         DC.L    TRAP14         46  $2E   TRAP 14
          DC.L    VECT47         47  $2F   TRAP 15
          DS.L    1              48  $30   UNASSIGNED
          DS.L    1              49  $31   UNASSIGNED

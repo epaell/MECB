@@ -75,7 +75,7 @@ void mecb68008t_state::mecb68008t(machine_config &config)
 ROM_START(mecb68008t)
 	ROM_REGION(0x8000, "maincpu", 0)
 //    ROM_LOAD("t68k.bin",   0x00000, 0x2f78, CRC(20a8d0d0) SHA1(544fd8bd8ed017115388c8b0f7a7a59a32253e43) )
-	ROM_LOAD("mecb68008t.bin",   0x00000, 0x8000, CRC(8dd8e099) SHA1(4a93779a3bf8fa81174ead0bf05b285653e363ef) )
+	ROM_LOAD("mecb68008t.bin",   0x00000, 0x8000, CRC(0c8283f5) SHA1(7d824eee4818aaa69ca34ca9bbb79ffc40f847f7) )
 ROM_END
 
 } // anonymous namespace
