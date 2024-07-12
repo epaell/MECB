@@ -19690,8 +19690,14 @@ mecb6502b                       // DigicoolThings 6502 BASIC Machine
 @source:homebrew/mecb6809.cpp
 mecb6809                        // DigicoolThings 6809 Combo Machine
 
+@source:homebrew/mecbz80.cpp
+mecbz80                         // DigicoolThings Z80 Machine
+
 @source:homebrew/mecb68008.cpp
-mecb68008                       // DigicoolThings 68008 zBug Machine
+mecb68008                       // DigicoolThings 68008 Combo Machine
+
+@source:homebrew/mecb68008z.cpp
+mecb68008z                      // DigicoolThings 68008 zBug Machine
 
 @source:homebrew/mecb68008t.cpp
 mecb68008t                      // DigicoolThings 68008 Tutor Machine
