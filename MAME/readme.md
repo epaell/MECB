@@ -41,7 +41,7 @@ This emulates the MECB 6502 board with memory from 0x0000-0xBFFF; ROM from 0xE10
 This emulates the MECB 6809 board with memory from 0x0000-0xBFFF; ROM from 0xC100-0xFFFF; ACIA at 0xC008. The ROM contains the combination ROM with ASSIST09 and Extended BASIC.
 
 # mecb_Z80
-This emulates the MECB Z80 board with memory from 0x2000-0xFFFF; ROM from 0x0000-0x1EFF; ACIA at 0x1F08. The ROM contains Microsoft BASIC.
+This emulates the MECB Z80 board with memory from 0x2000-0xFFFF; ROM from 0x0000-0x1EFF; ACIA at 0x08 (assuming MECB I/O is mapped to Z80 I/O). The ROM contains Microsoft BASIC.
 
 cp $MAMESRC/mecbz80.cpp $MAMEDST/src/mame/homebrew/.
 

@@ -52,7 +52,7 @@ void mecbz80_state::mecbz80_io(address_map &map)
 {
 	map.global_mask(0xff);  // use 8-bit ports
 	map.unmap_value_high(); // unmapped addresses return 0xff
-	map(0x80, 0xbf).rw("acia", FUNC(acia6850_device::read), FUNC(acia6850_device::write));
+	map(0x08, 0x09).rw("acia", FUNC(acia6850_device::read), FUNC(acia6850_device::write));
 }
 
 // This is here only to configure our terminal for interactive use
@@ -95,7 +95,7 @@ void mecbz80_state::mecbz80(machine_config &config)
 // ROM mapping is trivial, this binary was created from the HEX file on Grant's website
 ROM_START(mecbz80)
 	ROM_REGION(0x2000, "maincpu",0)
-	ROM_LOAD("mecbz80.bin",   0x0000, 0x2000, CRC(56c4c440) SHA1(7aa2bb7403321579996d42238f2506342cd2bb92))
+	ROM_LOAD("mecbz80.bin",   0x0000, 0x2000, CRC(a1c0555e) SHA1(eb1687b2b7ac28b1eb60fd07301be5f18d3e89ce))
 ROM_END
 
 } // anonymous namespace

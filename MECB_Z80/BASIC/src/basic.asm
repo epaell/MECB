@@ -19,6 +19,7 @@
 ; Adapted for the freeware Zilog Macro Assembler 2.10 to produce
 ; the original ROM code (checksum A934H). PA
 
+ACIA    EQU     08H             ; Assume MECB ACIA mapped to $08 on I/O port
 ; GENERAL EQUATES
 
 CTRLC   EQU     03H             ; Control "C"
@@ -194,11 +195,11 @@ RST38            JR      serialInt
 serialInt:      PUSH     AF
                 PUSH     HL
 
-                IN       A,($80)
+                IN       A,(ACIA)
                 AND      $01             ; Check if interupt due to read buffer full
                 JR       Z,rts0          ; if not, ignore
 
-                IN       A,($81)
+                IN       A,(ACIA+1)
                 PUSH     AF
                 LD       A,(serBufUsed)
                 CP       SER_BUFSIZE     ; If full then ignore
@@ -221,7 +222,7 @@ notWrap:        LD       (serInPtr),HL
                 CP       SER_FULLSIZE
                 JR       C,rts0
                 LD       A,RTS_HIGH
-                OUT      ($80),A
+                OUT      (ACIA),A
 rts0:           POP      HL
                 POP      AF
                 EI
@@ -247,7 +248,7 @@ notRdWrap:      DI
                 CP       SER_EMPTYSIZE
                 JR       NC,rts1
                 LD       A,RTS_LOW
-                OUT      ($80),A
+                OUT      (ACIA),A
 rts1:
                 LD       A,(HL)
                 EI
@@ -256,11 +257,11 @@ rts1:
 
 ;------------------------------------------------------------------------------
 TXA:            PUSH     AF              ; Store character
-conout1:        IN       A,($80)         ; Status byte       
+conout1:        IN       A,(ACIA)        ; Status byte       
                 BIT      1,A             ; Set Zero flag if still transmitting character       
                 JR       Z,conout1       ; Loop until flag signals ready
                 POP      AF              ; Retrieve character
-                OUT      ($81),A         ; Output the character
+                OUT      (ACIA+1),A      ; Output the character
                 RET
 
 ;------------------------------------------------------------------------------
@@ -285,7 +286,7 @@ INIT0:
                XOR       A               ;0 to accumulator
                LD        (serBufUsed),A
                LD        A,RTS_LOW
-               OUT       ($80),A         ; Initialise ACIA
+               OUT       (ACIA),A         ; Initialise ACIA
                IM        1
                EI
                LD        HL,SIGNON1      ; Sign-on message
