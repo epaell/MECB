@@ -1,0 +1,1 @@
+vasm6502_mot -wdc02 -L timer.lst -Fihex -o timer.hex src/timer.asm  
