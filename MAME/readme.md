@@ -97,4 +97,18 @@ You can update the ROMS with your own version. The supplied bin2rom.py script mo
 
 # Limitations
 
-Currently only the 6850, RAM and ROM are included as part of the emulation. It should be possible to add the 6840 timer, 6821, and possibly the VDP board but this hasn't been done yet.
+Currently only the 6850, RAM and ROM are included as part of the emulation. It should be possible to add the 6840 timer, and 6821 but this hasn't been done yet.
+VDP support has been added but interrupts on the 68008 variants is not yet implemented.
+
+# Connecting via terminal
+
+The serial terminal can be attached via another terminal (which is useful for uploading software to the emulator) e.g. The following connects the ACIA to a bitbanger device in /tmp/mecb6502
+
+echo "Cleaning up old instance of bitbanger device ..."
+rm /tmp/mecb6502
+echo "Starting up emulator ..."
+./mecb6502 -window -resolution 640x480 mecb6502 -rs232 null_modem -bitb domain./tmp/mecb6502
+
+This can then be connected to via:
+
+minicom -D unix#/tmp/mecb6502
