@@ -10,6 +10,7 @@
 
 #include "machine/clock.h"
 #include "bus/rs232/rs232.h"
+#include "video/tms9928a.h"
 
 
 namespace {
@@ -36,6 +37,7 @@ void mecb6809_state::mecb6809_mem(address_map &map)
 {
 	map(0x0000, 0xbfff).ram();
 	map(0xc008, 0xc00f).rw("acia", FUNC(acia6850_device::read), FUNC(acia6850_device::write));
+	map(0xc080, 0xc081).rw("vdp", FUNC(tms9928a_device::read),FUNC(tms9928a_device::write));
 	map(0xc100, 0xffff).rom();
 }
 
@@ -68,6 +70,13 @@ void mecb6809_state::mecb6809(machine_config &config)
 	rs232_port_device &rs232(RS232_PORT(config, "rs232", default_rs232_devices, "terminal"));
 	rs232.rxd_handler().set(m_acia, FUNC(acia6850_device::write_rxd));
 	rs232.set_option_device_input_defaults("terminal", DEVICE_INPUT_DEFAULTS_NAME(terminal)); // must be below the DEVICE_INPUT_DEFAULTS_START block
+
+	// video hardware
+	tms9929a_device &vdp(TMS9929A(config, "vdp", XTAL(10'738'635)));
+	vdp.set_screen("screen");
+	vdp.set_vram_size(0x4000);
+	vdp.int_callback().set_inputline("maincpu", M6809_IRQ_LINE);
+	SCREEN(config, "screen", SCREEN_TYPE_RASTER);
 }
 
 ROM_START(mecb6809)

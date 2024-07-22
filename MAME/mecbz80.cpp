@@ -14,6 +14,7 @@
 // Two more devices needed, a clock device for the UART, and RS-232 devices
 #include "machine/clock.h"
 #include "bus/rs232/rs232.h"
+#include "video/tms9928a.h"
 
 
 namespace {
@@ -53,6 +54,7 @@ void mecbz80_state::mecbz80_io(address_map &map)
 	map.global_mask(0xff);  // use 8-bit ports
 	map.unmap_value_high(); // unmapped addresses return 0xff
 	map(0x08, 0x09).rw("acia", FUNC(acia6850_device::read), FUNC(acia6850_device::write));
+	map(0x80, 0x81).rw("vdp", FUNC(tms9928a_device::read),FUNC(tms9928a_device::write));
 }
 
 // This is here only to configure our terminal for interactive use
@@ -90,6 +92,13 @@ void mecbz80_state::mecbz80(machine_config &config)
 	rs232.dcd_handler().set(m_acia, FUNC(acia6850_device::write_dcd));
 	rs232.cts_handler().set(m_acia, FUNC(acia6850_device::write_cts));
 	rs232.set_option_device_input_defaults("terminal", DEVICE_INPUT_DEFAULTS_NAME(terminal)); // must be below the DEVICE_INPUT_DEFAULTS_START block
+
+	// video hardware
+	tms9929a_device &vdp(TMS9929A(config, "vdp", XTAL(10'738'635)));
+	vdp.set_screen("screen");
+	vdp.set_vram_size(0x4000);
+	vdp.int_callback().set_inputline("maincpu", INPUT_LINE_IRQ0);
+	SCREEN(config, "screen", SCREEN_TYPE_RASTER);
 }
 
 // ROM mapping is trivial, this binary was created from the HEX file on Grant's website
