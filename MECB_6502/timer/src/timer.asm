@@ -215,7 +215,7 @@ outh            cmp     #$0A        ; Is it a number
 outnum          adc     #$30        ; Add '0'
                 jmp     outch       ; write character
 ;
-; Comnvert binary byte in A as a decimal with leading zeros
+; Convert binary byte in A as a decimal with leading zeros
 ;
 binary          ds.b    1
 hundredsDigit   ds.b    1
