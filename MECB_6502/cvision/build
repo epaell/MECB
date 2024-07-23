@@ -1,0 +1,8 @@
+vasm6502_mot -wdc02 -L bioscv.lst -Fbin -o bioscv.bin src/bioscv.asm  
+echo "Checking against original ROM"
+diff bioscv.bin bioscv.rom
+vasm6502_mot -wdc02 -L sonicinv.lst -Fbin -o sonicinv.bin src/sonicinv.asm  
+echo "Checking against original ROM"
+diff sonicinv.bin sonicinv.rom
+
+vasm6502_mot -wdc02 -L combined.lst -Fihex -o combined.hex src/combined.asm  
