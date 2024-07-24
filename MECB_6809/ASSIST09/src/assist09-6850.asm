@@ -1,10 +1,10 @@
                       ; MECB Memory map
                       ; $0000-$BFFF RAM
                       ;   $BF00-$BFFF ASSIST09
-                      ; $C000-$C100 I/O
-                      ;   $C000 PTM
-                      ;   $C008 ACIA
-                      ;   $C010 PIA
+                      ; $E000-$E100 I/O
+                      ;   $E000 PTM
+                      ;   $E008 ACIA
+                      ;   $E010 PIA
                       ; $F000-FFFF  ROM
                       ;   $F800-$FFFE ASSIST09
 *************************************
@@ -27,7 +27,7 @@ ROMBEG  EQU     $F000           ; ROM START ASSEMBLY ADDRESS
 RAMOFS  EQU     -$7100          ; ROM OFFSET TO RAM WORK PAGE (ELENC changed from -$9800 to $1100 for MECB; $3100 for MECB+ROM and I/O at $C000; $7100 for 32KB ROM)
 ROMSIZ  EQU     4096            ; ROM SIZE
 ROM2OF  EQU     ROMBEG-ROMSIZ   ; START OF EXTENSION ROM
-IOBASE  EQU     $C000           ; DEFAULT ACIA ADDRESS (ELENC changed from $A000 for MECB to allow FLEX compatibility)
+IOBASE  EQU     $E000           ; DEFAULT ACIA ADDRESS (ELENC changed from $A000 for MECB to allow FLEX compatibility)
 ACIA    EQU     IOBASE+$08      
 PTM     EQU     IOBASE          ; DEFAULT PTM ADDRESS (ELENC changed from $0000 for MECB)
 PIABASE equ     IOBASE+$10      ; PIA Base address (ELENC updated for MECB)
