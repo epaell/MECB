@@ -1,1 +1,4 @@
+# Requires 16 KB ROM with I/O at $A000; ROM $C000-$FFFF
 asm6809 src/combined.asm -l combined.lst -B -v -o combined.bin
+# Requires 8 KB ROM with I/0 at $C000; ROM $F000-$FFFF
+asm6809 src/assist09-6850.asm -l assist09-6850.lst -B -v -o assist09-6850.bin
