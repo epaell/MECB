@@ -1,0 +1,505 @@
+AS65 Assembler for R6502 [1.42].                                     Page    1
+-------------------------------- SetClock.asm --------------------------------
+
+476 lines read, no errors in pass 1.
+                        ;*****************************************************
+                        ; SetClock.asm
+                        ;
+                        ; This is a small tool to set the real time clock on
+                        ; the Corsham Technologies SD Card System.  The code
+                        ; runs with the xKIM monitor.
+                        ;
+                        ; 05/11/2021 - Bob Applegate, bob@corshamtech.com
+                        ;
+                        		include	"xkim.inc"
+                        ;=====================================================
+                        ; This file contains vectors for Corsham Technologies'
+                        ; xKIM monitor.
+                        ;
+                        ; www.corshamtech.com
+                        ;
+                        ; 05/11/2021	Bob Applegate
+                        ;		Added lots of RAM locations
+                        ;
+e000 =                  xKIM_BASE	equ	$e000
+                        		bss
+0000 =                  origBss		equ	*	;SAVE BSS!!!
+e000 =                  		org	xKIM_BASE
+                        ;
+                        ; Main functions
+                        ;
+e000 =                  extKim		ds	3	;extended monitor
+e003 =                  xkOUTCH		ds	3	;output A to console
+e006 =                  xkGETCH		ds	3	;get a key and echo
+e009 =                  xkGETCHne	ds	3	;no echo - KIM can't do it
+e00c =                  xKIM_res_0	ds	3	;future - console stat
+e00f =                  putsil		ds	3	;print string after JSR
+e012 =                  getHex		ds	3	;get hex value in A
+e015 =                  PRTBYT		ds	3	;print A as hex
+e018 =                  getStartAddr	ds	3
+e01b =                  getEndAddr	ds	3
+e01e =                  getAddrRange	ds	3
+                        ;
+                        ; future use
+                        ;
+                        ;		org	xKIM_BASE+$0021
+e021 =                  xKIM_res_1	ds	3
+e024 =                  xKIM_res_2	ds	3
+e027 =                  xKIM_res_3	ds	3
+e02a =                  xKIM_res_4	ds	3
+e02d =                  xKIM_res_5	ds	3
+e030 =                  xKIM_res_6	ds	3
+                        ;
+                        ; SD card functions
+                        ;
+                        ;		org	xKIM_BASE+$0033
+e033 =                  xParInit	ds	3
+e036 =                  xParSetWrite	ds	3
+e039 =                  xParSetRead	ds	3
+e03c =                  xParWriteByte	ds	3
+e03f =                  xParReadByte	ds	3
+e042 =                  DiskPing	ds	3
+e045 =                  DiskDir		ds	3
+e048 =                  DiskDirNext	ds	3
+e04b =                  DiskOpenRead	ds	3
+e04e =                  DiskRead	ds	3
+AS65 Assembler for R6502 [1.42].                                     Page    2
+-------------------------------- SetClock.asm --------------------------------
+
+e051 =                  DiskClose	ds	3
+e054 =                  DiskOpenWrite	ds	3
+e057 =                  DiskWrite	ds	3
+                        ;
+                        ; RAM locations used by xKIM that are available for
+                        ; user access.
+                        ;
+dff8 =                  		org	$dff8
+dff8 =                  AutoRun		ds	2	;where to jump after L
+dffa =                  ColdFlag	ds	2
+dffc =                  ExtensionAddr	ds	2
+dffe =                  HighestAddress	ds	2
+                        ;
+                        ; Now restore BSS!
+                        ;
+0000 =                  		org	origBss
+                        ;
+                        ; KIM Stuff
+                        ;
+17fa =                  NMIV		equ	$17fa	;NMI vector
+17fe =                  IRQV		equ	$17fe	;IRQ vector
+                        
+                        
+                        
+                        		include	"parproto.inc"
+                        ;*****************************************************
+                        ; Parallel port protocol
+                        ;
+                        ; This is the header file for making applications
+                        ; compliant with The Remote Disk Protocol Guide which
+                        ; is on the Corsham Technologies web page somewhere:
+                        ;
+                        ;    www.corshamtech.com
+                        ;
+                        ; This was updated 06/13/2015 to be compliant with the
+                        ; official specification, so the opcode values changed
+                        ;
+                        ; Another update on 02/10/2019
+                        ;
+                        ;=====================================================
+                        ; Commands from host to Arduino
+                        ;
+0001 =                  PC_GET_VERSION	equ	$01
+0005 =                  PC_PING		equ	$05	;ping Arduino
+0006 =                  PC_LED_CONTROL	equ	$06	;LED control
+0007 =                  PC_GET_CLOCK	equ	$07	;get clock data
+0008 =                  PC_SET_CLOCK	equ	$08	;set clock
+0010 =                  PC_GET_DIR	equ	$10	;Get directory
+0011 =                  PC_GET_MOUNTED	equ	$11	;Get mounted drive list
+0012 =                  PC_MOUNT	equ	$12	;Mount drive
+0013 =                  PC_UNMOUNT	equ	$13	;Unmount drive
+0014 =                  PC_GET_STATUS	equ	$14	;Get status for one drive
+0015 =                  PC_DONE		equ	$15	;Stop data
+0015 =                  PC_ABORT	equ	PC_DONE
+0016 =                  PC_READ_FILE	equ	$16	;Read regular file (non-DSK)
+0017 =                  PC_READ_BYTES	equ	$17	;Read sequential bytes
+0018 =                  PC_RD_SECTOR	equ	$18	;Read FLEX sector
+0019 =                  PC_WR_SECTOR	equ	$19	;Write FLEX sector
+001a =                  PC_GET_MAX	equ	$1a	;Get maximum drives
+001b =                  PC_WRITE_FILE   equ	$1b	;Open file for writing
+001c =                  PC_WRITE_BYTES	equ	$1c	;Data to be written
+001d =                  PC_SAVE_CONFIG	equ	$1d	;Save SD.CFG with current value
+AS65 Assembler for R6502 [1.42].                                     Page    3
+-------------------------------- SetClock.asm --------------------------------
+
+001e =                  PC_SET_TIMER	equ	$1e	;Set RTC timer
+001f =                  PC_RD_SEC_LONG	equ	$1f	;Read sector with long sec num
+0020 =                  PC_WR_SEC_LONG	equ	$20	;Write sector with long sec num
+                        ;
+                        ;=====================================================
+                        ; Responses from Arduino to host
+                        ;
+0081 =                  PR_VERSION_INFO	equ	$81	;Contains version information
+0082 =                  PR_ACK		equ	$82	;ACK (no additional information)
+0083 =                  PR_NAK		equ	$83	;NAK - one status byte follows
+0085 =                  PR_PONG		equ	$85	;Reply to a ping
+0087 =                  PR_CLOCK_DATA	equ	$87	;Clock data
+0090 =                  PR_DIR_ENTRY	equ	$90	;Directory entry
+0091 =                  PR_DIR_END	equ	$91	;End of directory entries
+0092 =                  PR_FILE_DATA	equ	$92	;File data
+0093 =                  PR_STATUS	equ	$93	;Drive status
+0094 =                  PR_SECTOR_DATA	equ	$94	;Sector data
+0095 =                  PR_MOUNT_INFO	equ	$95	;Mount entry
+0096 =                  PR_MAX_DRIVES	equ	$96	;Maximum number of drives
+                        ;
+                        ;=====================================================
+                        ; Error codes for NAK events.  Yes, these are in
+                        ; decimal due to an error in the original
+                        ; documentation.
+                        ;
+0000 =                  ERR_NONE	equ	0
+000a =                  ERR_NOT_MOUNTED	equ	10
+000b =                  ERR_MOUNTED	equ	11
+000c =                  ERR_NOT_FOUND	equ	12
+000d =                  ERR_READ_ONLY	equ	13
+000e =                  ERR_BAD_DRIVE	equ	14
+000f =                  ERR_BAD_TRACK	equ	15
+0010 =                  ERR_BAD_SECTOR	equ	16
+0011 =                  ERR_READ_ERROR	equ	17
+0012 =                  ERR_WRITE_ERROR	equ	18
+0013 =                  ERR_NOT_PRESENT	equ	19
+0014 =                  ERR_NOT_IMPL	equ	20	;Command not implemented
+                        
+                        
+                        ;
+                        ; Common ASCII stuff
+                        ;
+0000 =                  NULL		equ	$00
+000a =                  LF		equ	$0a
+000d =                  CR		equ	$0d
+                        ;
+                        ; KIM monitor functions
+                        ;
+1e2f =                  CRLF		equ	$1e2f
+                        ;
+                        ;*****************************************************
+                        ; The actual code.  I put it high in RAM to avoid
+                        ; using pages 2 and 3 which are commonly used.
+                        ;
+                        		code
+1000 =                  		org	$1000
+1000 : 200fe0           SetClock	jsr	putsil
+1003 : 0d0a0a0a         		db	CR,LF,LF,LF
+1007 : 536574436c6f63.. 		db	"SetClock v1, 09/17/2021",CR,LF
+1020 : 54686973206973.. 		db	"This is a crude utility to "
+103b : 73657420746865.. 		db	"set the clock on the SD card."
+1058 : 0d0a0a           		db	CR,LF,LF
+AS65 Assembler for R6502 [1.42].                                     Page    4
+-------------------------------- SetClock.asm --------------------------------
+
+105b : 4974206973206e.. 		db	"It is not very tolerant of "
+1076 : 756e6578706563.. 		db	"unexpected input data."
+108c : 0d0a0a00         		db	CR,LF,LF,NULL
+                        ;
+                        ; Get the date
+                        ;
+1090 : 200fe0           TopLoop		jsr	putsil
+1093 : 456e746572206d.. 		db	"Enter month (1-12): ",NULL
+10a8 : a201             		ldx	#1	;lowest valid month
+10aa : a00c             		ldy	#12	;highest valid month
+10ac : 205513           		jsr	GetDecimal
+10af : b06a             		bcs	BadInputVector
+10b1 : 8dbf13           		sta	SD_Month
+                        ;
+10b4 : 200fe0           		jsr	putsil
+10b7 : 0d0a456e746572.. 		db	CR,LF,"Enter day of month (1-31): ",NULL
+10d5 : a201             		ldx	#1	;lowest valid day of month
+10d7 : a01f             		ldy	#31	;highest valid day of month
+10d9 : 205513           		jsr	GetDecimal
+10dc : b03d             		bcs	BadInputVector
+10de : 8dc013           		sta	SD_Day
+                        ;
+10e1 : 200fe0           		jsr	putsil
+10e4 : 0d0a456e746572.. 		db	CR,LF,"Enter last two digits of the year (21-90):
+1112 : a215             		ldx	#21	;can't be before I wrote this code
+1114 : a05a             		ldy	#90	;I'm an optimist
+1116 : 205513           		jsr	GetDecimal
+1119 : 9003             		bcc	StillGood
+111b : 4c3613           BadInputVector	jmp	BadInput	;resolves long branch issu
+                        ;
+111e : 8dc213           StillGood	sta	SD_YearLow
+1121 : a914             		lda	#20
+1123 : 8dc113           		sta	SD_YearHigh	;force to 20xx
+1126 : 200fe0           		jsr	putsil
+1129 : 0d0a456e746572.. 		db	CR,LF,"Enter the day of the week (01 = Sunday, "
+1153 : 3032203d204d6f.. 		db	"02 = Monday, 03 = Tuesday"
+116c : 0d0a             		db	CR,LF
+116e : 3034203d205765.. 		db	"04 = Wednesday, 05 = Thursday, 06 = Friday, "
+119a : 3037203d205361.. 		db	"07 = Saturday): ",NULL
+11ab : a201             		ldx	#1	;Sunday
+11ad : a007             		ldy	#7	;Saturday
+11af : 205513           		jsr	GetDecimal
+11b2 : 9003             		bcc	StillGood2
+11b4 : 4c3613           BadInputVector2	jmp	BadInput	;resolves long branch iss
+                        
+11b7 : 8dc613           StillGood2	sta	SD_DayOfWeek
+11ba : 200fe0           		jsr	putsil
+11bd : 0d0a456e746572.. 		db	CR,LF,"Enter hour (00-23): ",NULL
+11d4 : a200             		ldx	#00	;lowest valid
+11d6 : a017             		ldy	#23	;highest valid
+11d8 : 205513           		jsr	GetDecimal
+11db : b0d7             		bcs	BadInputVector2
+11dd : 8dc313           		sta	SD_Hour
+                        ;
+11e0 : 200fe0           		jsr	putsil
+11e3 : 0d0a456e746572.. 		db	CR,LF,"Enter minute (00-59): ",NULL
+11fc : a200             		ldx	#00	;lowest valid
+11fe : a03b             		ldy	#59	;highest valid
+1200 : 205513           		jsr	GetDecimal
+1203 : b0af             		bcs	BadInputVector2
+1205 : 8dc413           		sta	SD_Minute
+                        ;
+AS65 Assembler for R6502 [1.42].                                     Page    5
+-------------------------------- SetClock.asm --------------------------------
+
+1208 : 200fe0           		jsr	putsil
+120b : 0d0a456e746572.. 		db	CR,LF,"Enter second (00-59): ",NULL
+1224 : a200             		ldx	#00	;lowest valid
+1226 : a03b             		ldy	#59	;highest valid
+1228 : 205513           		jsr	GetDecimal
+122b : b087             		bcs	BadInputVector2
+122d : 8dc513           		sta	SD_Second
+                        ;
+                        ; Wow, we finally have all the data!  Now confirm it i
+                        ; Start by printing what the user entered.
+                        ;
+1230 : 200fe0           		jsr	putsil
+1233 : 0d0a             		db	CR,LF
+1235 : 53657474696e67.. 		db	"Setting clock to ",NULL
+1247 : adbf13           		lda	SD_Month
+124a : 20a313           		jsr	PrintDecimal
+124d : a92f             		lda	#'/'
+124f : 2003e0           		jsr	xkOUTCH
+1252 : adc013           		lda	SD_Day
+1255 : 20a313           		jsr	PrintDecimal
+1258 : a92f             		lda	#'/'
+125a : 2003e0           		jsr	xkOUTCH
+125d : a914             		lda	#20
+125f : 20a313           		jsr	PrintDecimal
+1262 : adc213           		lda	SD_YearLow
+1265 : 20a313           		jsr	PrintDecimal
+                        ;
+1268 : a920             		lda	#' '
+126a : 2003e0           		jsr	xkOUTCH
+                        ;
+126d : adc313           		lda	SD_Hour
+1270 : 20a313           		jsr	PrintDecimal
+1273 : a93a             		lda	#':'
+1275 : 2003e0           		jsr	xkOUTCH
+1278 : adc413           		lda	SD_Minute
+127b : 20a313           		jsr	PrintDecimal
+127e : a93a             		lda	#':'
+1280 : 2003e0           		jsr	xkOUTCH
+1283 : adc513           		lda	SD_Second
+1286 : 20a313           		jsr	PrintDecimal
+                        ;
+1289 : 200fe0           		jsr	putsil
+128c : 0d0a             		db	CR,LF
+128e : 49732074686174.. 		db	"Is that correct (Y/N)? ",NULL
+12a6 : 2006e0           		jsr	xkGETCH
+12a9 : c959             		cmp	#'Y'
+12ab : f006             		beq	SaveIt
+12ad : 202f1e           		jsr	CRLF
+12b0 : 4c9010           		jmp	TopLoop
+                        ;
+                        ; All good, so format it and send to the SD Card Syste
+                        ;
+12b3 : 2036e0           SaveIt		jsr	xParSetWrite	;turn on write mode
+12b6 : a908             		lda	#PC_SET_CLOCK
+12b8 : 203ce0           		jsr	xParWriteByte	;send command
+12bb : a200             		ldx	#0		;contains offset in data
+12bd : bdbf13           SendLoop	lda	SD_Data,x
+12c0 : 203ce0           		jsr	xParWriteByte	;send data
+12c3 : e8               		inx
+12c4 : e008             		cpx	#SD_DATA_SIZE
+12c6 : d0f5             		bne	SendLoop
+                        ;
+AS65 Assembler for R6502 [1.42].                                     Page    6
+-------------------------------- SetClock.asm --------------------------------
+
+12c8 : 2039e0           		jsr	xParSetRead	;back to read mode
+12cb : 203fe0           		jsr	xParReadByte	;get response
+12ce : 48               		pha
+12cf : 2036e0           		jsr	xParSetWrite	;must leave in write state
+12d2 : 68               		pla
+12d3 : c982             		cmp	#PR_ACK
+12d5 : f033             		beq	AllGood		;yeah!
+                        ;
+                        ; Huh, got an error, so get the error code
+                        ;
+12d7 : 203fe0           		jsr	xParReadByte
+12da : 48               		pha
+12db : 200fe0           		jsr	putsil
+12de : 0d0a             		db	CR,LF
+12e0 : 486d6d6d2c2074.. 		db	"Hmmm, there was an error code: "
+12ff : 00               		db	NULL
+1300 : 68               		pla
+1301 : 2015e0           		jsr	PRTBYT
+1304 : 202f1e           		jsr	CRLF
+1307 : 4c00e0           		jmp	extKim
+                        ;
+                        ; In theory the code should check for ACK/NAK here.
+                        ; PR_ACK, PR_NAK
+                        ;
+130a : 200fe0           AllGood		jsr	putsil
+130d : 0d0a             		db	CR,LF
+130f : 546865206e6577.. 		db	"The new date/time have been set."
+132f : 0d0a0a00         		db	CR,LF,LF,NULL
+                        ;
+1333 : 4c00e0           		jmp	extKim
+                        ;
+                        ;*****************************************************
+                        ; Jump to here if the user input bad data, either
+                        ; non-decimal values or a value out of range.
+                        ;
+1336 : 200fe0           BadInput	jsr	putsil
+1339 : 0d0a             		db	CR,LF
+133b : 496e76616c6964.. 		db	"Invalid key or value"
+134f : 0d0a00           		db	CR,LF,NULL
+1352 : 4c00e0           		jmp	extKim	;return to monitor
+                        ;
+                        ;*****************************************************
+                        ; Get a decimal number from the user and compare it
+                        ; to the minimum (X) and maximum (Y) valid values.  If
+                        ; all goes well, return the value in A with C clear.
+                        ; If the user types bad data then return C set.  Is
+                        ; not very smart and will continue to get digits until
+                        ; the user presses RETURN.  No handling of overflow.
+                        ;
+1355 : 8ebd13           GetDecimal	stx	minimum
+1358 : c8               		iny
+1359 : 8cbe13           		sty	maximum
+135c : a900             		lda	#0
+135e : 8dbc13           		sta	number	;value to return
+                        ;
+                        ; Keep getting digits until they press RETURN.
+                        ;
+1361 : 2006e0           GetDecLoop	jsr	xkGETCH	;get key
+1364 : c90d             		cmp	#CR
+1366 : f02a             		beq	GetGood
+1368 : c930             		cmp	#'0'
+136a : 9035             		bcc	GetBadKey
+AS65 Assembler for R6502 [1.42].                                     Page    7
+-------------------------------- SetClock.asm --------------------------------
+
+136c : c93a             		cmp	#'9'+1
+136e : b031             		bcs	GetBadKey
+                        ;
+                        ; Key is good!
+                        ;
+1370 : 38               		sec
+1371 : e930             		sbc	#'0'	;convert to binary
+                        ;
+                        ; Multiply current number by 10.
+                        ;
+1373 : 48               		pha		;save new digit
+1374 : 0ebc13           		asl	number	;*2
+1377 : adbc13           		lda	number
+137a : 0ebc13           		asl	number	;*4
+137d : 0ebc13           		asl	number	;*8
+1380 : 18               		clc
+1381 : 6dbc13           		adc	number	;*10
+1384 : 8dbc13           		sta	number
+                        ;
+                        ; Add in new digit
+                        ;
+1387 : 68               		pla
+1388 : 18               		clc
+1389 : 6dbc13           		adc	number	;add in latest key
+138c : 8dbc13           		sta	number	;save new value
+138f : 4c6113           		jmp	GetDecLoop
+                        ;
+                        ; All digits entered good, now verify the value is in
+                        ; the desired range.
+                        ;
+1392 : adbc13           GetGood		lda	number	;get current value
+1395 : cdbd13           		cmp	minimum
+1398 : 9007             		bcc	GetBadKey	;too low
+139a : cdbe13           		cmp	maximum
+139d : b002             		bcs	GetBadKey
+                        ;
+139f : 18               		clc		;indicate no error
+13a0 : 60               		rts
+                        ;
+                        ; Bad input.
+                        ;
+13a1 : 38               GetBadKey	sec		;error
+13a2 : 60               		rts
+                        ;
+                        ;=====================================================
+                        ; Given a binary value in A, display it as two decimal
+                        ; digits.  The input can't be greater than 99.  Always
+                        ; print a leading zero if less than 10.
+                        ;
+13a3 : a000             PrintDecimal	ldy	#0	;counts 10s
+13a5 : c90a             out1		cmp	#10
+13a7 : 9007             		bcc	out2	;below 10
+13a9 : c8               		iny		;count 10
+13aa : 38               		sec
+13ab : e90a             		sbc	#10
+13ad : 4ca513           		jmp	out1
+                        ;
+13b0 : 48               out2		pha		;save ones
+13b1 : 98               		tya		;get tens
+13b2 : 20b613           		jsr	out3	;print tens digit
+13b5 : 68               		pla		;restore ones
+                        ;
+AS65 Assembler for R6502 [1.42].                                     Page    8
+-------------------------------- SetClock.asm --------------------------------
+
+13b6 : 0930             out3		ora	#'0'
+13b8 : 2003e0           		jsr	xkOUTCH
+13bb : 60               		rts
+                        ;
+                        ;*****************************************************
+                        ; Non zero-page data.  There is nothing in this code
+                        ; which needs zero page, and the tiny bit of speed-up
+                        ; isn't worth wasting zero page space.
+                        ;
+13bc : 00               number		ds	1
+13bd : 00               minimum		ds	1	;lowest good value
+13be : 00               maximum		ds	1	;highest good value + 1
+                        ;
+                        ; This is the raw clock data in the exact format used
+                        ; by the SD Card System.  Each field is binary and
+                        ; gets sent to the SD as-is... I need to fix the
+                        ; documentation for the set/get clock commands!
+                        ;
+13bf =                  SD_Data		equ	*
+13bf : 00               SD_Month	ds	1
+13c0 : 00               SD_Day		ds	1
+13c1 : 00               SD_YearHigh	ds	1
+13c2 : 00               SD_YearLow	ds	1
+13c3 : 00               SD_Hour		ds	1
+13c4 : 00               SD_Minute	ds	1
+13c5 : 00               SD_Second	ds	1
+13c6 : 00               SD_DayOfWeek	ds	1
+0008 =                  SD_DATA_SIZE	equ	(*-SD_Data)
+                        ;
+                        ; Make sure we haven't exceeded RAM!
+                        ;
+                        	if	* > $13ff
+                        		error	Overran RAM!
+                        	endif
+                        ;
+                        ;*****************************************************
+                        ; Set the auto-run vector so this code will run right
+                        ; after loading it.
+                        ;
+dff8 =                  		org	AutoRun
+dff8 : 0010             		dw	SetClock
+                        		end
+                        
+                        
+                        
+                        
+No errors in pass 2.

@@ -1,0 +1,377 @@
+AS65 Assembler for R6502 [1.42].                                     Page    1
+-------------------------------- GetClock.asm --------------------------------
+
+354 lines read, no errors in pass 1.
+                        ;*****************************************************
+                        ; GetClock.asm
+                        ;
+                        ; This is a small tool to get the real time clock on
+                        ; the Corsham Technologies SD Card System.  The code
+                        ; runs with the xKIM monitor.  There is a C command
+                        ; in xKIM to get the clock but this tool also displays
+                        ; the day of the week.  I needed this to test SetClock
+                        ;
+                        ; 09/17/2021 - Bob Applegate, bob@corshamtech.com
+                        ;
+                        		include	"xkim.inc"
+                        ;=====================================================
+                        ; This file contains vectors for Corsham Technologies'
+                        ; xKIM monitor.
+                        ;
+                        ; www.corshamtech.com
+                        ;
+                        ; 05/11/2021	Bob Applegate
+                        ;		Added lots of RAM locations
+                        ;
+e000 =                  xKIM_BASE	equ	$e000
+                        		bss
+0000 =                  origBss		equ	*	;SAVE BSS!!!
+e000 =                  		org	xKIM_BASE
+                        ;
+                        ; Main functions
+                        ;
+e000 =                  extKim		ds	3	;extended monitor
+e003 =                  xkOUTCH		ds	3	;output A to console
+e006 =                  xkGETCH		ds	3	;get a key and echo
+e009 =                  xkGETCHne	ds	3	;no echo - KIM can't do it
+e00c =                  xKIM_res_0	ds	3	;future - console stat
+e00f =                  putsil		ds	3	;print string after JSR
+e012 =                  getHex		ds	3	;get hex value in A
+e015 =                  PRTBYT		ds	3	;print A as hex
+e018 =                  getStartAddr	ds	3
+e01b =                  getEndAddr	ds	3
+e01e =                  getAddrRange	ds	3
+                        ;
+                        ; future use
+                        ;
+                        ;		org	xKIM_BASE+$0021
+e021 =                  xKIM_res_1	ds	3
+e024 =                  xKIM_res_2	ds	3
+e027 =                  xKIM_res_3	ds	3
+e02a =                  xKIM_res_4	ds	3
+e02d =                  xKIM_res_5	ds	3
+e030 =                  xKIM_res_6	ds	3
+                        ;
+                        ; SD card functions
+                        ;
+                        ;		org	xKIM_BASE+$0033
+e033 =                  xParInit	ds	3
+e036 =                  xParSetWrite	ds	3
+e039 =                  xParSetRead	ds	3
+e03c =                  xParWriteByte	ds	3
+e03f =                  xParReadByte	ds	3
+e042 =                  DiskPing	ds	3
+e045 =                  DiskDir		ds	3
+e048 =                  DiskDirNext	ds	3
+AS65 Assembler for R6502 [1.42].                                     Page    2
+-------------------------------- GetClock.asm --------------------------------
+
+e04b =                  DiskOpenRead	ds	3
+e04e =                  DiskRead	ds	3
+e051 =                  DiskClose	ds	3
+e054 =                  DiskOpenWrite	ds	3
+e057 =                  DiskWrite	ds	3
+                        ;
+                        ; RAM locations used by xKIM that are available for
+                        ; user access.
+                        ;
+dff8 =                  		org	$dff8
+dff8 =                  AutoRun		ds	2	;where to jump after L
+dffa =                  ColdFlag	ds	2
+dffc =                  ExtensionAddr	ds	2
+dffe =                  HighestAddress	ds	2
+                        ;
+                        ; Now restore BSS!
+                        ;
+0000 =                  		org	origBss
+                        ;
+                        ; KIM Stuff
+                        ;
+17fa =                  NMIV		equ	$17fa	;NMI vector
+17fe =                  IRQV		equ	$17fe	;IRQ vector
+                        
+                        
+                        
+                        		include	"parproto.inc"
+                        ;*****************************************************
+                        ; Parallel port protocol
+                        ;
+                        ; This is the header file for making applications
+                        ; compliant with The Remote Disk Protocol Guide which
+                        ; is on the Corsham Technologies web page somewhere:
+                        ;
+                        ;    www.corshamtech.com
+                        ;
+                        ; This was updated 06/13/2015 to be compliant with the
+                        ; official specification, so the opcode values changed
+                        ;
+                        ; Another update on 02/10/2019
+                        ;
+                        ;=====================================================
+                        ; Commands from host to Arduino
+                        ;
+0001 =                  PC_GET_VERSION	equ	$01
+0005 =                  PC_PING		equ	$05	;ping Arduino
+0006 =                  PC_LED_CONTROL	equ	$06	;LED control
+0007 =                  PC_GET_CLOCK	equ	$07	;get clock data
+0008 =                  PC_SET_CLOCK	equ	$08	;set clock
+0010 =                  PC_GET_DIR	equ	$10	;Get directory
+0011 =                  PC_GET_MOUNTED	equ	$11	;Get mounted drive list
+0012 =                  PC_MOUNT	equ	$12	;Mount drive
+0013 =                  PC_UNMOUNT	equ	$13	;Unmount drive
+0014 =                  PC_GET_STATUS	equ	$14	;Get status for one drive
+0015 =                  PC_DONE		equ	$15	;Stop data
+0015 =                  PC_ABORT	equ	PC_DONE
+0016 =                  PC_READ_FILE	equ	$16	;Read regular file (non-DSK)
+0017 =                  PC_READ_BYTES	equ	$17	;Read sequential bytes
+0018 =                  PC_RD_SECTOR	equ	$18	;Read FLEX sector
+0019 =                  PC_WR_SECTOR	equ	$19	;Write FLEX sector
+001a =                  PC_GET_MAX	equ	$1a	;Get maximum drives
+001b =                  PC_WRITE_FILE   equ	$1b	;Open file for writing
+AS65 Assembler for R6502 [1.42].                                     Page    3
+-------------------------------- GetClock.asm --------------------------------
+
+001c =                  PC_WRITE_BYTES	equ	$1c	;Data to be written
+001d =                  PC_SAVE_CONFIG	equ	$1d	;Save SD.CFG with current value
+001e =                  PC_SET_TIMER	equ	$1e	;Set RTC timer
+001f =                  PC_RD_SEC_LONG	equ	$1f	;Read sector with long sec num
+0020 =                  PC_WR_SEC_LONG	equ	$20	;Write sector with long sec num
+                        ;
+                        ;=====================================================
+                        ; Responses from Arduino to host
+                        ;
+0081 =                  PR_VERSION_INFO	equ	$81	;Contains version information
+0082 =                  PR_ACK		equ	$82	;ACK (no additional information)
+0083 =                  PR_NAK		equ	$83	;NAK - one status byte follows
+0085 =                  PR_PONG		equ	$85	;Reply to a ping
+0087 =                  PR_CLOCK_DATA	equ	$87	;Clock data
+0090 =                  PR_DIR_ENTRY	equ	$90	;Directory entry
+0091 =                  PR_DIR_END	equ	$91	;End of directory entries
+0092 =                  PR_FILE_DATA	equ	$92	;File data
+0093 =                  PR_STATUS	equ	$93	;Drive status
+0094 =                  PR_SECTOR_DATA	equ	$94	;Sector data
+0095 =                  PR_MOUNT_INFO	equ	$95	;Mount entry
+0096 =                  PR_MAX_DRIVES	equ	$96	;Maximum number of drives
+                        ;
+                        ;=====================================================
+                        ; Error codes for NAK events.  Yes, these are in
+                        ; decimal due to an error in the original
+                        ; documentation.
+                        ;
+0000 =                  ERR_NONE	equ	0
+000a =                  ERR_NOT_MOUNTED	equ	10
+000b =                  ERR_MOUNTED	equ	11
+000c =                  ERR_NOT_FOUND	equ	12
+000d =                  ERR_READ_ONLY	equ	13
+000e =                  ERR_BAD_DRIVE	equ	14
+000f =                  ERR_BAD_TRACK	equ	15
+0010 =                  ERR_BAD_SECTOR	equ	16
+0011 =                  ERR_READ_ERROR	equ	17
+0012 =                  ERR_WRITE_ERROR	equ	18
+0013 =                  ERR_NOT_PRESENT	equ	19
+0014 =                  ERR_NOT_IMPL	equ	20	;Command not implemented
+                        
+                        
+                        ;
+                        ; Common ASCII stuff
+                        ;
+0000 =                  NULL		equ	$00
+000a =                  LF		equ	$0a
+000d =                  CR		equ	$0d
+                        ;
+                        ; KIM monitor functions
+                        ;
+1e2f =                  CRLF		equ	$1e2f
+                        ;
+                        ; If true, print the day of the week in a numeric
+                        ; form as well.
+                        ;
+0001 =                  PRINT_DOW_NUM	equ	1
+                        ;
+                        ;*****************************************************
+                        ; The actual code.  I put it high in RAM to avoid
+                        ; using pages 2 and 3 which are commonly used.
+                        ;
+                        		code
+AS65 Assembler for R6502 [1.42].                                     Page    4
+-------------------------------- GetClock.asm --------------------------------
+
+1000 =                  		org	$1000
+1000 : 200fe0           SetClock	jsr	putsil
+1003 : 0d0a0a0a         		db	CR,LF,LF,LF
+1007 : 476574436c6f63.. 		db	"GetClock v1, 09/17/2021"
+101e : 0d0a00           		db	CR,LF,NULL
+                        ;
+                        ; Set up to read the RTC
+                        ;
+1021 : 2036e0           		jsr	xParSetWrite
+1024 : a907             		lda	#PC_GET_CLOCK
+1026 : 203ce0           		jsr	xParWriteByte
+1029 : 2039e0           		jsr	xParSetRead	;prepare to read
+                        ;
+102c : 203fe0           		jsr	xParReadByte
+                        ;
+                        ; Loop to read the raw data
+                        ;
+102f : a200             		ldx	#0
+1031 : 203fe0           clockread	jsr	xParReadByte
+1034 : 9d4511           		sta	SD_Data,x
+1037 : e8               		inx
+1038 : e008             		cpx	#SD_DATA_SIZE
+103a : d0f5             		bne	clockread
+                        ;
+                        ; Set back to write mode to finish up; all apps are
+                        ; supposed to leave the SD interface in write mode.
+                        ;
+103c : 2036e0           		jsr	xParSetWrite
+                        ;
+                        ; Display the day of the week as both a name and the
+                        ; raw binary value.
+                        ;
+103f : ae4c11           		ldx	SD_DayOfWeek
+1042 : ca               		dex			;zero base
+1043 : 8a               		txa
+1044 : 0a               		asl	a
+1045 : 0a               		asl	a
+1046 : 0a               		asl	a
+1047 : 0a               		asl	a		;make index
+1048 : aa               		tax
+                        ;
+                        ; X contains an offset into DaysOfWeek.  Print until
+                        ; a null byte.
+                        ;
+1049 : bdbb10           prloop		lda	DaysOfWeek,x
+104c : f00c             		beq	prdone
+104e : 8e4d11           		stx	saveX
+1051 : 2003e0           		jsr	xkOUTCH
+1054 : ae4d11           		ldx	saveX
+1057 : e8               		inx
+1058 : d0ef             		bne	prloop
+                        ;
+                        ; Print the numeric value.  This should be taken out
+                        ; eventually but is handy for me to debug with.
+                        ;
+105a :                  prdone
+                        	if	PRINT_DOW_NUM
+105a : 200fe0           		jsr	putsil
+105d : 202800           		db	" (",0
+1060 : ad4c11           		lda	SD_DayOfWeek
+1063 : 0930             		ora	#'0'
+1065 : 2003e0           		jsr	xkOUTCH
+AS65 Assembler for R6502 [1.42].                                     Page    5
+-------------------------------- GetClock.asm --------------------------------
+
+1068 : 200fe0           		jsr	putsil
+106b : 2900             		db	")",NULL
+                        	endif
+                        ;
+                        ; Now display the data in a user-friendly format.  Eac
+                        ; numberic value is in binary, so convert to decimal
+                        ; for display.
+                        ;
+106d : a920             		lda	#' '
+106f : 2003e0           		jsr	xkOUTCH
+                        ;
+1072 : ad4511           		lda	SD_Month
+1075 : 202c11           		jsr	PrintDecimal
+1078 : a92f             		lda	#'/'
+107a : 2003e0           		jsr	xkOUTCH
+107d : ad4611           		lda	SD_Day
+1080 : 202c11           		jsr	PrintDecimal
+                        ;
+                        ; Always force the high part of the year to "20"
+                        ;
+1083 : 200fe0           		jsr	putsil
+1086 : 2f323000         		db	"/20",0
+108a : ad4811           		lda	SD_YearLow
+108d : 202c11           		jsr	PrintDecimal
+                        ;
+                        ; Space over, then do the time
+                        ;
+1090 : 200fe0           		jsr	putsil
+1093 : 2c2000           		db	", ",0
+                        ;
+1096 : ad4911           		lda	SD_Hour
+1099 : 202c11           		jsr	PrintDecimal
+109c : a93a             		lda	#':'
+109e : 2003e0           		jsr	xkOUTCH
+10a1 : ad4a11           		lda	SD_Minute
+10a4 : 202c11           		jsr	PrintDecimal
+10a7 : a93a             		lda	#':'
+10a9 : 2003e0           		jsr	xkOUTCH
+10ac : ad4b11           		lda	SD_Second
+10af : 202c11           		jsr	PrintDecimal
+                        ;
+10b2 : 200fe0           		jsr	putsil
+10b5 : 0d0a00           		db	CR,LF,0
+10b8 : 4c00e0           		jmp	extKim	;return to monitor
+                        ;
+                        ;*****************************************************
+                        ; Names of days of the week.  Each is null terminated
+                        ; and each entry is exactly 16 bytes long.
+                        ;
+10bb : 53756e64617900.. DaysOfWeek	db	"Sunday",0,0,0,0,0,0,0,0,0,0
+10cb : 4d6f6e64617900.. 		db	"Monday",0,0,0,0,0,0,0,0,0,0
+10db : 54756573646179.. 		db	"Tuesday",0,0,0,0,0,0,0,0,0
+10eb : 5765646e657364.. 		db	"Wednesday",0,0,0,0,0,0,0
+10fb : 54687572736461.. 		db	"Thursday",0,0,0,0,0,0,0,0
+110b : 46726964617900.. 		db	"Friday",0,0,0,0,0,0,0,0,0,0
+111b : 53617475726461.. 		db	"Saturday",0,0,0,0,0,0,0,0,0
+                        ;
+                        ;*****************************************************
+                        ; Given a binary value in A, display it as two decimal
+                        ; digits.  The input can't be greater than 99.  Always
+                        ; print a leading zero if less than 10.
+                        ;
+AS65 Assembler for R6502 [1.42].                                     Page    6
+-------------------------------- GetClock.asm --------------------------------
+
+112c : a000             PrintDecimal	ldy	#0	;counts 10s
+112e : c90a             out1		cmp	#10
+1130 : 9007             		bcc	out2	;below 10
+1132 : c8               		iny		;count 10
+1133 : 38               		sec
+1134 : e90a             		sbc	#10
+1136 : 4c2e11           		jmp	out1
+                        ;
+1139 : 48               out2		pha		;save ones
+113a : 98               		tya		;get tens
+113b : 203f11           		jsr	out3	;print tens digit
+113e : 68               		pla		;restore ones
+                        ;
+113f : 0930             out3		ora	#'0'
+1141 : 2003e0           		jsr	xkOUTCH
+1144 : 60               		rts
+                        ;
+                        ;*****************************************************
+                        ; Non zero-page RAM.
+                        ;
+1145 =                  SD_Data		equ	*
+1145 : 00               SD_Month	ds	1
+1146 : 00               SD_Day		ds	1
+1147 : 00               SD_YearHigh	ds	1
+1148 : 00               SD_YearLow	ds	1
+1149 : 00               SD_Hour		ds	1
+114a : 00               SD_Minute	ds	1
+114b : 00               SD_Second	ds	1
+114c : 00               SD_DayOfWeek	ds	1
+0008 =                  SD_DATA_SIZE	equ	(*-SD_Data)
+                        ;
+114d : 00               saveX		ds	1
+                        ;
+                        ; Make sure we haven't exceeded RAM!
+                        ;
+                        	if	* > $13ff
+                        		error	Overran RAM!
+                        	endif
+                        ;
+                        ;*****************************************************
+                        ; Set the auto-run vector so this code will run right
+                        ; after loading it.
+                        ;
+dff8 =                  		org	AutoRun
+dff8 : 0010             		dw	SetClock
+                        		end
+                        
+                        
+No errors in pass 2.
