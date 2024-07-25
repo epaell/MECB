@@ -42,8 +42,8 @@ Disks::Disks(void)
 
         userInt = UserInt::getInstance();
 
-        pinMode(PRESENCE_PIN, INPUT);   // pin with presence bit
-        presentState = false;     // assume an SD card is there
+        pinMode(PRESENCE_PIN, INPUT_PULLUP);   // pin with presence bit (changed from Corsham version to add pullup)
+        presentState = true;     // assume an SD card is there (changed from Corsham version to invert state)
 }
 
 
@@ -77,7 +77,7 @@ void Disks::poll(void)
                 // action based on whether the card is
                 // now present or not.
 
-                if (state == true)
+                if (state == false) // (changed from Corsham version to invert state)
                 {
                         Serial.println("Disks::poll detected card removal");
                         userInt->sendEvent(UI_SD_REMOVED);
@@ -130,7 +130,7 @@ void Disks::mountDefaults(int which)
                 configFileName = CONFIG_FILE_ALT;
         }
 
-        if (debounceInputPin(PRESENCE_PIN))
+        if (!debounceInputPin(PRESENCE_PIN)) // (changed from Corsham version to invert state)
         {
                 Serial.println("No card inserted");
                 return;
