@@ -7,7 +7,7 @@
 
 #include "cpu/m68000/m68008.h"
 #include "machine/6850acia.h"
-
+#include "machine/6840ptm.h"
 #include "machine/clock.h"
 #include "bus/rs232/rs232.h"
 #include "video/tms9928a.h"
@@ -22,6 +22,7 @@ public:
 		: driver_device(mconfig, type, tag)
 		, m_maincpu(*this, "maincpu")
 		, m_acia(*this, "acia")
+        , m_ptm(*this, "ptm")
 	{ }
 
 	void mecb68008(machine_config &config);
@@ -31,6 +32,7 @@ private:
 
 	required_device<cpu_device> m_maincpu;
 	required_device<acia6850_device> m_acia;
+	required_device<ptm6840_device> m_ptm;
 };
 
 void mecb68008_state::mecb68008_mem(address_map &map)
@@ -38,7 +40,8 @@ void mecb68008_state::mecb68008_mem(address_map &map)
 	map.unmap_value_high();
 	map(0x000000, 0x007fff).rom();
 	map(0x008000, 0x01ffff).ram();
-	map(0x020000, 0x020003).rw("acia", FUNC(acia6850_device::read), FUNC(acia6850_device::write)); //.umask16(0x00ff);
+	map(0x020000, 0x020007).rw("ptm", FUNC(ptm6840_device::read), FUNC(ptm6840_device::write));
+	map(0x020008, 0x02000C).rw("acia", FUNC(acia6850_device::read), FUNC(acia6850_device::write)); //.umask16(0x00ff);
 	map(0x020080, 0x020081).rw("vdp", FUNC(tms9928a_device::read),FUNC(tms9928a_device::write));
 }
 
@@ -72,18 +75,21 @@ void mecb68008_state::mecb68008(machine_config &config)
 	rs232.rxd_handler().set(m_acia, FUNC(acia6850_device::write_rxd));
 	rs232.set_option_device_input_defaults("terminal", DEVICE_INPUT_DEFAULTS_NAME(terminal)); // must be below the DEVICE_INPUT_DEFAULTS_START block
 
+	PTM6840(config, m_ptm, 16_MHz_XTAL / 4);
+	m_ptm->set_external_clocks(4000000.0/14.0, 4000000.0/14.0, (4000000.0/14.0)/8.0);
+	m_ptm->irq_callback().set_inputline("maincpu", M68K_IRQ_5);
+
 	// video hardware
 	tms9929a_device &vdp(TMS9929A(config, "vdp", XTAL(10'738'635)));
 	vdp.set_screen("screen");
 	vdp.set_vram_size(0x4000);
-//	vdp.int_callback().set_inputline("maincpu", m6502_device::IRQ_LINE);
+	vdp.int_callback().set_inputline("maincpu", M68K_IRQ_5);
 	SCREEN(config, "screen", SCREEN_TYPE_RASTER);
 }
 
 ROM_START(mecb68008)
 	ROM_REGION(0x8000, "maincpu", 0)
-//    ROM_LOAD("t68k.bin",   0x00000, 0x2f78, CRC(20a8d0d0) SHA1(544fd8bd8ed017115388c8b0f7a7a59a32253e43) )
-	ROM_LOAD("mecb68008.bin",   0x00000, 0x8000, CRC(77751c12) SHA1(9f57241572406725b349451a757572b639276e61) )
+	ROM_LOAD("mecb68008.bin",   0x00000, 0x8000, CRC(4b0bbe85) SHA1(ea9ceac5e926e92479bbd1bb065fa41ba212e86e) )
 ROM_END
 
 } // anonymous namespace

@@ -7,7 +7,7 @@
 
 #include "cpu/m6809/m6809.h"
 #include "machine/6850acia.h"
-
+#include "machine/6840ptm.h"
 #include "machine/clock.h"
 #include "bus/rs232/rs232.h"
 #include "video/tms9928a.h"
@@ -22,6 +22,7 @@ public:
 		: driver_device(mconfig, type, tag)
 		, m_maincpu(*this, "maincpu")
 		, m_acia(*this, "acia")
+        , m_ptm(*this, "ptm")
 	{ }
 
 	void mecb6809(machine_config &config);
@@ -31,11 +32,13 @@ private:
 
 	required_device<cpu_device> m_maincpu;
 	required_device<acia6850_device> m_acia;
+	required_device<ptm6840_device> m_ptm;
 };
 
 void mecb6809_state::mecb6809_mem(address_map &map)
 {
 	map(0x0000, 0xbfff).ram();
+	map(0xc000, 0xc007).rw("ptm", FUNC(ptm6840_device::read), FUNC(ptm6840_device::write));
 	map(0xc008, 0xc00f).rw("acia", FUNC(acia6850_device::read), FUNC(acia6850_device::write));
 	map(0xc080, 0xc081).rw("vdp", FUNC(tms9928a_device::read),FUNC(tms9928a_device::write));
 	map(0xc100, 0xffff).rom();
@@ -70,6 +73,10 @@ void mecb6809_state::mecb6809(machine_config &config)
 	rs232_port_device &rs232(RS232_PORT(config, "rs232", default_rs232_devices, "terminal"));
 	rs232.rxd_handler().set(m_acia, FUNC(acia6850_device::write_rxd));
 	rs232.set_option_device_input_defaults("terminal", DEVICE_INPUT_DEFAULTS_NAME(terminal)); // must be below the DEVICE_INPUT_DEFAULTS_START block
+
+	PTM6840(config, m_ptm, 16_MHz_XTAL / 4);
+	m_ptm->set_external_clocks(4000000.0/14.0, 4000000.0/14.0, (4000000.0/14.0)/8.0);
+	m_ptm->irq_callback().set_inputline("maincpu", M6809_IRQ_LINE);
 
 	// video hardware
 	tms9929a_device &vdp(TMS9929A(config, "vdp", XTAL(10'738'635)));

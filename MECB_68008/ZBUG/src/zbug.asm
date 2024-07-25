@@ -42,7 +42,7 @@ BIT_ESC      EQU 0              ; ESC BIT POSITION #0
 ;
 RAM           EQU $008000       ; RAM START ADDRESS
 SUPER_STACK   EQU $01A000       ; SUPER STACK TOP Address
-ACIAC         EQU $020000
+ACIAC         EQU $020008
 
 ;
 ACIAD         EQU ACIAC+1

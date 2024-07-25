@@ -341,7 +341,7 @@ AV48     DS.L    1              48  $30   UNASSIGNED
 * Use this value to run out of RAM
 *	ORG		$000800			* past the vectors in a real system
 
-ACIA_1   =      $00020000        * Console ACIA base address
+ACIA_1   =      $00020008        * Console ACIA base address
 ACIA_2   =      $000F0041        * Auxiliary ACIA base address
 
 *************************************************************************************
