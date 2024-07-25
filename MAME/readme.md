@@ -97,8 +97,7 @@ You can update the ROMS with your own version. The supplied bin2rom.py script mo
 
 # Limitations
 
-Currently only the 6850, RAM and ROM are included as part of the emulation. It should be possible to add the 6840 timer, and 6821 but this hasn't been done yet.
-VDP support has been added but interrupts on the 68008 variants is not yet implemented.
+Currently only the 6821 and SN76489 sound device haven't been implemented yet.
 
 # Connecting via terminal
 
