@@ -88,7 +88,6 @@ void mecb6502_state::mecb6502(machine_config &config)
 
 ROM_START(mecb6502)
 	ROM_REGION(0x10000, "maincpu",0)
-	ROM_LOAD("bioscv.rom",   0xb800, 0x0800, CRC(c3c590c6) SHA1(5ac620c529e4965efb5560fe824854a44c983757))
 	ROM_LOAD("mecb6502.bin",   0xe100, 0x1f00, CRC(e84486a7) SHA1(f9f1b4c76b8c1d207106412168862dcf677bb7ed))
 ROM_END
 

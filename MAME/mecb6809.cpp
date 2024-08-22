@@ -88,7 +88,7 @@ void mecb6809_state::mecb6809(machine_config &config)
 
 ROM_START(mecb6809)
 	ROM_REGION(0x10000, "maincpu",0)
-	ROM_LOAD("mecb6809.bin",   0xC100, 0x3F00, CRC(fbbd6038) SHA1(da9092a9e0c78605cfdd7c424c455422b6aaf052))
+	ROM_LOAD("mecb6809.bin",   0xC100, 0x3F00, CRC(3bd8acaa) SHA1(5f76b8e1e554a3dddcaebd63f6ccf7e545948546))
 ROM_END
 
 } // anonymous namespace
