@@ -27,6 +27,7 @@ cd $MAMEDST
 if you have 4 cores use "-j5", otherwise adjust to number of cores + 1.
 
 make SUBTARGET=mecb6502 SOURCES=src/mame/homebrew/mecb6502.cpp,src/mame/homebrew/mecb6502b.cpp TOOLS=1 REGENIE=1 -j5
+
 make SUBTARGET=mecb6809 SOURCES=src/mame/homebrew/mecb6809.cpp TOOLS=1 REGENIE=1 -j5
 
 This will create the executables "mecb6502" and "mecb6809" which can then be run to load up mame for the two processors.
@@ -104,8 +105,11 @@ Currently only the 6821 and SN76489 sound device haven't been implemented yet.
 The serial terminal can be attached via another terminal (which is useful for uploading software to the emulator) e.g. The following connects the ACIA to a bitbanger device in /tmp/mecb6502
 
 echo "Cleaning up old instance of bitbanger device ..."
+
 rm /tmp/mecb6502
+
 echo "Starting up emulator ..."
+
 ./mecb6502 -window -resolution 640x480 mecb6502 -rs232 null_modem -bitb domain./tmp/mecb6502
 
 This can then be connected to via:
