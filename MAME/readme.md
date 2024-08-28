@@ -106,12 +106,12 @@ The serial terminal can be attached via another terminal (which is useful for up
 
 echo "Cleaning up old instance of bitbanger device ..."
 
-rm /tmp/mecb6502
+rm ./comms
 
 echo "Starting up emulator ..."
 
-./mecb6502 -window -resolution 640x480 mecb6502 -rs232 null_modem -bitb domain./tmp/mecb6502
+./mecb6502 -window -resolution 640x480 mecb6502 -rs232 null_modem -bitb domain./comms
 
 This can then be connected to via:
 
-minicom -D unix#/tmp/mecb6502
+minicom -D unix#./comms
