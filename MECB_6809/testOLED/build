@@ -1,0 +1,2 @@
+asm6809 src/OLED_128x64_Test.asm -S -v -l testoled.lst -o testoled.s19
+asm6809 src/OLED_128x64_Test16.asm -S -v -l testoled16.lst -o testoled16.s19
