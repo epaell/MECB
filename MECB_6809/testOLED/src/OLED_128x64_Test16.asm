@@ -51,6 +51,28 @@ LoadCmdLoop    LDA   ,X+               ; Load register data pointed to by X and 
 ;
                clra                    ; Set colour
                sta   c
+               sta   lx1
+               sta   ly1
+               sta   r
+               pdata1  testC
+               lda   #64
+               sta   lx1+1
+               lda   #32
+               sta   ly1+1
+               lda   #31
+               sta   r+1
+lloopc         lda   c                 ; Draw circles with decreasing radius
+               jsr   SetColour
+               jsr   circle
+               inc   c
+               inc   lx1+1
+               inc   lx1+1
+               dec   r+1
+               bne   lloopc
+               lbra  exit
+;
+               clra                    ; Set colour
+               sta   c
                sta   lx1               ; Start x1,y1 = (0,0)
                sta   ly1
                sta   lx2
@@ -162,6 +184,7 @@ lx1            rmb   2                 ; line start and end coordinate
 ly1            rmb   2
 lx2            rmb   2
 ly2            rmb   2
+r              rmb   2                 ; circle radius
 ;
 x1             rmb   2                 ; line drawing internal variables
 y1             rmb   2
@@ -237,6 +260,8 @@ steep          rmb   1                 ; non-zero if (dy>dx)
 ;
 text1          fcc   "Initialising graphics device"
                fcb   CR,LF,EOT
+testC          fcc   "TestC"
+               fcb   CR,LF,EOT
 test1          fcc   "Test1"
                fcb   CR,LF,EOT
 test2          fcc   "Test2"
@@ -266,6 +291,125 @@ negd           nega
                sbca     #$00              ; Negate Acc D if A=0
                rts
 ;
+;
+; Draw circle at (lx1, ly1) with radius r
+circle         pshs     d
+               ldd      #3
+               subd     r
+               subd     r
+               std      stepy             ; stepy = 3 - 2*r
+               ldd      #0
+               std      lx                ; lx = 0
+               ldd      r
+               std      ly                ; ly = r
+               ldd      lx1
+               subd     ly
+               stb      vx
+               ldd      ly1
+               subd     lx
+               stb      vy  
+               jsr      SetPixel          ; plot(lx1-ly, ly1-lx)
+circle1        ldd      lx
+               cmpd     ly
+               lbgt     c_done
+               ldd      lx                ; while lx <= ly
+               addd     lx1
+               stb      vx
+               ldd      ly1
+               subd     ly
+               stb      vy
+               jsr      SetPixel          ; plot(lx + lx1, -ly + ly1)
+               ldd      lx
+               cmpd     ly
+               beq      circle2
+               ldd      ly                ; if lx != ly
+               addd     lx1
+               stb      vx
+               ldd      ly1
+               subd     lx
+               stb      vy
+               jsr      SetPixel          ; plot(ly + lx1, -lx + ly1)
+circle2        ldd      lx
+               beq      circle3
+               ldd      ly                ; if lx != 0
+               addd     lx1
+               stb      vx
+               ldd      lx
+               addd     ly1
+               stb      vy
+               jsr      SetPixel          ; plot(ly + lx1,  lx + ly1)
+               ldd      ly
+               beq      circle3
+               ldd      lx1               ; if ly != 0
+               subd     lx
+               stb      vx
+               ldd      ly
+               addd     ly1
+               stb      vy
+               jsr      SetPixel          ; plot(-lx + lx1,  ly + ly1)
+               ldd      lx1
+               subd     ly
+               stb      vx
+               ldd      ly1
+               subd     lx
+               stb      vy
+               jsr      SetPixel          ; plot(-ly + lx1, -lx + ly1)
+               ldd      lx
+               cmpd     ly
+               beq      circle3           ; if lx != ly
+               ldd      lx1
+               subd     ly
+               stb      vx
+               ldd      lx
+               addd     ly1
+               stb      vy
+               jsr      SetPixel          ; plot(-ly + lx1,  lx + ly1)
+               ldd      lx1
+               subd     lx
+               stb      vx
+               ldd      ly1
+               subd     ly
+               stb      vy
+               jsr      SetPixel          ; plot(-lx + lx1, -ly + ly1)
+circle3        ldd      ly
+               beq      circle4
+               cmpd     lx
+               beq      circle4
+               ldd      lx                ; if ly != 0 and lx != ly
+               addd     lx1
+               stb      vx
+               ldd      ly
+               addd     ly1
+               stb      vy
+               jsr      SetPixel          ; plot(lx + lx1,  ly + ly1)
+circle4        ldd      stepy
+               bge      circle5
+               ldd      lx                ; if stepy < 0:
+               aslb
+               rola
+               aslb
+               rola
+               addd     #6                ; stepy += (4 * lx) + 6
+               addd     stepy
+               std      stepy
+               bra      circle6
+circle5        ldd      lx                ; else:
+               subd     ly
+               aslb
+               rola
+               aslb
+               rola
+               addd     #10
+               addd     stepy             ; stepy += (4 * (lx - ly)) + 10
+               std      stepy
+               ldd      ly                ; ly -= 1
+               subd     #1
+               std      ly
+circle6        ldd      lx                ; lx += 1
+               addd     #1
+               std      lx
+               lbra     circle1
+c_done         puls     d,pc
 ;
 ; Draw line from (lx1, ly1) to (lx2, ly2)
 line           pshs     d
@@ -304,7 +448,7 @@ line2a         std      dy
                std      y2
 line3          ldd      x1                ; if (x1>x2)
                cmpd     x2
-               lbgt      line_rev          ; reversed
+               lbgt     line_rev          ; reversed
 ;
                ldd      x2                ; dx = x2 - x1
                subd     x1
@@ -422,6 +566,7 @@ liner8         bsr      SetPixel
                addd     dx
                std      error
 liner9         ldd      lx
+               cmpd     x1
                beq      liner_done
                subd     #1
                std      lx

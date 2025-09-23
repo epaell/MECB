@@ -48,9 +48,88 @@ LoadCmdLoop    lda   ,X+               ; Load register data pointed to by X and 
                lda   #$AF              ; Turn Display ON (after clearing buffer)
                sta   OLED_CMD          ;
 ;
-               clra                    ; Set colour
-               sta   c
-               sta   ly1               ; Start x1,y1 = (0,0)
+               lda      #10
+               sta      lx1
+               sta      ly1
+               lda      #100
+               sta      lx2
+               lda      #50
+               sta      ly2
+               lda      #3
+               sta      dx1
+               sta      dy1
+               lda      #$ff
+               sta      dx2
+               lda      #2
+               sta      dy2
+               lda      #0
+               sta      c
+
+loop           lda      lx1 ; x1 += dx1
+               adda     dx1
+               sta      lx1
+               cmpa     #120
+               blo      loop1
+               ldb      dx1 ; if lx1>=123 then dx1=-dx1
+               negb
+               stb      dx1
+loop1          cmpa     #5
+               bhi      loop2
+               ldb      dx1 ; if lx1<=5 then dx1=-dx1
+               negb
+               stb      dx1
+;
+loop2          lda      ly1 ; y1 += dy
+               adda     dy1
+               sta      ly1
+               cmpa     #56
+               blo      loop3
+               ldb      dy1 ; if ly1>=58 then dy1=-dy1
+               negb
+               stb      dy1
+loop3          cmpa     #5    ; if ly1<=5 then dy1=-dy1
+               bhi      loop5
+               ldb      dy1
+               negb
+               stb      dy1
+
+loop5          lda      lx2 ; lx2 += dx2
+               adda     dx2
+               sta      lx2
+               cmpa     #120
+               blo      loop6
+               ldb      dx2 ; if lx2>=123 then dx2=-dx2
+               negb
+               stb      dx2
+loop6          cmpa     #5    ; if lx2<=5 then dx2=-dx2
+               bhi      loop7
+               ldb      dx2
+               negb
+               stb      dx2
+loop7          lda      ly2 ; ly2 += dy2
+               adda     dy2
+               sta      ly2
+               cmpa     #56  ; if ly2>= 56 then dy2=-dy2
+               blo      loop8
+               ldb      dy2
+               negb
+               stb      dy2
+loop8          cmpa     #5    ; if ly2<=5 then dy2=-dy2
+               bhi      loop9
+               ldb      dy2
+               negb
+               stb      dy2
+loop9          inc      c
+               lda      c
+               jsr      SetColour
+               jsr      line
+               lbra     loop
+
+               if    0
+               lda   #$0F              ; Set colour
+               sta   C
+               clra                    ; Start x1,y1 = (0,0)
+               sta   ly1
                sta   lx1
                lda   #63               ; End x2,y2 = (127,63)
                sta   ly2
@@ -64,20 +143,21 @@ lloop1         lda   c                 ; Set the current colour
                decb                    ; decrement x2
                stb   lx2
                bne   lloop1
+               lbra  exit
 ;
                ldb   ly2
-lloop1a        lda   c
+lloop1a        lda   C
                jsr   SetColour
                jsr   line
                inc   ly1
-               inc   c
+               inc   
                decb
                stb   ly2
                bne   lloop1a
-               lbra  exit
                
 ; fill by sweeping top to bottom with horizontal lines
                pdata1  test1
+               pcrlf
                lda   #$04
                jsr   SetColour
                clra
@@ -94,6 +174,8 @@ lloop2         jsr   line
                bne   lloop2
 ; clear by sweeping left to right with vertical lines
                pdata1   test2
+               pcrlf
+               
                lda   #$08
                jsr   SetColour
                clra
@@ -110,6 +192,7 @@ lloop5         jsr   line
                bne   lloop5
 ; clear by sweeping top to bottom with horizontal lines
                pdata1   test3
+               pcrlf
                lda   #$0C
                jsr   SetColour
                clra
@@ -126,6 +209,7 @@ lloop3         jsr   line
                bne   lloop3
 ; fill by sweeping left to right with vertical lines
                pdata1 test4
+               pcrlf
                lda   #$0f
                jsr   SetColour
                clra
@@ -140,28 +224,30 @@ lloop4         jsr   line
                lda   lx1
                cmpa  #128
                bne   lloop4
-               
+               endif
 ;
 ;
 ; Return to ASSIST09
 ;
 exit           monitr   #$01
 ;
-;
-; Message to notify user that graphics device is being started up
-;
-text1          fcc   "Initialising graphics device"
-               fcb   CR,LF,EOT
 test1          fcc   "Test1"
-               fcb   CR,LF,EOT
+               fcb   EOT
 test2          fcc   "Test2"
-               fcb   CR,LF,EOT
+               fcb   EOT
 test3          fcc   "Test3"
-               fcb   CR,LF,EOT
+               fcb   EOT
 test4          fcc   "Test4"
-               fcb   CR,LF,EOT
+               fcb   EOT
+hello          fcc   "Hello, World!"
+               fcb   EOT
 ;
 c              rmb   1
+dx1            rmb   1
+dy1            rmb   1
+dx2            rmb   1
+dy2            rmb   1
+
 vx             rmb   1                 ; X coord
 vy             rmb   1                 ; Y coord
 colourl        rmb   1                 ; Colour to plot with (assuming low nybble)
@@ -184,6 +270,12 @@ error          rmb   1
 stepy          rmb   1
 steep          rmb   1                 ; non-zero if (dy>dx)
 ;
+;
+; Message to notify user that graphics device is being started up
+;
+text1          fcc      "Initialising graphics device"
+               fcb      CR,LF,EOT
+;
 ; Data Structures
 ; ---------------
 OledInitCmds   fcb   $B3,$70           ; Set Clk Divider / Osc Fequency
@@ -199,7 +291,36 @@ OledInitCmds   fcb   $B3,$70           ; Set Clk Divider / Osc Fequency
 ; -----------
 ;
 ; Draw line from (lx1, ly1) to (lx2, ly2)
-line           pshs     d
+line           
+               if    0                 ; Print out inputs if debugging
+               pshs  d,x
+               lda   #'(
+               outch
+               ldx   #lx1
+               out2hs
+               lda   #',
+               outch
+               ldx   #ly1
+               out2hs
+               lda   #')
+               outch
+               lda   #'-
+               outch
+               lda   #'(
+               outch
+               ldx   #lx2
+               out2hs
+               lda   #',
+               outch
+               ldx   #ly2
+               out2hs
+               lda   #')
+               outch
+               pcrlf
+               puls  d,x
+               endif
+               
+               pshs     d
                lda      lx1
                sta      x1
                lda      lx2              ; dx = abs(x2-x1)
@@ -280,10 +401,10 @@ line8          jsr      SetPixel
                sta      error
 line9          lda      lx
                cmpa     x2
-               beq      line_done
+               beq      ldone
                inc      lx
                bra      line6a
-line_done      puls     d,pc
+ldone          puls     d,pc
 ;
 line_rev       lda      x1                ; Reversed, x1, x2 = x2, x1
                ldb      x2
@@ -339,6 +460,7 @@ liner8         bsr      SetPixel
                adda     dx
                sta      error
 liner9         lda      lx
+               cmpa     x1
                beq      liner_done
                deca
                sta      lx
@@ -376,6 +498,23 @@ SetPixel
 WasEvnSet      andb  #$0F              ; Mask out even column
                orb   colourh           ; Set for even column pixel
 StrPxlSet      stb   OLED_DTA          ;
+
+               if    0                 ; Print out pixel coordinate for debugging
+               pshs  a
+               LDA   #'(
+               outch
+               LDX   #vx
+               out2hs
+               LDA   #',
+               outch
+               LDX   #vy
+               out2hs
+               LDA   #')
+               outch
+               pcrlf
+               puls  a
+               endif
+               
                rts
 
 ;
@@ -480,4 +619,4 @@ WrtDtaLp       sta   OLED_DTA          ; Write Byte to current buffer location
                bne   WrtDtaLp          ; Done?
                rts
 ;
-               end
+               END
