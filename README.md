@@ -1,6 +1,9 @@
 # MECB
 A random assortment of software for the MECB system.
 
+# 68008 tester
+A simple free-running tester for PLCC 68008s
+
 # SD-drive
 Firmware for Arduino SD-drive based on Corsham Technologies SD-drive interface
 
@@ -20,4 +23,4 @@ Collection of software for the MECB_6809 system
 Test software for the hypothetical MECB_Z80 system (currently for testing emulation).
 
 # MECB_68008
-Test software for the hypothetical MECB_68008 system (currently for testing emulation).
+Test software for the MECB_68008 system (including a similar MAME board for testing).
