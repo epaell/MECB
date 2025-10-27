@@ -39,7 +39,7 @@ SV\@     DS      0
 
 *-------------------------------------------------------------------------
 
-RAM_START EQU   $8000
+RAM_START EQU   $0000
 
 * EQUATES (in alphabetical order)
 
@@ -58,7 +58,7 @@ DELAYC1  EQU     $1000
 EOT      EQU     $04
 LF       EQU     $0A
 LOCVARSZ EQU     16
-RESET    EQU     $43            MASTER RESET FOR ACIA
+RESET    EQU     $03            MASTER RESET FOR ACIA
 
 LTIME    SET     205000         LONG TIMER 5 SEC @ 8 MHZ
 STIME    SET     41000          SHORT TIMER  100 MLS @ 8 MHZ
@@ -70,8 +70,8 @@ PITTCR   SET     $0F0021        TIMER CONTROL REGISTER
 PSTATUS  SET     $B             PRINTER STATUS
 PBDATA   SET     3              PRINTER CONTROL--BUSY,PAPER,SELECT
 PDATA    SET     1              PRINTER DATA
-SER1     SET     $020008        TERMINAL
-SER2     SET     $0F0004        SERIAL PORT2 ADDRESS
+SER1     SET     $3C0008        TERMINAL
+SER2     SET     $3C0008        SERIAL PORT2 ADDRESS
 
 
 *-------------------------------------------------------------------------
@@ -495,7 +495,7 @@ LDATA    EQU     $FFFFFFC4      DS.B    1
 *-------------------------------------------------------------------------
 * File B         Init Vectors+Ram                                 05/29/82
 
-         ORG     $00000
+         ORG     $200000
 
 FIRST    DC.L    REGA7              ; 0   $00  SR
          DC.L    START              ; 1   $01  RESET
@@ -925,6 +925,8 @@ START    MOVEM.W D0,REGSR+2     Assure good parity
          MOVE.W  SR,REGSR+2     SAVE STATUS REGISTER
          MOVEM.L D0-D7/A0-A6,-(A7)
 
+         MOVE.W  #$0000,$040000               ; Get out of BOOT mode so read from RAM works as normal
+
          LEA     SYSTACK,A7     SET UP STACK
          MOVE.L  A7,REGA7
 
@@ -992,7 +994,7 @@ START11  MOVE.W  #$2700,SR      MASK OFF INTERRUPTS
 
 * INITIALIZE THE PDI'S
 
-         MOVE.W  #$1515,MD1CON
+         MOVE.W  #$5151,MD1CON
          BSR     INITSER        RESET & PROGRAM PDI
 
 * INITIALIZE XON/XOFF (READER ON / READER OFF)

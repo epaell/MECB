@@ -1,0 +1,20 @@
+GAL22V10
+GLUE
+
+AS       DS      RW     NMI    IRQ     BOOT   FC2    FC1   FC0   CPUSP NC   GND
+NC       IPL2    IPL1   IPL0   EXPSEL  NC     NC     A18   A19   A20   A21  VCC
+
+IPL2 = NMI
+IPL1 = NMI
+IPL0 = NMI * IRQ
+/EXPSEL   =  CPUSP * /AS * /A21 * A20
+
+DESCRIPTION
+
+U5 (Address and Interrupt Decoder) for MECB 68008
+
+* Onboard RAM    : $000000 - $0FFFFF (0.5MB), $080000 - $0FFFFF (0.5MB) unused (will map to expansion space in future)
+* Expansion space: $100000 - $1FFFFF unused (will map to expansion space in future) 
+* ROM            : $200000 - $2FFFFF (0.5MB), $280000 - $2FFFFF (0.5MB) unused (will map to expansion space in future) 
+* Unused         : $300000 - $3BFFFF unused (will map to expansion space in future) 
+* IO             : $3C0000 - $3FFFFF (0.25 MB)

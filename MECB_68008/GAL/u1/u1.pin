@@ -1,0 +1,29 @@
+
+
+ Pin # | Name     | Pin Type
+-----------------------------
+   1   | AS       | Clock/Input
+   2   | DS       | Input
+   3   | RW       | Input
+   4   | NMI      | Input
+   5   | IRQ      | Input
+   6   | BOOT     | Input
+   7   | FC2      | Input
+   8   | FC1      | Input
+   9   | FC0      | Input
+  10   | CPUSP    | Input
+  11   | NC       | Input
+  12   | GND      | GND
+  13   | NC       | Input
+  14   | IPL2     | Output
+  15   | IPL1     | Output
+  16   | IPL0     | Output
+  17   | EXPSEL   | Output
+  18   | NC       | NC
+  19   | NC       | NC
+  20   | A18      | NC
+  21   | A19      | NC
+  22   | A20      | Input
+  23   | A21      | Input
+  24   | VCC      | VCC
+

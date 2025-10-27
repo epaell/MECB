@@ -1,0 +1,29 @@
+
+
+                                GAL22V10
+
+                          -------\___/-------
+                       AS |  1           24 | VCC
+                          |                 |
+                       DS |  2           23 | PPDTACK
+                          |                 |
+                    HWRST |  3           22 | WR
+                          |                 |
+                      FC2 |  4           21 | BOOT
+                          |                 |
+                      FC1 |  5           20 | DTACK
+                          |                 |
+                      FC0 |  6           19 | CSROM
+                          |                 |
+                      A21 |  7           18 | CSRAM
+                          |                 |
+                      A20 |  8           17 | IORQ
+                          |                 |
+                      A19 |  9           16 | RESET
+                          |                 |
+                      A18 | 10           15 | HALT
+                          |                 |
+                       RW | 11           14 | CPUSP
+                          |                 |
+                      GND | 12           13 | EXPSEL
+                          -------------------
