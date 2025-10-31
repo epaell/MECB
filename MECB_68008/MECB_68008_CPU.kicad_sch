@@ -12,7 +12,7 @@
 		(comment 1 "For Minimalist Europe Card Bus (MECB). ")
 		(comment 2 "Note: CPUSP and ECB_MREQ need to be manually connected")
 		(comment 3 "Possibly should cut-off original ECB_MREQ connection from pin 11 of U1")
-		(comment 4 "Also connect A18-A21 to U1")
+		(comment 4 "Also connect A18-A21 to U1; need to fix ECB_WR and ECB_RD")
 	)
 	(lib_symbols
 		(symbol "+5V_1"
@@ -7264,6 +7264,12 @@
 		(uuid "8b52d35d-0986-4d28-9a88-6509a9d5b190")
 	)
 	(junction
+		(at 229.87 156.21)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "aff1a7dc-7c4d-43d8-aa58-52c5d2e97cb3")
+	)
+	(junction
 		(at 124.46 113.03)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -7292,12 +7298,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f1d70c61-5325-43d2-8608-630c0bdcb0e9")
-	)
-	(junction
-		(at 255.27 147.32)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "f3728eac-bee6-4c2f-80e6-317e18e29b21")
 	)
 	(no_connect
 		(at 31.75 78.74)
@@ -8885,6 +8885,16 @@
 	)
 	(wire
 		(pts
+			(xy 229.87 151.13) (xy 229.87 156.21)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1b83e630-a18a-49f8-94a1-ec5f16dffa83")
+	)
+	(wire
+		(pts
 			(xy 102.87 24.13) (xy 102.87 36.83)
 		)
 		(stroke
@@ -9032,6 +9042,16 @@
 			(type default)
 		)
 		(uuid "26323e9d-ee99-4fb7-a2f5-ba2934c3aec4")
+	)
+	(wire
+		(pts
+			(xy 255.27 133.35) (xy 255.27 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "265a6a0e-5cfc-4614-95d3-6deb98c6a01d")
 	)
 	(bus
 		(pts
@@ -10465,16 +10485,6 @@
 	)
 	(wire
 		(pts
-			(xy 266.7 147.32) (xy 255.27 147.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8235b043-9442-439e-8a53-8764fdc30d3e")
-	)
-	(wire
-		(pts
 			(xy 189.23 125.73) (xy 179.07 125.73)
 		)
 		(stroke
@@ -10573,6 +10583,16 @@
 		)
 		(uuid "887bb01e-57d4-4c39-83c5-737189e17b06")
 	)
+	(wire
+		(pts
+			(xy 255.27 151.13) (xy 257.81 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8931cba2-dbec-4c7b-afe6-766830347358")
+	)
 	(bus
 		(pts
 			(xy 224.79 58.42) (xy 224.79 60.96)
@@ -10595,7 +10615,7 @@
 	)
 	(wire
 		(pts
-			(xy 271.78 133.35) (xy 273.05 133.35)
+			(xy 271.78 133.35) (xy 276.86 133.35)
 		)
 		(stroke
 			(width 0)
@@ -10632,6 +10652,16 @@
 			(type default)
 		)
 		(uuid "8c2066d1-a6f3-4ee3-85c7-ae16a78a2b56")
+	)
+	(wire
+		(pts
+			(xy 224.79 156.21) (xy 229.87 156.21)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8d629fe7-9493-423e-be7f-d8af092ba52b")
 	)
 	(bus
 		(pts
@@ -11125,6 +11155,16 @@
 	)
 	(wire
 		(pts
+			(xy 229.87 151.13) (xy 224.79 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b297bbaf-827f-4ab3-bf8b-f7ae9cf963b3")
+	)
+	(wire
+		(pts
 			(xy 227.33 48.26) (xy 237.49 48.26)
 		)
 		(stroke
@@ -11182,16 +11222,6 @@
 			(type default)
 		)
 		(uuid "b7afacc0-597d-487f-a87e-8988c5f0f46f")
-	)
-	(wire
-		(pts
-			(xy 266.7 152.4) (xy 255.27 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b908cf64-94c9-4283-b968-5b5ebb3f6ef0")
 	)
 	(wire
 		(pts
@@ -11545,16 +11575,6 @@
 	)
 	(wire
 		(pts
-			(xy 255.27 152.4) (xy 255.27 147.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d01688aa-c723-4a6c-a54e-b4d56438853e")
-	)
-	(wire
-		(pts
 			(xy 262.89 35.56) (xy 274.32 35.56)
 		)
 		(stroke
@@ -11605,6 +11625,16 @@
 	)
 	(wire
 		(pts
+			(xy 276.86 133.35) (xy 276.86 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d1fecf37-2cd7-4a2c-a700-fd13e58f6b0a")
+	)
+	(wire
+		(pts
 			(xy 237.49 38.1) (xy 227.33 38.1)
 		)
 		(stroke
@@ -11652,6 +11682,16 @@
 			(type default)
 		)
 		(uuid "d664fc32-0a90-4b0d-805c-3845556e2247")
+	)
+	(wire
+		(pts
+			(xy 264.16 156.21) (xy 229.87 156.21)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d7fc6f3d-1d4c-42a8-9917-b6626446974d")
 	)
 	(wire
 		(pts
@@ -11865,16 +11905,6 @@
 	)
 	(wire
 		(pts
-			(xy 255.27 147.32) (xy 255.27 133.35)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e7da0baa-aeff-4b6c-b5c8-28cf79765486")
-	)
-	(wire
-		(pts
 			(xy 31.75 121.92) (xy 41.91 121.92)
 		)
 		(stroke
@@ -11902,6 +11932,16 @@
 			(type default)
 		)
 		(uuid "e98d63c7-6be6-4655-933a-01b96934ce6f")
+	)
+	(wire
+		(pts
+			(xy 276.86 151.13) (xy 270.51 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ea687cd4-1d39-4e13-bef5-ec470840bd55")
 	)
 	(wire
 		(pts
@@ -12142,6 +12182,16 @@
 			(type default)
 		)
 		(uuid "faa70797-5022-46a5-b563-3384881d611c")
+	)
+	(wire
+		(pts
+			(xy 264.16 156.21) (xy 264.16 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fc8cd0ec-d14c-4deb-ab27-6b79007a55e1")
 	)
 	(wire
 		(pts
@@ -13937,22 +13987,22 @@
 	)
 	(global_label "~{VPA}"
 		(shape output)
-		(at 266.7 147.32 0)
+		(at 224.79 151.13 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left)
+			(justify right)
 		)
 		(uuid "2ee7ec0b-daba-46c8-87e8-122671f8a844")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 272.4782 147.32 0)
+			(at 219.0118 151.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 				(hide yes)
 			)
 		)
@@ -14177,7 +14227,7 @@
 			)
 		)
 	)
-	(global_label "CPU_RW"
+	(global_label "CPU_R~{W}"
 		(shape input)
 		(at 166.37 33.02 180)
 		(fields_autoplaced yes)
@@ -14243,7 +14293,7 @@
 			)
 		)
 	)
-	(global_label "ECB_RD"
+	(global_label "~{ECB_WR}"
 		(shape input)
 		(at 236.22 72.39 180)
 		(fields_autoplaced yes)
@@ -14255,7 +14305,7 @@
 		)
 		(uuid "493ce3a5-e9b2-498e-acfe-87f4c9db06e2")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 226.6924 72.39 0)
+			(at 226.511 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14463,7 +14513,7 @@
 			)
 		)
 	)
-	(global_label "ECB_WR"
+	(global_label "~{ECB_RD}"
 		(shape output)
 		(at 106.68 24.13 0)
 		(fields_autoplaced yes)
@@ -14475,7 +14525,7 @@
 		)
 		(uuid "84eaad47-9736-4417-bff7-f16883673f3a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 116.389 24.13 0)
+			(at 116.2076 24.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14573,7 +14623,7 @@
 			)
 		)
 	)
-	(global_label "CPU_RW"
+	(global_label "CPU_R~{W}"
 		(shape output)
 		(at 121.92 87.63 180)
 		(fields_autoplaced yes)
@@ -14705,7 +14755,7 @@
 			)
 		)
 	)
-	(global_label "ECB_RD"
+	(global_label "~{ECB_WR}"
 		(shape output)
 		(at 31.75 137.16 0)
 		(fields_autoplaced yes)
@@ -14717,7 +14767,7 @@
 		)
 		(uuid "a8d59608-6cda-49d7-ad44-2641ffd51efb")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 41.2776 137.16 0)
+			(at 41.459 137.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14859,7 +14909,7 @@
 			)
 		)
 	)
-	(global_label "ECB_RD"
+	(global_label "~{ECB_WR}"
 		(shape output)
 		(at 68.58 67.31 0)
 		(fields_autoplaced yes)
@@ -14871,7 +14921,7 @@
 		)
 		(uuid "bb505c3f-b3db-4740-99de-5c7c0a744e43")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 78.1076 67.31 0)
+			(at 78.289 67.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14903,7 +14953,7 @@
 			)
 		)
 	)
-	(global_label "ROM_RW"
+	(global_label "ROM_R~{W}"
 		(shape output)
 		(at 137.16 43.18 0)
 		(fields_autoplaced yes)
@@ -14993,22 +15043,22 @@
 	)
 	(global_label "ECB_IORQ"
 		(shape output)
-		(at 266.7 152.4 0)
+		(at 224.79 156.21 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left)
+			(justify right)
 		)
 		(uuid "cd5a706b-9ff5-44ba-bf10-fa1a335ef12a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 278.2234 152.4 0)
+			(at 213.2666 156.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 				(hide yes)
 			)
 		)
@@ -15057,7 +15107,7 @@
 			)
 		)
 	)
-	(global_label "ECB_WR"
+	(global_label "~{ECB_RD}"
 		(shape input)
 		(at 187.96 148.59 180)
 		(fields_autoplaced yes)
@@ -15069,7 +15119,7 @@
 		)
 		(uuid "ce6c7dbe-304d-4d33-804a-81774c6e1dc2")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 178.251 148.59 0)
+			(at 178.4324 148.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15145,7 +15195,7 @@
 			)
 		)
 	)
-	(global_label "ECB_WR"
+	(global_label "~{ECB_RD}"
 		(shape input)
 		(at 236.22 80.01 180)
 		(fields_autoplaced yes)
@@ -15157,7 +15207,7 @@
 		)
 		(uuid "e2bf4d3e-2493-4fc8-88c4-dcb2f7b92138")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 226.511 80.01 0)
+			(at 226.6924 80.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15167,7 +15217,7 @@
 			)
 		)
 	)
-	(global_label "CPU_RW"
+	(global_label "CPU_R~{W}"
 		(shape input)
 		(at 124.46 36.83 180)
 		(fields_autoplaced yes)
@@ -15233,7 +15283,7 @@
 			)
 		)
 	)
-	(global_label "ECB_WR"
+	(global_label "~{ECB_RD}"
 		(shape output)
 		(at 31.75 147.32 0)
 		(fields_autoplaced yes)
@@ -15245,7 +15295,7 @@
 		)
 		(uuid "e8852f80-f696-49cb-af13-39486629dd64")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 41.459 147.32 0)
+			(at 41.2776 147.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15255,7 +15305,7 @@
 			)
 		)
 	)
-	(global_label "ROM_RW"
+	(global_label "ROM_R~{W}"
 		(shape input)
 		(at 187.96 140.97 180)
 		(fields_autoplaced yes)
@@ -17918,6 +17968,77 @@
 			(project "MECB_68008_CPU"
 				(path "/1a2f72d1-0b36-4610-afc4-4ad1660d5d3b"
 					(reference "#PWR026")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Jumper:Jumper_3_Open")
+		(at 264.16 151.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "9bf18750-97fd-4889-8f90-db965c5b24d5")
+		(property "Reference" "JP3"
+			(at 264.16 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Jumper_3_Open"
+			(at 264.16 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 264.16 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 264.16 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Jumper, 3-pole, both open"
+			(at 264.16 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "fbb0740e-c062-4c4e-b409-e08ed4f5d98a")
+		)
+		(pin "2"
+			(uuid "c3abcac7-8684-4d6b-bbcc-4429891a8228")
+		)
+		(pin "3"
+			(uuid "183c74dc-0b6c-40d9-8d4e-3cb6ad3fff18")
+		)
+		(instances
+			(project "MECB_68008_CPU"
+				(path "/1a2f72d1-0b36-4610-afc4-4ad1660d5d3b"
+					(reference "JP3")
 					(unit 1)
 				)
 			)
