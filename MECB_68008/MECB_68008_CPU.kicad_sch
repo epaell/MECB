@@ -7293,6 +7293,12 @@
 		(color 0 0 0 0)
 		(uuid "f1d70c61-5325-43d2-8608-630c0bdcb0e9")
 	)
+	(junction
+		(at 255.27 147.32)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f3728eac-bee6-4c2f-80e6-317e18e29b21")
+	)
 	(no_connect
 		(at 31.75 78.74)
 		(uuid "038a6aa8-56db-4eea-b942-215b3bffa1a5")
@@ -11179,6 +11185,16 @@
 	)
 	(wire
 		(pts
+			(xy 266.7 152.4) (xy 255.27 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b908cf64-94c9-4283-b968-5b5ebb3f6ef0")
+	)
+	(wire
+		(pts
 			(xy 227.33 40.64) (xy 237.49 40.64)
 		)
 		(stroke
@@ -11526,6 +11542,16 @@
 			(type default)
 		)
 		(uuid "ce2a649f-48b5-4276-913f-540934189f14")
+	)
+	(wire
+		(pts
+			(xy 255.27 152.4) (xy 255.27 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d01688aa-c723-4a6c-a54e-b4d56438853e")
 	)
 	(wire
 		(pts
@@ -14327,28 +14353,6 @@
 			)
 		)
 	)
-	(global_label "ECB_IORQ"
-		(shape output)
-		(at 273.05 133.35 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "60ab6681-112c-4771-a8df-7747d2b35e89")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 284.5734 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "SYS_CLK"
 		(shape output)
 		(at 110.49 168.91 0)
@@ -14983,6 +14987,28 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "ECB_IORQ"
+		(shape output)
+		(at 266.7 152.4 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "cd5a706b-9ff5-44ba-bf10-fa1a335ef12a")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 278.2234 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)

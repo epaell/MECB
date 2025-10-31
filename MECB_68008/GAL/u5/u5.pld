@@ -32,7 +32,7 @@ BOOT.R   =  RESET *  FC2 * /FC1 *  FC0 * /A19 *  A18
 /CSROM   =  CPUSP * /AS * /DS *  A21 * /A20
          +  CPUSP * /AS * /DS * /A21 * /A20 * /A19 * /A18 *  RW * /BOOT
 
-IORQ     =  /AS * A21 * A20 * A19 * A18
+IORQ     =  CPUSP * /AS * /DS * A21 * A20 * A19 * A18
 
 
 /PPDTACK  =  CPUSP * /CSROM
