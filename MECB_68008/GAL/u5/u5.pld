@@ -31,8 +31,7 @@ BOOT.R   =  RESET *  FC2 * /FC1 *  FC0 * /A19 *  A18
 ; 00 00xx xxxx xxxx xxxx xxxx and R/W==1 (read) BOOT==0 (A read during boot at 00 will select ROM)
 /CSROM   =  CPUSP * /AS * /DS *  A21 * /A20
          +  CPUSP * /AS * /DS * /A21 * /A20 * /A19 * /A18 *  RW * /BOOT
-
-IORQ     =  CPUSP * /AS * /DS * A21 * A20 * A19 * A18
+IORQ     =  /AS * A21 * A20 * A19 * A18
 
 
 /PPDTACK  =  CPUSP * /CSROM
