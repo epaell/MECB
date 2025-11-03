@@ -1,3 +1,5 @@
+               align    2              ; Make sure everything is aligned to long boundary
+
 ;
 ; d0 has VRAM location to move font to
 vdp_load_font  move.l   d0,-(a7)             ; Save the VRAM destination

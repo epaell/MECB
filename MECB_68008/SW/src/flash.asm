@@ -1,3 +1,4 @@
+               align    2              ; Make sure everything is aligned to long boundary
 ;
 ; Write bytes to FLASH ROM
 ; Routine assumes that the sector to which is being written has already been erased.
@@ -104,20 +105,34 @@ flash_wait2 move.l  (a7)+,d1        ; Restore register
 ;
 ; Get the software ID for the ROM
 ; On Entry:
-;       d0 = base address of ROM to check
+;        d0 = base address of ROM to check
 ; On Exit:
-;       d1 = Manufacturer ID (D15-D8) + Chip ID (D7-D0)
-;       All other registers are conserved
+;        d1 = Manufacturer ID (D15-D8) + Chip ID (D7-D0)
+;        a0 = pointer to device attribute
+;        All other registers are conserved
 ;
-flash_swid  move.l   a0,-(a7)          ; save a0
+flash_swid  move.l   d2,-(a7)                ; save registers
             move.l   #FLASH_SW_ID_ENTER,a0   ; send command to retrieve ID
             bsr      flash_cmd
             move.l   d0,a0
-            move.w   (a0),d1           ; get the IDs
+            move.w   (a0),d1                 ; get the IDs
             move.l   #FLASH_SW_ID_EXIT,a0    ; send command to exit mode
             bsr      flash_cmd
-            move.l   (a7)+,a0          ; restore a0
+            move.w   d1,d2
+            lsr      #8,d2                   ; get the manufacturer ID
+            cmp.b    #$BF,d2                 ; Only know about Microchip (=$BF)
+            bne      flash_swid2
+            move.l   #FLASH_ATTR,a0          ; Point to the device attribute table
+flash_swid1 move.b   (a0),d2                 ; Get current device ID
+            beq      flash_swid2             ; If end of table reached then device not found, exit
+            cmp.b    d1,d2                   ; Does it match
+            beq      flash_swid3             ; If so, found device attributes so return.
+            lea      16(a0),a0               ; Skip to next table entry
+            bra      flash_swid1
+flash_swid2 move.l   #0,a0                   ; Device/Manufacturer not found
+flash_swid3 move.l   (a7)+,d2                ; restore registers
             rts
+
 ;
 ; Send a command to the FLASH ROM
 ;
@@ -137,7 +152,7 @@ flash_cmd1  move.l   (a0)+,d1       ; fetch a command
             bra      flash_cmd1     ; loop back
 flash_cmd2  movem.l  (a7)+,d0-d2/a2 ; restore registers
             rts                     ; return
-
+;
 ;
 ; FLASH Commands
 ;
@@ -181,3 +196,17 @@ FLASH_SEC_ERASE
             dc.l     $2AAA
             dc.l     $00
 ;
+; FLASH device attribute table:
+;     byte8  device_id (terminated with $00)
+;     char   device_name[11]
+;     int32  size
+FLASH_ATTR  dc.b     $B5
+            dc.b     'SST39SF010A'
+            dc.l     $20000
+            dc.b     $B6
+            dc.b     'SST39SF020A'
+            dc.l     $40000
+            dc.b     $B7
+            dc.b     'SST39SF040',$00
+            dc.l     $80000
+            dc.b     $00

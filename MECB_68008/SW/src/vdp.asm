@@ -1,7 +1,8 @@
 ; Low-level functions for reading and writing to the VDP registers and memory
 ;
 ;
-
+               align    2              ; Make sure everything is aligned to long boundary
+               
 ; Function:	Setup VRAM Address for subsequent VRAM read
 ; Parameters:  d0 - VRAM address (17 bits) - top word has A16, lower word A15-A0
 ; Returns:     -

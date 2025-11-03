@@ -1,3 +1,5 @@
+               align    2              ; Make sure everything is aligned to long boundary
+
 ;
 ; VDP modes
 ;
