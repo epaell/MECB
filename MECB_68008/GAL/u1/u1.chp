@@ -17,7 +17,7 @@
                           |                 |
                       FC2 |  7           18 | NC
                           |                 |
-                      FC1 |  8           17 | EXPSEL
+                      FC1 |  8           17 | ECBMREQ
                           |                 |
                       FC0 |  9           16 | IPL0
                           |                 |

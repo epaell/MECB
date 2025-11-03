@@ -1,4 +1,7 @@
+; Low-level functions for reading and writing to the VDP registers and memory
 ;
+;
+
 ; Function:	Setup VRAM Address for subsequent VRAM read
 ; Parameters:  d0 - VRAM address (17 bits) - top word has A16, lower word A15-A0
 ; Returns:     -
@@ -56,7 +59,7 @@ vdp_write_reg  move.b   d1,VDP_REG     ; Store data byte
 ;		i.e. Just directly inline implement: move.b VDP_REG,d0
 ; Parameters:	-
 ; Returns:	d0 = Status Byte
-; Destroys:	d0
+; Destroys:	-
 vdp_read_stat  move.b   VDP_REG,d0
                rts
 
@@ -65,7 +68,7 @@ vdp_read_stat  move.b   VDP_REG,d0
 ;		i.e. Just directly inline implement: move.b VDP_REG,d0
 ; Parameters:  d0 = status register number
 ; Returns:	d0 = Status Byte
-; Destroys:	d0
+; Destroys:	d1,d2
 vdp_read_nstat move.b   d0,d1          ; Set the status register number
                move.b   #15,d2
                bsr      vdp_write_reg
@@ -130,29 +133,36 @@ vdp_inc_vram   move.b   d0,VDP_VRAM
 ; Function:	Write block of bytes to VRAM
 ; Parameters:  a0 - Points to address of bytes to write to VRAM
 ;              d0 - Count of bytes to write
-; Returns:     -
-; Destroys:    A, X, Y
-vdp_xfr_vram   move.b	(a0)+,VDP_VRAM		; Load VRAM data pointed to by A0 and increment A0
+; Returns:     a0 points to end of written block
+; Destroys:    -
+vdp_xfr_vram   move.l   d0,-(a7)
+vdp_xfr_vram1  move.b	(a0)+,VDP_VRAM		; Load VRAM data pointed to by A0 and increment A0
                sub.l    #1,d0
-               bne      vdp_xfr_vram
+               bne      vdp_xfr_vram1
+               move.l   (a7)+,d0
                rts
 
-; Function:	Clear first 64KB of VDP VRAM memory
+; Function:	Clear VDP VRAM
 ; Parameters:	-
 ; Returns:	-
 ; Destroys:	-
-vdp_clr_vram   move.w   #$00000,d0        ; Start clearing from the start of VRAM
+vdp_clr_vram   movem.l  d0/d1,-(a7)          ; Save d0 and d1
+               move.l   #$00000,d0        ; Start clearing from the start of VRAM
                bsr      vdp_vram_waddr
                move.b   #$00,d0
                move.l   #$20000,d1        ; Clear $20000 bytes (128 KB)
-               bra      vdp_set_vram
+               bsr      vdp_set_vram
+               movem.l   (a7)+,d0/d1          ; restore d0 and d1
+               rts
 
 ; Function: Wait until VDP function has completed
 ; Parameters:  -
 ; Returns:     -
-; Destroys:    d0
-vdp_wait       move.b   #2,d0                ; Read status register 2
+; Destroys:    -
+vdp_wait       movem.l  d0-d2,-(a7)          ; Save d0-d2
+vdp_wait1      move.b   #2,d0                ; Read status register 2
                bsr      vdp_read_nstat
                btst     #0,d0                ; Check CE bit
-               bne      vdp_wait             ; If command is still running then wait
+               bne      vdp_wait1            ; If command is still running then wait
+               movem.l  (a7)+,d0-d2          ; restore d0-d2
                rts

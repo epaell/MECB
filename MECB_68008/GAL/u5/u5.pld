@@ -2,7 +2,7 @@ GAL22V10
 GLUE
 
 AS       DS      HWRST  FC2    FC1     FC0    A21    A20   A19    A18      RW      GND
-EXPSEL   CPUSP   HALT   RESET  IORQ    CSRAM  CSROM  DTACK BOOT   WR       PPDTACK VCC
+ECBMREQ   CPUSP   HALT   RESET  IORQ    CSRAM  CSROM  DTACK BOOT   WR       PPDTACK VCC
 
 HALT.T   =  GND
 HALT.E   =  HWRST
@@ -36,7 +36,7 @@ IORQ     =  /AS * A21 * A20 * A19 * A18
 
 /PPDTACK  =  CPUSP * /CSROM
           +  CPUSP * /CSRAM
-;          +  CPUSP * /EXPSEL
+          +  CPUSP * /ECBMREQ
 
 /WR       = RW
 

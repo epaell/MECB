@@ -7,7 +7,7 @@ Pin 23 = PPDTACK      S0 = 0   S1 = 1
   1  ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   2  ---- ---- ---- ---- ---x ---- ---- ---- ---- --x- ----
   3  ---- ---- ---- ---- ---- ---x ---- ---- ---- --x- ----
-  4  xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx
+  4  ---- ---- ---- ---- ---- ---- ---- ---- ---- --x- ---x
   5  xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx
   6  xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx
   7  xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx

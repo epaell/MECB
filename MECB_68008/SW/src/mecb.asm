@@ -2,6 +2,8 @@ RAM_BASE       equ      $000000            ; RAM start
 RAM_END        equ      $07FFFF            ; RAM end
 ROM_BASE       equ      $200000            ; ROM start
 ROM_END        equ      $27FFFF            ; ROM end
+EX_ROM_BASE    equ      $100000            ; Expansion ROM start
+EX_ROM_END     equ      $1FFFFF            ; Expansion ROM end
 ;
 IO_BASE        equ      $3C0000
 ;

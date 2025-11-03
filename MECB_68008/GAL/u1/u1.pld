@@ -2,12 +2,12 @@ GAL22V10
 GLUE
 
 AS       DS      RW     NMI    IRQ     BOOT   FC2    FC1   FC0   CPUSP NC   GND
-NC       IPL2    IPL1   IPL0   EXPSEL  NC     NC     A18   A19   A20   A21  VCC
+NC       IPL2    IPL1   IPL0   ECBMREQ NC     NC     A18   A19   A20   A21  VCC
 
 IPL2 = NMI
 IPL1 = NMI
 IPL0 = NMI * IRQ
-/EXPSEL   =  CPUSP * /AS * /A21 * A20
+/ECBMREQ   =  /AS * /DS * /A21 * A20
 
 DESCRIPTION
 

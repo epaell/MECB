@@ -2,7 +2,7 @@
 PORTIN1N       equ      224
 GETNUMD        equ      225
 GETNUMA        equ      226
-OUT1CR         equ      227
+OUT1CR         equ      227   ; a5=start; a6=end
 TUTOR          equ      228
 START          equ      229
 PNT8HX         equ      230   ; d0=number; a6=buffer; not restored: d0,d1,d2

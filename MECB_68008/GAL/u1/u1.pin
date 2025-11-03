@@ -18,7 +18,7 @@
   14   | IPL2     | Output
   15   | IPL1     | Output
   16   | IPL0     | Output
-  17   | EXPSEL   | Output
+  17   | ECBMREQ  | Output
   18   | NC       | NC
   19   | NC       | NC
   20   | A18      | NC

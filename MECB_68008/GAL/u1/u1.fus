@@ -97,9 +97,9 @@ Pin 18 = NC           S0 = 0   S1 = 0
  81  xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx
  82  xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx
 
-Pin 17 = EXPSEL       S0 = 0   S1 = 1
+Pin 17 = ECBMREQ      S0 = 0   S1 = 1
  83  ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
- 84  -x-x --x- ---- ---- ---- ---- ---- ---- ---- x--- ----
+ 84  -x-x -xx- ---- ---- ---- ---- ---- ---- ---- ---- ----
  85  xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx
  86  xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx
  87  xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx

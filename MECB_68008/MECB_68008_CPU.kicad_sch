@@ -7,8 +7,7 @@
 	(title_block
 		(title "Minimalist Europe Card Bus (MECB) 68008 Board")
 		(date "2025-05")
-		(rev "1.0")
-		(company "DigicoolThings.com")
+		(rev "0.1")
 		(comment 1 "For Minimalist Europe Card Bus (MECB). ")
 		(comment 2 "Note: CPUSP and ECB_MREQ need to be manually connected")
 		(comment 3 "Possibly should cut-off original ECB_MREQ connection from pin 11 of U1")
@@ -7211,6 +7210,12 @@
 		(uuid "4fc136f2-d905-4679-be1b-440772bd67fb")
 	)
 	(junction
+		(at 255.27 151.13)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "58134c1d-a632-4202-8f5a-4cb81088b1c5")
+	)
+	(junction
 		(at 76.2 179.07)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -7251,12 +7256,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "8b52d35d-0986-4d28-9a88-6509a9d5b190")
-	)
-	(junction
-		(at 229.87 156.21)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "aff1a7dc-7c4d-43d8-aa58-52c5d2e97cb3")
 	)
 	(junction
 		(at 124.46 113.03)
@@ -8871,16 +8870,6 @@
 			(type default)
 		)
 		(uuid "1a554218-b151-4a70-b3f1-7d169ac8fdf6")
-	)
-	(wire
-		(pts
-			(xy 229.87 151.13) (xy 229.87 156.21)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1b83e630-a18a-49f8-94a1-ec5f16dffa83")
 	)
 	(wire
 		(pts
@@ -10642,16 +10631,6 @@
 		)
 		(uuid "8c2066d1-a6f3-4ee3-85c7-ae16a78a2b56")
 	)
-	(wire
-		(pts
-			(xy 224.79 156.21) (xy 229.87 156.21)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8d629fe7-9493-423e-be7f-d8af092ba52b")
-	)
 	(bus
 		(pts
 			(xy 54.61 177.8) (xy 54.61 182.88)
@@ -11144,7 +11123,7 @@
 	)
 	(wire
 		(pts
-			(xy 229.87 151.13) (xy 224.79 151.13)
+			(xy 224.79 151.13) (xy 255.27 151.13)
 		)
 		(stroke
 			(width 0)
@@ -11674,7 +11653,7 @@
 	)
 	(wire
 		(pts
-			(xy 264.16 156.21) (xy 229.87 156.21)
+			(xy 224.79 156.21) (xy 264.16 156.21)
 		)
 		(stroke
 			(width 0)
@@ -13452,7 +13431,7 @@
 		)
 		(uuid "fe361e64-7813-4c35-b743-45dc023763c8")
 	)
-	(global_label "ECB_RESET"
+	(global_label "~{ECB_RESET}"
 		(shape output)
 		(at 31.75 182.88 0)
 		(fields_autoplaced yes)
@@ -13464,7 +13443,7 @@
 		)
 		(uuid "059fbcdd-2f46-47d4-8d29-7f20aa215ee9")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 44.4761 182.8006 0)
+			(at 44.4827 182.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13474,7 +13453,7 @@
 			)
 		)
 	)
-	(global_label "ECB_MREQ"
+	(global_label "~{ECB_MREQ}"
 		(shape output)
 		(at 31.75 177.8 0)
 		(fields_autoplaced yes)
@@ -13486,7 +13465,7 @@
 		)
 		(uuid "06310491-e2c4-4a28-90fd-2f09a8f9d1b9")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 43.9318 177.7206 0)
+			(at 43.9385 177.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13540,7 +13519,7 @@
 			)
 		)
 	)
-	(global_label "CS_RAM"
+	(global_label "~{CS_RAM}"
 		(shape output)
 		(at 101.6 46.99 0)
 		(fields_autoplaced yes)
@@ -13694,7 +13673,7 @@
 			)
 		)
 	)
-	(global_label "ECB_INT"
+	(global_label "~{ECB_INT}"
 		(shape input)
 		(at 31.75 132.08 0)
 		(fields_autoplaced yes)
@@ -13706,7 +13685,7 @@
 		)
 		(uuid "2d867b37-4875-4c45-b723-da6e6fcb6559")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 41.6337 132.0006 0)
+			(at 41.6405 132.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13738,7 +13717,7 @@
 			)
 		)
 	)
-	(global_label "ECB_MREQ"
+	(global_label "~{ECB_MREQ}"
 		(shape output)
 		(at 200.66 45.72 0)
 		(fields_autoplaced yes)
@@ -13804,7 +13783,7 @@
 			)
 		)
 	)
-	(global_label "ECB_RESET"
+	(global_label "~{ECB_RESET}"
 		(shape output)
 		(at 101.6 52.07 0)
 		(fields_autoplaced yes)
@@ -13870,7 +13849,7 @@
 			)
 		)
 	)
-	(global_label "ECB_IORQ"
+	(global_label "~{ECB_IORQ}"
 		(shape output)
 		(at 31.75 160.02 0)
 		(fields_autoplaced yes)
@@ -13882,7 +13861,7 @@
 		)
 		(uuid "38c372e6-7d09-4245-92fb-c74ebc2edd13")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 43.2666 159.9406 0)
+			(at 43.2734 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13936,7 +13915,7 @@
 			)
 		)
 	)
-	(global_label "ECB_INT"
+	(global_label "~{ECB_INT}"
 		(shape input)
 		(at 166.37 38.1 180)
 		(fields_autoplaced yes)
@@ -14156,7 +14135,7 @@
 			)
 		)
 	)
-	(global_label "ECB_INT"
+	(global_label "~{ECB_INT}"
 		(shape input)
 		(at 66.04 148.59 180)
 		(fields_autoplaced yes)
@@ -14168,7 +14147,7 @@
 		)
 		(uuid "4e08fe9c-d1d3-4ecf-be0a-ef6d14d7345a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 56.1563 148.5106 0)
+			(at 56.1495 148.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14464,7 +14443,7 @@
 			)
 		)
 	)
-	(global_label "CS_ROM"
+	(global_label "~{CS_ROM}"
 		(shape output)
 		(at 101.6 44.45 0)
 		(fields_autoplaced yes)
@@ -14574,7 +14553,7 @@
 			)
 		)
 	)
-	(global_label "ECB_RESET"
+	(global_label "~{ECB_RESET}"
 		(shape input)
 		(at 68.58 156.21 180)
 		(fields_autoplaced yes)
@@ -14640,7 +14619,7 @@
 			)
 		)
 	)
-	(global_label "CS_ROM"
+	(global_label "~{CS_ROM}"
 		(shape input)
 		(at 187.96 146.05 180)
 		(fields_autoplaced yes)
@@ -14662,7 +14641,7 @@
 			)
 		)
 	)
-	(global_label "ECB_MREQ"
+	(global_label "~{ECB_MREQ}"
 		(shape input)
 		(at 101.6 59.69 0)
 		(fields_autoplaced yes)
@@ -14706,7 +14685,7 @@
 			)
 		)
 	)
-	(global_label "ECB_NMI"
+	(global_label "~{ECB_NMI}"
 		(shape input)
 		(at 66.04 152.4 180)
 		(fields_autoplaced yes)
@@ -14718,7 +14697,7 @@
 		)
 		(uuid "bc24d58b-ab01-412a-b555-838fc539f438")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 55.6725 152.3206 0)
+			(at 55.6657 152.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14772,7 +14751,7 @@
 			)
 		)
 	)
-	(global_label "ECB_RESET"
+	(global_label "~{ECB_RESET}"
 		(shape input)
 		(at 121.92 153.67 180)
 		(fields_autoplaced yes)
@@ -14794,7 +14773,7 @@
 			)
 		)
 	)
-	(global_label "CS_RAM"
+	(global_label "~{CS_RAM}"
 		(shape input)
 		(at 236.22 77.47 180)
 		(fields_autoplaced yes)
@@ -14816,7 +14795,7 @@
 			)
 		)
 	)
-	(global_label "ECB_IORQ"
+	(global_label "~{ECB_IORQ}"
 		(shape output)
 		(at 224.79 156.21 180)
 		(fields_autoplaced yes)
@@ -14838,7 +14817,7 @@
 			)
 		)
 	)
-	(global_label "ECB_NMI"
+	(global_label "~{ECB_NMI}"
 		(shape input)
 		(at 31.75 127 0)
 		(fields_autoplaced yes)
@@ -14850,7 +14829,7 @@
 		)
 		(uuid "cd98adc8-e4d6-4542-b4da-1f6bb52224d1")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 42.1175 126.9206 0)
+			(at 42.1243 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14926,7 +14905,7 @@
 			)
 		)
 	)
-	(global_label "CPU_RW"
+	(global_label "CPU_R~{W}"
 		(shape input)
 		(at 64.77 59.69 180)
 		(fields_autoplaced yes)
@@ -14948,7 +14927,7 @@
 			)
 		)
 	)
-	(global_label "ECB_NMI"
+	(global_label "~{ECB_NMI}"
 		(shape input)
 		(at 166.37 35.56 180)
 		(fields_autoplaced yes)
