@@ -13,20 +13,20 @@
 ;       a0 = final location written to + 1 (on failure points to failed location of write)
 ;       a1 = final location read from + 1
 ;       All other register contents conserved
-flash_wbytes  movem.l  d0-d2,-(a7)    ; Save registers
-flash_wbytes1 move.b  (a1)+,d1        ; Read a byte
-              bsr     flash_wbyte     ; Write to FLASH
-              bne     flash_wbytes3   ; If it failed then exit
-              sub     #1,d2           ; Decrement byte counter
-              bne     flash_wbytes1   ; More to do, loop back
+flash_wbytes  movem.l  d0-d2,-(a7)     ; Save registers
+flash_wbytes1 move.b  (a1)+,d1         ; Read a byte
+              bsr     flash_wbyte      ; Write to FLASH
+              bne     flash_wbytes3    ; If it failed then exit
+              sub.l   #1,d2            ; Decrement byte counter
+              bne     flash_wbytes1    ; More to do, loop back
 ;
-              movem.l  (a7)+,d0-d2    ; Restore registers
-              ori.w    #$0004,sr      ; set zero flag
+              movem.l  (a7)+,d0-d2     ; Restore registers
+              ori.w    #$04,sr         ; set zero flag
               rts
 ;
 flash_wbytes3 movem.l  (a7)+,d0-d2     ; Restore registers
-              andi.w   #$FFFB,sr      ; Clear zero flag
-              rts                     ; Done
+              andi.w   #$FB,sr         ; Clear zero flag
+              rts                      ; Done
 
 ;
 ; Write byte to ROM
@@ -39,23 +39,56 @@ flash_wbytes3 movem.l  (a7)+,d0-d2     ; Restore registers
 ;       if write failed, Z is clear
 ;       X = location that was written + 1
 ;       Register contents are conserved.
-flash_wbyte move.l   a0,-(a7)       ; save pointer
+flash_wbyte move.l   a0,-(a7)          ; save pointer
             move.l   #FLASH_BYTE_PROG,a0
             bsr      flash_cmd
-            move.l   (a7)+,a0       ; restore pointer
+            move.l   (a7)+,a0          ; restore pointer
             move.b   d1,(a0)
             bsr      flash_wait
-            cmp.b    (a0)+,d1       ; check what was written
-            rts                     ; Return
+            cmp.b    (a0)+,d1          ; check what was written
+            rts                        ; Return
 
+;
+; Erase entire ROM
+; On Entry:
+;        d0 = base address of ROM
+;        a1 = sector to erase
+; On Exit:
+;       if erase succeeded, Z is set, a1 points to last location erased + 1
+;       if erase failed, Z is clear, a1 points to location where erase failed
+;       All other registers are conserved.
+;
+flash_chip_erase
+            movem.l  d1/a0,-(a7)       ; save registers
+            move.l   #FLASH_CHIP_ERASE,a0
+            bsr      flash_cmd
+            move.b   #$FF,d1
+            move.l   d0,a0             ; a0 points to start of ROM
+            bsr      flash_wait
+            move.l   #$80000,d1
+            move.l   d0,a1             ; a1 points to start of ROM
+flash_chip_erase1
+            cmp.b    #$ff,(a1)+        ; check that erasure worked
+            bne      flash_chip_erase2
+            sub.l    #1,d1
+            bne      flash_chip_erase1
+            movem.l  (a7)+,d1/a0       ; restore registers
+            ori.w    #$04,sr           ; Set zero flag
+            rts
+;
+flash_chip_erase2
+            lea      -1(a1),a1         ; Restore X to point to failed location
+            movem.l  (a7)+,d1/a0       ; restore registers
+            andi.w   #$FB,sr           ; Clear zero flag
+            rts
 ;
 ; Erase a 4KB sector in ROM
 ; On Entry:
 ;        d0 = base address of ROM
 ;        a1 = location of sector to erase
 ; On Exit:
-;       if erase succeeded, Z is set, X points to last location erased + 1
-;       if erase failed, Z is clear, X points to location where erase failed
+;       if erase succeeded, Z is set, a1 points to last location erased + 1
+;       if erase failed, Z is clear, a1 points to location where erase failed
 ;       All other registers are conserved.
 ;
 flash_erase movem.l  d1/a0,-(a7)    ; save registers
@@ -63,20 +96,22 @@ flash_erase movem.l  d1/a0,-(a7)    ; save registers
             bsr      flash_cmd
             move.b   #$30,(a1)      ; Initiate erasure of the sector by writing $30 to the sector
             move.b   #$FF,d1
+            move.l   a1,a0
             bsr      flash_wait
             move.l   #$1000,d1
 flash_erase1
             cmp.b    #$ff,(a1)+
             bne      flash_erase2
-            sub      #1,d1
+            sub.l    #1,d1
             bne      flash_erase1
             movem.l  (a7)+,d1/a0    ; restore registers
+            ori.w    #$04,sr        ; Set zero flag
             rts
 ;
 flash_erase2
-            lea      -1(a0),a0      ; Restore X to point to failed location
-            move.l   (a7)+,d1       ; restore registers
-            andi.w   #$FFFB,sr      ; Clear zero flag
+            lea      -1(a1),a1      ; Restore X to point to failed location
+            movem.l  (a7)+,d1/a0    ; restore registers
+            andi.w   #$FB,sr        ; Clear zero flag
             rts
 
 ;
@@ -94,7 +129,7 @@ flash_wait  move.l  d1,-(a7)        ; Save data that was written
 flash_wait0 move.b  (a0),d1         ; Get FLASH status
             btst    #7,d1           ; Check for completion, Bit 7 = 0
             bne     flash_wait0     ; Bit 7 = 1, not ready yet
-            bra     flash_wait2     ; Bit 7 = 0, pperation complete
+            bra     flash_wait2     ; Bit 7 = 0, operation complete
 ;
 flash_wait1 move.b  (a0),d1         ; Get FLASH status
             btst    #7,d1           ; Check for completion, Bit 7 = 1
@@ -194,6 +229,21 @@ FLASH_SEC_ERASE
             dc.l     $5555
             dc.l     $55
             dc.l     $2AAA
+            dc.l     $00
+;
+FLASH_CHIP_ERASE
+            dc.l     $AA
+            dc.l     $5555
+            dc.l     $55
+            dc.l     $2AAA
+            dc.l     $80
+            dc.l     $5555
+            dc.l     $AA
+            dc.l     $5555
+            dc.l     $55
+            dc.l     $2AAA
+            dc.l     $10
+            dc.l     $5555
             dc.l     $00
 ;
 ; FLASH device attribute table:
