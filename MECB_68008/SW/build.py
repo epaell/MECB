@@ -3,7 +3,11 @@ import numpy as np
 import sys
 import os
 
-build_list = ["test_eflash",    # Test FLASH functionality in ROM expansion card
+build_list = [
+    "test_oled",
+#    "test_SD",
+#    "test_mini",
+#    "test_eflash",    # Test FLASH functionality in ROM expansion card
 #    "test_vdp_gfx",             # Test VDP graphics functionality
 #    "test_erom",                # Test reading of ROM expansion card
 #    "test_flash",               # Test FLASH functionality in onboard ROM
