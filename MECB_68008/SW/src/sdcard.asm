@@ -6,6 +6,9 @@
 ;         jmp   SDParSetRead        ; set for reading
 ;         jmp   SDParWriteByte      ; write one byte
 ;         jmp   SDParReadByte       ; read one byte
+; Routines to access RTC
+;         jmp   SDGetClock          ; set the real-time clock
+;         jmp   SDSetClock          ; get the real-time clock
 ; Routines to access SD Card files
 ;         jmp   SDDiskPing          ; exercises the interface
 ;         jmp   SDDiskOpenRead      ; open file for read
@@ -79,6 +82,8 @@ SDParInit
                 move.b   #$00,PIACTLB         ; select DDR for port B
                 move.b   #$03,PIADDRB         ; DIRECTION + PSTROBE bits
                 move.b   #$04,PIACTLB         ; select data reg
+                bsr      SDParSetWrite
+                rts
 ;
 ; Fall through to set up for writes...
 ;
@@ -141,15 +146,15 @@ SDParWriteByte    btst.b   #ACK,PIAREGB      ; check status
 ; Wait for ACK to go high, indicating the Arduino has
 ; pulled the data and is ready for more.
 ;
-SDParwl33         btst.b   #ACK,PIAREGB      ; check status
-                  beq      SDParwl33
+SDParWriteByte1   btst.b   #ACK,PIAREGB      ; check status
+                  beq      SDParWriteByte1
 ;
 ; Now lower the strobe, then wait for the Arduino to
 ; lower ACK.
 ;
                   bclr.b   #PSTROBE,PIAREGB
-SDParwl44         btst.b   #ACK,PIAREGB      ; check status
-                  bne      SDParwl44
+SDParWriteByte2   btst.b   #ACK,PIAREGB      ; check status
+                  bne      SDParWriteByte2
                   rts
 
 ;*****************************************************
@@ -180,8 +185,8 @@ SDParReadByte  btst.b   #ACK,PIAREGB      ; is the strobe high?
 ; them to lower their strobe.
 ;
                bset.b   #PSTROBE,PIAREGB
-SDParrlp1      btst.b   #ACK,PIAREGB
-               bne      SDParrlp1         ; still active
+SDParReadByte1 btst.b   #ACK,PIAREGB
+               bne      SDParReadByte1    ; still active
 ;
 ; Lower our ack, then we're done.
 ;
@@ -262,11 +267,11 @@ SDDiskMount     move.l  d1,-(a7)                ; save read-only flag
 ; Now send each byte of the filename until the end,
 ; which is a 0 byte.
 ;
-SDdmnt1         move.b  (a0)+,d0
-                beq     SDdmnt2
+SDDiskMount1    move.b  (a0)+,d0
+                beq     SDDiskMount2
                 bsr     SDParWriteByte
-                bra     SDdmnt1
-SDdmnt2         bsr     SDParWriteByte          ; send trailing null
+                bra     SDDiskMount1
+SDDiskMount2    bsr     SDParWriteByte          ; send trailing null
                 bra     SDComExit
 
 ;=====================================================
@@ -299,12 +304,12 @@ SDDiskDirNext  bsr     SDParSetRead             ; read results
 ;
 ; This contains a directory entry.
 ;
-SDDDNloop      bsr      SDParReadByte
+SDDiskDirNext1 bsr      SDParReadByte
                move.b   d0,(a0)+
                cmp.b    #0,d0	                  ; end of file name?
-               bne      SDDDNloop
-SDDDNEnd       bsr      SDParSetWrite
-               andi.b    #$fe,ccr                 ; not end of files
+               bne      SDDiskDirNext1
+               bsr      SDParSetWrite
+               andi.b   #$fe,ccr                 ; not end of files
                rts
 ;
 ; Error.  Set C and return.  This is not really
@@ -312,7 +317,7 @@ SDDDNEnd       bsr      SDParSetWrite
 ; directory rather than an error.
 ;
 SDDDNErr       bsr      SDParSetWrite
-               ori.b     #$01,ccr
+               ori.b    #$01,ccr
                rts
 
 ;=====================================================
@@ -422,11 +427,10 @@ SDDiskWrite    tst.b    d0
                move.b   (a7)+,d0
                bsr      SDParWriteByte       ; Number of bytes to write
                move.b   d0,d1                ; count
-SDDiskWriteLoop
-               move.b   (a0)+,d0             ; get a byte
+SDDiskWrite1   move.b   (a0)+,d0             ; get a byte
                bsr      SDParWriteByte
                sub.b    #1,d1                ; decrement counter
-               bne      SDDiskWriteLoop      ; keep writing until end reached
+               bne      SDDiskWrite1         ; keep writing until end reached
                bsr      SDParSetRead         ; read the status
                bsr      SDParReadByte
                cmp.b    #PR_ACK,d0
@@ -446,4 +450,55 @@ SDDiskOk1      bsr      SDParSetWrite
 ;
 SDDiskClose    move.b      #PC_DONE,d0
                bsr         SDParWriteByte
+               rts
+;
+; ====================================================
+; Call this to set the on-board realtime clock
+; a0 points to the data structure (SD_DATA_SIZE bytes)
+; On return, C will be set if an error
+; was detected (error code in d0), or C will be clear
+; if no error.
+
+SDSetClock     movem.l     d1/a0,-(a7)          ; save registers
+               move.b      #PC_SET_CLOCK,d0
+               bsr         SDParWriteByte       ; send command
+               move.b      #SD_RTC_STRUCT_SIZE,d1
+SDSetClock1    move.b      (a0)+,d0
+               bsr         SDParWriteByte       ;send data
+               sub.b       #1,d1
+               bne         SDSetClock1
+;
+               bsr         SDParSetRead         ; back to read mode
+               bsr         SDParReadByte        ; get response
+               bsr         SDParSetWrite        ; must leave in write state
+               cmp.b       #PR_ACK,d0
+               beq         SDClockOK            ; All Good
+               movem.l     (a7)+,D1/A0          ; restore registers
+               bsr         SDParReadByte        ; get the error code
+               bsr         SDParSetWrite        ; must leave in write state
+               ori.b       #$01,ccr             ; Set carry
+               rts
+;
+SDClockOK      movem.l     (a7)+,d1/a0          ; restore registers
+               andi.b      #$fe,ccr             ; Clear carry
+               rts
+;
+;
+; ====================================================
+; Call this to get the on-board realtime clock
+; a0 points to the data structure (SD_DATA_SIZE bytes) where RTC data is stored
+
+SDGetClock     movem.l     d0-d1/a0,-(a7)       ; save registers
+               bsr         SDParSetWrite        ; must leave in write state
+               move.b      #PC_GET_CLOCK,d0
+               bsr         SDParWriteByte       ; send command
+               bsr         SDParSetRead         ; prepare to read
+               bsr         SDParReadByte        ; get response
+               move.b      #SD_RTC_STRUCT_SIZE,d1
+SDGetClock1    bsr         SDParReadByte        ; read a byte of data
+               move.b      d0,(a0)+             ; save in structure
+               sub.b       #1,d1
+               bne         SDGetClock1          ; check that entire data structure is read
+               bsr         SDParSetWrite        ; must leave in write state
+               movem.l     (a7)+,d0-d1/a0       ; restore registers
                rts

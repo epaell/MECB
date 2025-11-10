@@ -64,4 +64,25 @@ ERR_READ_ERROR          equ      17
 ERR_WRITE_ERROR         equ      18
 ERR_DEVICE_NOT_PRESENT  equ      19
 ERR_NOT_IMPLEMENTED     equ      20
+;
+;=====================================================
+; Raw clock data structure
+SD_Month                equ      0
+SD_Day                  equ      1
+SD_YearHigh             equ      2
+SD_YearLow              equ      3
+SD_Hour                 equ      4
+SD_Minute               equ      5
+SD_Second               equ      6
+SD_DayOfWeek            equ      7                 ; Day of Week (1-7)
+;
+SD_RTC_STRUCT_SIZE      equ      8
+;
+SD_SUNDAY               equ      1
+SD_MONDAY               equ      2
+SD_TUESDAY              equ      3
+SD_WEDNESDAY            equ      4
+SD_THURSDAY             equ      5
+SD_FRIDAY               equ      6
+SD_SATURDAY             equ      7
 
