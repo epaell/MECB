@@ -45,7 +45,7 @@ intro_exit     movem.l  (a7)+,d0-d7/a0-a6    ; Restore registers
 ;
 dump_flash_info
                movem.l  d0-d7/a0-a6,-(a7)    ; Save registers
-               move.l   #ROM_BASE,d0         ; Point to the main ROM
+               move.l   #EX_ROM1_BASE,d0     ; Point to the eROM
                bsr      flash_swid           ; Get the FLASH swid->d1, attribute pointer->a0
                move.w   d1,flash_mfr_id
                move.l   a0,flash_attr
@@ -167,9 +167,9 @@ sector_erase   movem.l  d0-d7/a0-a6,-(a7)    ; Save registers
                move.l   #MSG_SEC_ERASEE,a6
                trap     #14
 ;
-               move.l   #ROM_BASE,d0               ; Point to the expansion FLASH ROM
-               move.l   #ROM_BASE+$10000,a1        ; sector to erase
-               move.l   #ROM_BASE+$14000,a2        ; end of expansion FLASH ROM
+               move.l   #EX_ROM1_BASE,d0           ; Point to the expansion FLASH ROM
+               move.l   #EX_ROM1_BASE,a1           ; sector to erase
+               move.l   #EX_ROM1_BASE+$4000,a2     ; end of expansion FLASH ROM
 sector_erase1  bsr      flash_erase                ; if successful a1 is bumped to next sector
                bne      sector_erase2
                cmp.l    a2,a1                      ; check if reached end
@@ -198,10 +198,10 @@ chip_write     movem.l  d0-d7/a0-a6,-(a7)    ; Save registers
                move.l   #MSG_WRITEE,a6
                trap     #14
                
-               move.l   #ROM_BASE+$10000,a0     ; destination for FLASH ROM write
-               move.l   #ROM_BASE+$14000,a2     ; end address
+               move.l   #EX_ROM1_BASE,a0     ; destination for FLASH ROM write
+               move.l   #EX_ROM1_BASE+$4000,a2    ; end address
 ; Sector buffer has data, write to ROM
-               move.l   a0,a4                      ; temporarily keep this value for printing
+               move.l   a0,a4                ; temporarily keep this value for printing
                movem.l  d0-d3/a0,-(a7)
                move.b   #OUTPUT,d7
                move.l   #MSG_WR_ADDR,a5
@@ -218,7 +218,7 @@ chip_write     movem.l  d0-d7/a0-a6,-(a7)    ; Save registers
                trap     #14
                movem.l  (a7)+,d0-d3/a0
 ;
-               move.l   #ROM_BASE,d0
+               move.l   #EX_ROM1_BASE,d0
                move.l   #buffer,a1
                move.l   #16384,d2            ; number of bytes to transfer (4096 * 4)
                bsr      flash_wbytes         ; a0 should have next location to write to
@@ -305,11 +305,11 @@ MSG_DEVICEE    equ      *
 MSG_CAPACITY   dc.b     'Capacity (bytes): $'
 MSG_CAPACITYE  equ      *
 ;
-MSG_SEC_ERASE  dc.b     'Erasing FLASH ROM sectors'
+MSG_SEC_ERASE  dc.b     'Erasing lower FLASH ROM sectors'
 MSG_SEC_ERASEE equ     *
-MSG_ERASE_OK   dc.b     'Sector erase of FLASH ROM succeeded'
+MSG_ERASE_OK   dc.b     'Sector erase of lower FLASH ROM succeeded'
 MSG_ERASE_OKE  equ     *
-MSG_ERASE_NOK  dc.b     'Sector erase of FLASH ROM failed'
+MSG_ERASE_NOK  dc.b     'Sector erase of lower FLASH ROM failed'
 MSG_ERASE_NOKE equ     *
 MSG_WRITE      dc.b     'Writing to FLASH ROM'
 MSG_WRITEE     equ     *
