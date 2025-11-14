@@ -21,8 +21,3 @@ def bin2rom(f_bin, f_rom):
     fout.write(rom)
     fout.close()
 
-source="library_exrom"    
-os.system(f"rm {source}.lst {source}.bin")
-os.system(f"vasmm68k_mot -Fbin -L {source}.lst src/{source}.asm")
-os.system(f"mv a.out {source}.bin")
-bin2rom(f"{source}.bin",f"SST39SF040_{source}.bin")
