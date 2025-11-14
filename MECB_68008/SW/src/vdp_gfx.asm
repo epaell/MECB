@@ -278,6 +278,11 @@ vdp_set_mode2
                movem.l  (a7)+,d0-d2/a0       ; Restore a0, d1 and s2
                rts
 ;
+; Draw circle
+;
+vdp_circle     rts                           ; TODO
+
+;
 ; Draw line
 ; Parameters: a1 points to vdp contol block
 ; Destroys: d1,d2,d3,d4,d5
@@ -343,7 +348,7 @@ vdp_line5      move.w   d3,d1
                move.b   VDP_LOG(a1),d1       ; get logical function
                or.b     #VDP_CMD_LINE,d1
                move.b   #46,d2
-               bsr      vdp_write_reg        ; extecute PSET command
+               bsr      vdp_write_reg        ; execute PSET command
                movem.l  (a7)+,d1-d5
                rts
 ;

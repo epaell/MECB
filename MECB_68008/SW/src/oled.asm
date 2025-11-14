@@ -1,3 +1,4 @@
+;
 ; Logical functions for oled_pixel
 OLED_PSET      equ      $0                   ; Set pixel
 OLED_POR       equ      $1                   ; Or pixel
@@ -21,7 +22,7 @@ OLED_LC        equ      $4                   ; Colour
 OLED_LL        equ      $5                   ; Logical function
 ;
 oled_init      movem.l  d0-d1/a0,-(a7)       ; save registers
-               move.l   #OLED_INIT_CMDS,a0   ; point to initialisation command table
+               lea.l    OLED_INIT_CMDS(pc),a0   ; point to initialisation command table
 oled_init1     move.b   (a0)+,d0             ; get a command
                beq      oled_init2
                move.b   d0,OLED_CMD          ; Send to OLED
@@ -37,6 +38,44 @@ oled_on        move.b   #$AF,OLED_CMD        ; Turn on the display
 ;
 oled_off       move.b   #$AE,OLED_CMD        ; Turn on the display
                rts
+;
+; Support Subroutines
+; -------------------
+;
+; Function:	Set the Display buffer Column Start and End addresses (128x64 res)
+; Parameters:  d0 - Start column (0 - 127)
+;              d1 - End column  (0 - 127)
+; Returns:     -
+; Destroys:    -
+oled_set_col   move.l   d0,-(a7)          ; Save d0
+               move.b   #$15,OLED_CMD     ; Set column address command
+               lsr.b    #1,d0             ; column/2 (2 pixels per byte)
+               move.b   d0,OLED_CMD       ; write start column
+               move.b   d1,d0
+               lsr.b    #1,d0             ; column/2 (2 pixels per byte)
+               move.b   d0,OLED_CMD       ; write end column
+               move.l   (a7)+,d0          ; Restore d0
+               rts
+;
+; Function:	Set the Display buffer Row Start and End addresses (128x64 res)
+; Parameters:  d0 - Start row (0 - 63)
+;              d1 - End row (0 - 63) 
+; Returns:     -
+; Destroys:    -
+oled_set_row   move.b   #$75,OLED_CMD     ; Set row address command
+               move.b   d0,OLED_CMD       ; row start
+               move.b   d1,OLED_CMD       ; row end
+               rts
+;
+; Draw line from (lx1, ly1) to (lx2, ly2)
+; Parameters:  a0 - points to structure containing:
+;              OLED_LX1(a0) - x1 coord (0 - 127)
+;              OLED_LY1(a0) - y1 coord (0 - 63)
+;              OLED_LX2(a0) - x2 coord (0 - 127)
+;              OLED_LY2(a0) - y2 coord (0 - 63)
+;              OLED_LC(a0) - colour (0 - 15)
+oled_sline      rts
+
 ;
 ; Subroutines
 ; -----------
@@ -195,6 +234,7 @@ liner9         move.b   TLX(a7),d0
 liner_done     lea.l    12(a7),a7            ; deallocate stack work area
                movem.l  (a7)+,d0-d5/a0       ; restore registers
                rts
+
 ;
 ; Function:    Set the Pixel at X,Y colour C
 ; Parameters:  d0 - X coord (0 - 127)
@@ -308,6 +348,18 @@ oled_fill1     move.b   d3,OLED_DTA    ; Write fill byte to curent buffer locati
                movem.l  (a7)+,d0-d3    ; Restore registers
                rts
 ;
+; Draw circle (not implemented yet)
+;
+oled_scircle   rts
+;
+; Draw circle (not implemented yet)
+;
+oled_circle    rts
+;
+; oled_char - write character (faster, not implemented yet)
+;
+oled_schar     rts
+;
 ; oled_char - write character
 ; Parameters:  d0 - the ASCII character to write
 ;              a0 - points to structure containing:
@@ -363,6 +415,10 @@ oled_char_done add.b       #6,OLED_CX(a0)                ; update the x position
                movem.l     (a7)+,a0-a2/d0-d2             ; restore registers
                rts
 ;
+; oled_sstr - write a string (faster, not implemented yet)
+;
+oled_sstr      rts
+;
 ; oled_str - write a string
 ; Parameters:  a1 - the ASCII character to write (NULL terminated)
 ;              a0 - points to structure containing:
@@ -392,35 +448,6 @@ oled_str_xok   cmp.b       #$3f-7,OLED_CY(a0)            ; check if no space for
                bra         oled_str_loop
 oled_str_done  movem.l     (a7)+,d0/a1
                rts
-;
-; Support Subroutines
-; -------------------
-;
-; Function:	Set the Display buffer Column Start and End addresses (128x64 res)
-; Parameters:  d0 - Start column (0 - 127)
-;              d1 - End column  (0 - 127)
-; Returns:     -
-; Destroys:    -
-oled_set_col   move.l   d0,-(a7)          ; Save d0
-               move.b   #$15,OLED_CMD     ; Set column address command
-               lsr.b    #1,d0             ; column/2 (2 pixels per byte)
-               move.b   d0,OLED_CMD       ; write start column
-               move.b   d1,d0
-               lsr.b    #1,d0             ; column/2 (2 pixels per byte)
-               move.b   d0,OLED_CMD       ; write end column
-               move.l   (a7)+,d0          ; Restore d0
-               rts
-;
-; Function:	Set the Display buffer Row Start and End addresses (128x64 res)
-; Parameters:  d0 - Start row (0 - 63)
-;              d1 - End row (0 - 63) 
-; Returns:     -
-; Destroys:    -
-oled_set_row   move.b   #$75,OLED_CMD     ; Set row address command
-               move.b   d0,OLED_CMD       ; row start
-               move.b   d1,OLED_CMD       ; row end
-               rts
-
 ;
 ;
 ; Data Structures

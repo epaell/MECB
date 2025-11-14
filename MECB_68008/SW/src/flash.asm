@@ -37,7 +37,7 @@ flash_wbytes3 movem.l  (a7)+,d0-d2     ; Restore registers
 ; On Exit:
 ;       if write succeeded, Z is set
 ;       if write failed, Z is clear
-;       X = location that was written + 1
+;       a0 = location that was written + 1
 ;       Register contents are conserved.
 flash_wbyte move.l   a0,-(a7)          ; save pointer
             move.l   #FLASH_BYTE_PROG,a0

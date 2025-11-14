@@ -17,8 +17,7 @@
 ;  Get low 16 bits of seed and form low product
 ;  xalo := A * LowWord(seed)
 ;
-random    lea.l      rand_seed,a0            ; point to seed for random number generator
-          move       #16807,d0               ; Get A = 7^5
+random    move       #16807,d0               ; Get A = 7^5
           move       d0,d2                   ; Get A = 7^5
           mulu       2(a0),d0                ; Calculate low products = xalo
 ;

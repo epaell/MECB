@@ -88,4 +88,3 @@ vdp_text2_regs:            ; 80 x 24 mode
          dc.b       $05    ; R22- Color burst register 3
          dc.b       $00    ; R23- Display offset register 
 ;
-         include  "src/text_font.asm"

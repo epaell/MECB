@@ -381,13 +381,12 @@ SDDiskOpenErr  bsr      SDParReadByte           ; get error code
 ; C will be clear and d0 contains the number of bytes
 ; actually read into the buffer.
 ;
-; Modifies A, X and Y.  Also modifies INL and INH
-; (00F8 and 00F9).
 ;
-SDDiskRead     move.l   d0,-(a7)                ; Save register
+SDDiskRead     movem.l  d1-d3,-(a7)             ; Save registers
+               move.l   d0,d3                   ; Save bytes to read
                move.b   #PC_READ_BYTES,d0       ; Command
                bsr      SDParWriteByte
-               move.l   (a7)+,d0                ; Restore register
+               move.l   d3,d0                   ; Restore bytes to read
                bsr      SDParWriteByte          ; Number of bytes to read
                bsr      SDParSetRead            ; Get ready for response
                bsr      SDParReadByte           ; Assume PR_FILE_DATA
@@ -401,12 +400,14 @@ SDDiskRead1    bsr      SDParReadByte
                sub.b    #1,d1
                bne      SDDiskRead1             ; loop back if more to read
                bsr      SDParSetWrite
-               move.l   (a7)+,d0                ; Restore count
+               move.l   (a7)+,d0                ; restore number of bytes read
+               movem.l  (a7)+,d1-d3             ; Restore registers
                andi.b   #$fe,ccr                ; Clear carry
                rts
 ;
 SDDiskReadEoF  bsr      SDParSetWrite
                move.b   #0,d0
+               movem.l  (a7)+,d1-d3             ; Restore registers
                ori.b    #$01,ccr                ; Set carry
                rts
 ;
@@ -419,7 +420,8 @@ SDDiskReadEoF  bsr      SDParSetWrite
 ; if no error.  Note that if d0 contains 0 on entry,
 ; no bytes are written.
 ;
-SDDiskWrite    tst.b    d0
+SDDiskWrite    move.l   d1,-(a7)             ; Save register
+               tst.b    d0
                beq      SDDiskOk1
                move.b   d0,-(a7)
                move.b   #PC_WRITE_BYTES,d0   ; Command
@@ -437,10 +439,12 @@ SDDiskWrite1   move.b   (a0)+,d0             ; get a byte
                beq      SDDiskOk1            ; all good
                bsr      SDParReadByte        ; Otherwise read error code
                bsr      SDParSetWrite
+               move.l   (a7)+,d0             ; Restore register
                ori.b    #$01,ccr             ; Set carry
                rts
 ;
 SDDiskOk1      bsr      SDParSetWrite
+               move.l   (a7)+,d0             ; Restore register
                andi.b   #$fe,ccr             ; Clear carry
                rts
 ;
