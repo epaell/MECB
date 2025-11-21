@@ -1,5 +1,6 @@
-            include 'mecb.asm'
-            include 'tutor.asm'
+            include 'mecb.inc'
+            include 'tutor.inc'
+            include 'library_rom.inc'
 ;
                org      $4000
 ;
@@ -14,7 +15,7 @@ start          move.l   #MSG_READING,a5
                move.b   #OUTPUT,d7
                trap     #14
 ;
-               move.l   #EX_ROM_BASE,a0       ; Start of expansion ROM
+               move.l   #EX_ROM1_BASE,a0       ; Start of expansion ROM
                move.l   #0,d0
 loop           move.l   (a0),d1
                cmp.l    d0,d1
@@ -45,8 +46,8 @@ end            move.l   a0,-(a7)
                move.l   #MSG_READING,a6
                trap     #14
 
-               move.l   #EX_ROM_BASE,d0   ; Point to the eROM
-               bsr      flash_swid        ; Get the FLASH swid->d1
+               move.l   #EX_ROM1_BASE,d0  ; Point to the eROM
+               jsr      flash_swid        ; Get the FLASH swid->d1
                move.w   d1,flash_mfr_id
 ;
                move.b   #OUTPUT,d7        ; Write the manufacturer ID to the terminal
@@ -83,7 +84,7 @@ exit           move.b   #TUTOR,d7
 ;
 ;
 init_acia
-               lea     ACIA,a0
+               lea     ACIA1,a0
                move.b  #RESET,(a0)        ; Reset the ACIA
                move.b  #CONTROL,(a0)      ; Set up the ACIA
                rts
@@ -91,7 +92,7 @@ init_acia
 ;
 ; outstr
 ;
-outstr         lea     ACIA,a0
+outstr         lea     ACIA1,a0
 outstr0        move.b  (a1)+,d0           ; Get a character
                cmp.b   #EOT,d0            ; Check for EOT
                beq     outstr2            ; If done, exit
@@ -112,4 +113,3 @@ MSG_END        equ      *
 flash_mfr_id   ds.w     1
 buffer         ds.b     32
 ;
-               include  'flash.asm'

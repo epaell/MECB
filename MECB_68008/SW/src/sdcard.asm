@@ -1,4 +1,4 @@
-         include  'parproto.asm'
+         include  'sdcard.inc'
 ;
 ; Low-level routines to communicate with SD-card interface
 ;         jmp   SDParInit           ; init parallel interface
@@ -79,9 +79,9 @@ SDBOOT_ADDR    equ     $8000
 ; the DIRECTION and PSTROBE bits are output.
 ;
 SDParInit
-                move.b   #$00,PIACTLB         ; select DDR for port B
-                move.b   #$03,PIADDRB         ; DIRECTION + PSTROBE bits
-                move.b   #$04,PIACTLB         ; select data reg
+                move.b   #$00,PIA2CTLB         ; select DDR for port B
+                move.b   #$03,PIA2DDRB         ; DIRECTION + PSTROBE bits
+                move.b   #$04,PIA2CTLB         ; select data reg
                 bsr      SDParSetWrite
                 rts
 ;
@@ -91,26 +91,26 @@ SDParInit
 ; This sets up for writing to the Arduino.  Sets up
 ; direction registers, drives the direction bit, etc.
 ;
-SDParSetWrite   move.b  #$00,PIACTLA          ; select DDR...for port A
-                move.b  #$ff,PIADDRA          ; set bits for output
-                move.b  #$04,PIACTLA          ; select data reg
+SDParSetWrite   move.b  #$00,PIA2CTLA          ; select DDR...for port A
+                move.b  #$ff,PIA2DDRA          ; set bits for output
+                move.b  #$04,PIA2CTLA          ; select data reg
 ;
 ; Set direction flag to output, clear ACK bit
 ;
-                move.b  #$01,PIAREGB          ; DIRECTION bit
+                move.b  #$01,PIA2REGB          ; DIRECTION bit
                 rts
 
 ;*****************************************************
 ; This sets up for reading from the Arduino.  Sets up
 ; direction registers, clears the direction bit, etc.
 ;
-SDParSetRead    move.b  #$00,PIACTLA         ; select DDR for port A
-                move.b  #$00,PIADDRA         ; set bits for input
-                move.b  #$04,PIACTLA         ; select data reg
+SDParSetRead    move.b  #$00,PIA2CTLA         ; select DDR for port A
+                move.b  #$00,PIA2DDRA         ; set bits for input
+                move.b  #$04,PIA2CTLA         ; select data reg
 ;
 ; Set direction flag to input, clear ACK bit
 ;
-                move.b  #$00,PIAREGB
+                move.b  #$00,PIA2REGB
                 rts
 ;*****************************************************
 ; This writes a single byte to the Arduino.  On entry,
@@ -131,29 +131,29 @@ SDParSetRead    move.b  #$00,PIACTLA         ; select DDR for port A
 ;    6. Wait for ACK to go low, indicating end of
 ;       transfer.
 ;
-SDParWriteByte    btst.b   #ACK,PIAREGB      ; check status
+SDParWriteByte    btst.b   #ACK,PIA2REGB      ; check status
                   bne      SDParWriteByte
 ;
 ; Now put the data onto the bus
 ;
-                  move.b   d0,PIAREGA
+                  move.b   d0,PIA2REGA
 ;
 ; Raise the strobe so the Arduino knows there is
 ; new data.
 ;
-                  bset.b   #PSTROBE,PIAREGB
+                  bset.b   #PSTROBE,PIA2REGB
 ;
 ; Wait for ACK to go high, indicating the Arduino has
 ; pulled the data and is ready for more.
 ;
-SDParWriteByte1   btst.b   #ACK,PIAREGB      ; check status
+SDParWriteByte1   btst.b   #ACK,PIA2REGB      ; check status
                   beq      SDParWriteByte1
 ;
 ; Now lower the strobe, then wait for the Arduino to
 ; lower ACK.
 ;
-                  bclr.b   #PSTROBE,PIAREGB
-SDParWriteByte2   btst.b   #ACK,PIAREGB      ; check status
+                  bclr.b   #PSTROBE,PIA2REGB
+SDParWriteByte2   btst.b   #ACK,PIA2REGB      ; check status
                   bne      SDParWriteByte2
                   rts
 
@@ -174,23 +174,23 @@ SDParWriteByte2   btst.b   #ACK,PIAREGB      ; check status
 ;    4. Wait for ACK to go low.
 ;    5. Lower PSTROBE.
 ;
-SDParReadByte  btst.b   #ACK,PIAREGB      ; is the strobe high?
+SDParReadByte  btst.b   #ACK,PIA2REGB      ; is the strobe high?
                beq      SDParReadByte     ; nope, no data
 ;
 ; Data is available, so grab and save it.
 ;
-               move.b   PIAREGA,d0
+               move.b   PIA2REGA,d0
 ;
 ; Now raise our strobe (their ACK), then wait for
 ; them to lower their strobe.
 ;
-               bset.b   #PSTROBE,PIAREGB
-SDParReadByte1 btst.b   #ACK,PIAREGB
+               bset.b   #PSTROBE,PIA2REGB
+SDParReadByte1 btst.b   #ACK,PIA2REGB
                bne      SDParReadByte1    ; still active
 ;
 ; Lower our ack, then we're done.
 ;
-               bclr.b   #PSTROBE,PIAREGB
+               bclr.b   #PSTROBE,PIA2REGB
                rts
 ;
 SDBoot

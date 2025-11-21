@@ -1,12 +1,13 @@
-         include  'mecb.asm'
-         include  'tutor.asm'
+         include  'mecb.inc'
+         include  'tutor.inc'
+         include  'library_rom.inc'
+         
 ***************************************************
 * THIS IS A DEMO OF THE 68343 FAST FLOATING POINT *
 ***************************************************
           ORG       $1000
           
 STARTD     BRA     MAIN
-            include 'math.asm'
 
 ***************************************************
 * THIS IS A DEMO OF THE 68343 FAST FLOATING POINT *
@@ -26,11 +27,11 @@ FFPDEMO   LEA       STACK,SP              ;LOAD STACK
           DC.B      '        '            ;BLANK LINE
 
           LEA       ASCIIPI,A0            ;CONVERT PI TO FLOAT
-          BSR       FFPAFP
+          JSR       FFPAFP
           MOVE.L    D7,D0                 ;SAVE PI IN D0
 
           LEA       ASCIIE,A0             ;CONVERT 'E' TO FLOAT
-          BSR       FFPAFP
+          JSR       FFPAFP
           MOVE.L    D7,D1                 ;SAVE E IN D1
 
 *****************
@@ -45,7 +46,7 @@ FFPDEMO   LEA       STACK,SP              ;LOAD STACK
           MOVE.L    D0,D6                 ;MOVE PI
 
 ADDLOOP   MOVE.L    D1,D7                 ;RELOAD E
-          BSR       FFPADD                ;PERFORM ADD
+          JSR       FFPADD                ;PERFORM ADD
           DBRA      D2,ADDLOOP
 
           BSR       RESULT                ;DISPLAY RESULT
@@ -63,7 +64,7 @@ ADDLOOP   MOVE.L    D1,D7                 ;RELOAD E
           MOVE.L    D0,D6                 ;SETUP PI
 
 MULLOOP   MOVE.L    D1,D7                 ;SETUP E
-          BSR       FFPMUL                ;PERFORM MULTIPLY
+          JSR       FFPMUL                ;PERFORM MULTIPLY
           DBRA      D2,MULLOOP            ;LOOP UNTIL DONE
 
           BSR.S     RESULT                ;DISPLAY RESULT
@@ -80,7 +81,7 @@ MULLOOP   MOVE.L    D1,D7                 ;SETUP E
           MOVE.L    D0,D6                 ;SETUP PI
 
 DIVLOOP   MOVE.L    D1,D7                 ;SETUP E
-          BSR       FFPDIV                ;PERFORM DIVIDE
+          JSR       FFPDIV                ;PERFORM DIVIDE
           DBRA      D2,DIVLOOP            ;LOOP UNTIL DONE
 
           BSR.S     RESULT                ;DISPLAY RESULT
@@ -96,7 +97,7 @@ DIVLOOP   MOVE.L    D1,D7                 ;SETUP E
           MOVE.W    #20000,D2             ;SETUP LOOP COUNT
 
 SQRLOOP   MOVE.L    D0,D7                 ;SETUP PI
-          BSR       FFPSQRT               ;PERFORM SQUARE ROOT
+          JSR       FFPSQRT               ;PERFORM SQUARE ROOT
           DBRA      D2,SQRLOOP            ;LOOP UNTIL DONE
 
           BSR.S     RESULT                ;DISPLAY RESULT
@@ -112,7 +113,7 @@ SQRLOOP   MOVE.L    D0,D7                 ;SETUP PI
           MOVE.W    #10000,D2             ;SETUP LOOP COUNT
 
 SINLOOP   MOVE.L    D1,D7                 ;SETUP E
-          BSR       FFPSINCS              ;PERFORM SINE AND COSINE
+          JSR       FFPSINCS              ;PERFORM SINE AND COSINE
           DBRA      D2,SINLOOP            ;LOOP UNTIL DONE
 
           BSR.S     RESULT                ;DISPLAY COSINE
@@ -134,7 +135,7 @@ QUIT      BSR.S     MSG                   ;ISSUE DONE MESSAGE
 *   * RESULT DISPLAY SUBROUTINE
 *   *   INPUT IS FLOAT IN D7
 *   *
-RESULT    BSR       FFPFPA
+RESULT    JSR       FFPFPA
           MOVE.L    #'LT: ',-(SP)         ;MOVE RESULT HEADER
           MOVE.L    #'RESU',-(SP)         ;ONTO STACK
           LEA       (SP),A0               ;POINT TO MESSAGE

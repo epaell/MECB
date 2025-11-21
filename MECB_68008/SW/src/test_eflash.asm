@@ -1,5 +1,6 @@
-               include 'mecb.asm'
-               include 'tutor.asm'
+               include 'mecb.inc'
+               include 'tutor.inc'
+               include 'library_rom.inc'
 ;
                org      $4000
 ;
@@ -66,7 +67,7 @@ chip_write2    move.l   d3,(a1)+             ; store value
                move.l   #EX_ROM1_BASE,d0
                move.l   #sector_buffer,a1
                move.l   #16384,d2            ; number of bytes to transfer (4096 * 4)
-               bsr      flash_wbytes         ; a0 should have next location to write to
+               jsr      flash_wbytes         ; a0 should have next location to write to
                bne      chip_write3
                cmp.l    a2,a0                ; check if end of ROM reached
                bne      chip_write1          ; if not, continue
@@ -102,7 +103,7 @@ chip_write5    move.l   d3,(a1)+             ; store value
                move.l   #EX_ROM2_BASE,d0
                move.l   #sector_buffer,a1
                move.l   #16384,d2            ; number of bytes to transfer (4096 * 4)
-               bsr      flash_wbytes         ; a0 should have next location to write to
+               jsr      flash_wbytes         ; a0 should have next location to write to
                bne      chip_write3
                cmp.l    a2,a0                ; check if end of ROM reached
                bne      chip_write4          ; if not, continue
@@ -134,7 +135,7 @@ sector_erase   movem.l  d0-d7/a0-a6,-(a7)    ; Save registers
                move.l   #EX_ROM1_BASE,d0     ; Point to the expansion FLASH ROM
                move.l   #EX_ROM1_BASE,a1     ; sector to erase
                move.l   #EX_ROM1_END,a2      ; end of expansion FLASH ROM
-sector_erase1  bsr      flash_erase          ; if successful a1 is bumped to next sector
+sector_erase1  jsr      flash_erase          ; if successful a1 is bumped to next sector
                bne      sector_erase2
                cmp.l    a2,a1                ; check if reached end of ROM
                blo      sector_erase1        ; if not, continue erasing
@@ -167,7 +168,7 @@ chip_erase   movem.l  d0-d7/a0-a6,-(a7)    ; Save registers
                move.l   #EX_ROM2_BASE,d0     ; Point to the expansion FLASH ROM
                move.l   #EX_ROM2_BASE,a1     ; sector to erase
                move.l   #EX_ROM2_END,a2      ; end of expansion FLASH ROM
-chip_erase1    bsr      flash_chip_erase     ; if successful a1 is bumped to next sector
+chip_erase1    jsr      flash_chip_erase     ; if successful a1 is bumped to next sector
                bne      chip_erase2
 ;
                move.b   #OUT1CR,d7           ; Chip erase succeeded
@@ -188,7 +189,7 @@ chip_erase3    movem.l  (a7)+,d0-d7/a0-a6    ; Restore registers
 dump_flash_info
                movem.l  d0-d7/a0-a6,-(a7)    ; Save registers
                move.l   #EX_ROM1_BASE,d0     ; Point to the eROM
-               bsr      flash_swid           ; Get the FLASH swid->d1, attribute pointer->a0
+               jsr      flash_swid           ; Get the FLASH swid->d1, attribute pointer->a0
                move.w   d1,flash_mfr_id
                move.l   a0,flash_attr
                cmp.l    #0,a0
@@ -301,6 +302,4 @@ MSG_CHIP_IDE   equ      *
 ;MSG_READINGE   equ      *
 ;MSG_MISMATCH   dc.b     'Mismatch at: $'
 ;MSG_MISMATCHE  equ      *
-;
-               include  'flash.asm'
 ;

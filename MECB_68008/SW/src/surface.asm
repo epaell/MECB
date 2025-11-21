@@ -1,63 +1,9 @@
                org      $4000
 ;
-oled_init      equ      $00100280   ; oled_init    - Initialise OLED display
-oled_on        equ      $00100284   ; oled_on      - Turn on display
-oled_off       equ      $00100288   ; oled_off     - Turn off display
-oled_fill      equ      $001002A4   ; oled_fill    - Fill rows
-oled_spixel    equ      $00100294   ; oled_spixel  - Draw pixel
-oled_pixel     equ      $00100298   ; oled_pixel   - Draw pixel
-oled_line      equ      $001002A0   ; oled_line    - Draw line
-;
-FFPABS         equ      $00100000   ; FFPABS       - d7=abs(d7)
-FFPNEG         equ      $00100004   ; FFPNEG       - d7=neg(d7)
-FFPADD         equ      $00100008   ; FFPADD       - d7=d6+d7
-FFPSUB         equ      $0010000C   ; FFPSUB       - d7=d7-d6
-FFPAFP         equ      $00100010   ; FFPAFP       - d7=ASCII2float(a0)
-FFPATAN        equ      $00100014   ; FFPATAN      - d7=atan(d7)
-FFPCMP         equ      $00100018   ; FFPCMP       - cmp(d6,d7) i.e. d7-d6
-FFPTST         equ      $0010001C   ; FFPTST       - tst(d7)
-FFPDBF         equ      $00100020   ; FFPDBF       - d7=dual_binary2float(d6,d7)
-FFPDIV         equ      $00100024   ; FFPDIV       - d7=d7/d6
-FFPEXP         equ      $00100028   ; FFPEXP       - d7=exp(d7)
-FFPFPA         equ      $0010002C   ; FFPFPA       - float2ASCII(d7)
-FFPFPI         equ      $00100030   ; FFPFPI       - d7=float2int(d7)
-FFPIFP         equ      $00100034   ; FFPIFP       - d7=int2float(d7)
-FFPLOG         equ      $00100038   ; FFPLOG       - d7=log_e(d7)
-FFPMUL         equ      $0010003C   ; FFPMUL       - d7=mul(d6,d7)
-FFPPWR         equ      $00100040   ; FFPPWR       - d7=power(d6,d7)
-FFPSIN         equ      $00100044   ; FFPSIN       - d7=sin(d7)
-FFPCOS         equ      $00100048   ; FFPCOS       - d7=cos(d7)
-FFPTAN         equ      $0010004C   ; FFPTAN       - d7=tan(d7)
-FFPSINCS       equ      $00100050   ; FFPSINCS     - d6=sin(d7),d7=cos(d7)
-FFPSINH        equ      $00100054   ; FFPSINH      - d7=sinh(d7)
-FFPCOSH        equ      $00100058   ; FFPCOSH      - d7=cosh(d7)
-FFPTANH        equ      $0010005C   ; FFPTANH      - d7=tanh(d7)
-FFPSQRT        equ      $00100060   ; FFPSQRT      - d7=sqrt(d7)
-;
-; Logical functions for oled_pixel
-OLED_PSET      equ      $0                   ; Set pixel
-OLED_POR       equ      $1                   ; Or pixel
-OLED_PEOR      equ      $2                   ; Exclusive-or pixel
-OLED_PAND      equ      $3                   ; And pixel
-;
-; Structure used for oled_pixel
-;
-OLED_X         equ      $0                   ; X
-OLED_Y         equ      $1                   ; Y
-OLED_C         equ      $2                   ; Colour
-OLED_L         equ      $3                   ; Logical function
-;
-; Structure used for oled_line
-;
-OLED_LX1       equ      $0                   ; X
-OLED_LY1       equ      $1                   ; Y
-OLED_LX2       equ      $2                   ; X
-OLED_LY2       equ      $3                   ; Y
-OLED_LC        equ      $4                   ; Colour
-OLED_LL        equ      $5                   ; Logical function
-;
-               include  'mecb.asm'
-               include  'tutor.asm'
+               include  'mecb.inc'
+               include  'tutor.inc'
+               include  'library_rom.inc'       ; Make use of library routines
+               include  'oled.inc'              ; OLED specific definitions
 ;
 start          move.l   #RAM_END+1,a7           ; Set up stack
                jsr      oled_init

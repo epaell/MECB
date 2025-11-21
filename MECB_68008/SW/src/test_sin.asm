@@ -1,5 +1,6 @@
-            include  'mecb.asm'
-            include  'tutor.asm'
+            include  'mecb.inc'
+            include  'tutor.inc'
+            include  'library_rom.inc
 ***************************************************
 * THIS IS A DEMO OF THE 68343 FAST FLOATING POINT *
 ***************************************************
@@ -17,12 +18,12 @@ ffp_demo    lea.l    stack,a7              ;LOAD STACK
 sine_loop   move.l   (a2),d7              ; get current angle
             bsr      input                ; write the input
             bsr      input                ; write the input
-            bsr      FFPSIN               ; perform sine
+            jsr      FFPSIN               ; perform sine
             bsr      output               ; write the output
 
             move.l   (a2),d6
             move.l   4(a2),d7
-            bsr      FFPADD               ; increment the angle
+            jsr      FFPADD               ; increment the angle
             move.l   d7,(a2)              ; save it fot next loop
             sub.l    #1,d0
             bne      sine_loop
@@ -33,7 +34,7 @@ sine_loop   move.l   (a2),d7              ; get current angle
 ; output float value in d7
 ;
 output      movem.l  d7/a2,-(a7) 
-            bsr      FFPFPA
+            jsr      FFPFPA
             move.l   #'UT: ',-(a7)         ;MOVE RESULT HEADER
             move.l   #'OUTP',-(a7)         ;ONTO STACK
             lea      (SP),A0               ;POINT TO MESSAGE
@@ -46,7 +47,7 @@ output      movem.l  d7/a2,-(a7)
 ; input float value in d7
 ;
 input       movem.l  d7/a2,-(a7) 
-            bsr      FFPFPA
+            jsr      FFPFPA
             move.l   #'T:  ',-(a7)         ;MOVE RESULT HEADER
             move.l   #'INPU',-(a7)         ;ONTO STACK
             lea      (a7),A0               ;POINT TO MESSAGE
@@ -94,5 +95,3 @@ CHAROUT  MOVEM.L   A0/D7,-(A7)
 HALT      MOVE.W    #228,D7
           TRAP      #14
           NOP
-
-            include 'math.asm'

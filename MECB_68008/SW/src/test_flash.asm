@@ -1,13 +1,11 @@
-               include  'mecb.asm'
-               include  'tutor.asm'
+               include  'mecb.inc'
+               include  'tutor.inc'
+               include  'library_rom.inc'
 ;
                org      $4000
 ;
 CR             equ      $0d
 LF             equ      $0a
-EOT            equ      $04
-RESET          equ      $03               ; Master reset for ACIA
-CONTROL        equ      $51               ; Control settings for ACIA
 ;
 start          move.b   #OUTPUT,d7        ; Write the sending codes
                move.l   #MSG_SEND,a5
@@ -15,7 +13,7 @@ start          move.b   #OUTPUT,d7        ; Write the sending codes
                trap     #14
 ;
                move.l   #ROM_BASE,d0      ; Start of ROM
-               bsr      flash_swid        ; Get the FLASH swid
+               jsr      flash_swid        ; Get the FLASH swid
                move.w   d1,flash_mfr_id
 ;
                move.b   #OUTPUT,d7        ; Write the manufacturer ID to the terminal
@@ -48,8 +46,6 @@ start          move.b   #OUTPUT,d7        ; Write the sending codes
 
 exit           move.b   #TUTOR,d7
                trap     #14
-;
-               include  'flash.asm'
 ;
 ;
 flash_mfr_id   ds.w     1

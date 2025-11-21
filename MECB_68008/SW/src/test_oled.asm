@@ -1,23 +1,26 @@
                org      $4000
 ;
-               include  'mecb.asm'
-               include  'tutor.asm'
+               include  'mecb.inc'
+               include  'tutor.inc'
+               include  'library_rom.inc'
+               include  'sdcard.inc'
+               include  'oled.inc'
 ;
 BUFFER_SIZE    equ      255
 ;
 start          move.l   #RAM_END+1,a7              ; Set up stack
-               bsr      SDParInit                  ; Set up SD interface
-               bsr      oled_init
+               jsr      SDParInit                  ; Set up SD interface
+               jsr      oled_init
 ;
                move.b   #$00,d0                    ; d0 = fill value
                move.b   #$00,d1                    ; d1 = start row
                move.b   #$3f,d2                    ; d2 = end row
-               bsr      oled_fill
-               bsr      oled_on
+               jsr      oled_fill
+               jsr      oled_on
 ;
                move.l   #40,d0                     ; Loop a number of times
 loop           move.l   #RTC_struct,a0
-               bsr      SDGetClock                 ; Get the RTC date/time
+               jsr      SDGetClock                 ; Get the RTC date/time
                bcs      clock_err
                move.l   #RTC_struct,a2
                move.l   #buffer,a6
@@ -32,7 +35,7 @@ loop           move.l   #RTC_struct,a0
                move.b   #OLED_PSET,OLED_CL(a0)     ; Logical function
                move.l   #text_font_def,OLED_CF(a0) ; Font pointer
                move.l   #buffer,a1                 ; Point to date string
-               bsr      oled_str
+               jsr      oled_str
                sub.l    #1,d0
                bne      loop
                bra      test_end
@@ -140,10 +143,6 @@ line           ds.b     1              ; x1
                ds.b     1              ; y2
                ds.b     1              ; colour
                ds.b     1              ; logical function
-;
-               include  'oled.asm'
-               include  'sdcard.asm'
-               include  'text_font.asm'
 ;
 buffer         ds.b     BUFFER_SIZE+1
 ;

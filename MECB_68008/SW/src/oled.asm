@@ -1,25 +1,4 @@
-;
-; Logical functions for oled_pixel
-OLED_PSET      equ      $0                   ; Set pixel
-OLED_POR       equ      $1                   ; Or pixel
-OLED_PEOR      equ      $2                   ; Exclusive-or pixel
-OLED_PAND      equ      $3                   ; And pixel
-;
-; Structure used for oled_pixel
-;
-OLED_X         equ      $0                   ; X
-OLED_Y         equ      $1                   ; Y
-OLED_C         equ      $2                   ; Colour
-OLED_L         equ      $3                   ; Logical function
-;
-; Structure used for oled_line
-;
-OLED_LX1       equ      $0                   ; X
-OLED_LY1       equ      $1                   ; Y
-OLED_LX2       equ      $2                   ; X
-OLED_LY2       equ      $3                   ; Y
-OLED_LC        equ      $4                   ; Colour
-OLED_LL        equ      $5                   ; Logical function
+               include  'oled.inc'
 ;
 oled_init      movem.l  d0-d1/a0,-(a7)       ; save registers
                lea.l    OLED_INIT_CMDS(pc),a0   ; point to initialisation command table
@@ -352,9 +331,158 @@ oled_fill1     move.b   d3,OLED_DTA    ; Write fill byte to curent buffer locati
 ;
 oled_scircle   rts
 ;
-; Draw circle (not implemented yet)
 ;
-oled_circle    rts
+; Function:    Draw a circle at x,y with radius r given logical function and colour
+; Parameters:  a0 - points to a circle structure containing:
+;              OLED_CY(a0) - x coord (0 - 127)
+;              OLED_CY(a0) - y coord (0 - 63)
+;              OLED_CR(a0) - r radius (0 - ?)
+;              OLED_CC(a0) - colour (0 - 15)
+;              OLED_CL(a0) - logical function (OLED_PSET, OLED_POR, OLED_PEOR, OLED_PAND)
+; Returns:     -
+; Destroys:    -
+; Intermediate variables:
+; 0(a7) - TX
+; 2(a7) - TY
+; 4(a7) - TSWITCH
+; 10(a7) - VX   for pixel drawing
+; 11(a7) - VY
+; 12(a7) - VC
+; 13(a7) - VL
+;
+TCX            equ      0
+TCY            equ      2
+TCSWITCH       equ      4
+TCVX           equ      10
+TCVY           equ      11
+TCVC           equ      12
+TCVL           equ      13
+;
+oled_circle    movem.l  d0/a0-a1,-(a7)          ; save registers
+               lea.l    -16(a7),a7              ; Make space for intermediate variables
+               move.l   a0,a1                   ; a1 points to the circle data structure
+               lea.l    TCVX(a7),a0             ; a0 points to the pixel data structure
+               
+               move.b   OLED_CC(a1),TCVC(a7)    ; set up colour for pixels
+               move.b   OLED_CL(a1),TCVL(a7)    ; set up logic function for drawing
+               move.w   #0,TCX(a7)              ; tx = 0
+               move.w   OLED_CR(a1),TCY(a7)     ; ty = r
+               move.w   #3,d0
+               sub.w    OLED_CR(a1),d0
+               sub.w    OLED_CR(a1),d0
+               move.w   d0,TCSWITCH(a7)         ; tswitch = 3 - 2 * r
+               move.w   OLED_CX(a1),d0          ; tvx = tx - ty
+               sub.w    TCY(a7),d0
+               move.b   d0,TCVX(a7)
+               move.w   OLED_CY(a1),d0          ; d4 = cy - tx
+               sub.w    TCX(a7),d0
+               move.b   d0,TCVY(a7)
+               jsr      oled_pixel              ; plot(cx-ty, cy-tx)
+               
+oled_circle1   move.w   TCX(a7),d0
+               cmp.w    TCY(a7),d0              ; cmp ty,tx
+               bgt      oled_circle7
+               move.w   OLED_CX(a1),d0          ; if tx <= ty
+               add.w    TCX(a7),d0
+               move.b   d0,TCVX(a7)
+               move.w   OLED_CY(a1),d0
+               sub.w    TCY(a7),d0
+               move.b   d0,TCVY(a7)
+               jsr      oled_pixel              ; plot(tx + cx, -ty + cy)
+               
+               move.w   TCX(a7),d0
+               cmp.w    TCY(a7),d0
+               beq      oled_circle2
+               move.w   TCY(a7),d0               ; if tx != ty
+               add.w    OLED_CX(a1),d0
+               move.b   d0,TCVX(a7)
+               move.w   OLED_CY(a1),d0
+               sub.w    TCX(a7),d0
+               move.b   d0,TCVY(a7)
+               jsr      oled_pixel              ; plot(ty + cx, -tx + cy)
+               
+oled_circle2   tst.w    TCX(a7)
+               beq      oled_circle3
+               move.w   TCY(a7),d0              ; if tx != 0
+               add.w    OLED_CX(a1),d0
+               move.b   d0,TCVX(a7)
+               move.w   TCX(a7),d0
+               add.w    OLED_CY(a1),d0
+               move.b   d0,TCVY(a7)
+               jsr      oled_pixel              ; plot(ty + cx,  tx + cy)
+               
+               tst.w    TCY(a7)
+               beq      oled_circle3
+               move.w   OLED_CX(a1),d0          ; if ty != 0
+               sub.w    TCX(a7),d0
+               move.b   d0,TCVX(a7)
+               move.w   OLED_CY(a1),d0
+               add.w    TCY(a7),d0
+               move.b   d0,TCVY(a7)
+               jsr      oled_pixel              ; plot(-tx + cx,  ty + cy)
+               
+               move.w   OLED_CX(a1),d0
+               sub.w    TCY(a7),d0
+               move.b   d0,TCVX(a7)
+               move.w   OLED_CY(a1),d0
+               sub.w    TCX(a7),d0
+               move.b   d0,TCVY(a7)
+               jsr      oled_pixel              ; plot(-ty + cx, -tx + cy)
+               
+               move.w   TCX(a7),d0
+               cmp.w    TCY(a7),d0
+               beq      oled_circle3
+
+               move.w   OLED_CX(a1),d0          ; if tx != ty
+               sub.w    TCY(a7),d0
+               move.b   d0,TCVX(a7)
+               move.w   OLED_CY(a1),d0
+               add.w    TCX(a7),d0
+               move.b   d0,TCVY(a7)
+               jsr      oled_pixel              ; plot(-ty + cx,  tx + cy)
+
+               move.w   OLED_CX(a1),d0
+               sub.w    TCX(a7),d0
+               move.b   d0,TCVX(a7)
+               move.w   OLED_CY(a1),d0
+               sub.w    TCY(a7),d0
+               move.b   d0,TCVY(a7)
+               jsr      oled_pixel              ; plot(-tx + cx, -ty + cy)
+               
+oled_circle3   tst.w    TCY(a7)
+               beq      oled_circle4
+               move.w   TCY(a7),d0
+               cmp.w    TCX(a7),d0
+               beq      oled_circle4
+               
+               move.w   OLED_CX(a1),d0          ; if ty != 0 and tx != ty
+               add.w    TCX(a7),d0
+               move.b   d0,TCVX(a7)
+               move.w   OLED_CY(a1),d0
+               add.w    TCY(a7),d0
+               move.b   d0,TCVY(a7)
+               jsr      oled_pixel              ; plot(tx + cc,  ty + cy)
+               
+oled_circle4   tst.w    TCSWITCH(a7)
+               bge      oled_circle5
+               move.w   TCX(a7),d0              ; if tswitch < 0:
+               asl.w    #2,d0
+               add.w    #6,d0
+               add.w    TCSWITCH(a7),d0
+               move.w   d0,TCSWITCH(a7)         ; tswitch += (4 * tx) + 6
+               bra      oled_circle6
+oled_circle5   move.w   TCX(a7),d0              ; else:
+               sub.w    TCY(a7),d0
+               asl.w    #2,d0
+               add.w    #10,d0
+               add.w    TCSWITCH(a7),d0
+               move.w   d0,TCSWITCH(a7)         ; tswitch += (4 * (tx - ty)) + 10
+               sub.w    #1,TCY(a7)              ; ty -= 1
+oled_circle6   add.w    #1,TCX(a7)              ; tx += 1
+               bra      oled_circle1
+oled_circle7   lea.l    16(a7),a7               ; Deallocate space for intermediate variables
+               movem.l  (a7)+,d0/a0-a1
+               rts
 ;
 ; oled_char - write character (faster, not implemented yet)
 ;
@@ -363,19 +491,12 @@ oled_schar     rts
 ; oled_char - write character
 ; Parameters:  d0 - the ASCII character to write
 ;              a0 - points to structure containing:
-;              OLED_CX(a0) - x1 coord (0 - 127)
-;              OLED_CY(a0) - y1 coord (0 - 63)
-;              OLED_CFC(a0) - foreground colour (0 - 15)
-;              OLED_CBC(a0) - background colour (0 - 15)
-;              OLED_CL(a0) - logical function (OLED_PSET, OLED_POR, OLED_PEOR, OLED_PAND)
-;              OLED_CF(a0) - pointer to font to use
-OLED_CX        equ         $00
-OLED_CY        equ         $01
-OLED_CFC       equ         $02
-OLED_CBC       equ         $03
-OLED_CL        equ         $04
-OLED_CF        equ         $08
-;
+;              OLED_TX(a0) - x1 coord (0 - 127)
+;              OLED_TY(a0) - y1 coord (0 - 63)
+;              OLED_TFC(a0) - foreground colour (0 - 15)
+;              OLED_TBC(a0) - background colour (0 - 15)
+;              OLED_TL(a0) - logical function (OLED_PSET, OLED_POR, OLED_PEOR, OLED_PAND)
+;              OLED_TF(a0) - pointer to font to use
 OLED_CHAR_X    equ         $00
 OLED_CHAR_Y    equ         $01
 OLED_CHAR_C    equ         $02
@@ -383,22 +504,22 @@ OLED_CHAR_L    equ         $03
 ;
 oled_char      movem.l     a0-a2/d0-d2,-(a7)             ; Save registers
                lea.l       -4(a7),a7                     ; Make space for work variables
-               move.b      OLED_CX(a0),OLED_CHAR_X(a7)   ; Copy start x
-               move.b      OLED_CY(a0),OLED_CHAR_Y(a7)   ; Copy start y
-               move.b      OLED_CL(a0),OLED_CHAR_L(a7)   ; Copy logical function
+               move.b      OLED_TX(a0),OLED_CHAR_X(a7)   ; Copy start x
+               move.b      OLED_TY(a0),OLED_CHAR_Y(a7)   ; Copy start y
+               move.b      OLED_TL(a0),OLED_CHAR_L(a7)   ; Copy logical function
                lea.l       OLED_CHAR_X(a7),a2            ; a2 holds pixel structure location
                and.l       #$ff,d0
                lsl.l       #3,d0                         ; 8 bytes per character definition in font
-               move.l      OLED_CF(a0),a1                ; Pointer to the font definition
+               move.l      OLED_TF(a0),a1                ; Pointer to the font definition
                add.l       d0,a1                         ; Offset to the character
                move.b      #8,d0                         ; number of font bytes to read
 oled_char_byte move.b      #6,d1                         ; number of bits to write
                move.b      (a1)+,d2                      ; read a byte
 oled_char_bit  asl.b       #1,d2                         ; get a bit
                bcc         oled_char_off
-               move.b      OLED_CFC(a0),OLED_CHAR_C(a7)  ; If on pixel then set the foreground colour
+               move.b      OLED_TFC(a0),OLED_CHAR_C(a7)  ; If on pixel then set the foreground colour
                bra         oled_char_draw
-oled_char_off  move.b      OLED_CBC(a0),OLED_CHAR_C(a7)  ; If off pixel then set background colour
+oled_char_off  move.b      OLED_TBC(a0),OLED_CHAR_C(a7)  ; If off pixel then set background colour
 oled_char_draw exg.l       a0,a2
                bsr         oled_pixel
                exg.l       a0,a2
@@ -410,7 +531,7 @@ oled_char_draw exg.l       a0,a2
                sub.b       #6,OLED_CHAR_X(a7)            ; reset x position
                add.b       #1,OLED_CHAR_Y(a7)            ; move to next row
                bra         oled_char_byte
-oled_char_done add.b       #6,OLED_CX(a0)                ; update the x position
+oled_char_done add.b       #6,OLED_TX(a0)                ; update the x position
                lea.l       4(a7),a7                      ; deallocate temporary space
                movem.l     (a7)+,a0-a2/d0-d2             ; restore registers
                rts
@@ -422,29 +543,29 @@ oled_sstr      rts
 ; oled_str - write a string
 ; Parameters:  a1 - the ASCII character to write (NULL terminated)
 ;              a0 - points to structure containing:
-;              OLED_CX(a0) - x1 coord (0 - 127)
-;              OLED_CY(a0) - y1 coord (0 - 63)
-;              OLED_CFC(a0) - foreground colour (0 - 15)
-;              OLED_CBC(a0) - background colour (0 - 15)
-;              OLED_CL(a0) - logical function (OLED_PSET, OLED_POR, OLED_PEOR, OLED_PAND)
-;              OLED_CF(a0) - pointer to font to use
+;              OLED_TX(a0) - x1 coord (0 - 127)
+;              OLED_TY(a0) - y1 coord (0 - 63)
+;              OLED_TFC(a0) - foreground colour (0 - 15)
+;              OLED_TBC(a0) - background colour (0 - 15)
+;              OLED_TL(a0) - logical function (OLED_PSET, OLED_POR, OLED_PEOR, OLED_PAND)
+;              OLED_TF(a0) - pointer to font to use
 oled_str       movem.l     d0/a1,-(a7)
 oled_str_loop  move.b      (a1)+,d0
                beq         oled_str_done
                cmp.b       #$0d,d0                       ; Carriage return?
                bne         oled_str_nocr
-               move.b      #0,OLED_CX(a0)                ; Carriage return, move to beginning of line
+               move.b      #0,OLED_TX(a0)                ; Carriage return, move to beginning of line
                bra         oled_str_loop
 oled_str_nocr  cmp.b       #$0a,d0                       ; Line feed?
                beq         oled_str_lf
 oled_str_nolf  bsr         oled_char
-               cmp.b       #$7f-5,OLED_CX(a0)
+               cmp.b       #$7f-5,OLED_TX(a0)
                blt         oled_str_xok
-               move.b      #0,OLED_CX(a0)                ; move to start of next line
-oled_str_lf    add.b       #8,OLED_CY(a0)
-oled_str_xok   cmp.b       #$3f-7,OLED_CY(a0)            ; check if no space for writing line
+               move.b      #0,OLED_TX(a0)                ; move to start of next line
+oled_str_lf    add.b       #8,OLED_TY(a0)
+oled_str_xok   cmp.b       #$3f-7,OLED_TY(a0)            ; check if no space for writing line
                blt         oled_str_loop
-               move.b      #0,OLED_CY(a0)                ; move to top of page
+               move.b      #0,OLED_TY(a0)                ; move to top of page
                bra         oled_str_loop
 oled_str_done  movem.l     (a7)+,d0/a1
                rts

@@ -1,4 +1,4 @@
-         include  "src/mecb.asm"
+         include  "mecb.inc"
 ;
          org      $4000
 ;

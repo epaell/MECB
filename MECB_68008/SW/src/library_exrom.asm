@@ -76,7 +76,7 @@ vector_tbl:
                bra      SDDiskStatus        ; get status TODO
                bra      SDDiskGetDrives     ; get the number of drives TODO
                bra      SDDiskGetMounted    ; get the mounted drive TODO
-               bra      SDDiskNextMountedDrv; Get the next mounted drive TODO
+               bra      SDDiskNextMountedDrv ; Get the next mounted drive TODO
                bra      SDDiskUnmount       ; Unmount the file system TODO
                bra      SDDiskMount         ; Mount a file system TODO
 ;
@@ -95,7 +95,7 @@ vector_tbl:
                bra      oled_line            ; Draw line
                bra      oled_fill            ; Fill rows
                bra      oled_scircle         ; Set circle (using oled_spixel, TODO)
-               bra      oled_circle          ; Draw circle TODO
+               bra      oled_circle          ; Draw circle
                bra      oled_schar           ; Write a character TODO
                bra      oled_char            ; Write a character
                bra      oled_sstr            ; Write a string TODO
@@ -106,6 +106,7 @@ vector_tbl:
                org      $100300
 ;
 ; Low-level VDP functions
+;
                bra      vdp_vram_raddr
                bra      vdp_vram_waddr
                bra      vdp_write_reg
@@ -119,26 +120,31 @@ vector_tbl:
                bra      vdp_xfr_vram
                bra      vdp_clr_vram
                bra      vdp_wait
+;
 ; VDP graphics functions
+;
                bra      vdp_set_mode
                bra      vdp_line
                bra      vdp_circle           ; TODO
                bra      vdp_pset
                bra      vdp_point
+;
 ; VDP text functions
                bra      vdp_load_font
                bra      vdp_text_mode
 ;
+;
 ; Test routines
 ;
                org      $100380
+;
                bra      FFPCALC              ; Fast floating point calculator
                ; TODO
 ;
 ;
 ;
-               include  'mecb.asm'
-               include  'tutor.asm'
+               include  'mecb.inc'
+               include  'tutor.inc'
                align    2
                include  'math.asm'
                align    2

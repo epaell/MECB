@@ -1,5 +1,5 @@
-                include 'src/mecb.asm'
-                include 'src/tutor.asm'
+                include 'mecb.inc'
+                include 'tutor.inc'
 ;
 CR              EQU     $0D         ; Carriage return
 LF              EQU     $0A         ; Linefeed
@@ -72,19 +72,19 @@ ptm_init:
          trap     #14
          
          move.w   #TIMER_VAL,d0
-         move.w   d0,PTM_T1MSB
+         move.w   d0,PTM1_T1MSB
          move.b   #TIMER_SETH,d0    ; Preset all timers : CRX6=1 (interrupt); CRX1=1 (enable clock)
-         move.b   d0,PTM_CR2        ; Write to CR2
+         move.b   d0,PTM1_CR2        ; Write to CR2
          move.b   #TIMER_SETL,d0
-         move.b   d0,PTM_CR13 
+         move.b   d0,PTM1_CR13 
          move.l   #0,d0
-         move.b   d0,PTM_CR2 
+         move.b   d0,PTM1_CR2 
 
          move.l   d0,tick           ; Reset the tick counter
 
-         move.b   PTM_SR,d0         ; Read the interrupt flag from the status register
+         move.b   PTM1_SR,d0         ; Read the interrupt flag from the status register
          move.b   #$40,d0
-         move.b   d0,PTM_CR13       ; enable interrupt and start timer
+         move.b   d0,PTM1_CR13       ; enable interrupt and start timer
          rts 
 ;
 isr0:    move.b   #0,irq_num
@@ -106,12 +106,12 @@ isr7:    move.b   #7,irq_num
 
 timer_isr:
          move.l   d1,temp        ; save d1
-         move.b   PTM_SR,d1      ; Read the interrupt flag from the status register
-         move.w   PTM_T1MSB,d1   ; clear timer interrupt flag
-         move.b   PTM_SR,d1      ; Read the interrupt flag from the status register
-         move.w   PTM_T2MSB,d1
-         move.b   PTM_SR,d1      ; Read the interrupt flag from the status register
-         move.w   PTM_T3MSB,d1
+         move.b   PTM1_SR,d1      ; Read the interrupt flag from the status register
+         move.w   PTM1_T1MSB,d1   ; clear timer interrupt flag
+         move.b   PTM1_SR,d1      ; Read the interrupt flag from the status register
+         move.w   PTM1_T2MSB,d1
+         move.b   PTM1_SR,d1      ; Read the interrupt flag from the status register
+         move.w   PTM1_T3MSB,d1
 
          add.l    #1,tick        ; increment the tick counter
          move.l   temp,d1       ; restore d1

@@ -1,7 +1,7 @@
                org      $4000
 ;
-               include  'mecb.asm'
-               include  'tutor.asm'
+               include  'mecb.inc'
+               include  'tutor.inc'
 ;
 start          move.l   #RAM_END+1,a7           ; Set up stack
                bsr      oled_init
