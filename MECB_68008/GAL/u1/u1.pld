@@ -1,13 +1,36 @@
 GAL22V10
-GLUE
+DECODE
 
-AS       DS      RW     NMI    IRQ     BOOT   FC2    FC1   FC0   CPUSP NC   GND
-NC       IPL2    IPL1   IPL0   ECBMREQ NC     NC     A18   A19   A20   A21  VCC
+AS    DS    BOOT   ECBRESET  A21   A20     A19     A18   RW    CPUSP  A17       GND
+A16   A15   A14    A13       A12   DTACK   ECBMREQ IORQ  CSRAM CSROM  PPDTACK   VCC
+; NOTE: RW = R/W*; BOOT is active low
+; RAM selected
+; 00 xxxx xxxx xxxx xxxx xxxx and BOOT==1 (RAM is select when not in boot)
+; 00 1xxx xxxx xxxx xxxx xxxx and BOOT==0 (if BOOT and not 00 RAM is selected)
+; 00 x1xx xxxx xxxx xxxx xxxx and BOOT==0 
+; 00 xxxx xxxx xxxx xxxx xxxx R/W==0 and BOOT==0 (if writing and in boot RAM is selected)
+/CSRAM   =  CPUSP * /AS * /DS * /A21 * /A20 *                      BOOT
+         +  CPUSP * /AS * /DS * /A21 * /A20 *  A19 *              /BOOT
+         +  CPUSP * /AS * /DS * /A21 * /A20 *         A18 *       /BOOT
+         +  CPUSP * /AS * /DS * /A21 * /A20 *               /RW * /BOOT
+; ROM selected
+; 10 xxxx xxxx xxxx xxxx xxxx
+; 00 00xx xxxx xxxx xxxx xxxx and R/W==1 (read) BOOT==0 (A read during boot at 00 will select ROM)
+/CSROM   =  CPUSP * /AS * /DS *  A21 * /A20
+         +  CPUSP * /AS * /DS * /A21 * /A20 * /A19 * /A18 *  RW * /BOOT
 
-IPL2 = NMI
-IPL1 = NMI
-IPL0 = NMI * IRQ
+; Expansion selected at $100000 - $1FFFFF
 /ECBMREQ   =  /AS * /DS * /A21 * A20
+; Slow IO selected at $3C0000 - $3FFFFF
+/IORQ     =  /AS * A21 * A20 * A19 * A18
+
+
+/PPDTACK  =  CPUSP * /CSROM
+          +  CPUSP * /CSRAM
+          +  CPUSP * /ECBMREQ
+
+DTACK.T   = GND
+DTACK.E   = /PPDTACK
 
 DESCRIPTION
 

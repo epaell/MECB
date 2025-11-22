@@ -5,25 +5,25 @@
                           -------\___/-------
                        AS |  1           24 | VCC
                           |                 |
-                       DS |  2           23 | A21
+                       DS |  2           23 | PPDTACK
                           |                 |
-                       RW |  3           22 | A20
+                     BOOT |  3           22 | CSROM
                           |                 |
-                      NMI |  4           21 | A19
+                 ECBRESET |  4           21 | CSRAM
                           |                 |
-                      IRQ |  5           20 | A18
+                      A21 |  5           20 | IORQ
                           |                 |
-                     BOOT |  6           19 | NC
+                      A20 |  6           19 | ECBMREQ
                           |                 |
-                      FC2 |  7           18 | NC
+                      A19 |  7           18 | DTACK
                           |                 |
-                      FC1 |  8           17 | ECBMREQ
+                      A18 |  8           17 | A12
                           |                 |
-                      FC0 |  9           16 | IPL0
+                       RW |  9           16 | A13
                           |                 |
-                    CPUSP | 10           15 | IPL1
+                    CPUSP | 10           15 | A14
                           |                 |
-                       NC | 11           14 | IPL2
+                      A17 | 11           14 | A15
                           |                 |
-                      GND | 12           13 | NC
+                      GND | 12           13 | A16
                           -------------------

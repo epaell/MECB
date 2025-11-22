@@ -1,54 +1,28 @@
 GAL22V10
 GLUE
 
-AS       DS      HWRST  FC2    FC1     FC0    A21    A20   A19    A18      RW      GND
-ECBMREQ   CPUSP   HALT   RESET  IORQ    CSRAM  CSROM  DTACK BOOT   WR       PPDTACK VCC
+AS    DS      HWRST   FC2        FC1   FC0    ECBINT  ECBNMI A19    A18   RW    GND
+NC    CPUSP   HALT    ECBRESET   IPL2  IPL1   IPL0    NC     BOOT   WR    NC    VCC
 
 HALT.T   =  GND
 HALT.E   =  HWRST
 
-RESET.T  =  GND
-RESET.E  =  HWRST
+ECBRESET.T  =  GND
+ECBRESET.E  =  HWRST
 
-AR       = /RESET * /HALT
-BOOT.R   =  RESET *  FC2 * /FC1 *  FC0 * /A19 *  A18
-         +  RESET *  FC2 * /FC1 *  FC0 *  A19 * /A18
+AR       = /ECBRESET * /HALT
+BOOT.R   =  ECBRESET *  FC2 * /FC1 *  FC0 * /A19 *  A18
+         +  ECBRESET *  FC2 * /FC1 *  FC0 *  A19 * /A18
          +  BOOT
 
 /CPUSP   = /HWRST *  FC2 *  FC1 *  FC0 
 
-; RAM selected
-; 00 xxxx xxxx xxxx xxxx xxxx and BOOT==1 (RAM is select when not in boot)
-; 00 1xxx xxxx xxxx xxxx xxxx and BOOT==0 (if BOOT and not 00 RAM is selected)
-; 00 x1xx xxxx xxxx xxxx xxxx and BOOT==0 
-; 00 xxxx xxxx xxxx xxxx xxxx R/W==0 and BOOT==0 (if writing and in boot RAM is selected)
-/CSRAM   =  CPUSP * /AS * /DS * /A21 * /A20 *                      BOOT
-         +  CPUSP * /AS * /DS * /A21 * /A20 *  A19 *              /BOOT
-         +  CPUSP * /AS * /DS * /A21 * /A20 *         A18 *       /BOOT
-         +  CPUSP * /AS * /DS * /A21 * /A20 *               /RW * /BOOT
-; ROM selected
-; 10 xxxx xxxx xxxx xxxx xxxx
-; 00 00xx xxxx xxxx xxxx xxxx and R/W==1 (read) BOOT==0 (A read during boot at 00 will select ROM)
-/CSROM   =  CPUSP * /AS * /DS *  A21 * /A20
-         +  CPUSP * /AS * /DS * /A21 * /A20 * /A19 * /A18 *  RW * /BOOT
-IORQ     =  /AS * A21 * A20 * A19 * A18
-
-
-/PPDTACK  =  CPUSP * /CSROM
-          +  CPUSP * /CSRAM
-          +  CPUSP * /ECBMREQ
-
 /WR       = RW
 
-DTACK.T   = GND
-DTACK.E   = /PPDTACK
+IPL2 = ECBNMI
+IPL1 = ECBNMI
+IPL0 = ECBNMI * ECBINT
 
 DESCRIPTION
 
-U1 (Address Decoder) for MECB 68008
-
-* Onboard RAM    : $000000 - $0FFFFF (0.5MB), $080000 - $0FFFFF (0.5MB) unused (will map to expansion space in future)
-* Expansion space: $100000 - $1FFFFF (1MB)
-* ROM            : $200000 - $2FFFFF (0.5MB), $280000 - $2FFFFF (0.5MB) unused (will map to expansion space in future) 
-* Unused         : $300000 - $3BFFFF unused (will map to expansion space in future) 
-* IO             : $3C0000 - $3FFFFF (0.25 MB)
+Glue to provide reset/halt and IRQ functionality. Also generates "boot" signal.

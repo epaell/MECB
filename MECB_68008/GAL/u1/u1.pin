@@ -4,26 +4,26 @@
 -----------------------------
    1   | AS       | Clock/Input
    2   | DS       | Input
-   3   | RW       | Input
-   4   | NMI      | Input
-   5   | IRQ      | Input
-   6   | BOOT     | Input
-   7   | FC2      | Input
-   8   | FC1      | Input
-   9   | FC0      | Input
+   3   | BOOT     | Input
+   4   | ECBRESET | Input
+   5   | A21      | Input
+   6   | A20      | Input
+   7   | A19      | Input
+   8   | A18      | Input
+   9   | RW       | Input
   10   | CPUSP    | Input
-  11   | NC       | Input
+  11   | A17      | Input
   12   | GND      | GND
-  13   | NC       | Input
-  14   | IPL2     | Output
-  15   | IPL1     | Output
-  16   | IPL0     | Output
-  17   | ECBMREQ  | Output
-  18   | NC       | NC
-  19   | NC       | NC
-  20   | A18      | NC
-  21   | A19      | NC
-  22   | A20      | Input
-  23   | A21      | Input
+  13   | A16      | Input
+  14   | A15      | NC
+  15   | A14      | NC
+  16   | A13      | NC
+  17   | A12      | NC
+  18   | DTACK    | Output
+  19   | ECBMREQ  | Output
+  20   | IORQ     | Output
+  21   | CSRAM    | Output
+  22   | CSROM    | Output
+  23   | PPDTACK  | Output
   24   | VCC      | VCC
 

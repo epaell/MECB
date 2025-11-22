@@ -5,25 +5,25 @@
                           -------\___/-------
                        AS |  1           24 | VCC
                           |                 |
-                       DS |  2           23 | PPDTACK
+                       DS |  2           23 | NC
                           |                 |
                     HWRST |  3           22 | WR
                           |                 |
                       FC2 |  4           21 | BOOT
                           |                 |
-                      FC1 |  5           20 | DTACK
+                      FC1 |  5           20 | NC
                           |                 |
-                      FC0 |  6           19 | CSROM
+                      FC0 |  6           19 | IPL0
                           |                 |
-                      A21 |  7           18 | CSRAM
+                   ECBINT |  7           18 | IPL1
                           |                 |
-                      A20 |  8           17 | IORQ
+                   ECBNMI |  8           17 | IPL2
                           |                 |
-                      A19 |  9           16 | RESET
+                      A19 |  9           16 | ECBRESET
                           |                 |
                       A18 | 10           15 | HALT
                           |                 |
                        RW | 11           14 | CPUSP
                           |                 |
-                      GND | 12           13 | EXPSEL
+                      GND | 12           13 | NC
                           -------------------
