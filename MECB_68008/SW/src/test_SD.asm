@@ -1,23 +1,27 @@
             org      $4000
 ;
-            include  'mecb.asm'
-            include  'tutor.asm'
+            include  'mecb.inc'
+            include  'tutor.inc'
+            include  'library_rom.inc'
+            include  'sdcard.inc'
 
 BUFFER_SIZE equ      255
 ;
 start       move.l   #RAM_END+1,a7        ; Set up stack
-            bsr      SDParInit            ; Set up interface
-            bsr      SDDiskPing
+            jsr      SDParInit            ; Set up interface
+            jsr      SDDiskPing
+;
+            bsr      dir
 ;
             move.l   #RTC_struct,a0
-            bsr      SDGetClock           ; Get the RTC date/time
+            jsr      SDGetClock           ; Get the RTC date/time
             bcs      clock_err
             
             move.l   #RTC_struct,a0       ; Check that we can write it back to the RTC
-            bsr      SDSetClock
+            jsr      SDSetClock
 ;
             move.l   #RTC_struct,a0       ; Read it back out again
-            bsr      SDGetClock
+            jsr      SDGetClock
             bcs      clock_err
 
             move.l   #RTC_struct,a2
@@ -104,12 +108,12 @@ time_out1   move.b   #HEX2DEC,d7          ; Convert to decimal
             trap     #14
             rts
 ;
-type_file   bsr      SDDiskOpenRead       ; Open for read
+type_file   jsr      SDDiskOpenRead       ; Open for read
             bcs      ropen_fail           ; Check for error
 ;
 type_loop   move.l   #buffer,a0           ; Read bytes into buffer
             move.l   #BUFFER_SIZE,d0      ; Number of bytes to read
-            bsr      SDDiskRead           ; Do the read
+            jsr      SDDiskRead           ; Do the read
             bcs      type_done            ; Check for EoF
             move.l   a0,a2                ; End of data read
             move.l   #buffer,a1           ; Point to start of buffer
@@ -140,7 +144,7 @@ ropen_fail  move.l   d0,-(a7)
             move.l   #buffer,a5
             trap     #14
 ;
-type_done   bsr      SDDiskClose          ; Close the file
+type_done   jsr      SDDiskClose          ; Close the file
             rts
 ;
             bra      end
@@ -155,10 +159,10 @@ dir         move.b   #OUT1CR,d7           ; Write message
             move.l   #MS_DIRE,a6
             trap     #14
 ;
-            bsr      SDDiskDir            ; Initiate directory function
+            jsr      SDDiskDir            ; Initiate directory function
             bcs      dir_error
 dir_loop    move.l   #buffer,a0           ; Point to buffer
-            bsr      SDDiskDirNext        ; Get next entry
+            jsr      SDDiskDirNext        ; Get next entry
             bcs      dir_done             ; If it was the last entry then exit
 ;
             move.b   #OUT1CR,D7           ; Write the file name
@@ -174,8 +178,7 @@ dir_error   move.b   #OUT1CR,d7
             trap     #14
 ;
 dir_done    rts
-
-            include  'sdcard.asm'
+;
 ;
 ; File to test open (read)
 ;

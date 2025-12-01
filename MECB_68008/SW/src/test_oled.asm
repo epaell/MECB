@@ -28,12 +28,12 @@ loop           move.l   #RTC_struct,a0
                move.b   #$00,(a6)                  ; Add a NULL terminator
                
                move.l   #char,a0                   ; point to pixel data structure
-               move.b   #$00,OLED_CX(a0)           ; x
-               move.b   #$3f-16,OLED_CY(a0)        ; y
-               move.b   #$0f,OLED_CFC(a0)          ; foreground colour
-               move.b   #$00,OLED_CBC(a0)          ; background colour
-               move.b   #OLED_PSET,OLED_CL(a0)     ; Logical function
-               move.l   #text_font_def,OLED_CF(a0) ; Font pointer
+               move.b   #$00,OLED_TX(a0)           ; x
+               move.b   #$3f-16,OLED_TY(a0)        ; y
+               move.b   #$0f,OLED_TFC(a0)          ; foreground colour
+               move.b   #$00,OLED_TBC(a0)          ; background colour
+               move.b   #OLED_PSET,OLED_TL(a0)     ; Logical function
+               move.l   #text_font_def,OLED_TF(a0) ; Font pointer
                move.l   #buffer,a1                 ; Point to date string
                jsr      oled_str
                sub.l    #1,d0

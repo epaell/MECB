@@ -7,7 +7,7 @@ start          move.l   #RAM_END+1,a7        ; Set up stack
 ;
                bsr      intro
                bsr      dump_flash_info      ; Summary information relating to FLASH
-               move.l   a0,flash_attr        ; Check if info is valid
+               move.l   flash_attr,a0        ; Check if info is valid
                cmp.l    #0,a0
                beq      main_end             ; No, exit
 ;
@@ -29,7 +29,7 @@ intro_exit     movem.l  (a7)+,d0-d7/a0-a6    ; Restore registers
 ;
 ;
 dump_flash_info
-               movem.l  d0-d7/a0-a6,-(a7)    ; Save registers
+               movem.l  d0-d7/a1-a6,-(a7)    ; Save registers
                move.l   #ROM_BASE,d0         ; Point to the main ROM
                jsr      flash_swid           ; Get the FLASH swid->d1, attribute pointer->a0
                move.w   d1,flash_mfr_id
@@ -99,7 +99,7 @@ dump_flash_info1
                trap     #14
 ;
 dump_flash_info2
-               movem.l  (a7)+,d0-d7/a0-a6    ; Restore registers
+               movem.l  (a7)+,d0-d7/a1-a6    ; Restore registers
                rts
 ;
 ; Library part of FLASH ROM sector by sector
@@ -113,7 +113,7 @@ sector_erase   movem.l  d0-d7/a0-a6,-(a7)    ; Save registers
 ;
                move.l   #ROM_BASE,d0               ; Point to the expansion FLASH ROM
                move.l   #ROM_BASE+$10000,a1        ; sector to erase
-               move.l   #ROM_BASE+$14000,a2        ; end of expansion FLASH ROM
+               move.l   #ROM_BASE+$18000,a2        ; end of expansion FLASH ROM
 sector_erase1  jsr      flash_erase                ; if successful a1 is bumped to next sector
                bne      sector_erase2
                cmp.l    a2,a1                      ; check if reached end
@@ -143,7 +143,7 @@ chip_write     movem.l  d0-d7/a0-a6,-(a7)    ; Save registers
                trap     #14
                
                move.l   #ROM_BASE+$10000,a0     ; destination for FLASH ROM write
-               move.l   #ROM_BASE+$14000,a2     ; end address
+               move.l   #ROM_BASE+$18000,a2     ; end address
 ; Sector buffer has data, write to ROM
                move.l   a0,a4                   ; temporarily keep this value for printing
                movem.l  d0-d3/a0,-(a7)

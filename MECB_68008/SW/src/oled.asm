@@ -327,6 +327,25 @@ oled_fill1     move.b   d3,OLED_DTA    ; Write fill byte to curent buffer locati
                movem.l  (a7)+,d0-d3    ; Restore registers
                rts
 ;
+; Function:    Fill OLED display VRAM data pointed to by a0
+; Parameters:  -
+; Returns:     -
+; Destroys:    -
+oled_move      movem.l  d0-d1/a0,-(a7)    ; Save registers
+               move.b   #0,d0             ; start row
+               move.b   #$3f,d1           ; end row
+               bsr      oled_set_row      ; set the row range
+               move.b   #0,d0             ; start column = 0
+               move.b   #$7f,d1           ; end column = 127
+               bsr      oled_set_col      ; set the column range
+               move.w   #64*64,d0         ; number of bytes to transfer 128 x 64 / 2 (pixels per byte)
+;
+oled_move1     move.b   (a0)+,OLED_DTA    ; Move byte to current VRAM location
+               sub.w    #1,d0             ; Dec byte counter
+               bne      oled_move1        ; Done?
+               movem.l  (a7)+,d0-d1/a0    ; Restore registers
+
+;
 ; Draw circle (not implemented yet)
 ;
 oled_scircle   rts

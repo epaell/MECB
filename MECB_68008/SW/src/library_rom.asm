@@ -100,6 +100,7 @@ vector_tbl:
                bra      oled_char            ; Write a character
                bra      oled_sstr            ; Write a string TODO
                bra      oled_str             ; Write a string
+               bra      oled_move            ; Move a screen worth of data to OLED display
 ;
 ; VDP Routines
 ;
@@ -133,11 +134,21 @@ vector_tbl:
                bra      vdp_load_font
                bra      vdp_text_mode
 ;
-; Test routines
-;
                org      $210380
 ;
+; low-level PSG functions
+;
+               bra      psg_init             ; Initialise PIA1 for PSG use
+               bra      psg_stop             ; Stop all audio from PSG
+               bra      psg_volume           ; Set channel volume
+               bra      psg_tone             ; Set channel tone
+;
+; Test routines
+;
+               org      $210400
+;
                bra      FFPCALC              ; Fast floating point calculator
+               bra      xmas
                ; TODO
 ;
 ;
@@ -165,8 +176,12 @@ vector_tbl:
                align    2
                include  'vdp_text.asm'
                align    2
+               include  'psg.asm'
+               align    2
                include  'FFPCALC.X68'
                align    2
                include  'IOMECB.X68'
+               align    2
+               include  'xmas.asm'
 ;
                end
