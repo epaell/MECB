@@ -1,0 +1,66 @@
+Sections:
+00: "sege000" (E000-E03D)
+01: "segfff8" (FFF8-0)
+
+
+Source: "src/acia.asm"
+                        	     1: *    VERSION 1.00
+                        	     2: 
+                        	     3: ACIA     EQU   $8008
+                        	     4:          ORG   $E000
+                        	     5: 
+00:E000 8603            	     6: START    LDAA  #3                ; ACIA master reset
+00:E002 B78008          	     7:          STAA  ACIA
+00:E005 8651            	     8:          LDAA  #$51
+00:E007 B78008          	     9:          STAA  ACIA
+                        	    10: ;
+                        	    11: ; OUTPUT MESSAGE TO TERMINAL.
+00:E00A CEE026          	    12: WRITE    LDX   #MESSAGE
+00:E00D B68008          	    13: FETSTA   LDAA  ACIA              ; Fetch port status
+00:E010 8502            	    14:          BITA  #2                ; Check if ready to transmit
+00:E012 27F9            	    15:          BEQ   FETSTA            ; If not ready loop back
+00:E014 A600            	    16:          LDAA  0,X               ; get a character from the message
+00:E016 2706            	    17:          BEQ   DELAY             ; if end of message delay until next message
+00:E018 B78009          	    18:          STAA  ACIA+1            ; transmit the character
+00:E01B 08              	    19:          INX
+00:E01C 20EF            	    20:          BRA   FETSTA            ; Write next character
+                        	    21: ;
+00:E01E CE0000          	    22: DELAY    LDX   #$0000            ; Delay for a while before writing another message
+00:E021 09              	    23: DELAY1   DEX
+00:E022 26FD            	    24:          BNE   DELAY1
+00:E024 20E4            	    25:          BRA   WRITE
+                        	    26: 
+00:E026 4D45434220363830	    27: MESSAGE  dc.b  "MECB 6800 is running",$0d,$0a,$00
+00:E02E 302069732072756E
+00:E036 6E696E67
+00:E03A 0D
+00:E03B 0A
+00:E03C 00
+                        	    28:          ORG   $FFF8
+01:FFF8 E000            	    29:          dc.w  START          IRQ VECTOR
+01:FFFA E000            	    30:          dc.w  START          SOFTWARE INTERRUPT
+01:FFFC E000            	    31:          dc.w  START          NMI VECTOR
+01:FFFE E000            	    32:          dc.w  START          RESTART VECTOR
+                        	    33: 
+                        	    34:          END
+                        	    35: 
+                        	    36: 
+
+
+Symbols by name:
+ACIA                             E:8008
+DELAY                            A:E01E
+DELAY1                           A:E021
+FETSTA                           A:E00D
+MESSAGE                          A:E026
+START                            A:E000
+WRITE                            A:E00A
+
+Symbols by value:
+8008 ACIA
+E000 START
+E00A WRITE
+E00D FETSTA
+E01E DELAY
+E021 DELAY1
+E026 MESSAGE

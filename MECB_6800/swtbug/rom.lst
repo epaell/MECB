@@ -1,0 +1,28 @@
+Sections:
+00: "sege000" (E000-E002)
+01: "segfff8" (FFF8-0)
+
+
+Source: "src/rom.asm"
+                        	     1: *    VERSION 1.00
+                        	     2: 
+                        	     3:          ORG   $E000
+                        	     4: 
+00:E000 20FE            	     5: START    BRA   START
+                        	     6: 
+                        	     7:          ORG   $FFF8
+01:FFF8 E000            	     8:          dc.w  START          IRQ VECTOR
+01:FFFA E000            	     9:          dc.w  START          SOFTWARE INTERRUPT
+01:FFFC E000            	    10:          dc.w  START          NMI VECTOR
+01:FFFE E000            	    11:          dc.w  START          RESTART VECTOR
+                        	    12: 
+                        	    13:          END
+                        	    14: 
+                        	    15: 
+
+
+Symbols by name:
+START                            A:E000
+
+Symbols by value:
+E000 START

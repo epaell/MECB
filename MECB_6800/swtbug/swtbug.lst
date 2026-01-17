@@ -1,0 +1,4361 @@
+Sections:
+00: "sege000" (E000-FD85)
+01: "segfff8" (FFF8-0)
+
+
+Source: "src/swtbug.asm"
+                        	     1: *    VERSION 1.00
+                        	     2: 
+                        	     3: ****************************************************
+                        	     4: *REPLACEMENT FOR MIKBUG ROM
+                        	     5: *FOR SWTPC 6800 COMPUTER SYSTEM
+                        	     6: *COPYRIGHT 1977
+                        	     7: *SOUTHWEST TECHNICAL PROD. CORP.
+                        	     8: *AUGUST, 1977
+                        	     9: ****************************************************
+                        	    10: 
+                        	    11: SCRATCH  EQU   $7F00
+                        	    12: IRQ      EQU   SCRATCH+$00    IRQ POINTER
+                        	    13: BEGA     EQU   SCRATCH+$02    BEGINNING ADDR PNCH
+                        	    14: ENDA     EQU   SCRATCH+$04    ENDING ADDR PNCH
+                        	    15: NMI      EQU   SCRATCH+$06    NMI INTERRUPT VECTOR
+                        	    16: SP       EQU   SCRATCH+$08    S HIGH
+                        	    17: SPLOW    EQU   SCRATCH+$09    S LOW
+                        	    18: PORADD   EQU   SCRATCH+$0A    PORT ADDRESS
+                        	    19: PORECH   EQU   SCRATCH+$0C    ECHO ON/OFF FLAG
+                        	    20: XHI      EQU   SCRATCH+$0D    XREG HIGH
+                        	    21: XLOW     EQU   SCRATCH+$0E    XREG LOW
+                        	    22: CKSM     EQU   SCRATCH+$0F    CHECKSUM
+                        	    23: XTEMP    EQU   SCRATCH+$10    X-REG TEMP STGE
+                        	    24: SWIJMP   EQU   SCRATCH+$12    SWI JUMP VECTOR
+                        	    25: BKPT     EQU   SCRATCH+$14    BREAKPOINT ADDRESS
+                        	    26: BKLST    EQU   SCRATCH+$16    BREAKPOINT DATA
+                        	    27: STACK    EQU   SCRATCH+$42    SWTBUG STACK
+                        	    28: TW       EQU   SCRATCH+$44    TEMPORARY STORAGE
+                        	    29: TEMP     EQU   SCRATCH+$46    TEMPORARY STORAGE
+                        	    30: BYTECT   EQU   SCRATCH+$47    BYTECT AND MCONT TEMP.
+                        	    31: CTLPOR   EQU   $8008          CONTROL PORT ADDRESS
+                        	    32: PROM     EQU   $C000          JUMP TO PROM ADDRESS
+                        	    33: 
+                        	    34: 
+                        	    35:          ORG   $E000
+                        	    36: 
+                        	    37: *I/O INTERRUPT SEQUENCE
+00:E000 FE7F00          	    38: IRQV     LDX   IRQ
+00:E003 6E00            	    39:          JMP   0,X
+                        	    40: 
+                        	    41: *JUMP TO USER PROGRAM
+00:E005 8D40            	    42: JUMP     BSR   BADDR
+00:E007 6E00            	    43:          JMP   0,X
+                        	    44: 
+00:E009 10              	    45: CURSOR   dc.b  $10,$16,4      CT-1024 CURSOR CONTROL
+00:E00A 16
+00:E00B 04
+                        	    46: 
+                        	    47: *ASCII LOADING ROUTINE
+00:E00C BDE313          	    48: LOAD     JSR   RDON           READER ON, DIS ECHO, GET P#
+00:E00F 8D67            	    49: LOAD3    BSR   INCH
+00:E011 8153            	    50:          CMPA  #'S'
+00:E013 26FA            	    51:          BNE   LOAD3          1ST CHAR NOT S
+00:E015 8D61            	    52:          BSR   INCH           READ CHAR
+00:E017 8139            	    53:          CMPA  #'9'
+00:E019 2729            	    54:          BEQ   LOAD21
+00:E01B 8131            	    55:          CMPA  #'1'
+00:E01D 26F0            	    56:          BNE   LOAD3          2ND CHAR NOT 1
+00:E01F 7F7F0F          	    57:          CLR   CKSM           ZERO CHECKSUM
+00:E022 8D31            	    58:          BSR   BYTE           READ BYTE
+00:E024 8002            	    59:          SUBA  #2
+00:E026 B77F47          	    60:          STAA  BYTECT         BYTE COUNT
+                        	    61: *BUILD ADDRESS
+00:E029 8D1C            	    62:          BSR   BADDR
+                        	    63: *STORE DATA
+00:E02B 8D28            	    64: LOAD11   BSR   BYTE
+00:E02D 7A7F47          	    65:          DEC   BYTECT
+00:E030 2709            	    66:          BEQ   LOAD15         ZERO BYTE COUNT
+00:E032 A700            	    67:          STAA  0,X            STORE DATA
+00:E034 A100            	    68:          CMPA  0,X            DATA STORED?
+00:E036 2608            	    69:          BNE   LOAD19
+00:E038 08              	    70:          INX
+00:E039 20F0            	    71:          BRA   LOAD11
+00:E03B 7C7F0F          	    72: LOAD15   INC   CKSM
+00:E03E 27CF            	    73:          BEQ   LOAD3
+00:E040 863F            	    74: LOAD19   LDAA  #'?'
+00:E042 8D31            	    75:          BSR   OUTCH
+00:E044 7EE2B3          	    76: LOAD21   JMP   RDOFF1
+                        	    77: 
+                        	    78: *BUILD ADDRESS
+00:E047 8D0C            	    79: BADDR    BSR   BYTE           READ 2 FRAMES
+00:E049 B77F0D          	    80:          STAA  XHI
+00:E04C 8D07            	    81:          BSR   BYTE
+00:E04E B77F0E          	    82:          STAA  XLOW
+00:E051 FE7F0D          	    83:          LDX   XHI            LOAD IXR WITH NUMBER
+00:E054 39              	    84:          RTS
+                        	    85: 
+                        	    86: *INPUT BYTE (TWO FRAMES)
+00:E055 8D53            	    87: BYTE     BSR   INHEX          GET HEX CHAR
+00:E057 48              	    88: BYTE1    ASLA
+00:E058 48              	    89:          ASLA
+00:E059 48              	    90:          ASLA
+00:E05A 48              	    91:          ASLA
+00:E05B 16              	    92:          TAB
+00:E05C 8D4C            	    93:          BSR   INHEX
+00:E05E 1B              	    94:          ABA
+00:E05F 16              	    95:          TAB
+00:E060 FB7F0F          	    96:          ADDB  CKSM
+00:E063 F77F0F          	    97:          STAB  CKSM
+00:E066 39              	    98:          RTS
+                        	    99: 
+00:E067 44              	   100: OUTHL    LSRA                 OUT HEX LEFT BCD DIGIT
+00:E068 44              	   101:          LSRA
+00:E069 44              	   102:          LSRA
+00:E06A 44              	   103:          LSRA
+00:E06B 840F            	   104: OUTHR    ANDA  #$F            OUT HEX RIGHT BCD DIGIT
+00:E06D 8B30            	   105:          ADDA  #$30
+00:E06F 8139            	   106:          CMPA  #$39
+00:E071 2302            	   107:          BLS   OUTCH
+00:E073 8B07            	   108:          ADDA  #$7
+                        	   109: 
+                        	   110: *OUTPUT ONE CHAR
+00:E075 7EE1BA          	   111: OUTCH    JMP   OUTEEE
+00:E078 7EE195          	   112: INCH     JMP   INEEE
+                        	   113: 
+                        	   114: *PRINT DATA POINTED TO BY X REG
+00:E07B 8DF8            	   115: PDATA2   BSR   OUTCH
+00:E07D 08              	   116:          INX
+00:E07E A600            	   117: PDATA1   LDAA  0,X
+00:E080 8104            	   118:          CMPA  #4
+00:E082 26F7            	   119:          BNE   PDATA2
+00:E084 39              	   120:          RTS   STOP           ON HEX 04
+                        	   121: 
+00:E085 7EE13D          	   122: C1       JMP   SWTCTL
+                        	   123: 
+                        	   124: *MEMORY EXAMINE AND CHANGE
+00:E088 8DBD            	   125: CHANGE   BSR   BADDR
+00:E08A CEE18A          	   126: CHA51    LDX   #MCL
+00:E08D 8DEF            	   127:          BSR   PDATA1         C/R L/F
+00:E08F CE7F0D          	   128:          LDX   #XHI
+00:E092 8D34            	   129:          BSR   OUT4HS         PRINT ADDRESS
+00:E094 FE7F0D          	   130:          LDX   XHI
+00:E097 8D31            	   131:          BSR   OUT2HS         PRINT OLD DATA
+00:E099 8D31            	   132:          BSR   OUTS           OUTPUT SPACE
+00:E09B 8DDB            	   133: ANOTH    BSR   INCH           INPUT CHAR
+00:E09D 8120            	   134:          CMPA  #$20
+00:E09F 27FA            	   135:          BEQ   ANOTH
+00:E0A1 810D            	   136:          CMPA  #$D
+00:E0A3 27E0            	   137:          BEQ   C1
+00:E0A5 815E            	   138:          CMPA  #'^'           UP ARROW?
+00:E0A7 202C            	   139:          BRA   AL3            BRANCH FOR ADJUSTMENT
+00:E0A9 01              	   140:          NOP
+                        	   141: 
+                        	   142: *INPUT HEX CHARACTER
+00:E0AA 8DCC            	   143: INHEX    BSR   INCH
+00:E0AC 8030            	   144: INHEX1   SUBA  #$30
+00:E0AE 2B4C            	   145:          BMI   C3
+00:E0B0 8109            	   146:          CMPA  #$9
+00:E0B2 2F0A            	   147:          BLE   IN1HG
+00:E0B4 8111            	   148:          CMPA  #$11
+00:E0B6 2B44            	   149:          BMI   C3             NOT HEX
+00:E0B8 8116            	   150:          CMPA  #$16
+00:E0BA 2E40            	   151:          BGT   C3             NOT HEX
+00:E0BC 8007            	   152:          SUBA  #7
+00:E0BE 39              	   153: IN1HG    RTS
+                        	   154: 
+00:E0BF A600            	   155: OUT2H    LDAA  0,X            OUTPUT 2 HEX CHAR
+00:E0C1 8DA4            	   156: OUT2HA   BSR   OUTHL          OUT LEFT HEX CHAR
+00:E0C3 A600            	   157:          LDAA  0,X
+00:E0C5 08              	   158:          INX
+00:E0C6 20A3            	   159:          BRA   OUTHR          OUTPUT RIGHT HEX CHAR
+                        	   160: 
+00:E0C8 8DF5            	   161: OUT4HS   BSR   OUT2H          OUTPUT 4 HEX CHAR + SPACE
+00:E0CA 8DF3            	   162: OUT2HS   BSR   OUT2H          OUTPUT 2 HEX CHAR + SPACE
+                        	   163: 
+00:E0CC 8620            	   164: OUTS     LDAA  #$20           SPACE
+00:E0CE 20A5            	   165:          BRA   OUTCH          (BSR & TRS)
+                        	   166: 
+                        	   167: *ENTER POWER ON SEQUENCE
+00:E0D0 8E7F42          	   168: START    LDS   #STACK
+00:E0D3 202C            	   169:          BRA   AL1            BRANCH FOR ADDRESS COMPATIBILITY
+                        	   170: 
+                        	   171: ********************************************
+                        	   172: *PART OF MEMORY EXAMINE AND CHANGE
+00:E0D5 2607            	   173: AL3      BNE   SK1
+00:E0D7 09              	   174:          DEX
+00:E0D8 09              	   175:          DEX
+00:E0D9 FF7F0D          	   176:          STX   XHI
+00:E0DC 20AC            	   177:          BRA   CHA51
+00:E0DE FF7F0D          	   178: SK1      STX   XHI
+00:E0E1 2002            	   179:          BRA   AL4
+                        	   180: 
+00:E0E3 2060            	   181: EOE3     BRA   CONTRL         BRANCH FOR MIKBUG EQUIV. CONT
+                        	   182: 
+00:E0E5 8130            	   183: AL4      CMPA  #$30
+00:E0E7 25A1            	   184:          BCS   CHA51
+00:E0E9 8146            	   185:          CMPA  #$46
+00:E0EB 229D            	   186:          BHI   CHA51
+00:E0ED 8DBD            	   187:          BSR   INHEX1
+00:E0EF BDE057          	   188:          JSR   BYTE1
+00:E0F2 09              	   189:          DEX
+00:E0F3 A700            	   190:          STAA  0,X            CHANGE MEMORY
+00:E0F5 A100            	   191:          CMPA  0,X
+00:E0F7 2791            	   192:          BEQ   CHA51          DID CHANGE
+00:E0F9 7EE040          	   193:          JMP   LOAD19         DIDN'T CHANGE
+00:E0FC BE7F08          	   194: C3       LDS   SP
+00:E0FF 203C            	   195:          BRA   SWTCTL
+                        	   196: **************************************************
+                        	   197: 
+                        	   198: *CONTINUE POWER UP SEQUENCE
+00:E101 BF7F08          	   199: AL1      STS   SP             INIT TARGET STACK PTR.
+00:E104 86FF            	   200:          LDAA  #$FF
+00:E106 BDE2E7          	   201:          JSR   SWISET
+                        	   202: 
+                        	   203: *INITIALIZE ACIA
+00:E109 CE8008          	   204:          LDX   #CTLPOR
+00:E10C 8603            	   205:          LDAA  #3             ACIA MASTER RESET
+00:E10E A700            	   206:          STAA  0,X
+00:E110 8651            	   207:          LDAA  #$51           EPAELL Changed from $11
+00:E112 A700            	   208:          STAA  0,X
+00:E114 202F            	   209:          BRA   CONTRL
+                        	   210: 
+                        	   211: *ENTER FROM SOFTWARE INTERRUPT
+00:E116 01              	   212: SF0      NOP
+00:E117 BF7F08          	   213: SFE1     STS   SP             SAVE TARGETS STACK POINTER
+                        	   214: *DECREMENT P COUNTER
+00:E11A 30              	   215:          TSX
+00:E11B 6D06            	   216:          TST   6,X
+00:E11D 2602            	   217:          BNE   *+4
+00:E11F 6A05            	   218:          DEC   5,X
+00:E121 6A06            	   219:          DEC   6,X
+                        	   220: *PRINT CONTENTS OF STACK.
+00:E123 CEE18A          	   221: PRINT    LDX   #MCL
+00:E126 BDE07E          	   222:          JSR   PDATA1
+00:E129 FE7F08          	   223:          LDX   SP
+00:E12C 08              	   224:          INX
+00:E12D 8D9B            	   225:          BSR   OUT2HS         COND CODES
+00:E12F 8D99            	   226:          BSR   OUT2HS         ACC B
+00:E131 8D97            	   227:          BSR   OUT2HS         ACC A
+00:E133 8D93            	   228:          BSR   OUT4HS         IXR
+00:E135 8D91            	   229:          BSR   OUT4HS         PGM COUNTER
+00:E137 CE7F08          	   230:          LDX   #SP
+00:E13A BDE0C8          	   231:          JSR   OUT4HS         STACK POINTER
+00:E13D FE7F12          	   232: SWTCTL   LDX   SWIJMP
+00:E140 8CE116          	   233:          CPX   #SF0
+00:E143 2714            	   234:          BEQ   CONTR1
+                        	   235: 
+00:E145 8E7F42          	   236: CONTRL   LDS   #STACK         SET CONTRL STACK POINTER
+00:E148 CE8008          	   237:          LDX   #CTLPOR        RESET TO CONTROL PORT
+00:E14B FF7F0A          	   238:          STX   PORADD
+00:E14E 7F7F0C          	   239:          CLR   PORECH         TURN ECHO ON
+00:E151 8D69            	   240:          BSR   SAVGET         GET PORT # AND TYPE
+                        	   241: *         BEQ   POF1
+                        	   242: *         JSR   PIAECH         SET PIA ECHO ON IF MP-C INTER
+00:E153 BDE329          	   243: POF1     JSR   PNCHOF         TURN PUNCH OFF
+00:E156 BDE31D          	   244:          JSR   RDOFF          TURN READER OFF
+00:E159 CEE18A          	   245: CONTR1   LDX   #MCL
+00:E15C BDE07E          	   246:          JSR   PDATA1         PRINT DATA STRING
+00:E15F 8D34            	   247:          BSR   INEEE          READ COMMAND CHARACTER
+                        	   248: 
+                        	   249: *COMMAND LOOKUP ROUTINE
+00:E161 CEE38C          	   250: LOOK     LDX   #TABLE
+00:E164 A100            	   251: OVER     CMPA  0,X
+00:E166 2607            	   252:          BNE   SK3
+00:E168 BDE0CC          	   253:          JSR   OUTS           SKIP SPACE
+00:E16B EE01            	   254:          LDX   1,X
+00:E16D 6E00            	   255:          JMP   0,X
+00:E16F 08              	   256: SK3      INX
+00:E170 08              	   257:          INX
+00:E171 08              	   258:          INX
+00:E172 8CE3B3          	   259:          CPX   #TABEND+3
+00:E175 26ED            	   260:          BNE   OVER
+00:E177 20C4            	   261: SWTL1    BRA   SWTCTL
+                        	   262: 
+                        	   263: *SOFTWARE INTERRUPT ENTRY POINT
+00:E179 FE7F12          	   264: SFE      LDX   SWIJMP         JUMP TO VECTORED SOFTWARE INT
+00:E17C 6E00            	   265:          JMP   0,X
+                        	   266: 
+00:E17E 53              	   267: S9       dc.b  'S','9',4      END OF TAPE
+00:E17F 39
+00:E180 04
+                        	   268: 
+                        	   269: ***************************************************
+00:E181 0D              	   270: MTAPE1   dc.b  $D,$A,$15,0,0,0,'S','1',4    PUNCH FORMAT
+00:E182 0A
+00:E183 15
+00:E184 00
+00:E185 00
+00:E186 00
+00:E187 53
+00:E188 31
+00:E189 04
+                        	   271: 
+00:E18A 0D              	   272: MCL      dc.b  $D,$A,'$',4
+00:E18B 0A
+00:E18C 24
+00:E18D 04
+                        	   273: 
+00:E18E 2046            	   274: EIA5     BRA   BILD           BINARY LOADER INPUT
+                        	   275: ***************************************************
+                        	   276: 
+                        	   277: 
+                        	   278: *NMI SEQUENCE
+00:E190 FE7F06          	   279: NMIV     LDX   NMI            GET NMI VECTOR
+00:E193 6E00            	   280:          JMP   0,X
+                        	   281: 
+00:E195 203A            	   282: INEEE    BRA   INEEE1
+                        	   283: 
+                        	   284: *BYTE SEARCH ROUTINE
+00:E197 BDE047          	   285: SEARCH   JSR   BADDR          GET TOP ADDRESS
+00:E19A FF7F04          	   286:          STX   ENDA
+00:E19D BDE047          	   287:          JSR   BADDR          GET BOTTOM ADDRESS
+00:E1A0 BDE055          	   288:          JSR   BYTE           GET BYTE TO SEARCH FOR
+00:E1A3 16              	   289:          TAB
+00:E1A4 A600            	   290: OVE      LDAA  0,X
+00:E1A6 FF7F0D          	   291:          STX   XHI
+00:E1A9 11              	   292:          CBA
+00:E1AA 2702            	   293:          BEQ   PNT
+00:E1AC 201B            	   294:          BRA   INCR1
+00:E1AE CEE18A          	   295: PNT      LDX   #MCL
+00:E1B1 BDE07E          	   296:          JSR   PDATA1
+00:E1B4 CE7F0D          	   297:          LDX   #XHI
+00:E1B7 200A            	   298:          BRA   SKP0
+                        	   299: ***************************************************
+                        	   300: 
+                        	   301: *GO TO USER PROGRAM ROUTINE
+00:E1B9 3B              	   302: GOTO     RTI
+00:E1BA 2032            	   303: OUTEEE   BRA   OUTEE1
+                        	   304: 
+                        	   305: 
+                        	   306: 
+                        	   307: *SAVE IXR AND LOAD IXR WITH CORRECT
+                        	   308: *PORT NUMBER AND TEST FOR TYPE
+00:E1BC FF7F10          	   309: SAVGET   STX   XTEMP          STORE INDEX REGISTER
+00:E1BF FE7F0A          	   310: GETPT1   LDX   PORADD
+                        	   311: *ISACIA   PSHB
+                        	   312: *         LDAB  1,X
+                        	   313: *         CMPB  3,X
+                        	   314: *         PULB
+00:E1C2 39              	   315:          RTS
+                        	   316: ***************************************************
+                        	   317: 
+                        	   318: *CONTINUATION OF SEARCH ROUTINE
+00:E1C3 BDE0C8          	   319: SKP0     JSR   OUT4HS
+00:E1C6 FE7F0D          	   320:          LDX   XHI
+00:E1C9 BC7F04          	   321: INCR1    CPX   ENDA
+00:E1CC 27A9            	   322:          BEQ   SWTL1
+00:E1CE 08              	   323:          INX
+00:E1CF 20D3            	   324:          BRA   OVE
+                        	   325: 
+00:E1D1 8D06            	   326: INEEE1   BSR   INCH8          INPUT 8 BIT CHARACTER
+00:E1D3 847F            	   327:          ANDA  #%01111111     GET RID OF PARITY BIT
+00:E1D5 39              	   328:          RTS
+                        	   329: 
+00:E1D6 31              	   330: BILD     INS                  FIX UP STACK WHEN USING
+00:E1D7 31              	   331:          INS                  BINARY LOADER ON SWTPC TAPES
+00:E1D8 31              	   332:          INS
+                        	   333: 
+                        	   334: *INPUT ONE CHAR INTO ACC B
+00:E1D9 37              	   335: INCH8    PSHB                 SAVE ACC B
+00:E1DA 8DE0            	   336:          BSR   SAVGET         SAVE IXR, GET PORT# AND TYPE
+                        	   337: *         BNE   IN1            INPUT FROM PIA IF NOT
+00:E1DC 8651            	   338:          LDAA  #$51           RECONFIG FOR 8 BIT, 1 SB
+00:E1DE A700            	   339:          STAA  0,X
+00:E1E0 A600            	   340: ACIAIN   LDAA  0,X
+00:E1E2 47              	   341:          ASRA
+00:E1E3 24FB            	   342:          BCC   ACIAIN         NOT READY
+00:E1E5 A601            	   343:          LDAA  1,X            LOAD CHAR
+00:E1E7 F67F0C          	   344:          LDAB  PORECH
+00:E1EA 2705            	   345:          BEQ   ACIOUT         ECHO
+00:E1EC 200F            	   346:          BRA   RES            DON'T ECHO
+                        	   347: 
+                        	   348: *OUTPUT ONE CHARACTER
+00:E1EE 37              	   349: OUTEE1   PSHB                 SAVE ACC B
+00:E1EF 8DCB            	   350:          BSR   SAVGET
+                        	   351: *         BNE   IOUT
+                        	   352: 
+00:E1F1 C651            	   353: ACIOUT   LDAB  #$51
+00:E1F3 E700            	   354:          STAB  0,X
+00:E1F5 E600            	   355: ACIOU1   LDAB  0,X
+00:E1F7 57              	   356:          ASRB
+00:E1F8 57              	   357:          ASRB
+00:E1F9 24FA            	   358:          BCC   ACIOU1         ACIA NOT READY
+00:E1FB A701            	   359:          STAA  1,X            OUTPUT CHARACTER
+00:E1FD 33              	   360: RES      PULB                 RESTORE ACC B
+00:E1FE FE7F10          	   361:          LDX   XTEMP
+00:E201 39              	   362:          RTS
+                        	   363: 
+                        	   364: *PIA INPUT ROUTINE
+00:E202 A600            	   365: IN1      LDAA  0,X            LOOK FOR START BIT
+00:E204 2BFC            	   366:          BMI   IN1
+00:E206 8D3A            	   367:          BSR   DDL            DELAY HALF BIT TIME
+00:E208 C604            	   368:          LDAB  #4             SET DEL FOR FULL BIT TIME
+00:E20A E702            	   369:          STAB  2,X
+00:E20C 58              	   370:          ASLB                 SET UP CNTR WITH 8
+00:E20D 8D2A            	   371: IN3      BSR   DEL            WAIT ONE CHAR TIME
+00:E20F 0D              	   372:          SEC
+00:E210 6900            	   373:          ROL   0,X
+00:E212 46              	   374:          RORA
+00:E213 5A              	   375:          DECB
+00:E214 26F7            	   376:          BNE   IN3
+00:E216 8D21            	   377:          BSR   DEL            WAIT FOR STOP BIT
+00:E218 F67F0C          	   378:          LDAB  PORECH         IS ECHO DESIRED?
+00:E21B 2713            	   379:          BEQ   IOUT2          ECHO
+00:E21D 20DE            	   380:          BRA   RES            RESTORE IXR,ACCB
+                        	   381: *PIA OUTPUT ROUTINE
+00:E21F 8D23            	   382: IOUT     BSR   DDL1           DELAY ONE HALF BIT TIME
+00:E221 C60A            	   383:          LDAB  #$A            SET UP COUNTER
+00:E223 6A00            	   384:          DEC   0,X            SET START BIT
+00:E225 8D16            	   385:          BSR   DE             START TIMER
+00:E227 8D10            	   386: OUT1     BSR   DEL            DELAY ONE BIT TIME
+00:E229 A700            	   387:          STAA  0,X            PUT OUT ONE DATA BIT
+00:E22B 0D              	   388:          SEC
+00:E22C 46              	   389:          RORA  SHIFT          IN NEXT BIT
+00:E22D 5A              	   390:          DECB                 DECREMENT COUNTER
+00:E22E 26F7            	   391:          BNE   OUT1           TEST FOR 0
+00:E230 E602            	   392: IOUT2    LDAB  2,X            TEST FOR STOP BITS
+00:E232 58              	   393:          ASLB  SHIFT          BIT TO SIGN
+00:E233 2AC8            	   394:          BPL   RES            BRA FOR 1 STOP BIT
+00:E235 8D02            	   395:          BSR   DEL            DELAY FOR STOP BITS
+00:E237 20C4            	   396:          BRA   RES
+00:E239 6D02            	   397: DEL      TST   2,X            IS TIME UP
+00:E23B 2AFC            	   398:          BPL   DEL
+00:E23D 6C02            	   399: DE       INC   2,X            RESET TIMER
+00:E23F 6A02            	   400:          DEC   2,X
+00:E241 39              	   401:          RTS
+                        	   402: 
+00:E242 6F02            	   403: DDL      CLR   2,X            HALF BIT DELAY
+00:E244 8DF7            	   404: DDL1     BSR   DE
+00:E246 20F1            	   405:          BRA   DEL
+                        	   406: 
+                        	   407: 
+                        	   408: *OPTIONAL PORT ROUTINE
+00:E248 8D87            	   409: OPTL     BSR   INEEE1
+00:E24A 16              	   410:          TAB
+00:E24B 7F7F0B          	   411:          CLR   PORADD+1       SET I/O ADDRESS FOR $8000
+00:E24E FE7F0A          	   412:          LDX   PORADD
+00:E251 8D10            	   413:          BSR   PIAINI         INITIALIZE PIA
+00:E253 8D07            	   414:          BSR   PIAECH         SET ECHO
+00:E255 CEE3AA          	   415:          LDX   #TABLE1        P, L OR E
+00:E258 17              	   416:          TBA
+00:E259 7EE164          	   417:          JMP   OVER           LOOK AT TABLE FOR E, L OR P
+                        	   418: 
+00:E25C 8634            	   419: PIAECH   LDAA  #$34           SET DDR
+00:E25E A703            	   420:          STAA  3,X
+00:E260 A702            	   421:          STAA  2,X
+00:E262 39              	   422: NOOPT    RTS
+                        	   423: 
+                        	   424: *PIA INITIALIZATION ROUTINE
+00:E263 6C00            	   425: PIAINI   INC   0,X            SET DDR
+00:E265 8607            	   426:          LDAA  #$7
+00:E267 A701            	   427:          STAA  1,X
+00:E269 6C00            	   428:          INC   0,X
+00:E26B A702            	   429:          STAA  2,X
+00:E26D 39              	   430:          RTS
+                        	   431: 
+                        	   432: *MINIFLOPPY DISK BOOT
+00:E26E 7F8014          	   433: DISK     CLR   $8014
+00:E271 8D2E            	   434:          BSR   DELAY
+00:E273 C60B            	   435:          LDAB  #$0B
+00:E275 8D25            	   436:          BSR   RETT2
+00:E277 E604            	   437: LOOP1    LDAB  4,X
+00:E279 C501            	   438:          BITB  #1
+00:E27B 26FA            	   439:          BNE   LOOP1
+00:E27D 6F06            	   440:          CLR   6,X
+00:E27F 8D1D            	   441:          BSR   RETURN
+00:E281 C69C            	   442:          LDAB  #$9C
+00:E283 8D17            	   443:          BSR   RETT2
+00:E285 CE2400          	   444:          LDX   #$2400
+00:E288 C502            	   445: LOOP2    BITB  #2
+00:E28A 2706            	   446:          BEQ   LOOP3
+00:E28C B6801B          	   447:          LDAA  $801B
+00:E28F A700            	   448:          STAA  0,X
+00:E291 08              	   449:          INX
+00:E292 F68018          	   450: LOOP3    LDAB  $8018
+00:E295 C501            	   451:          BITB  #1
+00:E297 26EF            	   452:          BNE   LOOP2
+00:E299 7E2400          	   453:          JMP   $2400
+00:E29C E704            	   454: RETT2    STAB  4,X
+00:E29E 8D00            	   455: RETURN   BSR   RETT1
+00:E2A0 39              	   456: RETT1    RTS
+                        	   457: 
+                        	   458: *GENERAL PURPOSE DELAY LOOP
+00:E2A1 CEFFFF          	   459: DELAY    LDX   #$FFFF
+00:E2A4 09              	   460: DELAY1   DEX
+00:E2A5 8C8014          	   461:          CPX   #$8014         STOP AT 8014
+00:E2A8 26FA            	   462: DUM      BNE   DELAY1
+00:E2AA 39              	   463:          RTS
+                        	   464: 
+                        	   465: 
+                        	   466: *CLRAR SCREEN FOR CT-1024 TYPE TERMINALS
+00:E2AB CEE009          	   467: CLEAR    LDX   #CURSOR
+00:E2AE BDE07E          	   468:          JSR   PDATA1
+00:E2B1 8DF1            	   469:          BSR   DELAY1         DELAY
+00:E2B3 BDE31D          	   470: RDOFF1   JSR   RDOFF
+00:E2B6 2058            	   471:          BRA   C4
+                        	   472: 
+                        	   473: *BREAKPOINT ENTERING ROUTINE
+00:E2B8 CEE116          	   474: BREAK    LDX   #SF0
+00:E2BB BC7F12          	   475:          CPX   SWIJMP         BREAKPOINTS ALREADY IN USE?
+00:E2BE 271A            	   476:          BEQ   INUSE
+00:E2C0 08              	   477:          INX
+00:E2C1 8D32            	   478: BREAK0   BSR   STO1
+00:E2C3 BDE047          	   479:          JSR   BADDR
+00:E2C6 FF7F14          	   480:          STX   BKPT
+00:E2C9 A600            	   481:          LDAA  0,X
+00:E2CB B77F16          	   482:          STAA  BKLST
+00:E2CE 863F            	   483:          LDAA  #$3F
+00:E2D0 A700            	   484:          STAA  0,X
+00:E2D2 CEE116          	   485:          LDX   #SF0
+00:E2D5 8D1E            	   486:          BSR   STO1
+00:E2D7 7EE159          	   487:          JMP   CONTR1
+00:E2DA FE7F14          	   488: INUSE    LDX   BKPT
+00:E2DD B67F16          	   489:          LDAA  BKLST
+00:E2E0 A700            	   490:          STAA  0,X
+00:E2E2 CEE117          	   491:          LDX   #SFE1
+00:E2E5 20DA            	   492:          BRA   BREAK0
+                        	   493: 
+00:E2E7 B77F43          	   494: SWISET   STAA  STACK+1        FIX POWER UP INTERRUPT
+00:E2EA FE7F12          	   495:          LDX   SWIJMP
+00:E2ED 8CE116          	   496:          CPX   #SF0
+00:E2F0 2706            	   497:          BEQ   STORTN
+00:E2F2 CEE117          	   498: STO      LDX   #SFE1
+00:E2F5 FF7F12          	   499: STO1     STX   SWIJMP
+00:E2F8 39              	   500: STORTN   RTS
+                        	   501: 
+00:E2F9 8D36            	   502: PUNCH1   BSR   PUNCH
+00:E2FB 200F            	   503:          BRA   POFC4
+                        	   504: 
+                        	   505: *FORMAT END OF TAPE WITH PGM. CTR. AND S9
+00:E2FD CEA049          	   506: PNCHS9   LDX   #$A049
+00:E300 FF7F04          	   507:          STX   ENDA
+00:E303 09              	   508:          DEX
+00:E304 8D2E            	   509:          BSR   PUNCH2
+00:E306 CEE17E          	   510:          LDX   #S9
+00:E309 BDE07E          	   511: PDAT     JSR   PDATA1
+00:E30C 8D1B            	   512: POFC4    BSR   PNCHOF
+00:E30E 8D91            	   513:          BSR   DELAY
+00:E310 7EE145          	   514: C4       JMP   CONTRL
+                        	   515: 
+00:E313 737F0C          	   516: RDON     COM   PORECH         DISABLE ECHO FOR ACIA
+00:E316 8611            	   517:          LDAA  #$11           RON CHAR.
+00:E318 C620            	   518:          LDAB  #$20           STROBE CHAR
+00:E31A 8D11            	   519:          BSR   STROBE
+                        	   520: *         JSR   ISACIA         CHECK TO SEE IF PIA
+                        	   521: *         BEQ   RTNN
+                        	   522: *         LDAA  #$3C           DISABLE PIA ECHO IF PIA
+                        	   523: *         STAA  3,X
+00:E31C 39              	   524: RTNN     RTS
+                        	   525: 
+00:E31D 8613            	   526: RDOFF    LDAA  #$13           TURN READER OFF
+00:E31F C610            	   527:          LDAB  #$10
+00:E321 200A            	   528:          BRA   STROBE
+                        	   529: 
+00:E323 8612            	   530: PNCHON   LDAA  #$12
+00:E325 C604            	   531:          LDAB  #4
+00:E327 2004            	   532:          BRA   STROBE
+                        	   533: 
+00:E329 8614            	   534: PNCHOF   LDAA  #$14
+00:E32B C608            	   535:          LDAB  #$8
+                        	   536: 
+                        	   537: *PIA STROBING ROUTINE FOR PUNCH/READ ON/OFF
+00:E32D BDE075          	   538: STROBE   JSR   OUTCH
+                        	   539: *         JSR   GETPT1
+                        	   540: *         BEQ   RTN1
+                        	   541: *         LDAA  #2
+                        	   542: *         ORAB  #1
+                        	   543: *         BSR   STR2
+                        	   544: *         BSR   STR1
+                        	   545: *         LDAA  #2
+                        	   546: *         LDAB  #1
+                        	   547: *         STAB  0,X
+                        	   548: *         BSR   STR2
+                        	   549: *STR1     LDAA  #6
+                        	   550: *STR2     STAA  1,X
+                        	   551: *         STAB  0,X
+00:E330 39              	   552: RTN1     RTS
+                        	   553: 
+                        	   554: *PUNCH FROM BEGINNING ADDRESS (BEGA) THRU
+                        	   555: *ENDING ADDRESS (ENDA)
+00:E331 FE7F02          	   556: PUNCH    LDX   BEGA
+00:E334 FF7F44          	   557: PUNCH2   STX   TW
+00:E337 8DEA            	   558:          BSR   PNCHON
+00:E339 B67F05          	   559: PUN11    LDAA  ENDA+1
+00:E33C B07F45          	   560:          SUBA  TW+1
+00:E33F F67F04          	   561:          LDAB  ENDA
+00:E342 F27F44          	   562:          SBCB  TW
+00:E345 2604            	   563:          BNE   PUN22
+00:E347 8110            	   564:          CMPA  #16
+00:E349 2502            	   565:          BCS   PUN23
+00:E34B 860F            	   566: PUN22    LDAA  #15
+00:E34D 8B04            	   567: PUN23    ADDA  #4
+00:E34F B77F47          	   568:          STAA  BYTECT
+00:E352 8003            	   569:          SUBA  #3
+00:E354 B77F46          	   570:          STAA  TEMP
+                        	   571: *PUNCH C/R L/F NULLS S1
+00:E357 CEE181          	   572:          LDX   #MTAPE1
+00:E35A BDE07E          	   573:          JSR   PDATA1
+00:E35D 5F              	   574:          CLRB
+                        	   575: *PUNCH FRAME COUNT
+00:E35E CE7F47          	   576:          LDX   #BYTECT
+00:E361 8D24            	   577:          BSR   PUNT2          PUNCH 2 HEX CHARACTERS
+                        	   578: *PUNCH ADDRESS
+00:E363 CE7F44          	   579:          LDX   #TW
+00:E366 8D1F            	   580:          BSR   PUNT2
+00:E368 8D1D            	   581:          BSR   PUNT2
+                        	   582: *PUNCH DATA
+00:E36A FE7F44          	   583:          LDX   TW
+00:E36D 8D18            	   584: PUN32    BSR   PUNT2          PUNCH ONE BYTE
+00:E36F 7A7F46          	   585:          DEC   TEMP
+00:E372 26F9            	   586:          BNE   PUN32
+00:E374 FF7F44          	   587:          STX   TW
+00:E377 53              	   588:          COMB
+00:E378 37              	   589:          PSHB
+00:E379 30              	   590:          TSX
+00:E37A 8D0B            	   591:          BSR   PUNT2          PUNCH CHECKSUM
+00:E37C 33              	   592:          PULB  RESTORE        STACK
+00:E37D FE7F44          	   593:          LDX   TW
+00:E380 09              	   594:          DEX
+00:E381 BC7F04          	   595:          CPX   ENDA
+00:E384 26B3            	   596:          BNE   PUN11
+00:E386 39              	   597: RTN5     RTS
+                        	   598: 
+                        	   599: *PUNCH 2 HEX CHAR, UPDATE CHECKSUM
+00:E387 EB00            	   600: PUNT2    ADDB  0,X
+00:E389 7EE0BF          	   601:          JMP   OUT2H          OUTPUT 2 HEX CHAR AND RTS
+                        	   602: 
+                        	   603: *COMMAND TABLE
+00:E38C 47              	   604: TABLE    dc.b  'G'            GOTO
+00:E38D E1B9            	   605:          dc.w  GOTO
+00:E38F 5A              	   606:          dc.b  'Z'            GOTO PROM
+00:E390 C000            	   607:          dc.w  PROM
+00:E392 4D              	   608:          dc.b  'M'            MEMORY EXAM AND CHANGE
+00:E393 E088            	   609:          dc.w  CHANGE
+00:E395 46              	   610:          dc.b  'F'            BYTE SEARCH
+00:E396 E197            	   611:          dc.w  SEARCH
+00:E398 52              	   612:          dc.b  'R'            REGISTER DUMP
+00:E399 E123            	   613:          dc.w  PRINT
+00:E39B 4A              	   614:          dc.b  'J'            JUMP
+00:E39C E005            	   615:          dc.w  JUMP
+00:E39E 43              	   616:          dc.b  'C'            CLEAR SCREEN
+00:E39F E2AB            	   617:          dc.w  CLEAR
+00:E3A1 44              	   618:          dc.b  'D'            DISK BOOT
+00:E3A2 E26E            	   619:          dc.w  DISK
+00:E3A4 42              	   620:          dc.b  'B'            BREAKPOINT
+00:E3A5 E2B8            	   621:          dc.w  BREAK
+00:E3A7 4F              	   622:          dc.b  'O'            OPTIONAL PORT
+00:E3A8 E248            	   623:          dc.w  OPTL
+00:E3AA 50              	   624: TABLE1   dc.b  'P'            ASCII PUNCH
+00:E3AB E2F9            	   625:          dc.w  PUNCH1
+00:E3AD 4C              	   626:          dc.b  'L'            ASCII LOAD
+00:E3AE E00C            	   627:          dc.w  LOAD
+00:E3B0 45              	   628: TABEND   dc.b  'E'            END OF TAPE
+00:E3B1 E2FD            	   629:          dc.w  PNCHS9
+                        	   630: 
+                        	   631:          include  'trek.asm'
+
+Source: "trek.asm"
+                        	     1: * NAM STAR TREK
+                        	     2: *****************************
+                        	     3: * STAR TREK GAME 1.2
+                        	     4: * BY UNKNOWN SOURCE
+                        	     5: * RECOVERED FROM OLD FLOPPIES
+                        	     6: *
+                        	     7: * ADOPTED TO RUN ON THE MC3
+                        	     8: * BY DANIEL TUFVESSON 2014
+                        	     9: *****************************
+                        	    10: 
+                        	    11: *
+                        	    12: * MONITOR ROUTINE ADDRESSES
+                        	    13: *
+                        	    14: ;OUTCH    EQU   $C003
+                        	    15: ;INCH     EQU   $C006
+                        	    16: ;CONTRL   EQU   $C000
+                        	    17: CR       EQU   $0D
+                        	    18: LF       EQU   $0A
+                        	    19: EOT      EQU   $04
+                        	    20: BELL     EQU   $07
+                        	    21: APOS     EQU   $27
+                        	    22: *
+                        	    23: * STORAGE AREAS
+                        	    24: *
+                        	    25: ;         ORG   $20
+                        	    26: STPSFL   EQU   $20
+                        	    27: BASEX    EQU   $21
+                        	    28: BASEY    EQU   $22
+                        	    29: BASESX   EQU   $23
+                        	    30: BASESY   EQU   $24
+                        	    31: GLMFLG   EQU   $25
+                        	    32: SECKLN   EQU   $26
+                        	    33: FLAGC    EQU   $27
+                        	    34: TIMDEC   EQU   $28
+                        	    35: STCFLG   EQU   $29
+                        	    36: SQFLG    EQU   $2A
+                        	    37: PNTFLG   EQU   $2B
+                        	    38: COURSE   EQU   $2C
+                        	    39: WARP     EQU   $2D
+                        	    40: FINCX    EQU   $2E
+                        	    41: FINCY    EQU   $2F
+                        	    42: COUNT    EQU   $30
+                        	    43: TEMP1    EQU   $31
+                        	    44: TEMP2    EQU   $33
+                        	    45: XTEMP1   EQU   $35
+                        	    46: TIME0    EQU   $37
+                        	    47: GAMTIM   EQU   $39
+                        	    48: TIMUSE   EQU   $3A
+                        	    49: SHENGY   EQU   $3C
+                        	    50: KLNENG   EQU   $3E
+                        	    51: PHSENG   EQU   $40
+                        	    52: TOPFLG   EQU   $42
+                        	    53: BOTFLG   EQU   $43
+                        	    54: LSDFLG   EQU   $44
+                        	    55: RSDFLG   EQU   $45
+                        	    56: PHOTON   EQU   $46
+                        	    57: CURQUX   EQU   $47
+                        	    58: CURQUY   EQU   $48
+                        	    59: CURSCX   EQU   $49
+                        	    60: CURSCY   EQU   $4A
+                        	    61: TRIALX   EQU   $4B
+                        	    62: TRIALY   EQU   $4C
+                        	    63: FLAG     EQU   $4D
+                        	    64: CNDFLG   EQU   $4E
+                        	    65: SCANX    EQU   $4F
+                        	    66: SCANY    EQU   $50
+                        	    67: COUNT1   EQU   $51
+                        	    68: SECINF   EQU   $52
+                        	    69: MASK     EQU   $53
+                        	    70: KLNGCT   EQU   $54
+                        	    71: LENGTH   EQU   $55
+                        	    72: ASAVE    EQU   $56
+                        	    73: SHIELD   EQU   $57
+                        	    74: ENERGY   EQU   $58
+                        	    75: TSAVE1   EQU   $5A
+                        	    76: HITKLS   EQU   $5B
+                        	    77: HITSTR   EQU   $5C
+                        	    78: HITBAS   EQU   $5D
+                        	    79: TEMP3    EQU   $5E
+                        	    80: GALCNT   EQU   $60
+                        	    81: DAMENG   EQU   $61
+                        	    82: DAMSRS   EQU   $62
+                        	    83: DAMLRS   EQU   $63
+                        	    84: DAMPHS   EQU   $64
+                        	    85: DAMPHT   EQU   $65
+                        	    86: DAMSHL   EQU   $66
+                        	    87: DAMTEL   EQU   $67
+                        	    88: DAMTRB   EQU   $68
+                        	    89: DAMCOM   EQU   $69
+                        	    90: PCOUNT   EQU   $6A      ; TORP SPREAD COUNT
+                        	    91: PTZFLG   EQU   $6B      ; NO MORE TORP FLAG
+                        	    92: GAMEND   EQU   $6C
+                        	    93: AUTOSR   EQU   $6D
+                        	    94: AUTOLR   EQU   $6E
+                        	    95: SUPFLG   EQU   $6F
+                        	    96: TELFLG   EQU   $70
+                        	    97: ATKENG   EQU   $71
+                        	    98: QUDPTR   EQU   $73      ; POINTS TO CURR LOC IN QUDMAP
+                        	    99: PASWRD   EQU   $75
+                        	   100: PHTFLG   EQU   $78
+                        	   101: SHUTCR   EQU   $79
+                        	   102: SHUTLX   EQU   $7A
+                        	   103: SHUTLY   EQU   $7B
+                        	   104: QUDMAP   EQU   $7C
+                        	   105: COMMAP   EQU   $BC      ; MUST FOLLOW QUDMAP IMMEDIATELY
+                        	   106: SECMAP   EQU   $FC      ; PACKED SECTOR (64*2 BITS) 00=., 01=*, 10=K, 11=B
+                        	   107: STUF     EQU   $010C    ; SEED FOR RANDOM FUNCTION
+                        	   108: *
+                        	   109: * PROGRAM ENTRY
+                        	   110: *
+                        	   111: ;         ORG   $0200
+00:E3B3 7EE456          	   112:          JMP   STRTRK
+                        	   113: *
+                        	   114: * TABLE OF MOVE VECTORS
+                        	   115: *
+00:E3B6 00              	   116: MOVTBL   dc.b  $00,$FF,$01,$FF,$01,$00,$01,$01       ; FF=-1
+00:E3B7 FF
+00:E3B8 01
+00:E3B9 FF
+00:E3BA 01
+00:E3BB 00
+00:E3BC 01
+00:E3BD 01
+00:E3BE 00              	   117:          dc.b  $00,$01,$FF,$01,$FF,$00,$FF,$FF
+00:E3BF 01
+00:E3C0 FF
+00:E3C1 01
+00:E3C2 FF
+00:E3C3 00
+00:E3C4 FF
+00:E3C5 FF
+                        	   118: *
+                        	   119: * CHARACTER PRINT TABLE
+                        	   120: *
+00:E3C6 2E2A4B424E      	   121: CHRTBL   dc.b  '.*KBN'
+                        	   122: *
+                        	   123: * COMMAND CODE TABLE
+                        	   124: *
+00:E3CB 454E53524C525048	   125: CMDTBL   dc.b  'ENSRLRPHPTDRSHTPSDTBCO'
+00:E3D3 5054445253485450
+00:E3DB 53445442434F
+                        	   126: *
+                        	   127: * COMMAND JUMP TABLE
+                        	   128: *
+00:E3E1 E9E8            	   129: JMPTBL   dc.w  SETCRS
+00:E3E3 E75B            	   130:          dc.w  SRSCAN
+00:E3E5 ECA2            	   131:          dc.w  LRSCAN
+00:E3E7 ED65            	   132:          dc.w  PHASOR
+00:E3E9 E9C1            	   133:          dc.w  PHOTOR
+00:E3EB EFEB            	   134:          dc.w  DAMRPT
+00:E3ED E72C            	   135:          dc.w  SHLDS
+00:E3EF EE83            	   136:          dc.w  TELEPT
+00:E3F1 EE5C            	   137:          dc.w  SELFDE
+00:E3F3 F0DA            	   138:          dc.w  TRCTBM
+00:E3F5 F033            	   139:          dc.w  COMPTR
+                        	   140: *
+00:E3F7 BDE075          	   141: PDATA    JSR   OUTCH
+00:E3FA 08              	   142:          INX
+00:E3FB A600            	   143: PDATA3   LDAA  0,X
+00:E3FD 8104            	   144:          CMPA  #$04
+00:E3FF 26F6            	   145:          BNE   PDATA
+00:E401 39              	   146:          RTS
+                        	   147: *
+00:E402 860D            	   148: PCRLF    LDAA  #$0D
+00:E404 BDE075          	   149:          JSR   OUTCH
+00:E407 860A            	   150:          LDAA  #$0A
+00:E409 7EE075          	   151:          JMP   OUTCH
+                        	   152: *
+00:E40C 8DF4            	   153: PSTRNG   BSR   PCRLF
+00:E40E 20EB            	   154:          BRA   PDATA3
+                        	   155: *
+00:E410 36              	   156: OUTHLST  PSHA
+00:E411 44              	   157:          LSRA
+00:E412 44              	   158:          LSRA
+00:E413 44              	   159:          LSRA
+00:E414 44              	   160:          LSRA
+00:E415 8D02            	   161:          BSR   OUTHRST
+00:E417 32              	   162:          PULA
+00:E418 39              	   163:          RTS
+                        	   164: *
+00:E419 36              	   165: OUTHRST  PSHA
+00:E41A 840F            	   166:          ANDA  #$0F
+00:E41C 8A30            	   167:          ORAA  #$30
+00:E41E 8139            	   168:          CMPA  #$39
+00:E420 2302            	   169:          BLS   OUTDIG
+00:E422 8B07            	   170:          ADDA  #7
+00:E424 BDE075          	   171: OUTDIG   JSR   OUTCH
+00:E427 32              	   172:          PULA
+00:E428 39              	   173:          RTS
+                        	   174: *
+00:E429 36              	   175: OUTSST   PSHA
+00:E42A 8620            	   176:          LDAA  #$20
+00:E42C 20F6            	   177:          BRA   OUTDIG
+                        	   178: *
+                        	   179: * LIB RANDOM
+00:E42E 37              	   180: RANDOM	PSHB                 ; RANDOM NUMBER GENERATOR - SAVE B
+00:E42F B6010D          	   181:          LDAA  STUF+1         ; COMPUTE (STUF * 2 * * 9) MOD 2 ** 16
+00:E432 0C              	   182:          CLC
+00:E433 49              	   183:          ROLA
+00:E434 0C              	   184:          CLC
+00:E435 49              	   185:          ROLA
+00:E436 BB010C          	   186:          ADDA  STUF           ; ADD STUFF TO RESULT
+00:E439 F6010D          	   187:          LDAB  STUF+1
+00:E43C 0C              	   188:          CLC                  ; MULTIPLY BY 2 ** 2
+00:E43D 59              	   189:          ROLB
+00:E43E 49              	   190:          ROLA
+00:E43F 0C              	   191:          CLC
+00:E440 59              	   192:          ROLB
+00:E441 49              	   193:          ROLA
+00:E442 0C              	   194:          CLC
+00:E443 FB010D          	   195:          ADDB  STUF+1         ; ADD STUFF TO RESULT
+00:E446 B9010C          	   196:          ADCA  STUF
+00:E449 0C              	   197:          CLC
+00:E44A CB19            	   198:          ADDB  #$19           ; ADD HEXADECIMAL 3619 TO THE RESULT
+00:E44C 8B36            	   199:          ADDA  #$36
+00:E44E B7010C          	   200:          STAA  STUF           ; STORE RESULT IN STUF
+00:E451 F7010D          	   201:          STAB  STUF+1
+00:E454 33              	   202:          PULB                 ; RESTORE B
+00:E455 39              	   203:          RTS
+                        	   204: *
+                        	   205: * PRINT TITLE
+                        	   206: *
+00:E456 CEF0FA          	   207: STRTRK   LDX   #TITLE
+00:E459 BDE40C          	   208:          JSR   PSTRNG
+                        	   209: *
+                        	   210: * CLEAR ALL TEMP STORAGE
+                        	   211: *
+00:E45C CE0020          	   212:          LDX   #STPSFL
+00:E45F 6F00            	   213: SETCLR   CLR   0,X
+00:E461 08              	   214:          INX
+00:E462 8C010C          	   215:          CPX   #STUF          ; LAST VALUE OF RAM AREA
+00:E465 26F8            	   216:          BNE   SETCLR
+00:E467 86FF            	   217:          LDAA  #$FF
+00:E469 CE00BC          	   218:          LDX   #COMMAP
+00:E46C A700            	   219: CLRMAP   STAA  0,X
+00:E46E 08              	   220:          INX
+00:E46F 8C00FC          	   221:          CPX   #COMMAP+64
+00:E472 26F8            	   222:          BNE   CLRMAP
+00:E474 CEF132          	   223:          LDX   #SHTLNG
+00:E477 BDE40C          	   224:          JSR   PSTRNG
+00:E47A BDE078          	   225:          JSR   INCH
+00:E47D 8153            	   226:          CMPA  #'S'
+00:E47F 2703            	   227:          BEQ   SETQD
+00:E481 7C0055          	   228:          INC   LENGTH         ; SET LONG FLAG
+                        	   229: *
+                        	   230: * SETUP SPACE
+                        	   231: *
+00:E484 CE007C          	   232: SETQD    LDX   #QUDMAP
+00:E487 C640            	   233:          LDAB  #64
+00:E489 BDE42E          	   234: SETUP0   JSR   RANDOM
+00:E48C 81FC            	   235:          CMPA  #$FC
+00:E48E 2304            	   236:          BLS   SETUP1
+00:E490 8604            	   237:          LDAA  #4
+00:E492 2019            	   238:          BRA   SETUP5
+00:E494 81F7            	   239: SETUP1   CMPA  #$F7
+00:E496 2304            	   240:          BLS   SETUP2
+00:E498 8603            	   241:          LDAA  #3
+00:E49A 2011            	   242:          BRA   SETUP5
+00:E49C 81E0            	   243: SETUP2   CMPA  #$E0
+00:E49E 2304            	   244:          BLS   SETUP3
+00:E4A0 8602            	   245:          LDAA  #2
+00:E4A2 2009            	   246:          BRA   SETUP5
+00:E4A4 81A0            	   247: SETUP3   CMPA  #$A0
+00:E4A6 2304            	   248:          BLS   SETUP4
+00:E4A8 8601            	   249:          LDAA  #1
+00:E4AA 2001            	   250:          BRA   SETUP5
+00:E4AC 4F              	   251: SETUP4   CLRA
+00:E4AD 7F0056          	   252: SETUP5   CLR   ASAVE
+00:E4B0 7D0055          	   253:          TST   LENGTH
+00:E4B3 2716            	   254:          BEQ   SETUP8
+00:E4B5 9756            	   255:          STAA  ASAVE
+00:E4B7 BDE42E          	   256:          JSR   RANDOM
+00:E4BA 81F0            	   257:          CMPA  #$F0
+00:E4BC 2304            	   258:          BLS   SETUP6
+00:E4BE 8603            	   259:          LDAA  #3
+00:E4C0 2009            	   260:          BRA   SETUP8
+00:E4C2 81C0            	   261: SETUP6   CMPA  #$C0
+00:E4C4 2304            	   262:          BLS   SETUP7
+00:E4C6 8602            	   263:          LDAA  #2
+00:E4C8 2001            	   264:          BRA   SETUP8
+00:E4CA 4F              	   265: SETUP7   CLRA
+00:E4CB 9B56            	   266: SETUP8   ADDA  ASAVE
+00:E4CD A700            	   267:          STAA  0,X            ; STORE SECT KLNGON CNT
+00:E4CF 9B54            	   268:          ADDA  KLNGCT
+00:E4D1 9754            	   269:          STAA  KLNGCT
+00:E4D3 BDE42E          	   270: STARS    JSR   RANDOM
+00:E4D6 8438            	   271:          ANDA  #$38
+00:E4D8 AA00            	   272:          ORAA  0,X
+00:E4DA A700            	   273:          STAA  0,X
+00:E4DC 08              	   274: CONT     INX
+00:E4DD 5A              	   275:          DECB
+00:E4DE 2703            	   276:          BEQ   CONT1
+00:E4E0 7EE489          	   277:          JMP   SETUP0
+                        	   278: *
+                        	   279: * GET STARBASE LOCATION
+                        	   280: *
+00:E4E3 BDE42E          	   281: CONT1    JSR   RANDOM
+00:E4E6 8407            	   282:          ANDA  #$7
+00:E4E8 16              	   283:          TAB
+00:E4E9 BDE42E          	   284:          JSR   RANDOM
+00:E4EC 8407            	   285:          ANDA  #$7
+00:E4EE 9721            	   286:          STAA  BASEX
+00:E4F0 D722            	   287:          STAB  BASEY
+00:E4F2 7C0020          	   288:          INC   STPSFL
+00:E4F5 CE007C          	   289:          LDX   #QUDMAP
+00:E4F8 BDE894          	   290:          JSR   STPSEX
+00:E4FB 8640            	   291:          LDAA  #$40
+00:E4FD AA00            	   292:          ORAA  0,X
+00:E4FF A700            	   293:          STAA  0,X
+00:E501 8D32            	   294: CONT2    BSR   REFUEL
+00:E503 BDE42E          	   295:          JSR   RANDOM
+00:E506 8B00            	   296:          ADDA  #0
+00:E508 19              	   297:          DAA
+00:E509 9738            	   298:          STAA  TIME0+1
+00:E50B BDE42E          	   299:          JSR   RANDOM
+00:E50E 847F            	   300:          ANDA  #$7F
+00:E510 8A23            	   301:          ORAA  #$23
+00:E512 8B00            	   302:          ADDA  #0
+00:E514 19              	   303:          DAA
+00:E515 9737            	   304:          STAA  TIME0
+00:E517 8D3B            	   305:          BSR   MAKTIM
+00:E519 7D0055          	   306:          TST   LENGTH
+00:E51C 2705            	   307:          BEQ   GATM
+00:E51E 16              	   308:          TAB
+00:E51F 8D33            	   309:          BSR   MAKTIM
+00:E521 1B              	   310:          ABA
+00:E522 19              	   311:          DAA
+00:E523 9739            	   312: GATM     STAA  GAMTIM
+00:E525 BDE42E          	   313:          JSR   RANDOM         ; SET SHUTTLECRAFT LOCATION
+00:E528 8407            	   314:          ANDA  #$7
+00:E52A 977A            	   315:          STAA  SHUTLX
+00:E52C BDE42E          	   316:          JSR   RANDOM
+00:E52F 8407            	   317:          ANDA  #$7
+00:E531 977B            	   318:          STAA  SHUTLY
+00:E533 202A            	   319:          BRA   CONT3
+                        	   320: *
+                        	   321: * REFUEL THE ENTERPRISE
+                        	   322: *
+00:E535 7F0057          	   323: REFUEL   CLR   SHIELD
+00:E538 8630            	   324:          LDAA  #$30
+00:E53A 9758            	   325:          STAA  ENERGY
+00:E53C 7F0059          	   326:          CLR   ENERGY+1
+00:E53F 973C            	   327:          STAA  SHENGY
+00:E541 7F003D          	   328:          CLR   SHENGY+1
+00:E544 860F            	   329:          LDAA  #15
+00:E546 9746            	   330:          STAA  PHOTON
+00:E548 CE0061          	   331:          LDX   #DAMENG FIX ALL DAMAGE
+00:E54B 6F00            	   332: REFUL1   CLR   0,X
+00:E54D 08              	   333:          INX
+00:E54E 8C006A          	   334:          CPX   #DAMENG+9
+00:E551 26F8            	   335:          BNE   REFUL1
+00:E553 39              	   336:          RTS
+                        	   337: *
+                        	   338: * CALCULATE GAME TIME
+                        	   339: *
+00:E554 BDE42E          	   340: MAKTIM   JSR   RANDOM
+00:E557 840F            	   341:          ANDA  #$0F
+00:E559 8A31            	   342:          ORAA  #$31
+00:E55B 8B00            	   343:          ADDA  #0
+00:E55D 19              	   344:          DAA
+00:E55E 39              	   345:          RTS
+                        	   346: *
+                        	   347: * CONTINUE SETUP
+                        	   348: *
+00:E55F BDE42E          	   349: CONT3    JSR   RANDOM
+00:E562 8407            	   350:          ANDA  #7
+00:E564 9747            	   351:          STAA  CURQUX
+00:E566 BDE42E          	   352:          JSR   RANDOM
+00:E569 8407            	   353:          ANDA  #7
+00:E56B 9748            	   354:          STAA  CURQUY
+00:E56D BDE87E          	   355:          JSR   SETUPS
+00:E570 CEF152          	   356:          LDX   #BASINF
+00:E573 BDE40C          	   357:          JSR   PSTRNG
+00:E576 9621            	   358:          LDAA  BASEX
+00:E578 8D4E            	   359:          BSR   FIXOUT
+00:E57A BDE61D          	   360:          JSR   OUTDSH
+00:E57D 9622            	   361:          LDAA  BASEY
+00:E57F 8D47            	   362:          BSR   FIXOUT
+00:E581 CEF510          	   363:          LDX   #INTRO0
+00:E584 BDE40C          	   364:          JSR   PSTRNG
+00:E587 CE0075          	   365:          LDX   #PASWRD
+00:E58A C603            	   366:          LDAB  #3
+00:E58C BDE078          	   367: CONT4    JSR   INCH
+00:E58F A700            	   368:          STAA  0,X
+00:E591 08              	   369:          INX
+00:E592 5A              	   370:          DECB
+00:E593 26F7            	   371:          BNE   CONT4
+00:E595 CEF18A          	   372:          LDX   #INTRO1
+00:E598 BDE40C          	   373:          JSR   PSTRNG
+00:E59B 8D31            	   374:          BSR   OUTDAT
+00:E59D CEF19B          	   375:          LDX   #INTRO2
+00:E5A0 BDE40C          	   376:          JSR   PSTRNG
+00:E5A3 8D3B            	   377:          BSR   OUTKLN
+00:E5A5 CEF1B0          	   378:          LDX   #INTRO3
+00:E5A8 BDE40C          	   379:          JSR   PSTRNG
+00:E5AB 7F0031          	   380:          CLR   TEMP1
+00:E5AE 9639            	   381:          LDAA  GAMTIM
+00:E5B0 9732            	   382:          STAA  TEMP1+1
+00:E5B2 BDE6FC          	   383:          JSR   OUTBCD
+00:E5B5 CEF1D2          	   384:          LDX   #INTRO4
+00:E5B8 BDE40C          	   385:          JSR   PSTRNG
+00:E5BB 8D4A            	   386:          BSR   OUTQUD
+00:E5BD CEF1E7          	   387:          LDX   #INTRO6
+00:E5C0 BDE40C          	   388:          JSR   PSTRNG
+00:E5C3 8D4D            	   389:          BSR   OUTSEC
+00:E5C5 7EE62C          	   390:          JMP   COMAND
+                        	   391: *
+                        	   392: * OUTPUT A NUMBER
+                        	   393: *
+00:E5C8 8B31            	   394: FIXOUT   ADDA  #$31
+00:E5CA BDE075          	   395:          JSR   OUTCH
+00:E5CD 39              	   396:          RTS
+                        	   397: *
+                        	   398: * OUTPUT STARDATE
+                        	   399: *
+00:E5CE DE37            	   400: OUTDAT   LDX   TIME0
+00:E5D0 DF31            	   401:          STX   TEMP1
+00:E5D2 BDE6FC          	   402:          JSR   OUTBCD
+00:E5D5 862E            	   403:          LDAA  #'.'
+00:E5D7 BDE075          	   404:          JSR   OUTCH
+00:E5DA 9628            	   405:          LDAA  TIMDEC
+00:E5DC BDE419          	   406:          JSR   OUTHRST
+00:E5DF 39              	   407:          RTS
+                        	   408: *
+                        	   409: * OUTPUT A KLINGON COUNT
+                        	   410: *
+00:E5E0 9654            	   411: OUTKLN   LDAA  KLNGCT
+00:E5E2 7F0031          	   412: OUTK0    CLR   TEMP1
+00:E5E5 7F0032          	   413: OUTK1    CLR   TEMP1+1
+00:E5E8 C60A            	   414:          LDAB  #10
+00:E5EA 10              	   415: OUTK2    SBA
+00:E5EB 250C            	   416:          BCS   OUTK3
+00:E5ED 7C0032          	   417:          INC   TEMP1+1
+00:E5F0 D132            	   418:          CMPB  TEMP1+1
+00:E5F2 26F6            	   419:          BNE   OUTK2
+00:E5F4 7C7F46          	   420:          INC   TEMP
+00:E5F7 20EC            	   421:          BRA   OUTK1
+00:E5F9 1B              	   422: OUTK3    ABA
+00:E5FA D632            	   423:          LDAB  TEMP1+1
+00:E5FC 58              	   424:          ASLB
+00:E5FD 58              	   425:          ASLB
+00:E5FE 58              	   426:          ASLB
+00:E5FF 58              	   427:          ASLB
+00:E600 1B              	   428:          ABA
+00:E601 9732            	   429:          STAA  TEMP1+1
+00:E603 BDE6FC          	   430:          JSR   OUTBCD
+00:E606 39              	   431:          RTS
+                        	   432: *
+                        	   433: * OUTPUT QUADRANT LOCATION
+                        	   434: *
+00:E607 9648            	   435: OUTQUD   LDAA  CURQUY
+00:E609 8DBD            	   436:          BSR   FIXOUT
+00:E60B 8D10            	   437:          BSR   OUTDSH
+00:E60D 9647            	   438:          LDAA  CURQUX
+00:E60F 8DB7            	   439:          BSR   FIXOUT
+00:E611 39              	   440:          RTS
+                        	   441: *
+                        	   442: * OUTPUT A SECTOR
+                        	   443: *
+00:E612 964A            	   444: OUTSEC   LDAA  CURSCY
+00:E614 8DB2            	   445:          BSR   FIXOUT
+00:E616 8D05            	   446:          BSR   OUTDSH
+00:E618 9649            	   447:          LDAA  CURSCX
+00:E61A 8DAC            	   448:          BSR   FIXOUT
+00:E61C 39              	   449:          RTS
+                        	   450: *
+                        	   451: * OUTPUT A DASH
+                        	   452: *
+00:E61D 862D            	   453: OUTDSH   LDAA  #'-'
+00:E61F BDE075          	   454:          JSR   OUTCH
+00:E622 39              	   455:          RTS
+                        	   456: *
+                        	   457: * ADD THE A-REG TO THE INDEX REGISTER
+                        	   458: *
+00:E623 DF31            	   459: FIXXRG   STX   TEMP1
+00:E625 9B32            	   460:          ADDA  TEMP1+1
+00:E627 9732            	   461:          STAA  TEMP1+1
+00:E629 DE31            	   462:          LDX   TEMP1
+00:E62B 39              	   463:          RTS
+                        	   464: *
+                        	   465: * GET COMMAND AND PERFORM IT
+                        	   466: *
+00:E62C 9639            	   467: COMAND   LDAA  GAMTIM
+00:E62E 913B            	   468:          CMPA  TIMUSE+1
+00:E630 2203            	   469:          BHI   NOEXTC
+00:E632 7EEF1C          	   470:          JMP   NOMTIM
+00:E635 7D0054          	   471: NOEXTC   TST   KLNGCT
+00:E638 2603            	   472:          BNE   NOEXT2
+00:E63A 7EEF21          	   473:          JMP   NOMKLN
+00:E63D 7D006F          	   474: NOEXT2   TST   SUPFLG
+00:E640 270C            	   475:          BEQ   NOEXT4
+00:E642 CEF870          	   476:          LDX   #SUPDES
+00:E645 BDE40C          	   477:          JSR   PSTRNG
+00:E648 BDEE72          	   478:          JSR   SELFDA
+00:E64B 7EEF29          	   479:          JMP   ENDGAM
+                        	   480: *
+00:E64E BDEF4A          	   481: NOEXT4   JSR   CLRCQU         ; CLEAR K & S
+00:E651 8602            	   482:          LDAA  #2
+00:E653 914E            	   483:          CMPA  CNDFLG         ; DOCKED?
+00:E655 275F            	   484:          BEQ   CMND27
+00:E657 7F004E          	   485:          CLR   CNDFLG
+00:E65A 7D0026          	   486:          TST   SECKLN         ; RED?
+00:E65D 2703            	   487:          BEQ   CMNDAC
+00:E65F 4A              	   488:          DECA
+00:E660 974E            	   489:          STAA  CNDFLG
+00:E662 BDE42E          	   490: CMNDAC   JSR   RANDOM
+00:E665 81FC            	   491:          CMPA  #$FC           ; SPACE STORM
+00:E667 230D            	   492:          BLS   COMND2
+00:E669 CEF68E          	   493:          LDX   #SPSTRM
+00:E66C BDE40C          	   494:          JSR   PSTRNG
+00:E66F 8602            	   495:          LDAA  #2
+00:E671 9766            	   496:          STAA  DAMSHL
+00:E673 BDE731          	   497:          JSR   SHLDWN
+                        	   498: *
+00:E676 BDE42E          	   499: COMND2   JSR   RANDOM
+00:E679 81FC            	   500:          CMPA  #$FC           ; SUPERNOVA?
+00:E67B 2303            	   501:          BLS   CMND25
+00:E67D BDEF80          	   502:          JSR   SUPNOV
+00:E680 BDEECC          	   503: CMND25   JSR   ATTACK         ; ALLOW ATTACK
+00:E683 7D0058          	   504:          TST   ENERGY
+00:E686 2A03            	   505:          BPL   COMND0
+00:E688 7EEF14          	   506:          JMP   NRGOUT
+                        	   507: *
+00:E68B 7D0079          	   508: COMND0   TST   SHUTCR
+00:E68E 2612            	   509:          BNE   CMND01
+00:E690 967A            	   510:          LDAA  SHUTLX
+00:E692 9147            	   511:          CMPA  CURQUX
+00:E694 260C            	   512:          BNE   CMND01
+00:E696 967B            	   513:          LDAA  SHUTLY
+00:E698 9148            	   514:          CMPA  CURQUY
+00:E69A 2606            	   515:          BNE   CMND01
+00:E69C CEFBC4          	   516:          LDX   #SHTSIG
+00:E69F BDE40C          	   517:          JSR   PSTRNG
+00:E6A2 8603            	   518: CMND01   LDAA  #3
+00:E6A4 9158            	   519:          CMPA  ENERGY
+00:E6A6 2302            	   520:          BLS   CMNDAD
+00:E6A8 974E            	   521:          STAA  CNDFLG
+00:E6AA 7D003C          	   522: CMNDAD   TST   SHENGY
+00:E6AD 2A07            	   523:          BPL   CMND27
+00:E6AF 4F              	   524:          CLRA
+00:E6B0 9757            	   525:          STAA  SHIELD
+00:E6B2 973C            	   526:          STAA  SHENGY
+00:E6B4 973D            	   527:          STAA  SHENGY+1
+00:E6B6 CEF1F3          	   528: CMND27   LDX   #COMST         ; PRINT COMMAND PROMPT
+00:E6B9 BDE40C          	   529:          JSR   PSTRNG
+00:E6BC 7F0029          	   530:          CLR   STCFLG
+00:E6BF 7F0078          	   531:          CLR   PHTFLG
+00:E6C2 BDE078          	   532: COMND3   JSR   INCH
+00:E6C5 810D            	   533:          CMPA  #CR
+00:E6C7 2716            	   534:          BEQ   ILCMND
+00:E6C9 16              	   535:          TAB
+00:E6CA BDE078          	   536:          JSR   INCH
+00:E6CD CEE3CB          	   537:          LDX   #CMDTBL
+00:E6D0 E100            	   538: CHKCM1   CMPB  0,X
+00:E6D2 2604            	   539:          BNE   INX2
+00:E6D4 A101            	   540:          CMPA  1,X
+00:E6D6 270F            	   541:          BEQ   GOTCMD
+00:E6D8 08              	   542: INX2     INX
+00:E6D9 08              	   543:          INX
+00:E6DA 8CE3E1          	   544:          CPX   #CMDTBL+22
+00:E6DD 26F1            	   545:          BNE   CHKCM1
+00:E6DF CEFA66          	   546: ILCMND   LDX   #EXPCMD
+00:E6E2 BDE40C          	   547:          JSR   PSTRNG
+00:E6E5 20DB            	   548:          BRA   COMND3
+                        	   549: *
+00:E6E7 8616            	   550: GOTCMD   LDAA  #22            ; STEP FORWARD 22 BYTES TO ROUTINE ADDRESS
+00:E6E9 08              	   551: GCMD1    INX
+00:E6EA 4A              	   552:          DECA
+00:E6EB 26FC            	   553:          BNE   GCMD1
+00:E6ED EE00            	   554:          LDX   0,X
+00:E6EF AD00            	   555:          JSR   0,X
+00:E6F1 7D006C          	   556:          TST   GAMEND
+00:E6F4 2703            	   557:          BEQ   CMND99
+00:E6F6 7EEF29          	   558:          JMP   ENDGAM
+00:E6F9 7EE62C          	   559: CMND99   JMP   COMAND
+                        	   560: *
+                        	   561: * OUTPUT A 4 DIGIT BCD NUMBER
+                        	   562: *
+00:E6FC 7F004D          	   563: OUTBCD   CLR   FLAG
+00:E6FF 9631            	   564:          LDAA  TEMP1
+00:E701 2713            	   565:          BEQ   OUTBC2
+00:E703 84F0            	   566:          ANDA  #$F0
+00:E705 2705            	   567:          BEQ   OUTBC1
+00:E707 9631            	   568:          LDAA  TEMP1
+00:E709 BDE410          	   569:          JSR   OUTHLST
+00:E70C 9631            	   570: OUTBC1   LDAA  TEMP1
+00:E70E 840F            	   571:          ANDA  #$0F
+00:E710 BDE419          	   572:          JSR   OUTHRST
+00:E713 7C004D          	   573:          INC   FLAG
+00:E716 9632            	   574: OUTBC2   LDAA  TEMP1+1
+00:E718 7D004D          	   575:          TST   FLAG
+00:E71B 2604            	   576:          BNE   NOZERO
+00:E71D 84F0            	   577:          ANDA  #$F0
+00:E71F 2703            	   578:          BEQ   OUTBC3
+00:E721 BDE410          	   579: NOZERO   JSR   OUTHLST
+00:E724 9632            	   580: OUTBC3   LDAA  TEMP1+1
+00:E726 840F            	   581:          ANDA  #$0F
+00:E728 BDE419          	   582:          JSR   OUTHRST
+00:E72B 39              	   583:          RTS
+                        	   584: *
+                        	   585: * LOWER THE SHIELDS
+                        	   586: *
+00:E72C 7D0057          	   587: SHLDS    TST   SHIELD
+00:E72F 270A            	   588:          BEQ   SHLDUP
+00:E731 7F0057          	   589: SHLDWN   CLR   SHIELD
+00:E734 CEF1FE          	   590:          LDX   #DWNST
+00:E737 BDE40C          	   591: SHLD0    JSR   PSTRNG
+00:E73A 39              	   592: SHLD1    RTS
+                        	   593: *
+                        	   594: * RAISE THE SHIELDS
+                        	   595: *
+00:E73B 963C            	   596: SHLDUP   LDAA  SHENGY
+00:E73D 8101            	   597:          CMPA  #1
+00:E73F 23F9            	   598:          BLS   SHLD1
+00:E741 7D0066          	   599:          TST   DAMSHL
+00:E744 26EB            	   600:          BNE   SHLDWN
+00:E746 7C0057          	   601:          INC   SHIELD
+00:E749 CE003C          	   602:          LDX   #SHENGY
+00:E74C 8602            	   603:          LDAA  #2
+00:E74E 9731            	   604:          STAA  TEMP1
+00:E750 7F0032          	   605:          CLR   TEMP1+1
+00:E753 BDEC86          	   606:          JSR   BCDSUB
+00:E756 CEF218          	   607:          LDX   #UPSTR
+00:E759 20DC            	   608:          BRA   SHLD0
+                        	   609: *
+                        	   610: * SHORT RANGE SCAN
+                        	   611: *
+00:E75B 7D0062          	   612: SRSCAN   TST   DAMSRS
+00:E75E 270F            	   613:          BEQ   SSCAN1
+00:E760 7D0079          	   614:          TST   SHUTCR
+00:E763 2604            	   615:          BNE   SSCAN0
+00:E765 BDEFE4          	   616:          JSR   RPTDAM
+00:E768 39              	   617:          RTS
+00:E769 CEFC00          	   618: SSCAN0   LDX   #SCBKUP
+00:E76C BDE40C          	   619:          JSR   PSTRNG
+00:E76F BDE402          	   620: SSCAN1   JSR   PCRLF
+00:E772 7F0050          	   621:          CLR   SCANY
+00:E775 964E            	   622:          LDAA  CNDFLG
+00:E777 8102            	   623:          CMPA  #2
+00:E779 2603            	   624:          BNE   SSCAN2
+00:E77B BDE535          	   625:          JSR   REFUEL
+00:E77E CE00FC          	   626: SSCAN2   LDX   #SECMAP
+00:E781 DF33            	   627:          STX   TEMP2
+00:E783 BDE827          	   628:          JSR   DOSCAN
+00:E786 CEF33A          	   629:          LDX   #SDATE
+00:E789 BDE3FB          	   630:          JSR   PDATA3
+00:E78C BDE5CE          	   631:          JSR   OUTDAT
+00:E78F BDE827          	   632:          JSR   DOSCAN
+00:E792 CEF347          	   633:          LDX   #CNDTNS
+00:E795 BDE3FB          	   634:          JSR   PDATA3
+00:E798 964E            	   635:          LDAA  CNDFLG
+00:E79A 271A            	   636:          BEQ   SRSCN1
+00:E79C 8101            	   637:          CMPA  #1
+00:E79E 2711            	   638:          BEQ   SRSCN0
+00:E7A0 8103            	   639:          CMPA  #3
+00:E7A2 2705            	   640:          BEQ   OUTCN1
+00:E7A4 CEF169          	   641:          LDX   #DOCKED
+00:E7A7 2003            	   642:          BRA   OUTCND
+00:E7A9 CEF355          	   643: OUTCN1   LDX   #YELLOW
+00:E7AC BDE3FB          	   644: OUTCND   JSR   PDATA3
+00:E7AF 200A            	   645:          BRA   SRSCN2
+                        	   646: *
+00:E7B1 CEF35D          	   647: SRSCN0   LDX   #RED
+00:E7B4 20F6            	   648:          BRA   OUTCND
+                        	   649: *
+00:E7B6 CEF364          	   650: SRSCN1   LDX   #GREEN
+00:E7B9 20F1            	   651:          BRA   OUTCND
+                        	   652: *
+00:E7BB 8D6A            	   653: SRSCN2   BSR   DOSCAN
+00:E7BD CEF36A          	   654:          LDX   #QUADP
+00:E7C0 BDE3FB          	   655:          JSR   PDATA3
+00:E7C3 BDE607          	   656:          JSR   OUTQUD
+00:E7C6 8D5F            	   657:          BSR   DOSCAN
+00:E7C8 CEF377          	   658:          LDX   #SECP
+00:E7CB BDE3FB          	   659:          JSR   PDATA3
+00:E7CE BDE612          	   660:          JSR   OUTSEC
+00:E7D1 8D54            	   661:          BSR   DOSCAN
+00:E7D3 CEF384          	   662:          LDX   #ENGSTR
+00:E7D6 BDE3FB          	   663:          JSR   PDATA3
+00:E7D9 DE58            	   664:          LDX   ENERGY
+00:E7DB DF31            	   665:          STX   TEMP1
+00:E7DD BDE6FC          	   666:          JSR   OUTBCD
+00:E7E0 8D45            	   667:          BSR   DOSCAN
+00:E7E2 CEF38F          	   668:          LDX   #KLSTR
+00:E7E5 BDE3FB          	   669:          JSR   PDATA3
+00:E7E8 BDE5E0          	   670:          JSR   OUTKLN
+00:E7EB 8D3A            	   671:          BSR   DOSCAN
+00:E7ED CEF39C          	   672:          LDX   #SHSTR
+00:E7F0 BDE3FB          	   673:          JSR   PDATA3
+00:E7F3 DE3C            	   674:          LDX   SHENGY
+00:E7F5 DF31            	   675:          STX   TEMP1
+00:E7F7 BDE6FC          	   676:          JSR   OUTBCD
+00:E7FA 7D0057          	   677:          TST   SHIELD
+00:E7FD 2705            	   678:          BEQ   SRSCN4
+00:E7FF CEF14E          	   679:          LDX   #UPSCAS
+00:E802 2003            	   680:          BRA   SRSCN5
+                        	   681: *
+00:E804 CEF170          	   682: SRSCN4   LDX   #DNSCAS
+00:E807 BDE3FB          	   683: SRSCN5   JSR   PDATA3
+00:E80A 8D1B            	   684:          BSR   DOSCAN
+00:E80C CEF3A8          	   685:          LDX   #TRPSTR
+00:E80F BDE3FB          	   686:          JSR   PDATA3
+00:E812 7F0031          	   687:          CLR   TEMP1
+00:E815 9646            	   688:          LDAA  PHOTON
+00:E817 8B00            	   689:          ADDA  #0
+00:E819 19              	   690:          DAA
+00:E81A 9732            	   691:          STAA  TEMP1+1
+00:E81C BDE6FC          	   692:          JSR   OUTBCD
+00:E81F DE73            	   693:          LDX   QUDPTR      ; UPDATE COMPUTER MAP
+00:E821 A600            	   694:          LDAA  0,X
+00:E823 BDED2F          	   695:          JSR   UPDCMP
+00:E826 39              	   696:          RTS
+                        	   697: *
+                        	   698: * OUTPUT 1 SHORT RANGE SCAN LINE
+                        	   699: *
+00:E827 BDE402          	   700: DOSCAN   JSR   PCRLF
+00:E82A 8602            	   701:          LDAA  #2
+00:E82C 9730            	   702:          STAA  COUNT
+00:E82E 7F004F          	   703:          CLR   SCANX
+00:E831 8604            	   704: DOSCN    LDAA  #4
+00:E833 9751            	   705:          STAA  COUNT1
+00:E835 DE33            	   706:          LDX   TEMP2
+00:E837 A600            	   707:          LDAA  0,X
+00:E839 9756            	   708: DOSCN0   STAA  ASAVE
+00:E83B 964A            	   709:          LDAA  CURSCY
+00:E83D 9150            	   710:          CMPA  SCANY       ; IS IT Y-LOC OF ENTERPRISE?
+00:E83F 260D            	   711:          BNE   CHK0
+00:E841 9649            	   712:          LDAA  CURSCX
+00:E843 914F            	   713:          CMPA  SCANX
+00:E845 2607            	   714:          BNE   CHK0
+00:E847 8645            	   715:          LDAA  #'E'
+00:E849 BDE075          	   716:          JSR   OUTCH
+00:E84C 200F            	   717:          BRA   GOAHD
+00:E84E 9656            	   718: CHK0     LDAA  ASAVE
+00:E850 CEE3C6          	   719: DOSCN1   LDX   #CHRTBL
+00:E853 8403            	   720:          ANDA  #3
+00:E855 BDE623          	   721:          JSR   FIXXRG
+00:E858 A600            	   722:          LDAA  0,X
+00:E85A BDE075          	   723:          JSR   OUTCH
+00:E85D BDE429          	   724: GOAHD    JSR   OUTSST
+00:E860 DE33            	   725:          LDX   TEMP2
+00:E862 7C004F          	   726:          INC   SCANX
+00:E865 7A0051          	   727:          DEC   COUNT1
+00:E868 2706            	   728:          BEQ   DOSCN2
+00:E86A 9656            	   729:          LDAA  ASAVE
+00:E86C 44              	   730:          LSRA
+00:E86D 44              	   731:          LSRA
+00:E86E 20C9            	   732:          BRA   DOSCN0
+00:E870 08              	   733: DOSCN2   INX
+00:E871 DF33            	   734:          STX   TEMP2
+00:E873 A600            	   735:          LDAA  0,X
+00:E875 7A0030          	   736:          DEC   COUNT
+00:E878 26B7            	   737:          BNE   DOSCN
+00:E87A 7C0050          	   738:          INC   SCANY
+00:E87D 39              	   739:          RTS
+                        	   740: *
+                        	   741: * SETUP SECTOR MAP
+                        	   742: *
+00:E87E 7F0026          	   743: SETUPS   CLR   SECKLN
+00:E881 CE00FC          	   744:          LDX   #SECMAP
+00:E884 C610            	   745:          LDAB  #16
+00:E886 4F              	   746:          CLRA
+00:E887 A700            	   747: SETPS1   STAA  0,X
+00:E889 08              	   748:          INX
+00:E88A 5A              	   749:          DECB
+00:E88B 26FA            	   750:          BNE   SETPS1
+00:E88D CE007C          	   751:          LDX   #QUDMAP
+00:E890 9647            	   752:          LDAA  CURQUX
+00:E892 D648            	   753:          LDAB  CURQUY
+00:E894 9756            	   754: STPSEX   STAA  ASAVE
+00:E896 5D              	   755:          TSTB
+00:E897 2709            	   756:          BEQ   SETPS4
+00:E899 8608            	   757: SETPS2   LDAA  #8
+00:E89B 08              	   758: SETPS3   INX
+00:E89C 4A              	   759:          DECA
+00:E89D 26FC            	   760:          BNE   SETPS3
+00:E89F 5A              	   761:          DECB
+00:E8A0 26F7            	   762:          BNE   SETPS2
+00:E8A2 9656            	   763: SETPS4   LDAA  ASAVE
+00:E8A4 2704            	   764:          BEQ   SETPS6
+00:E8A6 08              	   765: SETPS5   INX
+00:E8A7 4A              	   766:          DECA
+00:E8A8 26FC            	   767:          BNE   SETPS5
+00:E8AA 7D0020          	   768: SETPS6   TST   STPSFL
+00:E8AD 2704            	   769:          BEQ   STPSNX
+00:E8AF 7F0020          	   770:          CLR   STPSFL
+00:E8B2 39              	   771:          RTS
+                        	   772: *
+00:E8B3 DF73            	   773: STPSNX   STX   QUDPTR
+00:E8B5 E600            	   774:          LDAB  0,X
+00:E8B7 D752            	   775:          STAB  SECINF
+00:E8B9 2736            	   776:          BEQ   SETP10
+00:E8BB C407            	   777:          ANDB  #7
+00:E8BD 270A            	   778:          BEQ   SETPS7
+00:E8BF D730            	   779:          STAB  COUNT
+00:E8C1 D726            	   780:          STAB  SECKLN
+00:E8C3 8602            	   781:          LDAA  #2
+00:E8C5 9753            	   782:          STAA  MASK
+00:E8C7 8D62            	   783:          BSR   PUTINM
+00:E8C9 D652            	   784: SETPS7   LDAB  SECINF
+00:E8CB C438            	   785:          ANDB  #$38
+00:E8CD 270B            	   786:          BEQ   SETPS8
+00:E8CF 54              	   787:          LSRB
+00:E8D0 54              	   788:          LSRB
+00:E8D1 54              	   789:          LSRB
+00:E8D2 D730            	   790:          STAB  COUNT
+00:E8D4 8601            	   791:          LDAA  #1
+00:E8D6 9753            	   792:          STAA  MASK
+00:E8D8 8D51            	   793:          BSR   PUTINM
+00:E8DA D652            	   794: SETPS8   LDAB  SECINF
+00:E8DC C540            	   795:          BITB  #$40
+00:E8DE 270A            	   796:          BEQ   SETPS9
+00:E8E0 8601            	   797:          LDAA  #1
+00:E8E2 9730            	   798:          STAA  COUNT
+00:E8E4 8603            	   799:          LDAA  #3
+00:E8E6 9753            	   800:          STAA  MASK
+00:E8E8 8D41            	   801:          BSR   PUTINM
+00:E8EA D652            	   802: SETPS9   LDAB  SECINF
+00:E8EC 2A03            	   803:          BPL   SETP10
+00:E8EE 7C006F          	   804:          INC   SUPFLG
+00:E8F1 BDE42E          	   805: SETP10   JSR   RANDOM
+00:E8F4 8407            	   806:          ANDA  #7
+00:E8F6 974B            	   807:          STAA  TRIALX
+00:E8F8 BDE42E          	   808:          JSR   RANDOM
+00:E8FB 8407            	   809:          ANDA  #7
+00:E8FD 974C            	   810:          STAA  TRIALY
+00:E8FF BDE973          	   811:          JSR   CHKPOS
+00:E902 7D004D          	   812:          TST   FLAG
+00:E905 26EA            	   813:          BNE   SETP10
+00:E907 964B            	   814:          LDAA  TRIALX
+00:E909 9749            	   815:          STAA  CURSCX
+00:E90B 964C            	   816:          LDAA  TRIALY
+00:E90D 974A            	   817:          STAA  CURSCY
+                        	   818: *
+                        	   819: * COMPUTE LOCAL KLINGON ENERGY
+                        	   820: *
+00:E90F D626            	   821: CSCKEN   LDAB  SECKLN
+00:E911 58              	   822:          ASLB
+00:E912 CE003E          	   823:          LDX   #KLNENG
+00:E915 6F00            	   824: CSCEXT   CLR   0,X
+00:E917 6F01            	   825:          CLR   1,X
+00:E919 BDE42E          	   826: CSCKN1   JSR   RANDOM
+00:E91C 8B00            	   827:          ADDA  #0
+00:E91E 19              	   828:          DAA
+00:E91F 7F0031          	   829:          CLR   TEMP1
+00:E922 9732            	   830:          STAA  TEMP1+1
+00:E924 BDEC83          	   831:          JSR   BCDADD
+00:E927 5A              	   832:          DECB
+00:E928 26EF            	   833:          BNE   CSCKN1
+00:E92A 39              	   834:          RTS
+                        	   835: *
+                        	   836: * PUT OBJECTS IN SECTOR MAP
+                        	   837: *
+00:E92B CE00FC          	   838: PUTINM   LDX   #SECMAP
+00:E92E BDE42E          	   839:          JSR   RANDOM
+00:E931 840F            	   840:          ANDA  #$F
+00:E933 975A            	   841:          STAA  TSAVE1
+00:E935 BDE623          	   842:          JSR   FIXXRG
+00:E938 E600            	   843:          LDAB  0,X
+00:E93A BDE42E          	   844:          JSR   RANDOM
+00:E93D 8403            	   845:          ANDA  #3
+00:E93F 9756            	   846:          STAA  ASAVE
+00:E941 2705            	   847:          BEQ   PUTIN2
+00:E943 56              	   848: PUTIN1   RORB
+00:E944 56              	   849:          RORB
+00:E945 4A              	   850:          DECA
+00:E946 26FB            	   851:          BNE   PUTIN1
+00:E948 C503            	   852: PUTIN2   BITB  #3
+00:E94A 26DF            	   853:          BNE   PUTINM
+00:E94C DA53            	   854:          ORAB  MASK
+00:E94E 9656            	   855:          LDAA  ASAVE
+00:E950 2705            	   856:          BEQ   PUTIN4
+00:E952 59              	   857: PUTIN3   ROLB
+00:E953 59              	   858:          ROLB
+00:E954 4A              	   859:          DECA
+00:E955 26FB            	   860:          BNE   PUTIN3
+00:E957 E700            	   861: PUTIN4   STAB  0,X
+00:E959 7A0030          	   862:          DEC   COUNT
+00:E95C 26CD            	   863:          BNE   PUTINM
+00:E95E 9653            	   864:          LDAA  MASK
+00:E960 8103            	   865:          CMPA  #3
+00:E962 260E            	   866:          BNE   PUTIN6
+00:E964 D65A            	   867:          LDAB  TSAVE1
+00:E966 0C              	   868:          CLC
+00:E967 56              	   869:          RORB
+00:E968 9656            	   870:          LDAA  ASAVE
+00:E96A 2402            	   871:          BCC   PUTIN5
+00:E96C 8B04            	   872:          ADDA  #4
+00:E96E 9723            	   873: PUTIN5   STAA  BASESX
+00:E970 D724            	   874:          STAB  BASESY
+00:E972 39              	   875: PUTIN6   RTS
+                        	   876: *
+                        	   877: * CHECK FOR EMPTY POSITIONS
+                        	   878: *
+00:E973 7F004D          	   879: CHKPOS   CLR   FLAG
+00:E976 DF35            	   880:          STX   XTEMP1
+00:E978 CE00FC          	   881:          LDX   #SECMAP
+00:E97B 964C            	   882:          LDAA  TRIALY
+00:E97D 2705            	   883:          BEQ   CHKPO2
+00:E97F 08              	   884: CHKPO1   INX
+00:E980 08              	   885:          INX
+00:E981 4A              	   886:          DECA
+00:E982 26FB            	   887:          BNE   CHKPO1
+00:E984 964B            	   888: CHKPO2   LDAA  TRIALX
+00:E986 8103            	   889:          CMPA  #3
+00:E988 2303            	   890:          BLS   CHKPO3
+00:E98A 08              	   891:          INX
+00:E98B 8004            	   892:          SUBA  #4
+00:E98D E600            	   893: CHKPO3   LDAB  0,X
+00:E98F 9756            	   894:          STAA  ASAVE
+00:E991 2705            	   895:          BEQ   CHKPO5
+00:E993 54              	   896: CHKPO4   LSRB
+00:E994 54              	   897:          LSRB
+00:E995 4A              	   898:          DECA
+00:E996 26FB            	   899:          BNE   CHKPO4
+00:E998 C403            	   900: CHKPO5   ANDB  #3
+00:E99A 2710            	   901:          BEQ   CHKPO6
+00:E99C D74D            	   902:          STAB  FLAG
+00:E99E 7D0029          	   903:          TST   STCFLG
+00:E9A1 2709            	   904:          BEQ   CHKPO6
+00:E9A3 7D0078          	   905:          TST   PHTFLG
+00:E9A6 2607            	   906:          BNE   CHKPO7
+00:E9A8 C102            	   907:          CMPB  #2
+00:E9AA 2703            	   908:          BEQ   CHKPO7
+00:E9AC DE35            	   909: CHKPO6   LDX   XTEMP1
+00:E9AE 39              	   910:          RTS
+                        	   911: *
+00:E9AF C6FC            	   912: CHKPO7   LDAB  #$FC
+00:E9B1 9656            	   913:          LDAA  ASAVE
+00:E9B3 2706            	   914:          BEQ   CHKPO9
+00:E9B5 0D              	   915:          SEC
+00:E9B6 59              	   916: CHKPO8   ROLB
+00:E9B7 59              	   917:          ROLB
+00:E9B8 4A              	   918:          DECA
+00:E9B9 26FB            	   919:          BNE   CHKPO8
+00:E9BB E400            	   920: CHKPO9   ANDB  0,X
+00:E9BD E700            	   921:          STAB  0,X
+00:E9BF 20EB            	   922:          BRA   CHKPO6
+                        	   923: *
+                        	   924: * FIRE PHOTON TORPEDO
+                        	   925: *
+00:E9C1 7D0065          	   926: PHOTOR   TST   DAMPHT
+00:E9C4 2704            	   927:          BEQ   PTRNDM
+00:E9C6 BDEFE4          	   928: PTRND9   JSR   RPTDAM
+00:E9C9 39              	   929:          RTS
+00:E9CA 7D0046          	   930: PTRNDM   TST   PHOTON      ; ANY LEFT
+00:E9CD 260A            	   931:          BNE   PHOTRO
+00:E9CF CEF176          	   932: PTEMPT   LDX   #PTEMST
+00:E9D2 BDE40C          	   933:          JSR   PSTRNG
+00:E9D5 7C006B          	   934:          INC   PTZFLG
+00:E9D8 39              	   935:          RTS
+                        	   936: *
+00:E9D9 7C0078          	   937: PHOTRO   INC   PHTFLG
+00:E9DC BDE42E          	   938:          JSR   RANDOM
+00:E9DF 840F            	   939:          ANDA  #$F
+00:E9E1 8A04            	   940:          ORAA  #4
+00:E9E3 972D            	   941:          STAA  WARP
+00:E9E5 7A0046          	   942:          DEC   PHOTON
+                        	   943: *
+                        	   944: * WARP ENGINES AND PHOTON TORP COURSE
+                        	   945: *
+00:E9E8 7F002A          	   946: SETCRS   CLR   SQFLG
+00:E9EB 7F0025          	   947:          CLR   GLMFLG
+00:E9EE CEF230          	   948:          LDX   #CRSSTR
+00:E9F1 BDE40C          	   949:          JSR   PSTRNG
+00:E9F4 BDEC2E          	   950:          JSR   INCHCK
+00:E9F7 8107            	   951:          CMPA  #7
+00:E9F9 2238            	   952:          BHI   ABC29
+00:E9FB BDE429          	   953:          JSR   OUTSST
+00:E9FE BDE429          	   954:          JSR   OUTSST
+00:EA01 972C            	   955:          STAA  COURSE
+00:EA03 7D0078          	   956:          TST   PHTFLG
+00:EA06 2620            	   957:          BNE   PHTOR1
+00:EA08 CEF24A          	   958:          LDX   #WRPSTR
+00:EA0B BDE40C          	   959:          JSR   PSTRNG
+00:EA0E BDEC2E          	   960:          JSR   INCHCK
+00:EA11 972D            	   961:          STAA  WARP
+00:EA13 7D002B          	   962:          TST   PNTFLG
+00:EA16 2607            	   963:          BNE   STCRS2
+00:EA18 972A            	   964:          STAA  SQFLG
+00:EA1A 7D0061          	   965:          TST   DAMENG
+00:EA1D 26A7            	   966:          BNE   PTRND9
+                        	   967: *
+00:EA1F BDE078          	   968: STCRS2   JSR   INCH
+00:EA22 810D            	   969:          CMPA  #CR
+00:EA24 26F9            	   970:          BNE   STCRS2
+00:EA26 962C            	   971:          LDAA  COURSE
+00:EA28 CEE3B6          	   972: PHTOR1   LDX   #MOVTBL
+00:EA2B 48              	   973:          ASLA
+00:EA2C BDE623          	   974:          JSR   FIXXRG
+00:EA2F 962D            	   975:          LDAA  WARP
+00:EA31 2601            	   976:          BNE   ABC30
+00:EA33 39              	   977: ABC29    RTS
+                        	   978: *
+00:EA34 9730            	   979: ABC30    STAA  COUNT
+00:EA36 7D002A          	   980:          TST   SQFLG
+00:EA39 2704            	   981:          BEQ   STCRS3
+00:EA3B 860F            	   982:          LDAA  #$0F
+00:EA3D 9730            	   983:          STAA  COUNT
+00:EA3F 9649            	   984: STCRS3   LDAA  CURSCX
+00:EA41 D64A            	   985:          LDAB  CURSCY
+00:EA43 AB00            	   986: PHTOR2   ADDA  0,X
+00:EA45 EB01            	   987:          ADDB  1,X
+00:EA47 BDEC0A          	   988:          JSR   TSTBND
+00:EA4A 7D002E          	   989:          TST   FINCX
+00:EA4D 2703            	   990:          BEQ   ABC1
+00:EA4F 7EEADD          	   991:          JMP   STCRS5
+                        	   992: *
+00:EA52 7D002F          	   993: ABC1     TST   FINCY
+00:EA55 2703            	   994:          BEQ   ABC5
+00:EA57 7EEADD          	   995:          JMP   STCRS5
+                        	   996: *
+00:EA5A 974B            	   997: ABC5     STAA  TRIALX      ; SAVE TRIAL POSITION
+00:EA5C D74C            	   998:          STAB  TRIALY
+00:EA5E 7D0078          	   999:          TST   PHTFLG
+00:EA61 2705            	  1000:          BEQ   ABC4
+00:EA63 BDE429          	  1001:          JSR   OUTSST
+00:EA66 8D1F            	  1002:          BSR   OBATSO
+00:EA68 7C0029          	  1003: ABC4     INC   STCFLG
+00:EA6B BDE973          	  1004:          JSR   CHKPOS      ; CHK IF BLKD
+00:EA6E 964D            	  1005:          LDAA  FLAG
+00:EA70 272B            	  1006:          BEQ   STCRS4
+00:EA72 7D0078          	  1007:          TST   PHTFLG
+00:EA75 2703            	  1008:          BEQ   ABC2
+00:EA77 7EEBCE          	  1009:          JMP   PHTOR3
+                        	  1010: *
+00:EA7A 8102            	  1011: ABC2     CMPA  #2
+00:EA7C 2603            	  1012:          BNE   ABC3
+00:EA7E 7EEB77          	  1013:          JMP   KLGRAM
+                        	  1014: *
+00:EA81 CEF262          	  1015: ABC3     LDX   #BLOKST
+00:EA84 BDE40C          	  1016:          JSR   PSTRNG
+00:EA87 964C            	  1017: OBATSO   LDAA  TRIALY
+00:EA89 BDE5C8          	  1018:          JSR   FIXOUT
+00:EA8C BDE61D          	  1019:          JSR   OUTDSH
+00:EA8F 964B            	  1020:          LDAA  TRIALX
+00:EA91 BDE5C8          	  1021:          JSR   FIXOUT
+00:EA94 7D0078          	  1022:          TST   PHTFLG
+00:EA97 2701            	  1023:          BEQ   STCRET
+00:EA99 39              	  1024:          RTS
+                        	  1025: *
+00:EA9A 7EEB2A          	  1026: STCRET   JMP   STCRS6
+                        	  1027: *
+00:EA9D 7D0078          	  1028: STCRS4   TST   PHTFLG
+00:EAA0 2712            	  1029:          BEQ   STCRSB      ; JUMP IF NOT
+00:EAA2 964B            	  1030:          LDAA  TRIALX
+00:EAA4 D64C            	  1031:          LDAB  TRIALY
+00:EAA6 7A0030          	  1032:          DEC   COUNT
+00:EAA9 2698            	  1033:          BNE   PHTOR2
+00:EAAB CEF318          	  1034: PHTOR4   LDX   #PNOENG
+00:EAAE BDE40C          	  1035:          JSR   PSTRNG
+00:EAB1 7EEB2A          	  1036:          JMP   STCRS6
+                        	  1037: *
+00:EAB4 964B            	  1038: STCRSB   LDAA  TRIALX
+00:EAB6 9749            	  1039:          STAA  CURSCX
+00:EAB8 964C            	  1040:          LDAA  TRIALY
+00:EABA 974A            	  1041:          STAA  CURSCY
+00:EABC BDE42E          	  1042:          JSR   RANDOM
+00:EABF 8180            	  1043:          CMPA  #$80
+00:EAC1 230A            	  1044:          BLS   STCRSC
+00:EAC3 8601            	  1045:          LDAA  #1
+00:EAC5 BDEC4B          	  1046:          JSR   FIXTIM
+00:EAC8 8603            	  1047:          LDAA  #3
+00:EACA BDEC73          	  1048:          JSR   FIXENG
+00:EACD 7A0030          	  1049: STCRSC   DEC   COUNT       ; DEC MOVE CNTR
+00:EAD0 2703            	  1050:          BEQ   STCRSD
+00:EAD2 7EEA3F          	  1051:          JMP   STCRS3
+                        	  1052: *
+00:EAD5 7D002A          	  1053: STCRSD   TST   SQFLG
+00:EAD8 2603            	  1054:          BNE   STCRS5      ; QUADRANT MOVE!
+00:EADA 7EEB2A          	  1055:          JMP   STCRS6
+                        	  1056: *
+00:EADD 7D0078          	  1057: STCRS5   TST   PHTFLG
+00:EAE0 2703            	  1058:          BEQ   ABC6
+00:EAE2 7EEAAB          	  1059:          JMP   PHTOR4
+00:EAE5 962D            	  1060: ABC6     LDAA  WARP
+00:EAE7 9730            	  1061:          STAA  COUNT
+00:EAE9 9647            	  1062: ABC7     LDAA  CURQUX
+00:EAEB D648            	  1063:          LDAB  CURQUY
+00:EAED 7D002A          	  1064:          TST   SQFLG
+00:EAF0 276E            	  1065:          BEQ   STCRS7
+00:EAF2 AB00            	  1066:          ADDA  0,X
+00:EAF4 EB01            	  1067:          ADDB  1,X
+00:EAF6 974B            	  1068:          STAA  TRIALX
+00:EAF8 D74C            	  1069:          STAB  TRIALY
+00:EAFA BDEC0A          	  1070:          JSR   TSTBND
+00:EAFD 7D002E          	  1071:          TST   FINCX
+00:EB00 2703            	  1072:          BEQ   ABCD0
+00:EB02 7EEBAA          	  1073:          JMP   GALBND
+                        	  1074: *
+00:EB05 7D002F          	  1075: ABCD0    TST   FINCY
+00:EB08 2703            	  1076:          BEQ   ABCD1
+00:EB0A 7EEBAA          	  1077:          JMP   GALBND
+                        	  1078: *
+00:EB0D 964B            	  1079: ABCD1    LDAA  TRIALX
+00:EB0F 9747            	  1080:          STAA  CURQUX
+00:EB11 964C            	  1081:          LDAA  TRIALY
+00:EB13 9748            	  1082:          STAA  CURQUY
+00:EB15 7C0025          	  1083:          INC   GLMFLG
+00:EB18 8606            	  1084:          LDAA  #6
+00:EB1A BDEC4B          	  1085:          JSR   FIXTIM
+00:EB1D 8630            	  1086:          LDAA  #$30
+00:EB1F BDEC73          	  1087:          JSR   FIXENG
+00:EB22 7A0030          	  1088:          DEC   COUNT
+00:EB25 26C2            	  1089:          BNE   ABC7
+00:EB27 BDE87E          	  1090: STCRSA   JSR   SETUPS
+00:EB2A 7F004E          	  1091: STCRS6   CLR   CNDFLG
+00:EB2D 9621            	  1092:          LDAA  BASEX
+00:EB2F 9147            	  1093:          CMPA  CURQUX
+00:EB31 261C            	  1094:          BNE   SEXIT1
+00:EB33 D622            	  1095:          LDAB  BASEY
+00:EB35 D148            	  1096:          CMPB  CURQUY
+00:EB37 2616            	  1097:          BNE   SEXIT1
+00:EB39 9623            	  1098:          LDAA  BASESX
+00:EB3B D624            	  1099:          LDAB  BASESY      ; DOCKED?
+00:EB3D 4C              	  1100:          INCA
+00:EB3E 9049            	  1101:          SUBA  CURSCX
+00:EB40 8102            	  1102:          CMPA  #2
+00:EB42 220B            	  1103:          BHI   SEXIT1
+00:EB44 5C              	  1104: SEXIT0   INCB
+00:EB45 D04A            	  1105:          SUBB  CURSCY
+00:EB47 C102            	  1106:          CMPB  #2
+00:EB49 2204            	  1107:          BHI   SEXIT1
+00:EB4B 8602            	  1108: SDOCK    LDAA  #2
+00:EB4D 974E            	  1109:          STAA  CNDFLG
+00:EB4F 7D006D          	  1110: SEXIT1   TST   AUTOSR
+00:EB52 2703            	  1111:          BEQ   SEXIT2
+00:EB54 BDE75B          	  1112:          JSR   SRSCAN
+00:EB57 7D006E          	  1113: SEXIT2   TST   AUTOLR
+00:EB5A 2703            	  1114:          BEQ   SEXIT3
+00:EB5C BDECA2          	  1115:          JSR   LRSCAN
+00:EB5F 39              	  1116: SEXIT3   RTS
+                        	  1117: *
+00:EB60 9B2E            	  1118: STCRS7   ADDA  FINCX
+00:EB62 DB2F            	  1119:          ADDB  FINCY
+00:EB64 8107            	  1120:          CMPA  #7
+00:EB66 2242            	  1121:          BHI   GALBND
+00:EB68 C107            	  1122:          CMPB  #7
+00:EB6A 223E            	  1123:          BHI   GALBND
+00:EB6C 9747            	  1124:          STAA  CURQUX
+00:EB6E D748            	  1125:          STAB  CURQUY
+00:EB70 8607            	  1126:          LDAA  #7
+00:EB72 BDEC4B          	  1127:          JSR   FIXTIM
+00:EB75 20B0            	  1128:          BRA   STCRSA
+                        	  1129: *
+                        	  1130: * RAMMED A KLINGON ROUTINE
+                        	  1131: *
+00:EB77 CEF287          	  1132: KLGRAM   LDX   #KRMSTR
+00:EB7A BDE40C          	  1133:          JSR   PSTRNG
+00:EB7D 8601            	  1134:          LDAA  #1
+00:EB7F 9730            	  1135:          STAA  COUNT
+00:EB81 7F002A          	  1136:          CLR   SQFLG
+00:EB84 7C005B          	  1137:          INC   HITKLS
+00:EB87 7A0054          	  1138:          DEC   KLNGCT      ; DEC KLINGON COUNT
+00:EB8A 7A0026          	  1139:          DEC   SECKLN
+00:EB8D 7C0078          	  1140:          INC   PHTFLG
+00:EB90 BDEA87          	  1141:          JSR   OBATSO
+00:EB93 CEF927          	  1142:          LDX   #HEVDAM
+00:EB96 BDE40C          	  1143:          JSR   PSTRNG
+00:EB99 C66A            	  1144:          LDAB  #$6A
+00:EB9B BDEFB7          	  1145:          JSR   MANDAM
+00:EB9E CEF535          	  1146:          LDX   #STILFT
+00:EBA1 BDE40C          	  1147:          JSR   PSTRNG
+00:EBA4 BDE5E0          	  1148:          JSR   OUTKLN
+00:EBA7 7EEAB4          	  1149:          JMP   STCRSB
+                        	  1150: *
+                        	  1151: * PRINT GALAXY LIMIT MESSAGE
+                        	  1152: *
+00:EBAA CEF2A9          	  1153: GALBND   LDX   #GLBNDS
+00:EBAD BDE40C          	  1154:          JSR   PSTRNG
+00:EBB0 9660            	  1155:          LDAA  GALCNT
+00:EBB2 4C              	  1156:          INCA
+00:EBB3 8103            	  1157:          CMPA  #3
+00:EBB5 260A            	  1158:          BNE   GALBN2
+00:EBB7 CEF6BA          	  1159:          LDX   #GALDUM
+00:EBBA BDE40C          	  1160:          JSR   PSTRNG
+00:EBBD 7C006C          	  1161:          INC   GAMEND
+00:EBC0 39              	  1162:          RTS
+                        	  1163: *
+00:EBC1 9760            	  1164: GALBN2   STAA  GALCNT
+00:EBC3 7D0025          	  1165:          TST   GLMFLG
+00:EBC6 2603            	  1166:          BNE   ABC20
+00:EBC8 7EEB2A          	  1167:          JMP   STCRS6
+                        	  1168: *
+00:EBCB 7EEB27          	  1169: ABC20    JMP   STCRSA
+                        	  1170: *
+                        	  1171: * TORPEDO HAS HIT SOMETHING
+                        	  1172: *
+00:EBCE CEF300          	  1173: PHTOR3   LDX   #PHITST
+00:EBD1 BDE40C          	  1174:          JSR   PSTRNG
+00:EBD4 964D            	  1175:          LDAA  FLAG
+00:EBD6 8102            	  1176:          CMPA  #2          ; KLINGON?
+00:EBD8 261A            	  1177:          BNE   ABC8
+00:EBDA 7A0026          	  1178:          DEC   SECKLN
+00:EBDD 7A0054          	  1179:          DEC   KLNGCT
+00:EBE0 7C005B          	  1180:          INC   HITKLS
+00:EBE3 CEF4F7          	  1181:          LDX   #KLGSTR
+00:EBE6 BDE3FB          	  1182:          JSR   PDATA3
+00:EBE9 CEF535          	  1183:          LDX   #STILFT
+00:EBEC BDE40C          	  1184:          JSR   PSTRNG
+00:EBEF BDE5E0          	  1185:          JSR   OUTKLN
+00:EBF2 200D            	  1186:          BRA   ABC10
+                        	  1187: *
+00:EBF4 8101            	  1188: ABC8     CMPA  #1          ; STAR?
+00:EBF6 260A            	  1189:          BNE   ABC11
+00:EBF8 7C005C          	  1190:          INC   HITSTR
+00:EBFB CEF4B0          	  1191:          LDX   #STARST
+00:EBFE BDE3FB          	  1192: ABC9     JSR   PDATA3
+00:EC01 39              	  1193: ABC10    RTS
+                        	  1194: *
+00:EC02 CEF4C9          	  1195: ABC11    LDX   #BASEST     ; HIT BASE!
+00:EC05 7C005D          	  1196:          INC   HITBAS
+00:EC08 20F4            	  1197:          BRA   ABC9
+                        	  1198: *
+                        	  1199: * SEE IF GALAXY EDGE REACHED
+                        	  1200: *
+00:EC0A 7F002E          	  1201: TSTBND   CLR   FINCX
+00:EC0D 7F002F          	  1202:          CLR   FINCY
+00:EC10 4D              	  1203:          TSTA
+00:EC11 2A05            	  1204:          BPL   TSTBN1
+00:EC13 7A002E          	  1205:          DEC   FINCX
+00:EC16 2007            	  1206:          BRA   TSTBN2
+                        	  1207: *
+00:EC18 8107            	  1208: TSTBN1   CMPA  #7
+00:EC1A 2303            	  1209:          BLS   TSTBN2
+00:EC1C 7C002E          	  1210:          INC   FINCX
+00:EC1F 5D              	  1211: TSTBN2   TSTB
+00:EC20 2A04            	  1212:          BPL   TSTBN3
+00:EC22 7A002F          	  1213:          DEC   FINCY
+00:EC25 39              	  1214:          RTS
+                        	  1215: *
+00:EC26 C107            	  1216: TSTBN3   CMPB  #7
+00:EC28 2303            	  1217:          BLS   TSTBN4
+00:EC2A 7C002F          	  1218:          INC   FINCY
+00:EC2D 39              	  1219: TSTBN4   RTS
+                        	  1220: *
+                        	  1221: * INPUT CHARACTER AND CHECK
+                        	  1222: *
+00:EC2E 4F              	  1223: INCHCK   CLRA
+00:EC2F 972B            	  1224: INCHK0   STAA  PNTFLG
+00:EC31 BDE078          	  1225:          JSR   INCH
+00:EC34 812E            	  1226:          CMPA  #'.'
+00:EC36 27F7            	  1227:          BEQ   INCHK0
+00:EC38 8139            	  1228:          CMPA  #'9'
+00:EC3A 2207            	  1229:          BHI   INCHK1
+00:EC3C 812F            	  1230:          CMPA  #'0'-1
+00:EC3E 2303            	  1231:          BLS   INCHK1
+00:EC40 8030            	  1232:          SUBA  #$30
+00:EC42 39              	  1233:          RTS
+                        	  1234: *
+00:EC43 CEF49F          	  1235: INCHK1   LDX   #ERR
+00:EC46 BDE3FB          	  1236:          JSR   PDATA3
+00:EC49 20E3            	  1237:          BRA   INCHCK
+                        	  1238: *
+                        	  1239: * ADD TO GAME TIME
+                        	  1240: *
+00:EC4B 9B28            	  1241: FIXTIM   ADDA  TIMDEC
+00:EC4D 8109            	  1242:          CMPA  #9
+00:EC4F 231F            	  1243:          BLS   FIXTM1
+00:EC51 800A            	  1244:          SUBA  #10
+00:EC53 9728            	  1245:          STAA  TIMDEC
+00:EC55 7F0031          	  1246:          CLR   TEMP1
+00:EC58 8601            	  1247:          LDAA  #1
+00:EC5A 9732            	  1248:          STAA  TEMP1+1
+00:EC5C DF35            	  1249:          STX   XTEMP1
+00:EC5E CE0037          	  1250:          LDX   #TIME0
+00:EC61 BDEC83          	  1251:          JSR   BCDADD
+00:EC64 CE003A          	  1252:          LDX   #TIMUSE
+00:EC67 BDEC83          	  1253:          JSR   BCDADD
+00:EC6A BDEF70          	  1254:          JSR   FIXDAM
+00:EC6D DE35            	  1255:          LDX   XTEMP1
+00:EC6F 39              	  1256:          RTS
+                        	  1257: *
+00:EC70 9728            	  1258: FIXTM1   STAA  TIMDEC
+00:EC72 39              	  1259:          RTS
+                        	  1260: *
+                        	  1261: *SUBTRACT FROM ENERGY AMOUNT
+                        	  1262: *
+00:EC73 DF35            	  1263: FIXENG   STX   XTEMP1
+00:EC75 CE0058          	  1264:          LDX   #ENERGY
+00:EC78 7F0031          	  1265:          CLR   TEMP1
+00:EC7B 9732            	  1266:          STAA  TEMP1+1
+00:EC7D BDEC86          	  1267:          JSR   BCDSUB
+00:EC80 DE35            	  1268:          LDX   XTEMP1
+00:EC82 39              	  1269:          RTS
+                        	  1270: *
+                        	  1271: * BCD ADDITION
+                        	  1272: *
+00:EC83 0C              	  1273: BCDADD   CLC
+00:EC84 200D            	  1274:          BRA   BCDFIX
+                        	  1275: *
+                        	  1276: * BCD SUBTRACTION
+                        	  1277: *
+00:EC86 8699            	  1278: BCDSUB   LDAA  #$99
+00:EC88 9031            	  1279:          SUBA  TEMP1
+00:EC8A 9731            	  1280:          STAA  TEMP1
+00:EC8C 8699            	  1281:          LDAA  #$99
+00:EC8E 9032            	  1282:          SUBA  TEMP1+1
+00:EC90 9732            	  1283:          STAA  TEMP1+1
+00:EC92 0D              	  1284:          SEC
+                        	  1285: *
+00:EC93 A601            	  1286: BCDFIX   LDAA  1,X
+00:EC95 9932            	  1287:          ADCA  TEMP1+1
+00:EC97 19              	  1288:          DAA
+00:EC98 A701            	  1289:          STAA  1,X
+00:EC9A A600            	  1290:          LDAA  0,X
+00:EC9C 9931            	  1291:          ADCA  TEMP1
+00:EC9E 19              	  1292:          DAA
+00:EC9F A700            	  1293:          STAA  0,X
+00:ECA1 39              	  1294:          RTS
+                        	  1295: *
+                        	  1296: * LONG RANGE SCAN
+                        	  1297: *
+00:ECA2 7D0063          	  1298: LRSCAN   TST   DAMLRS
+00:ECA5 2704            	  1299:          BEQ   LRSNDM
+00:ECA7 BDEFE4          	  1300:          JSR   RPTDAM
+00:ECAA 39              	  1301:          RTS
+                        	  1302: *
+00:ECAB 7F0042          	  1303: LRSNDM   CLR   TOPFLG
+00:ECAE 7F0043          	  1304:          CLR   BOTFLG
+00:ECB1 7F0044          	  1305:          CLR   LSDFLG
+00:ECB4 7F0045          	  1306:          CLR   RSDFLG
+00:ECB7 CEF3B5          	  1307:          LDX   #LRSCST
+00:ECBA BDE40C          	  1308:          JSR   PSTRNG
+00:ECBD BDE607          	  1309:          JSR   OUTQUD
+00:ECC0 BDE402          	  1310:          JSR   PCRLF
+00:ECC3 9647            	  1311:          LDAA  CURQUX
+00:ECC5 2603            	  1312:          BNE   LRSCNT
+00:ECC7 7C0044          	  1313:          INC   LSDFLG
+00:ECCA 8107            	  1314: LRSCNT   CMPA  #7
+00:ECCC 2603            	  1315:          BNE   LRSCN2
+00:ECCE 7C0045          	  1316:          INC   RSDFLG
+00:ECD1 9648            	  1317: LRSCN2   LDAA  CURQUY
+00:ECD3 2603            	  1318:          BNE   LRSCN3
+00:ECD5 7C0042          	  1319:          INC   TOPFLG
+00:ECD8 8107            	  1320: LRSCN3   CMPA  #7
+00:ECDA 2603            	  1321:          BNE   LRSCN4
+00:ECDC 7C0043          	  1322:          INC   BOTFLG
+00:ECDF DE73            	  1323: LRSCN4   LDX   QUDPTR
+00:ECE1 86F7            	  1324: LRSCNC   LDAA  #$F7
+00:ECE3 BDE623          	  1325:          JSR   FIXXRG
+00:ECE6 7D0042          	  1326:          TST   TOPFLG
+00:ECE9 2704            	  1327:          BEQ   LRSCN7
+00:ECEB 8D68            	  1328:          BSR   OUTTH0
+00:ECED 2002            	  1329:          BRA   LRSCN8
+                        	  1330: *
+00:ECEF 8D18            	  1331: LRSCN7   BSR   OUTLIN
+00:ECF1 8605            	  1332: LRSCN8   LDAA  #5
+00:ECF3 BDE623          	  1333:          JSR   FIXXRG
+00:ECF6 8D11            	  1334:          BSR   OUTLIN
+00:ECF8 8605            	  1335:          LDAA  #5
+00:ECFA BDE623          	  1336:          JSR   FIXXRG
+00:ECFD 7D0043          	  1337:          TST   BOTFLG
+00:ED00 2704            	  1338:          BEQ   LRSCN9
+00:ED02 8D51            	  1339:          BSR   OUTTH0
+00:ED04 2002            	  1340:          BRA   LRSC10
+                        	  1341: *
+00:ED06 8D01            	  1342: LRSCN9   BSR   OUTLIN
+00:ED08 39              	  1343: LRSC10   RTS
+                        	  1344: *
+                        	  1345: * OUTPUT 1 LINE OF LONG RANGE SCAN
+                        	  1346: *
+00:ED09 A600            	  1347: OUTLIN   LDAA  0,X
+00:ED0B 7D0044          	  1348:          TST   LSDFLG
+00:ED0E 2703            	  1349:          BEQ   OUTLN1
+00:ED10 4F              	  1350:          CLRA
+00:ED11 2002            	  1351:          BRA   OUTLN2
+00:ED13 8D1A            	  1352: OUTLN1   BSR   UPDCMP
+00:ED15 8D1B            	  1353: OUTLN2   BSR   OUTQIN
+00:ED17 A600            	  1354:          LDAA  0,X
+00:ED19 8D14            	  1355:          BSR   UPDCMP
+00:ED1B 8D15            	  1356:          BSR   OUTQIN
+00:ED1D A600            	  1357:          LDAA  0,X
+00:ED1F 7D0045          	  1358:          TST   RSDFLG
+00:ED22 2703            	  1359:          BEQ   OUTLN3
+00:ED24 4F              	  1360:          CLRA
+00:ED25 2002            	  1361:          BRA   OUTLN4
+00:ED27 8D06            	  1362: OUTLN3   BSR   UPDCMP
+00:ED29 8D07            	  1363: OUTLN4   BSR   OUTQIN
+00:ED2B BDE402          	  1364:          JSR   PCRLF
+00:ED2E 39              	  1365:          RTS
+                        	  1366: *
+                        	  1367: * UPDATE COMPUTER HISTORY MAP
+                        	  1368: *
+00:ED2F A740            	  1369: UPDCMP   STAA  64,X
+00:ED31 39              	  1370:          RTS
+                        	  1371: *
+                        	  1372: * OUTPUT QUADRANT INFORMATION
+                        	  1373: *
+00:ED32 16              	  1374: OUTQIN   TAB
+00:ED33 8480            	  1375:          ANDA  #$80
+00:ED35 0C              	  1376:          CLC
+00:ED36 49              	  1377:          ROLA
+00:ED37 49              	  1378:          ROLA
+00:ED38 BDE419          	  1379:          JSR   OUTHRST
+00:ED3B 17              	  1380:          TBA
+00:ED3C 8440            	  1381:          ANDA  #$40
+00:ED3E 44              	  1382:          LSRA
+00:ED3F 44              	  1383:          LSRA
+00:ED40 BDE410          	  1384:          JSR   OUTHLST
+00:ED43 17              	  1385:          TBA
+00:ED44 8438            	  1386:          ANDA  #$38     ; STARS
+00:ED46 48              	  1387:          ASLA
+00:ED47 BDE410          	  1388:          JSR   OUTHLST
+00:ED4A 17              	  1389:          TBA
+00:ED4B 8407            	  1390:          ANDA  #$07     ; KLINGONS
+00:ED4D BDE419          	  1391:          JSR   OUTHRST
+00:ED50 08              	  1392:          INX
+00:ED51 BDE429          	  1393:          JSR   OUTSST
+00:ED54 39              	  1394:          RTS
+                        	  1395: *
+                        	  1396: * OUTPUT A LINE OF ZEROS
+                        	  1397: *
+00:ED55 8603            	  1398: OUTTH0   LDAA  #3
+00:ED57 9730            	  1399:          STAA  COUNT
+00:ED59 4F              	  1400: OUTTH1   CLRA
+00:ED5A 8DD6            	  1401:          BSR   OUTQIN
+00:ED5C 7A0030          	  1402:          DEC   COUNT
+00:ED5F 26F8            	  1403:          BNE   OUTTH1
+00:ED61 BDE402          	  1404:          JSR   PCRLF
+00:ED64 39              	  1405:          RTS
+                        	  1406: *
+                        	  1407: * FIRE PHASORS
+                        	  1408: *
+00:ED65 7D0064          	  1409: PHASOR   TST   DAMPHS
+00:ED68 2704            	  1410:          BEQ   PHSNDM
+00:ED6A BDEFE4          	  1411:          JSR   RPTDAM
+00:ED6D 39              	  1412:          RTS
+                        	  1413: *
+00:ED6E 7D0057          	  1414: PHSNDM   TST   SHIELD
+00:ED71 2705            	  1415:          BEQ   PHASR1
+00:ED73 CEF3C8          	  1416:          LDX   #MLSHLD
+00:ED76 2027            	  1417:          BRA   TOOMC1
+                        	  1418: *
+00:ED78 CEF3E6          	  1419: PHASR1   LDX   #ENAVLB        ; REPORT ENERGY
+00:ED7B BDE40C          	  1420:          JSR   PSTRNG
+00:ED7E DE58            	  1421:          LDX   ENERGY
+00:ED80 DF31            	  1422:          STX   TEMP1
+00:ED82 BDE6FC          	  1423:          JSR   OUTBCD
+00:ED85 CEF400          	  1424:          LDX   #FIRENG
+00:ED88 BDE40C          	  1425:          JSR   PSTRNG
+00:ED8B BDEE20          	  1426:          JSR   INBCD
+00:ED8E 9640            	  1427:          LDAA  PHSENG
+00:ED90 9158            	  1428:          CMPA  ENERGY
+00:ED92 2208            	  1429:          BHI   TOOMCH
+00:ED94 260D            	  1430:          BNE   PHASR2
+00:ED96 9641            	  1431:          LDAA  PHSENG+1
+00:ED98 9159            	  1432:          CMPA  ENERGY+1
+00:ED9A 2307            	  1433:          BLS   PHASR2
+00:ED9C CEF41E          	  1434: TOOMCH   LDX   #TOMUCH
+00:ED9F BDE40C          	  1435: TOOMC1   JSR   PSTRNG
+00:EDA2 39              	  1436:          RTS
+                        	  1437: *
+00:EDA3 BDE42E          	  1438: PHASR2   JSR   RANDOM
+00:EDA6 81F4            	  1439:          CMPA  #$F4
+00:EDA8 2308            	  1440:          BLS   PHASR3
+00:EDAA CEF43C          	  1441:          LDX   #PHAMIS
+00:EDAD BDE40C          	  1442:          JSR   PSTRNG
+00:EDB0 2063            	  1443:          BRA   PHASR6
+                        	  1444: *
+00:EDB2 9640            	  1445: PHASR3   LDAA  PHSENG
+00:EDB4 913E            	  1446:          CMPA  KLNENG
+00:EDB6 2208            	  1447:          BHI   PHASR4
+00:EDB8 264A            	  1448:          BNE   PHASR5
+00:EDBA 9641            	  1449:          LDAA  PHSENG+1
+00:EDBC 913F            	  1450:          CMPA  KLNENG+1
+00:EDBE 2344            	  1451:          BLS   PHASR5
+00:EDC0 7F003E          	  1452: PHASR4   CLR   KLNENG
+00:EDC3 7F003F          	  1453:          CLR   KLNENG+1
+00:EDC6 CEF453          	  1454:          LDX   #ALKILL
+00:EDC9 BDE40C          	  1455:          JSR   PSTRNG
+00:EDCC CEF535          	  1456:          LDX   #STILFT
+00:EDCF BDE40C          	  1457:          JSR   PSTRNG
+00:EDD2 D626            	  1458:          LDAB  SECKLN
+00:EDD4 D75B            	  1459:          STAB  HITKLS
+00:EDD6 9654            	  1460:          LDAA  KLNGCT
+00:EDD8 10              	  1461:          SBA
+00:EDD9 9754            	  1462:          STAA  KLNGCT
+00:EDDB BDE5E0          	  1463:          JSR   OUTKLN
+00:EDDE 7F0026          	  1464:          CLR   SECKLN
+00:EDE1 CE00FC          	  1465: KILALK   LDX   #SECMAP
+00:EDE4 8610            	  1466:          LDAA  #16
+00:EDE6 9730            	  1467:          STAA  COUNT
+00:EDE8 C604            	  1468: KILAL1   LDAB  #4
+00:EDEA A600            	  1469:          LDAA  0,X
+00:EDEC 46              	  1470: KILAL2   RORA
+00:EDED 2512            	  1471:          BCS   KILAL4
+00:EDEF 46              	  1472:          RORA
+00:EDF0 2401            	  1473:          BCC   KILAL3
+00:EDF2 0C              	  1474:          CLC
+00:EDF3 5A              	  1475: KILAL3   DECB
+00:EDF4 26F6            	  1476:          BNE   KILAL2
+00:EDF6 46              	  1477:          RORA
+00:EDF7 A700            	  1478:          STAA  0,X
+00:EDF9 08              	  1479:          INX
+00:EDFA 7A0030          	  1480:          DEC   COUNT
+00:EDFD 26E9            	  1481:          BNE   KILAL1
+00:EDFF 2014            	  1482:          BRA   PHASR6
+                        	  1483: *
+00:EE01 46              	  1484: KILAL4   RORA
+00:EE02 20EF            	  1485:          BRA   KILAL3
+                        	  1486: *
+00:EE04 CE0040          	  1487: PHASR5   LDX   #PHSENG
+00:EE07 DF31            	  1488:          STX   TEMP1
+00:EE09 CE003E          	  1489:          LDX   #KLNENG
+00:EE0C BDEC86          	  1490:          JSR   BCDSUB
+00:EE0F CEF484          	  1491:          LDX   #KHTADM
+00:EE12 BDE40C          	  1492:          JSR   PSTRNG
+00:EE15 DE40            	  1493: PHASR6   LDX   PHSENG
+00:EE17 DF31            	  1494:          STX   TEMP1
+00:EE19 CE0058          	  1495:          LDX   #ENERGY
+00:EE1C BDEC86          	  1496:          JSR   BCDSUB
+00:EE1F 39              	  1497:          RTS
+                        	  1498: *
+                        	  1499: * INPUT A BCD NUMBER
+                        	  1500: *
+00:EE20 7F0040          	  1501: INBCD    CLR   PHSENG
+00:EE23 7F0041          	  1502:          CLR   PHSENG+1
+00:EE26 BDE078          	  1503: INBCD1   JSR   INCH
+00:EE29 8130            	  1504:          CMPA  #'0'
+00:EE2B 2520            	  1505:          BLO   EXIT
+00:EE2D 8D1F            	  1506:          BSR   CHECK
+00:EE2F 7D0027          	  1507:          TST   FLAGC
+00:EE32 2611            	  1508:          BNE   INEROR
+00:EE34 C604            	  1509:          LDAB  #4
+00:EE36 780041          	  1510: INBCD2   ASL   PHSENG+1
+00:EE39 790040          	  1511:          ROL   PHSENG
+00:EE3C 5A              	  1512:          DECB
+00:EE3D 26F7            	  1513:          BNE   INBCD2
+00:EE3F 9B41            	  1514:          ADDA  PHSENG+1
+00:EE41 9741            	  1515:          STAA  PHSENG+1
+00:EE43 20E1            	  1516:          BRA   INBCD1
+                        	  1517: *
+00:EE45 CEF49F          	  1518: INEROR   LDX   #ERR
+00:EE48 BDE3FB          	  1519:          JSR   PDATA3
+00:EE4B 20D9            	  1520:          BRA   INBCD1
+                        	  1521: *
+00:EE4D 39              	  1522: EXIT     RTS
+                        	  1523: *
+00:EE4E 7F0027          	  1524: CHECK    CLR   FLAGC
+00:EE51 8139            	  1525:          CMPA  #'9'
+00:EE53 2203            	  1526:          BHI   SETFLG
+00:EE55 840F            	  1527:          ANDA  #$0F
+00:EE57 39              	  1528:          RTS
+                        	  1529: *
+00:EE58 7C0027          	  1530: SETFLG   INC   FLAGC
+00:EE5B 39              	  1531:          RTS
+                        	  1532: *
+                        	  1533: * SELF DESTRUCT ROUTINE
+                        	  1534: *
+00:EE5C CEF5D5          	  1535: SELFDE   LDX   #ABORT1
+00:EE5F BDE40C          	  1536:          JSR   PSTRNG
+00:EE62 CE0075          	  1537:          LDX   #PASWRD
+00:EE65 C603            	  1538:          LDAB  #3
+00:EE67 BDE078          	  1539: SELFD1   JSR   INCH
+00:EE6A A100            	  1540:          CMPA  0,X
+00:EE6C 260E            	  1541:          BNE   SELFD2
+00:EE6E 08              	  1542:          INX
+00:EE6F 5A              	  1543:          DECB
+00:EE70 26F5            	  1544:          BNE   SELFD1
+00:EE72 CEF5A5          	  1545: SELFDA   LDX   #DISINT
+00:EE75 BDE40C          	  1546:          JSR   PSTRNG
+00:EE78 7C006C          	  1547:          INC   GAMEND
+00:EE7B 39              	  1548:          RTS
+                        	  1549: *
+00:EE7C CEF607          	  1550: SELFD2   LDX   #ABORT2
+00:EE7F BDE40C          	  1551:          JSR   PSTRNG
+00:EE82 39              	  1552:          RTS
+                        	  1553: *
+                        	  1554: * TELEPORT ROUTINE
+                        	  1555: *
+00:EE83 8612            	  1556: TELEPT   LDAA  #$12
+00:EE85 913B            	  1557:          CMPA  TIMUSE+1
+00:EE87 2221            	  1558:          BHI   TELEP2
+00:EE89 7D0070          	  1559:          TST   TELFLG
+00:EE8C 2623            	  1560:          BNE   TELEP4
+00:EE8E BDE42E          	  1561:          JSR   RANDOM
+00:EE91 81B0            	  1562:          CMPA  #$B0        ; POSS DAMAGED
+00:EE93 2303            	  1563:          BLS   TELEP1
+00:EE95 7C0070          	  1564:          INC   TELFLG
+00:EE98 BDE42E          	  1565: TELEP1   JSR   RANDOM      ; MALFUNCTION?
+00:EE9B 8180            	  1566:          CMPA  #$80
+00:EE9D 2217            	  1567:          BHI   TELEP5
+00:EE9F 9621            	  1568:          LDAA  BASEX
+00:EEA1 9747            	  1569:          STAA  CURQUX
+00:EEA3 9622            	  1570:          LDAA  BASEY
+00:EEA5 9748            	  1571:          STAA  CURQUY
+00:EEA7 7EEB27          	  1572: TELEPA   JMP   STCRSA
+                        	  1573: *
+00:EEAA CEF631          	  1574: TELEP2   LDX   #CANTUS
+00:EEAD BDE40C          	  1575: TELEP3   JSR   PSTRNG
+00:EEB0 39              	  1576:          RTS
+                        	  1577: *
+00:EEB1 CEF935          	  1578: TELEP4   LDX   #DMGDST
+00:EEB4 20F7            	  1579:          BRA   TELEP3
+                        	  1580: *
+00:EEB6 BDE42E          	  1581: TELEP5   JSR   RANDOM
+00:EEB9 8407            	  1582:          ANDA  #7
+00:EEBB 9747            	  1583:          STAA  CURQUX
+00:EEBD BDE42E          	  1584:          JSR   RANDOM
+00:EEC0 8407            	  1585:          ANDA  #7
+00:EEC2 9748            	  1586:          STAA  CURQUY
+00:EEC4 CEF664          	  1587:          LDX   #SOMWHR
+00:EEC7 BDE40C          	  1588:          JSR   PSTRNG
+00:EECA 20DB            	  1589:          BRA   TELEPA
+                        	  1590: *
+                        	  1591: * KLINGON ATTACK ROUTINE
+                        	  1592: *
+00:EECC 7D0026          	  1593: ATTACK   TST   SECKLN         ; ANY Ks?
+00:EECF 2601            	  1594:          BNE   ATTAC1
+00:EED1 39              	  1595:          RTS
+                        	  1596: *
+00:EED2 BDE42E          	  1597: ATTAC1   JSR   RANDOM         ; MAY NOT ATTACK
+00:EED5 81B0            	  1598:          CMPA  #$B0
+00:EED7 222D            	  1599:          BHI   ATTAC2
+00:EED9 CE0071          	  1600:          LDX   #ATKENG
+00:EEDC D626            	  1601:          LDAB  SECKLN
+00:EEDE 58              	  1602:          ASLB
+00:EEDF BDE915          	  1603:          JSR   CSCEXT
+00:EEE2 DE71            	  1604:          LDX   ATKENG
+00:EEE4 DF31            	  1605:          STX   TEMP1
+00:EEE6 7D0057          	  1606:          TST   SHIELD
+00:EEE9 261C            	  1607:          BNE   ATTAC3
+00:EEEB CE0058          	  1608:          LDX   #ENERGY
+00:EEEE BDEC86          	  1609:          JSR   BCDSUB
+00:EEF1 BDE402          	  1610:          JSR   PCRLF
+00:EEF4 DE71            	  1611:          LDX   ATKENG
+00:EEF6 DF31            	  1612:          STX   TEMP1
+00:EEF8 BDE6FC          	  1613:          JSR   OUTBCD
+00:EEFB CEF554          	  1614:          LDX   #KATKDN
+00:EEFE BDE3FB          	  1615:          JSR   PDATA3
+00:EF01 C6FA            	  1616:          LDAB  #$FA
+00:EF03 BDEFB7          	  1617:          JSR   MANDAM
+00:EF06 39              	  1618: ATTAC2   RTS
+                        	  1619: *
+00:EF07 CE003C          	  1620: ATTAC3   LDX   #SHENGY
+00:EF0A BDEC86          	  1621:          JSR   BCDSUB
+00:EF0D CEF570          	  1622:          LDX   #KATKUP
+00:EF10 BDE40C          	  1623:          JSR   PSTRNG
+00:EF13 39              	  1624:          RTS
+                        	  1625: *
+                        	  1626: * END OF GAME CLEANUP ROUTINE
+                        	  1627: *
+00:EF14 CEF727          	  1628: NRGOUT   LDX   #NMENGS
+00:EF17 BDE40C          	  1629: NRGOU1   JSR   PSTRNG
+00:EF1A 200D            	  1630:          BRA   ENDGAM
+                        	  1631: *
+00:EF1C CEF761          	  1632: NOMTIM   LDX   #NMTMST
+00:EF1F 20F6            	  1633:          BRA   NRGOU1
+                        	  1634: *
+00:EF21 CEF792          	  1635: NOMKLN   LDX   #NMKLST
+00:EF24 BDE40C          	  1636:          JSR   PSTRNG
+00:EF27 2008            	  1637:          BRA   ENDGM2
+                        	  1638: *
+00:EF29 CEF7CF          	  1639: ENDGAM   LDX   #FAILST
+00:EF2C BDE40C          	  1640:          JSR   PSTRNG
+00:EF2F 2006            	  1641:          BRA   ENDGM3
+                        	  1642: *
+00:EF31 CEF80A          	  1643: ENDGM2   LDX   #SUCCST
+00:EF34 BDE40C          	  1644:          JSR   PSTRNG
+00:EF37 CEF9E6          	  1645: ENDGM3   LDX   #PLAYAG
+00:EF3A BDE40C          	  1646:          JSR   PSTRNG
+00:EF3D BDE078          	  1647:          JSR   INCH
+00:EF40 8159            	  1648:          CMPA  #'Y'
+00:EF42 2703            	  1649:          BEQ   ENDGM4
+00:EF44 7EE145          	  1650:          JMP   CONTRL
+                        	  1651: *
+00:EF47 7EE456          	  1652: ENDGM4   JMP   STRTRK
+                        	  1653: *
+                        	  1654: * CLEAR OUT CURRENT QUADRANT
+                        	  1655: *
+00:EF4A DE73            	  1656: CLRCQU   LDX   QUDPTR
+00:EF4C A600            	  1657:          LDAA  0,X
+00:EF4E 905B            	  1658:          SUBA  HITKLS      ; CLEAR Ks
+00:EF50 D65C            	  1659:          LDAB  HITSTR      ; CLEAR Ss
+00:EF52 58              	  1660:          ASLB
+00:EF53 58              	  1661:          ASLB
+00:EF54 58              	  1662:          ASLB
+00:EF55 10              	  1663:          SBA
+00:EF56 7D005D          	  1664:          TST   HITBAS      ; CLEAR B?
+00:EF59 270B            	  1665:          BEQ   CLRCQ2
+00:EF5B 84BF            	  1666:          ANDA  #$BF
+00:EF5D C60A            	  1667:          LDAB  #$A
+00:EF5F D721            	  1668:          STAB  BASEX
+00:EF61 D722            	  1669:          STAB  BASEY
+00:EF63 7F004E          	  1670:          CLR   CNDFLG
+00:EF66 A700            	  1671: CLRCQ2   STAA  0,X
+00:EF68 4F              	  1672:          CLRA
+00:EF69 975B            	  1673:          STAA  HITKLS
+00:EF6B 975C            	  1674:          STAA  HITSTR
+00:EF6D 975D            	  1675:          STAA  HITBAS
+00:EF6F 39              	  1676:          RTS
+                        	  1677: *
+                        	  1678: * FIX DAMAGE ROUTINE
+                        	  1679: *
+00:EF70 CE0061          	  1680: FIXDAM   LDX   #DAMENG
+00:EF73 6D00            	  1681: FIXDM1   TST   0,X
+00:EF75 2702            	  1682:          BEQ   FIXDM2
+00:EF77 6A00            	  1683:          DEC   0,X
+00:EF79 08              	  1684: FIXDM2   INX
+00:EF7A 8C006A          	  1685:          CPX   #DAMENG+9
+00:EF7D 26F4            	  1686:          BNE   FIXDM1
+00:EF7F 39              	  1687:          RTS
+                        	  1688: *
+                        	  1689: * SUPERNOVA GENERATOR
+                        	  1690: *
+00:EF80 BDE42E          	  1691: SUPNOV   JSR   RANDOM
+00:EF83 8407            	  1692:          ANDA  #7
+00:EF85 16              	  1693:          TAB
+00:EF86 BDE42E          	  1694:          JSR   RANDOM
+00:EF89 8407            	  1695:          ANDA  #7
+00:EF8B D75A            	  1696:          STAB  TSAVE1
+00:EF8D CE007C          	  1697:          LDX   #QUDMAP
+00:EF90 7C0020          	  1698:          INC   STPSFL
+00:EF93 BDE894          	  1699:          JSR   STPSEX
+00:EF96 E600            	  1700:          LDAB  0,X
+00:EF98 C407            	  1701:          ANDB  #7          ; CLEAR Ks
+00:EF9A 9654            	  1702:          LDAA  KLNGCT
+00:EF9C 10              	  1703:          SBA
+00:EF9D 9754            	  1704:          STAA  KLNGCT
+00:EF9F 8680            	  1705:          LDAA  #$80
+00:EFA1 A700            	  1706:          STAA  0,X
+00:EFA3 CEF8FD          	  1707:          LDX   #SUPSTR
+00:EFA6 BDE40C          	  1708:          JSR   PSTRNG
+00:EFA9 965A            	  1709:          LDAA  TSAVE1
+00:EFAB BDE5C8          	  1710:          JSR   FIXOUT
+00:EFAE BDE61D          	  1711:          JSR   OUTDSH
+00:EFB1 9656            	  1712:          LDAA  ASAVE
+00:EFB3 BDE5C8          	  1713:          JSR   FIXOUT
+00:EFB6 39              	  1714:          RTS
+                        	  1715: *
+                        	  1716: * GENERATE MAIN DAMAGE
+                        	  1717: *
+00:EFB7 CE0061          	  1718: MANDAM   LDX   #DAMENG
+00:EFBA BDE42E          	  1719: MANDM1   JSR   RANDOM
+00:EFBD 11              	  1720:          CBA
+00:EFBE 230A            	  1721:          BLS   MANDM2
+00:EFC0 BDE42E          	  1722:          JSR   RANDOM
+00:EFC3 8403            	  1723:          ANDA  #3
+00:EFC5 0D              	  1724:          SEC
+00:EFC6 A900            	  1725:          ADCA  0,X
+00:EFC8 A700            	  1726:          STAA  0,X
+00:EFCA 08              	  1727: MANDM2   INX
+00:EFCB 8C006A          	  1728:          CPX   #DAMENG+9
+00:EFCE 26EA            	  1729:          BNE   MANDM1
+00:EFD0 7D0066          	  1730:          TST   DAMSHL
+00:EFD3 2703            	  1731:          BEQ   MANDM3
+00:EFD5 7F0057          	  1732:          CLR   SHIELD
+00:EFD8 7D0069          	  1733: MANDM3   TST   DAMCOM
+00:EFDB 2706            	  1734:          BEQ   MANDM4
+00:EFDD 7F006D          	  1735:          CLR   AUTOSR
+00:EFE0 7F006E          	  1736:          CLR   AUTOLR
+00:EFE3 39              	  1737: MANDM4   RTS
+                        	  1738: *
+                        	  1739: * REPORT DAMAGE HAS OCCURED
+                        	  1740: *
+00:EFE4 CEF935          	  1741: RPTDAM   LDX   #DMGDST
+00:EFE7 BDE40C          	  1742:          JSR   PSTRNG
+00:EFEA 39              	  1743: RPTDM8   RTS
+                        	  1744: *
+                        	  1745: * GENERATE A DAMAGE REPORT
+                        	  1746: *
+00:EFEB CEF970          	  1747: DAMRPT   LDX   #DMRPST
+00:EFEE BDE40C          	  1748:          JSR   PSTRNG
+00:EFF1 CEF983          	  1749:          LDX   #DEVSTR
+00:EFF4 DF33            	  1750:          STX   TEMP2
+00:EFF6 CE0061          	  1751:          LDX   #DAMENG
+00:EFF9 6D00            	  1752: DMRPT2   TST   0,X
+00:EFFB 2615            	  1753:          BNE   DMRPT3
+00:EFFD DF5E            	  1754: BMPX4    STX   TEMP3
+00:EFFF DE33            	  1755:          LDX   TEMP2
+00:F001 08              	  1756:          INX
+00:F002 08              	  1757:          INX
+00:F003 08              	  1758:          INX
+00:F004 08              	  1759:          INX
+00:F005 08              	  1760:          INX
+00:F006 08              	  1761:          INX
+00:F007 08              	  1762:          INX
+00:F008 08              	  1763:          INX
+00:F009 08              	  1764:          INX
+00:F00A 08              	  1765:          INX
+00:F00B 08              	  1766:          INX
+00:F00C DF33            	  1767:          STX   TEMP2
+00:F00E DE5E            	  1768:          LDX   TEMP3
+00:F010 2019            	  1769:          BRA   DMRPT4
+                        	  1770: *
+00:F012 DF5E            	  1771: DMRPT3   STX   TEMP3
+00:F014 DE33            	  1772:          LDX   TEMP2
+00:F016 BDE40C          	  1773:          JSR   PSTRNG
+00:F019 08              	  1774:          INX
+00:F01A DF33            	  1775:          STX   TEMP2
+00:F01C DE5E            	  1776:          LDX   TEMP3
+00:F01E C603            	  1777:          LDAB  #3
+00:F020 BDE429          	  1778: OUTS4    JSR   OUTSST
+00:F023 5A              	  1779:          DECB
+00:F024 26FA            	  1780:          BNE   OUTS4
+00:F026 A600            	  1781:          LDAA  0,X
+00:F028 BDE5E2          	  1782:          JSR   OUTK0
+00:F02B 08              	  1783: DMRPT4   INX
+00:F02C 8C006A          	  1784:          CPX   #DAMENG+9
+00:F02F 26C8            	  1785:          BNE   DMRPT2
+00:F031 20B7            	  1786:          BRA   RPTDM8
+                        	  1787: *
+                        	  1788: * COMPUTER CODE
+                        	  1789: *
+00:F033 7D0069          	  1790: COMPTR   TST   DAMCOM
+00:F036 2704            	  1791:          BEQ   CMPTR1
+00:F038 BDEFE4          	  1792:          JSR   RPTDAM
+00:F03B 39              	  1793:          RTS
+                        	  1794: *
+00:F03C CEFC31          	  1795: CMPTR1   LDX   #CPRMPT
+00:F03F BDE40C          	  1796:          JSR   PSTRNG
+00:F042 BDE078          	  1797:          JSR   INCH
+00:F045 8154            	  1798:          CMPA  #'T'
+00:F047 2760            	  1799:          BEQ   TSPRED
+00:F049 814D            	  1800:          CMPA  #'M'
+00:F04B 272B            	  1801:          BEQ   CMPMAP
+00:F04D 8153            	  1802:          CMPA  #'S'
+00:F04F 26EB            	  1803:          BNE   CMPTR1
+00:F051 CEFD2A          	  1804:          LDX   #SRMODE
+00:F054 BDE40C          	  1805:          JSR   PSTRNG
+00:F057 7F006D          	  1806:          CLR   AUTOSR
+00:F05A BDE078          	  1807:          JSR   INCH
+00:F05D 8159            	  1808:          CMPA  #'Y'
+00:F05F 2603            	  1809:          BNE   AUTO2
+00:F061 7C006D          	  1810:          INC   AUTOSR
+00:F064 CEFD58          	  1811: AUTO2    LDX   #LRMODE
+00:F067 BDE40C          	  1812:          JSR   PSTRNG
+00:F06A 7F006E          	  1813:          CLR   AUTOLR
+00:F06D BDE078          	  1814:          JSR   INCH
+00:F070 8159            	  1815:          CMPA  #'Y'
+00:F072 2603            	  1816:          BNE   AUTOEX
+00:F074 7C006E          	  1817:          INC   AUTOLR
+00:F077 39              	  1818: AUTOEX   RTS
+                        	  1819: *
+00:F078 CEFCBC          	  1820: CMPMAP   LDX   #CMPHST
+00:F07B BDE40C          	  1821:          JSR   PSTRNG
+00:F07E CE00BC          	  1822:          LDX   #COMMAP
+00:F081 BDE402          	  1823: CMPMP1   JSR   PCRLF
+00:F084 8608            	  1824:          LDAA  #8
+00:F086 9730            	  1825:          STAA  COUNT
+00:F088 A600            	  1826: CMPMP2   LDAA  0,X
+00:F08A 81FF            	  1827:          CMPA  #$FF
+00:F08C 260D            	  1828:          BNE   CMPMP3
+00:F08E DF5E            	  1829:          STX   TEMP3
+00:F090 CEFCF9          	  1830:          LDX   #NOSCAN
+00:F093 BDE3FB          	  1831:          JSR   PDATA3
+00:F096 DE5E            	  1832:          LDX   TEMP3
+00:F098 08              	  1833:          INX
+00:F099 2003            	  1834:          BRA   CMPMP4
+                        	  1835: *
+00:F09B BDED32          	  1836: CMPMP3   JSR   OUTQIN
+00:F09E 7A0030          	  1837: CMPMP4   DEC   COUNT
+00:F0A1 26E5            	  1838:          BNE   CMPMP2
+00:F0A3 8C00FC          	  1839:          CPX   #COMMAP+64
+00:F0A6 26D9            	  1840:          BNE   CMPMP1
+00:F0A8 39              	  1841:          RTS
+                        	  1842: *
+00:F0A9 7D0065          	  1843: TSPRED   TST   DAMPHT
+00:F0AC 2704            	  1844:          BEQ   TS2
+00:F0AE BDEFE4          	  1845:          JSR   RPTDAM
+00:F0B1 39              	  1846:          RTS
+                        	  1847: *
+00:F0B2 7F006B          	  1848: TS2      CLR   PTZFLG
+00:F0B5 CEFCFF          	  1849:          LDX   #HWMANY
+00:F0B8 BDE40C          	  1850:          JSR   PSTRNG
+00:F0BB BDE078          	  1851:          JSR   INCH
+00:F0BE 8130            	  1852:          CMPA  #'0'
+00:F0C0 25F0            	  1853:          BLO   TS2
+00:F0C2 2715            	  1854:          BEQ   TSEX
+00:F0C4 8139            	  1855:          CMPA  #'9'
+00:F0C6 2EEA            	  1856:          BGT   TS2
+00:F0C8 840F            	  1857:          ANDA  #$0F
+00:F0CA 976A            	  1858:          STAA  PCOUNT
+00:F0CC BDE9CA          	  1859: TS3      JSR   PTRNDM
+00:F0CF 7A006A          	  1860:          DEC   PCOUNT
+00:F0D2 2705            	  1861:          BEQ   TSEX
+00:F0D4 7D006B          	  1862:          TST   PTZFLG
+00:F0D7 27F3            	  1863:          BEQ   TS3
+00:F0D9 39              	  1864: TSEX     RTS
+                        	  1865: *
+                        	  1866: * TRACTOR BEAM ROUTINE
+                        	  1867: *
+00:F0DA 7D0079          	  1868: TRCTBM   TST   SHUTCR
+00:F0DD 2614            	  1869:          BNE   NPCKUP
+00:F0DF 967A            	  1870:          LDAA  SHUTLX
+00:F0E1 9147            	  1871:          CMPA  CURQUX
+00:F0E3 260E            	  1872:          BNE   NPCKUP
+00:F0E5 967B            	  1873:          LDAA  SHUTLY
+00:F0E7 9148            	  1874:          CMPA  CURQUY
+00:F0E9 2608            	  1875:          BNE   NPCKUP
+00:F0EB CEFA0C          	  1876:          LDX   #SCONBD
+00:F0EE 7C0079          	  1877:          INC   SHUTCR
+00:F0F1 2003            	  1878:          BRA   TRCTEX
+                        	  1879: *
+00:F0F3 CEFA38          	  1880: NPCKUP   LDX   #NOPICK
+00:F0F6 BDE40C          	  1881: TRCTEX   JSR   PSTRNG
+00:F0F9 39              	  1882:          RTS
+                        	  1883: *
+                        	  1884: * TEXT STRINGS
+                        	  1885: *
+00:F0FA 0A              	  1886: TITLE    dc.b  LF
+00:F0FB 2D202D202D202D20	  1887:          dc.b  '- - - -   S T A R   T R E K   - - - -      VERSION 1.2'
+00:F103 2020532054204120
+00:F10B 5220202054205220
+00:F113 45204B2020202D20
+00:F11B 2D202D202D202020
+00:F123 2020205645525349
+00:F12B 4F4E20312E32
+00:F131 04              	  1888:          dc.b  EOT
+00:F132 53484F5254204F52	  1889: SHTLNG   dc.b  'SHORT OR LONG GAME? (S-L): '
+00:F13A 204C4F4E47204741
+00:F142 4D453F2028532D4C
+00:F14A 293A20
+00:F14D 04              	  1890:          dc.b  EOT
+00:F14E 205550          	  1891: UPSCAS   dc.b  ' UP'
+00:F151 04              	  1892:          dc.b  EOT
+00:F152 5354415242415345	  1893: BASINF   dc.b  'STARBASE IN QUADRANT: '
+00:F15A 20494E2051554144
+00:F162 52414E543A20
+00:F168 04              	  1894:          dc.b  EOT
+00:F169 444F434B4544    	  1895: DOCKED   dc.b  'DOCKED'
+00:F16F 04              	  1896:          dc.b  EOT
+00:F170 20444F574E      	  1897: DNSCAS   dc.b  ' DOWN'
+00:F175 04              	  1898:          dc.b  EOT
+00:F176 414C4C20544F5250	  1899: PTEMST   dc.b  'ALL TORPEDOS FIRED!'
+00:F17E 45444F5320464952
+00:F186 454421
+00:F189 04              	  1900:          dc.b  EOT
+00:F18A 0A              	  1901: INTRO1   dc.b  LF
+00:F18B 4954204953205354	  1902:          dc.b  'IT IS STARDATE '
+00:F193 41524441544520
+00:F19A 04              	  1903:          dc.b  EOT
+00:F19B 544845204B4C494E	  1904: INTRO2   dc.b  'THE KLINGONS NUMBER '
+00:F1A3 474F4E53204E554D
+00:F1AB 42455220
+00:F1AF 04              	  1905:          dc.b  EOT
+00:F1B0 594F55522054494D	  1906: INTRO3   dc.b  'YOUR TIME LIMIT (IN STARDATES) = '
+00:F1B8 45204C494D495420
+00:F1C0 28494E2053544152
+00:F1C8 444154455329203D
+00:F1D0 20
+00:F1D1 04              	  1907:          dc.b  EOT
+00:F1D2 594F552041524520	  1908: INTRO4   dc.b  'YOU ARE IN QUADRANT '
+00:F1DA 494E205155414452
+00:F1E2 414E5420
+00:F1E6 04              	  1909:          dc.b  EOT
+00:F1E7 414E442053454354	  1910: INTRO6   dc.b  'AND SECTOR '
+00:F1EF 4F5220
+00:F1F2 04              	  1911:          dc.b  EOT
+00:F1F3 0A              	  1912: COMST    dc.b  LF
+00:F1F4 434F4D4D414E443F	  1913:          dc.b  'COMMAND? '
+00:F1FC 20
+00:F1FD 04              	  1914:          dc.b  EOT
+00:F1FE 5448452053484945	  1915: DWNST    dc.b  'THE SHIELDS ARE DOWN, SIR'
+00:F206 4C44532041524520
+00:F20E 444F574E2C205349
+00:F216 52
+00:F217 04              	  1916:          dc.b  EOT
+00:F218 5448452053484945	  1917: UPSTR    dc.b  'THE SHIELDS ARE UP, SIR'
+00:F220 4C44532041524520
+00:F228 55502C20534952
+00:F22F 04              	  1918:          dc.b  EOT
+00:F230 5748415420434F55	  1919: CRSSTR   dc.b  'WHAT COURSE, SIR? (0-7): '
+00:F238 5253452C20534952
+00:F240 3F2028302D37293A
+00:F248 20
+00:F249 04              	  1920:          dc.b  EOT
+00:F24A 5748415420574152	  1921: WRPSTR   dc.b  'WHAT WARP FACTOR, SIR: '
+00:F252 5020464143544F52
+00:F25A 2C205349523A20
+00:F261 04              	  1922:          dc.b  EOT
+00:F262 54484520454E5445	  1923: BLOKST   dc.b  'THE ENTERPRISE IS BLOCKED AT SECTOR '
+00:F26A 5250524953452049
+00:F272 5320424C4F434B45
+00:F27A 4420415420534543
+00:F282 544F5220
+00:F286 04              	  1924:          dc.b  EOT
+00:F287 5745            	  1925: KRMSTR   dc.b  'WE',APOS,'VE RAMMED A KLINGON AT SECTOR '
+00:F289 27
+00:F28A 56452052414D4D45
+00:F292 442041204B4C494E
+00:F29A 474F4E2041542053
+00:F2A2 4543544F5220
+00:F2A8 04              	  1926:          dc.b  EOT
+00:F2A9 594F55          	  1927: GLBNDS   dc.b  'YOU',APOS,'VE REACHED THE EDGE OF THE GALAXY AND UNKNOWN'
+00:F2AC 27
+00:F2AD 5645205245414348
+00:F2B5 4544205448452045
+00:F2BD 444745204F462054
+00:F2C5 48452047414C4158
+00:F2CD 5920414E4420554E
+00:F2D5 4B4E4F574E
+00:F2DA 0D              	  1928:          dc.b  CR,LF
+00:F2DB 0A
+00:F2DC 464F524345532048	  1929:          dc.b  'FORCES HAVE STOPPED THE ENTERPRISE!'
+00:F2E4 4156452053544F50
+00:F2EC 5045442054484520
+00:F2F4 454E544552505249
+00:F2FC 534521
+00:F2FF 04              	  1930:          dc.b  EOT
+00:F300 594F555220544F52	  1931: PHITST   dc.b  'YOUR TORPEDO HAS HIT A '
+00:F308 5045444F20484153
+00:F310 20484954204120
+00:F317 04              	  1932:          dc.b  EOT
+00:F318 54484520544F5250	  1933: PNOENG   dc.b  'THE TORPEDO HAS RUN OUT OF ENERGY'
+00:F320 45444F2048415320
+00:F328 52554E204F555420
+00:F330 4F4620454E455247
+00:F338 59
+00:F339 04              	  1934:          dc.b  EOT
+00:F33A 2020535441524441	  1935: SDATE    dc.b  '  STARDATE: '
+00:F342 54453A20
+00:F346 04              	  1936:          dc.b  EOT
+00:F347 2020434F4E444954	  1937: CNDTNS   dc.b  '  CONDITION: '
+00:F34F 494F4E3A20
+00:F354 04              	  1938:          dc.b  EOT
+00:F355 59454C4C4F5721  	  1939: YELLOW   dc.b  'YELLOW!'
+00:F35C 04              	  1940:          dc.b  EOT
+00:F35D 524544212121    	  1941: RED      dc.b  'RED!!!'
+00:F363 04              	  1942:          dc.b  EOT
+00:F364 475245454E      	  1943: GREEN    dc.b  'GREEN'
+00:F369 04              	  1944:          dc.b  EOT
+00:F36A 2020515541445241	  1945: QUADP    dc.b  '  QUADRANT: '
+00:F372 4E543A20
+00:F376 04              	  1946:          dc.b  EOT
+00:F377 2020534543544F52	  1947: SECP     dc.b  '  SECTOR:   '
+00:F37F 3A202020
+00:F383 04              	  1948:          dc.b  EOT
+00:F384 2020454E45524759	  1949: ENGSTR   dc.b  '  ENERGY: '
+00:F38C 3A20
+00:F38E 04              	  1950:          dc.b  EOT
+00:F38F 20204B4C494E474F	  1951: KLSTR    dc.b  '  KLINGONS: '
+00:F397 4E533A20
+00:F39B 04              	  1952:          dc.b  EOT
+00:F39C 2020534849454C44	  1953: SHSTR    dc.b  '  SHIELDS: '
+00:F3A4 533A20
+00:F3A7 04              	  1954:          dc.b  EOT
+00:F3A8 2020544F52504544	  1955: TRPSTR   dc.b  '  TORPEDOS: '
+00:F3B0 4F533A20
+00:F3B4 04              	  1956:          dc.b  EOT
+00:F3B5 5343414E20464F52	  1957: LRSCST   dc.b  'SCAN FOR QUADRANT '
+00:F3BD 205155414452414E
+00:F3C5 5420
+00:F3C7 04              	  1958:          dc.b  EOT
+00:F3C8 594F55204D555354	  1959: MLSHLD   dc.b  'YOU MUST FIRST LOWER SHIELDS!'
+00:F3D0 204649525354204C
+00:F3D8 4F57455220534849
+00:F3E0 454C445321
+00:F3E5 04              	  1960:          dc.b  EOT
+00:F3E6 5448452041564149	  1961: ENAVLB   dc.b  'THE AVAILABLE ENERGY IS: '
+00:F3EE 4C41424C4520454E
+00:F3F6 455247592049533A
+00:F3FE 20
+00:F3FF 04              	  1962:          dc.b  EOT
+00:F400 484F57204D554348	  1963: FIRENG   dc.b  'HOW MUCH ENERGY SHALL I USE: '
+00:F408 20454E4552475920
+00:F410 5348414C4C204920
+00:F418 5553453A20
+00:F41D 04              	  1964:          dc.b  EOT
+00:F41E 594F5520444F4E  	  1965: TOMUCH   dc.b  'YOU DON',APOS,'T HAVE ENOUGH ENERGY!'
+00:F425 27
+00:F426 5420484156452045
+00:F42E 4E4F55474820454E
+00:F436 4552475921
+00:F43B 04              	  1966:          dc.b  EOT
+00:F43C 504841534F525320	  1967: PHAMIS   dc.b  'PHASORS HAVE MISFIRED!'
+00:F444 48415645204D4953
+00:F44C 464952454421
+00:F452 04              	  1968:          dc.b  EOT
+00:F453 414C4C204B4C494E	  1969: ALKILL   dc.b  'ALL KLINGONS IN THIS SECTOR HAVE BEEN DESTROYED!'
+00:F45B 474F4E5320494E20
+00:F463 5448495320534543
+00:F46B 544F522048415645
+00:F473 204245454E204445
+00:F47B 5354524F59454421
+00:F483 04              	  1970:          dc.b  EOT
+00:F484 54484520454E454D	  1971: KHTADM   dc.b  'THE ENEMY HAS BEEN DAMAGED'
+00:F48C 5920484153204245
+00:F494 454E2044414D4147
+00:F49C 4544
+00:F49E 04              	  1972:          dc.b  EOT
+00:F49F 20494E56414C4944	  1973: ERR      dc.b  ' INVALID ENTRY! '
+00:F4A7 20454E5452592120
+00:F4AF 04              	  1974:          dc.b  EOT
+00:F4B0 535441522C204249	  1975: STARST   dc.b  'STAR, BILLIONS HAVE DIED'
+00:F4B8 4C4C494F4E532048
+00:F4C0 4156452044494544
+00:F4C8 04              	  1976:          dc.b  EOT
+00:F4C9 424153452C20594F	  1977: BASEST   dc.b  'BASE, YOUR ONLY SOURCE OF SUPPLY IS NOW GONE!'
+00:F4D1 5552204F4E4C5920
+00:F4D9 534F55524345204F
+00:F4E1 4620535550504C59
+00:F4E9 204953204E4F5720
+00:F4F1 474F4E4521
+00:F4F6 04              	  1978:          dc.b  EOT
+00:F4F7 4B4C494E474F4E2C	  1979: KLGSTR   dc.b  'KLINGON, CONGRATULATIONS'
+00:F4FF 20434F4E47524154
+00:F507 554C4154494F4E53
+00:F50F 04              	  1980:          dc.b  EOT
+00:F510 454E54455220594F	  1981: INTRO0   dc.b  'ENTER YOUR 3 LETTER ABORT PASSWORD: '
+00:F518 55522033204C4554
+00:F520 5445522041424F52
+00:F528 542050415353574F
+00:F530 52443A20
+00:F534 04              	  1982:          dc.b  EOT
+00:F535 5448452052454D41	  1983: STILFT   dc.b  'THE REMAINING KLINGONS NUMBER '
+00:F53D 494E494E47204B4C
+00:F545 494E474F4E53204E
+00:F54D 554D42455220
+00:F553 04              	  1984:          dc.b  EOT
+00:F554 20554E4954204849	  1985: KATKDN   dc.b  ' UNIT HIT ON THE ENTERPRISE'
+00:F55C 54204F4E20544845
+00:F564 20454E5445525052
+00:F56C 495345
+00:F56F 04              	  1986:          dc.b  EOT
+00:F570 4B4C494E474F4E53	  1987: KATKUP   dc.b  'KLINGONS HAVE ATTACKED, BUT THE SHIELDS ARE HOLDING!'
+00:F578 2048415645204154
+00:F580 5441434B45442C20
+00:F588 4255542054484520
+00:F590 534849454C445320
+00:F598 41524520484F4C44
+00:F5A0 494E4721
+00:F5A4 04              	  1988:          dc.b  EOT
+00:F5A5 454E544552505249	  1989: DISINT   dc.b  'ENTERPRISE HAS BEEN DESTROYED - ALL HANDS LOST!'
+00:F5AD 5345204841532042
+00:F5B5 45454E2044455354
+00:F5BD 524F594544202D20
+00:F5C5 414C4C2048414E44
+00:F5CD 53204C4F535421
+00:F5D4 04              	  1990:          dc.b  EOT
+00:F5D5 41424F5254205345	  1991: ABORT1   dc.b  'ABORT SEQUENCE STARTED - WHAT WAS YOUR PASSWORD? '
+00:F5DD 5155454E43452053
+00:F5E5 544152544544202D
+00:F5ED 2057484154205741
+00:F5F5 5320594F55522050
+00:F5FD 415353574F52443F
+00:F605 20
+00:F606 04              	  1992:          dc.b  EOT
+00:F607 41424F5254205345	  1993: ABORT2   dc.b  'ABORT SEQUENCE ABANDONED - PASSWORD ERROR'
+00:F60F 5155454E43452041
+00:F617 42414E444F4E4544
+00:F61F 202D205041535357
+00:F627 4F5244204552524F
+00:F62F 52
+00:F630 04              	  1994:          dc.b  EOT
+00:F631 5448452054454C45	  1995: CANTUS   dc.b  'THE TELEPORTER REPAIRS ARE NOT YET FINISHED, SORRY'
+00:F639 504F525445522052
+00:F641 4550414952532041
+00:F649 5245204E4F542059
+00:F651 45542046494E4953
+00:F659 4845442C20534F52
+00:F661 5259
+00:F663 04              	  1996:          dc.b  EOT
+00:F664 54454C45504F5254	  1997: SOMWHR   dc.b  'TELEPORTER MALFUNCTION - BASE NOT REACHED'
+00:F66C 4552204D414C4655
+00:F674 4E4354494F4E202D
+00:F67C 2042415345204E4F
+00:F684 5420524541434845
+00:F68C 44
+00:F68D 04              	  1998:          dc.b  EOT
+00:F68E 07              	  1999: SPSTRM   dc.b  BELL
+00:F68F 5745            	  2000:          dc.b  'WE',APOS,'VE HIT A SPACE STORM - SHIELDS DAMAGED!'
+00:F691 27
+00:F692 5645204849542041
+00:F69A 2053504143452053
+00:F6A2 544F524D202D2053
+00:F6AA 4849454C44532044
+00:F6B2 414D4147454421
+00:F6B9 04              	  2001:          dc.b  EOT
+00:F6BA 5448452033524420	  2002: GALDUM   dc.b  'THE 3RD ATTEMPT TO LEAVE THE GALAXY HAS CAUSED AN'
+00:F6C2 415454454D505420
+00:F6CA 544F204C45415645
+00:F6D2 205448452047414C
+00:F6DA 4158592048415320
+00:F6E2 4341555345442041
+00:F6EA 4E
+00:F6EB 0D              	  2003:          dc.b  CR,LF
+00:F6EC 0A
+00:F6ED 4155544F4D415449	  2004:          dc.b  'AUTOMATIC SELF-DESTRUCT SEQUENCE. IT CANNOT BE STOPPED!!!'
+00:F6F5 432053454C462D44
+00:F6FD 4553545255435420
+00:F705 53455155454E4345
+00:F70D 2E2049542043414E
+00:F715 4E4F542042452053
+00:F71D 544F505045442121
+00:F725 21
+00:F726 04              	  2005:          dc.b  EOT
+00:F727 07              	  2006: NMENGS   dc.b  BELL
+00:F728 54484520454E5445	  2007:          dc.b  'THE ENTERPRISE IS OUT OF ENERGY. IT CAN NO LONGER EXIST.'
+00:F730 5250524953452049
+00:F738 53204F5554204F46
+00:F740 20454E455247592E
+00:F748 2049542043414E20
+00:F750 4E4F204C4F4E4745
+00:F758 522045584953542E
+00:F760 04              	  2008:          dc.b  EOT
+00:F761 07              	  2009: NMTMST   dc.b  BELL
+00:F762 594F552048415645	  2010:          dc.b  'YOU HAVE RUN OUT OF STARDATES FOR THIS MISSION.'
+00:F76A 2052554E204F5554
+00:F772 204F462053544152
+00:F77A 444154455320464F
+00:F782 522054484953204D
+00:F78A 495353494F4E2E
+00:F791 04              	  2011:          dc.b  EOT
+00:F792 0A              	  2012: NMKLST   dc.b  LF,BELL
+00:F793 07
+00:F794 434F4E4752415455	  2013:          dc.b  'CONGRATULATIONS!'
+00:F79C 4C4154494F4E5321
+00:F7A4 0A              	  2014:          dc.b  LF,CR,0,0,0,0
+00:F7A5 0D
+00:F7A6 00
+00:F7A7 00
+00:F7A8 00
+00:F7A9 00
+00:F7AA 594F552048415645	  2015:          dc.b  'YOU HAVE DESTROYED ALL THE KLINGONS.'
+00:F7B2 2044455354524F59
+00:F7BA 454420414C4C2054
+00:F7C2 4845204B4C494E47
+00:F7CA 4F4E532E
+00:F7CE 04              	  2016:          dc.b   EOT
+00:F7CF 594F5552204D4953	  2017: FAILST   dc.b  'YOUR MISSION WAS A FAILURE, THE FEDERATION MUST SURRENDER.'
+00:F7D7 53494F4E20574153
+00:F7DF 2041204641494C55
+00:F7E7 52452C2054484520
+00:F7EF 4645444552415449
+00:F7F7 4F4E204D55535420
+00:F7FF 53555252454E4445
+00:F807 522E
+00:F809 04              	  2018:          dc.b   EOT
+00:F80A 5448452046454445	  2019: SUCCST   dc.b  'THE FEDERATION HAS BEEN SAVED BY YOUR GALLANT ACTIONS.'
+00:F812 524154494F4E2048
+00:F81A 4153204245454E20
+00:F822 5341564544204259
+00:F82A 20594F5552204741
+00:F832 4C4C414E54204143
+00:F83A 54494F4E532E
+00:F840 0D              	  2020:          dc.b  CR,LF
+00:F841 0A
+00:F842 594F552041524520	  2021:          dc.b  'YOU ARE AWARDED THE STARFLEET MEDAL OF HONOR.'
+00:F84A 4157415244454420
+00:F852 5448452053544152
+00:F85A 464C454554204D45
+00:F862 44414C204F462048
+00:F86A 4F4E4F522E
+00:F86F 04              	  2022:          dc.b   EOT
+00:F870 4D45535341474520	  2023: SUPDES   dc.b  'MESSAGE FROM STARFLEET COMMAND:'
+00:F878 46524F4D20535441
+00:F880 52464C4545542043
+00:F888 4F4D4D414E443A
+00:F88F 0D              	  2024:          dc.b  CR,LF
+00:F890 0A
+00:F891 2020202020544845	  2025:          dc.b  '     THE ENTERPRISE HAS JUST BEEN DESTROYED BY A'
+00:F899 20454E5445525052
+00:F8A1 4953452048415320
+00:F8A9 4A55535420424545
+00:F8B1 4E2044455354524F
+00:F8B9 5945442042592041
+00:F8C1 0D              	  2026:          dc.b  CR,LF
+00:F8C2 0A
+00:F8C3 2020202020535550	  2027:          dc.b  '     SUPERNOVA IN IT',APOS,'S CURRENT QUADRANT - ALL HANDS LOST.'
+00:F8CB 45524E4F56412049
+00:F8D3 4E204954
+00:F8D7 27
+00:F8D8 532043555252454E
+00:F8E0 5420515541445241
+00:F8E8 4E54202D20414C4C
+00:F8F0 2048414E4453204C
+00:F8F8 4F53542E
+00:F8FC 04              	  2028:          dc.b  EOT
+00:F8FD 07              	  2029: SUPSTR   dc.b  BELL
+00:F8FE 53454E534F525320	  2030:          dc.b  'SENSORS REPORT A SUPER NOVA IN QUADRANT '
+00:F906 5245504F52542041
+00:F90E 205355504552204E
+00:F916 4F564120494E2051
+00:F91E 55414452414E5420
+00:F926 04              	  2031:          dc.b   EOT
+00:F927 4241444C59204441	  2032: HEVDAM   dc.b  'BADLY DAMAGED'
+00:F92F 4D41474544
+00:F934 04              	  2033:          dc.b   EOT
+00:F935 4445564943452049	  2034: DMGDST   dc.b  'DEVICE IS DAMAGED AND UNUSABLE.  REPAIRS HAVE BEEN STARTED'
+00:F93D 532044414D414745
+00:F945 4420414E4420554E
+00:F94D 555341424C452E20
+00:F955 2052455041495253
+00:F95D 2048415645204245
+00:F965 454E205354415254
+00:F96D 4544
+00:F96F 04              	  2035:          dc.b   EOT
+00:F970 0A              	  2036: DMRPST   dc.b  LF
+00:F971 4445564943452020	  2037:          dc.b  'DEVICE     STATUS'
+00:F979 2020205354415455
+00:F981 53
+00:F982 04              	  2038:          dc.b   EOT
+00:F983 454E47494E455320	  2039: DEVSTR   dc.b  'ENGINES   '
+00:F98B 2020
+00:F98D 04              	  2040:          dc.b   EOT
+00:F98E 53484F5254205343	  2041:          dc.b  'SHORT SCAN'
+00:F996 414E
+00:F998 04              	  2042:          dc.b   EOT
+00:F999 4C4F4E4720534341	  2043:          dc.b  'LONG SCAN '
+00:F9A1 4E20
+00:F9A3 04              	  2044:          dc.b   EOT
+00:F9A4 504841534F525320	  2045:          dc.b  'PHASORS   '
+00:F9AC 2020
+00:F9AE 04              	  2046:          dc.b   EOT
+00:F9AF 544F525045444F53	  2047:          dc.b  'TORPEDOS  '
+00:F9B7 2020
+00:F9B9 04              	  2048:          dc.b   EOT
+00:F9BA 534849454C445320	  2049:          dc.b  'SHIELDS   '
+00:F9C2 2020
+00:F9C4 04              	  2050:          dc.b   EOT
+00:F9C5 54454C45504F5254	  2051:          dc.b  'TELEPORTER'
+00:F9CD 4552
+00:F9CF 04              	  2052:          dc.b   EOT
+00:F9D0 54524143544F5220	  2053:          dc.b  'TRACTOR BM'
+00:F9D8 424D
+00:F9DA 04              	  2054:          dc.b   EOT
+00:F9DB 434F4D5055544552	  2055:          dc.b  'COMPUTER  '
+00:F9E3 2020
+00:F9E5 04              	  2056:          dc.b   EOT
+00:F9E6 574F554C4420594F	  2057: PLAYAG   dc.b  'WOULD YOU LIKE TO PLAY AGAIN? (Y-N): '
+00:F9EE 55204C494B452054
+00:F9F6 4F20504C41592041
+00:F9FE 4741494E3F202859
+00:FA06 2D4E293A20
+00:FA0B 04              	  2058:          dc.b   EOT
+00:FA0C 5448452053485554	  2059: SCONBD   dc.b  'THE SHUTTLE CRAFT IS REPORTED ON BOARD, SIR'
+00:FA14 544C452043524146
+00:FA1C 5420495320524550
+00:FA24 4F52544544204F4E
+00:FA2C 20424F4152442C20
+00:FA34 534952
+00:FA37 04              	  2060:          dc.b   EOT
+00:FA38 5448452053454E53	  2061: NOPICK   dc.b  'THE SENSORS SHOW NOTHING TO BE PICKED UP, SIR'
+00:FA40 4F52532053484F57
+00:FA48 204E4F5448494E47
+00:FA50 20544F2042452050
+00:FA58 49434B4544205550
+00:FA60 2C20534952
+00:FA65 04              	  2062:          dc.b   EOT
+00:FA66 54484520434F4D4D	  2063: EXPCMD   dc.b  'THE COMMANDS ARE AS FOLLOWS:'
+00:FA6E 414E445320415245
+00:FA76 20415320464F4C4C
+00:FA7E 4F57533A
+00:FA82 0D              	  2064:          dc.b  CR,LF,$A
+00:FA83 0A
+00:FA84 0A
+00:FA85 434D4E4420202041	  2065:          dc.b  'CMND   ACTION'
+00:FA8D 4354494F4E
+00:FA92 0D              	  2066:          dc.b  CR,LF
+00:FA93 0A
+00:FA94 20454E2020202041	  2067:          dc.b  ' EN    ACTIVATE WARP ENGINGS'
+00:FA9C 4354495641544520
+00:FAA4 5741525020454E47
+00:FAAC 494E4753
+00:FAB0 0D              	  2068:          dc.b  CR,LF
+00:FAB1 0A
+00:FAB2 2053522020202053	  2069:          dc.b  ' SR    SHORT RANGE SCAN'
+00:FABA 484F52542052414E
+00:FAC2 4745205343414E
+00:FAC9 0D              	  2070:          dc.b  CR,LF
+00:FACA 0A
+00:FACB 204C52202020204C	  2071:          dc.b  ' LR    LONG RANGE SCAN'
+00:FAD3 4F4E472052414E47
+00:FADB 45205343414E
+00:FAE1 0D              	  2072:          dc.b  CR,LF
+00:FAE2 0A
+00:FAE3 2050482020202046	  2073:          dc.b  ' PH    FIRE PHASOR BEAMS'
+00:FAEB 4952452050484153
+00:FAF3 4F52204245414D53
+00:FAFB 0D              	  2074:          dc.b  CR,LF
+00:FAFC 0A
+00:FAFD 2050542020202046	  2075:          dc.b  ' PT    FIRE PHOTON TORPEDOS'
+00:FB05 4952452050484F54
+00:FB0D 4F4E20544F525045
+00:FB15 444F53
+00:FB18 0D              	  2076:          dc.b  CR,LF
+00:FB19 0A
+00:FB1A 2044522020202044	  2077:          dc.b  ' DR    DAMAGE REPORT'
+00:FB22 414D414745205245
+00:FB2A 504F5254
+00:FB2E 0D              	  2078:          dc.b  CR,LF
+00:FB2F 0A
+00:FB30 2053482020202053	  2079:          dc.b  ' SH    SHIELDS UP OR DOWN'
+00:FB38 4849454C44532055
+00:FB40 50204F5220444F57
+00:FB48 4E
+00:FB49 0D              	  2080:          dc.b  CR,LF
+00:FB4A 0A
+00:FB4B 2054502020202054	  2081:          dc.b  ' TP    TELEPORT TO BASE QUADRANT'
+00:FB53 454C45504F525420
+00:FB5B 544F204241534520
+00:FB63 5155414452414E54
+00:FB6B 0D              	  2082:          dc.b  CR,LF
+00:FB6C 0A
+00:FB6D 2053442020202053	  2083:          dc.b  ' SD    SELF DESTRUCT SEQUENCE'
+00:FB75 454C462044455354
+00:FB7D 5255435420534551
+00:FB85 55454E4345
+00:FB8A 0D              	  2084:          dc.b  CR,LF
+00:FB8B 0A
+00:FB8C 2054422020202041	  2085:          dc.b  ' TB    ACTIVATE TRACTOR BEAMS'
+00:FB94 4354495641544520
+00:FB9C 54524143544F5220
+00:FBA4 4245414D53
+00:FBA9 0D              	  2086:          dc.b  CR,LF
+00:FBAA 0A
+00:FBAB 20434F2020202042	  2087:          dc.b  ' CO    BATTLE COMPUTER'
+00:FBB3 4154544C4520434F
+00:FBBB 4D5055544552
+00:FBC1 0D              	  2088:          dc.b  CR,LF
+00:FBC2 0A
+00:FBC3 04              	  2089:          dc.b  EOT
+00:FBC4 53454E534F525320	  2090: SHTSIG   dc.b  'SENSORS REPORT SHUTTLE CRAFT GALILLEO IN THIS QUADRANT, SIR'
+00:FBCC 5245504F52542053
+00:FBD4 485554544C452043
+00:FBDC 524146542047414C
+00:FBE4 494C4C454F20494E
+00:FBEC 2054484953205155
+00:FBF4 414452414E542C20
+00:FBFC 534952
+00:FBFF 04              	  2091:          dc.b  EOT
+00:FC00 53485554544C4520	  2092: SCBKUP   dc.b 'SHUTTLE CRAFT SENSORS PROVIDING BACKUP SCAN, SIR'
+00:FC08 4352414654205345
+00:FC10 4E534F5253205052
+00:FC18 4F564944494E4720
+00:FC20 4241434B55502053
+00:FC28 43414E2C20534952
+00:FC30 04              	  2093:          dc.b  EOT
+00:FC31 434F4D5055544552	  2094: CPRMPT   dc.b  'COMPUTER IS CAPABLE OF 3 FUNCTIONS:'
+00:FC39 2049532043415041
+00:FC41 424C45204F462033
+00:FC49 2046554E4354494F
+00:FC51 4E533A
+00:FC54 0D              	  2095:          dc.b  CR,LF
+00:FC55 0A
+00:FC56 20202054203D2054	  2096:          dc.b  '   T = TORPEDO SPREAD'
+00:FC5E 4F525045444F2053
+00:FC66 5052454144
+00:FC6B 0D              	  2097:          dc.b  CR,LF
+00:FC6C 0A
+00:FC6D 2020204D203D2050	  2098:          dc.b  '   M = PRINT SCAN HISTORY MAP'
+00:FC75 52494E5420534341
+00:FC7D 4E20484953544F52
+00:FC85 59204D4150
+00:FC8A 0D              	  2099:          dc.b  CR,LF
+00:FC8B 0A
+00:FC8C 20202053203D2053	  2100:          dc.b  '   S = SET AUTO SCAN'
+00:FC94 4554204155544F20
+00:FC9C 5343414E
+00:FCA0 0D              	  2101:          dc.b  CR,LF,LF
+00:FCA1 0A
+00:FCA2 0A
+00:FCA3 454E54455220434F	  2102:          dc.b  'ENTER COMPUTER COMMAND: '
+00:FCAB 4D50555445522043
+00:FCB3 4F4D4D414E443A20
+00:FCBB 04              	  2103:          dc.b  EOT
+00:FCBC 535441545553204F	  2104: CMPHST   dc.b  'STATUS OF QUADRANTS WHEN LAST SCANNED (**** = NO SCAN YET)'
+00:FCC4 4620515541445241
+00:FCCC 4E5453205748454E
+00:FCD4 204C415354205343
+00:FCDC 414E4E454420282A
+00:FCE4 2A2A2A203D204E4F
+00:FCEC 205343414E205945
+00:FCF4 5429
+00:FCF6 0D              	  2105:          dc.b  CR,LF,EOT
+00:FCF7 0A
+00:FCF8 04
+00:FCF9 2A2A2A2A20      	  2106: NOSCAN   dc.b  '**** '
+00:FCFE 04              	  2107:          dc.b  EOT
+00:FCFF 454E544552204E55	  2108: HWMANY   dc.b 'ENTER NUMBER OF TORPEDOS IN SPREAD (0-9): '
+00:FD07 4D424552204F4620
+00:FD0F 544F525045444F53
+00:FD17 20494E2053505245
+00:FD1F 41442028302D3929
+00:FD27 3A20
+00:FD29 04              	  2109:          dc.b  EOT
+00:FD2A 4155544F20534341	  2110: SRMODE   dc.b 'AUTO SCAN ON FOR SHORT RANGE SENSORS? (Y-N): '
+00:FD32 4E204F4E20464F52
+00:FD3A 2053484F52542052
+00:FD42 414E47452053454E
+00:FD4A 534F52533F202859
+00:FD52 2D4E293A20
+00:FD57 04              	  2111:          dc.b  EOT
+00:FD58 4155544F20534341	  2112: LRMODE   dc.b 'AUTO SCAN ON FOR LONG RANGE SENSORS? (Y-N): '
+00:FD60 4E204F4E20464F52
+00:FD68 204C4F4E47205241
+00:FD70 4E47452053454E53
+00:FD78 4F52533F2028592D
+00:FD80 4E293A20
+00:FD84 04              	  2113:          dc.b  EOT
+                        	  2114: *
+                        	  2115: 
+
+Source: "src/swtbug.asm"
+                        	   632: 
+                        	   633:          ORG   $FFF8
+01:FFF8 E000            	   634:          dc.w  IRQV           IRQ VECTOR
+01:FFFA E179            	   635:          dc.w  SFE            SOFTWARE INTERRUPT
+01:FFFC E190            	   636:          dc.w  NMIV           NMI VECTOR
+01:FFFE E0D0            	   637:          dc.w  START          RESTART VECTOR
+                        	   638: 
+                        	   639:          END
+                        	   640: 
+                        	   641: 
+
+
+Symbols by name:
+ABC1                             A:EA52
+ABC10                            A:EC01
+ABC11                            A:EC02
+ABC2                             A:EA7A
+ABC20                            A:EBCB
+ABC29                            A:EA33
+ABC3                             A:EA81
+ABC30                            A:EA34
+ABC4                             A:EA68
+ABC5                             A:EA5A
+ABC6                             A:EAE5
+ABC7                             A:EAE9
+ABC8                             A:EBF4
+ABC9                             A:EBFE
+ABCD0                            A:EB05
+ABCD1                            A:EB0D
+ABORT1                           A:F5D5
+ABORT2                           A:F607
+ACIAIN                           A:E1E0
+ACIOU1                           A:E1F5
+ACIOUT                           A:E1F1
+AL1                              A:E101
+AL3                              A:E0D5
+AL4                              A:E0E5
+ALKILL                           A:F453
+ANOTH                            A:E09B
+APOS                             E:0027
+ASAVE                            E:0056
+ATKENG                           E:0071
+ATTAC1                           A:EED2
+ATTAC2                           A:EF06
+ATTAC3                           A:EF07
+ATTACK                           A:EECC
+AUTO2                            A:F064
+AUTOEX                           A:F077
+AUTOLR                           E:006E
+AUTOSR                           E:006D
+BADDR                            A:E047
+BASEST                           A:F4C9
+BASESX                           E:0023
+BASESY                           E:0024
+BASEX                            E:0021
+BASEY                            E:0022
+BASINF                           A:F152
+BCDADD                           A:EC83
+BCDFIX                           A:EC93
+BCDSUB                           A:EC86
+BEGA                             E:7F02
+BELL                             E:0007
+BILD                             A:E1D6
+BKLST                            E:7F16
+BKPT                             E:7F14
+BLOKST                           A:F262
+BMPX4                            A:EFFD
+BOTFLG                           E:0043
+BREAK                            A:E2B8
+BREAK0                           A:E2C1
+BYTE                             A:E055
+BYTE1                            A:E057
+BYTECT                           E:7F47
+C1                               A:E085
+C3                               A:E0FC
+C4                               A:E310
+CANTUS                           A:F631
+CHA51                            A:E08A
+CHANGE                           A:E088
+CHECK                            A:EE4E
+CHK0                             A:E84E
+CHKCM1                           A:E6D0
+CHKPO1                           A:E97F
+CHKPO2                           A:E984
+CHKPO3                           A:E98D
+CHKPO4                           A:E993
+CHKPO5                           A:E998
+CHKPO6                           A:E9AC
+CHKPO7                           A:E9AF
+CHKPO8                           A:E9B6
+CHKPO9                           A:E9BB
+CHKPOS                           A:E973
+CHRTBL                           A:E3C6
+CKSM                             E:7F0F
+CLEAR                            A:E2AB
+CLRCQ2                           A:EF66
+CLRCQU                           A:EF4A
+CLRMAP                           A:E46C
+CMDTBL                           A:E3CB
+CMND01                           A:E6A2
+CMND25                           A:E680
+CMND27                           A:E6B6
+CMND99                           A:E6F9
+CMNDAC                           A:E662
+CMNDAD                           A:E6AA
+CMPHST                           A:FCBC
+CMPMAP                           A:F078
+CMPMP1                           A:F081
+CMPMP2                           A:F088
+CMPMP3                           A:F09B
+CMPMP4                           A:F09E
+CMPTR1                           A:F03C
+CNDFLG                           E:004E
+CNDTNS                           A:F347
+COMAND                           A:E62C
+COMMAP                           E:00BC
+COMND0                           A:E68B
+COMND2                           A:E676
+COMND3                           A:E6C2
+COMPTR                           A:F033
+COMST                            A:F1F3
+CONT                             A:E4DC
+CONT1                            A:E4E3
+CONT2                            A:E501
+CONT3                            A:E55F
+CONT4                            A:E58C
+CONTR1                           A:E159
+CONTRL                           A:E145
+COUNT                            E:0030
+COUNT1                           E:0051
+COURSE                           E:002C
+CPRMPT                           A:FC31
+CR                               E:000D
+CRSSTR                           A:F230
+CSCEXT                           A:E915
+CSCKEN                           A:E90F
+CSCKN1                           A:E919
+CTLPOR                           E:8008
+CURQUX                           E:0047
+CURQUY                           E:0048
+CURSCX                           E:0049
+CURSCY                           E:004A
+CURSOR                           A:E009
+DAMCOM                           E:0069
+DAMENG                           E:0061
+DAMLRS                           E:0063
+DAMPHS                           E:0064
+DAMPHT                           E:0065
+DAMRPT                           A:EFEB
+DAMSHL                           E:0066
+DAMSRS                           E:0062
+DDL                              A:E242
+DDL1                             A:E244
+DE                               A:E23D
+DEL                              A:E239
+DELAY                            A:E2A1
+DELAY1                           A:E2A4
+DEVSTR                           A:F983
+DISINT                           A:F5A5
+DISK                             A:E26E
+DMGDST                           A:F935
+DMRPST                           A:F970
+DMRPT2                           A:EFF9
+DMRPT3                           A:F012
+DMRPT4                           A:F02B
+DNSCAS                           A:F170
+DOCKED                           A:F169
+DOSCAN                           A:E827
+DOSCN                            A:E831
+DOSCN0                           A:E839
+DOSCN1                           A:E850
+DOSCN2                           A:E870
+DUM                              A:E2A8
+DWNST                            A:F1FE
+EIA5                             A:E18E
+ENAVLB                           A:F3E6
+ENDA                             E:7F04
+ENDGAM                           A:EF29
+ENDGM2                           A:EF31
+ENDGM3                           A:EF37
+ENDGM4                           A:EF47
+ENERGY                           E:0058
+ENGSTR                           A:F384
+EOE3                             A:E0E3
+EOT                              E:0004
+ERR                              A:F49F
+EXIT                             A:EE4D
+EXPCMD                           A:FA66
+FAILST                           A:F7CF
+FINCX                            E:002E
+FINCY                            E:002F
+FIRENG                           A:F400
+FIXDAM                           A:EF70
+FIXDM1                           A:EF73
+FIXDM2                           A:EF79
+FIXENG                           A:EC73
+FIXOUT                           A:E5C8
+FIXTIM                           A:EC4B
+FIXTM1                           A:EC70
+FIXXRG                           A:E623
+FLAG                             E:004D
+FLAGC                            E:0027
+GALBN2                           A:EBC1
+GALBND                           A:EBAA
+GALCNT                           E:0060
+GALDUM                           A:F6BA
+GAMEND                           E:006C
+GAMTIM                           E:0039
+GATM                             A:E523
+GCMD1                            A:E6E9
+GETPT1                           A:E1BF
+GLBNDS                           A:F2A9
+GLMFLG                           E:0025
+GOAHD                            A:E85D
+GOTCMD                           A:E6E7
+GOTO                             A:E1B9
+GREEN                            A:F364
+HEVDAM                           A:F927
+HITBAS                           E:005D
+HITKLS                           E:005B
+HITSTR                           E:005C
+HWMANY                           A:FCFF
+ILCMND                           A:E6DF
+IN1                              A:E202
+IN1HG                            A:E0BE
+IN3                              A:E20D
+INBCD                            A:EE20
+INBCD1                           A:EE26
+INBCD2                           A:EE36
+INCH                             A:E078
+INCH8                            A:E1D9
+INCHCK                           A:EC2E
+INCHK0                           A:EC2F
+INCHK1                           A:EC43
+INCR1                            A:E1C9
+INEEE                            A:E195
+INEEE1                           A:E1D1
+INEROR                           A:EE45
+INHEX                            A:E0AA
+INHEX1                           A:E0AC
+INTRO0                           A:F510
+INTRO1                           A:F18A
+INTRO2                           A:F19B
+INTRO3                           A:F1B0
+INTRO4                           A:F1D2
+INTRO6                           A:F1E7
+INUSE                            A:E2DA
+INX2                             A:E6D8
+IOUT                             A:E21F
+IOUT2                            A:E230
+IRQ                              E:7F00
+IRQV                             A:E000
+JMPTBL                           A:E3E1
+JUMP                             A:E005
+KATKDN                           A:F554
+KATKUP                           A:F570
+KHTADM                           A:F484
+KILAL1                           A:EDE8
+KILAL2                           A:EDEC
+KILAL3                           A:EDF3
+KILAL4                           A:EE01
+KILALK                           A:EDE1
+KLGRAM                           A:EB77
+KLGSTR                           A:F4F7
+KLNENG                           E:003E
+KLNGCT                           E:0054
+KLSTR                            A:F38F
+KRMSTR                           A:F287
+LENGTH                           E:0055
+LF                               E:000A
+LOAD                             A:E00C
+LOAD11                           A:E02B
+LOAD15                           A:E03B
+LOAD19                           A:E040
+LOAD21                           A:E044
+LOAD3                            A:E00F
+LOOK                             A:E161
+LOOP1                            A:E277
+LOOP2                            A:E288
+LOOP3                            A:E292
+LRMODE                           A:FD58
+LRSC10                           A:ED08
+LRSCAN                           A:ECA2
+LRSCN2                           A:ECD1
+LRSCN3                           A:ECD8
+LRSCN4                           A:ECDF
+LRSCN7                           A:ECEF
+LRSCN8                           A:ECF1
+LRSCN9                           A:ED06
+LRSCNC                           A:ECE1
+LRSCNT                           A:ECCA
+LRSCST                           A:F3B5
+LRSNDM                           A:ECAB
+LSDFLG                           E:0044
+MAKTIM                           A:E554
+MANDAM                           A:EFB7
+MANDM1                           A:EFBA
+MANDM2                           A:EFCA
+MANDM3                           A:EFD8
+MANDM4                           A:EFE3
+MASK                             E:0053
+MCL                              A:E18A
+MLSHLD                           A:F3C8
+MOVTBL                           A:E3B6
+MTAPE1                           A:E181
+NMENGS                           A:F727
+NMI                              E:7F06
+NMIV                             A:E190
+NMKLST                           A:F792
+NMTMST                           A:F761
+NOEXT2                           A:E63D
+NOEXT4                           A:E64E
+NOEXTC                           A:E635
+NOMKLN                           A:EF21
+NOMTIM                           A:EF1C
+NOOPT                            A:E262
+NOPICK                           A:FA38
+NOSCAN                           A:FCF9
+NOZERO                           A:E721
+NPCKUP                           A:F0F3
+NRGOU1                           A:EF17
+NRGOUT                           A:EF14
+OBATSO                           A:EA87
+OPTL                             A:E248
+OUT1                             A:E227
+OUT2H                            A:E0BF
+OUT2HA                           A:E0C1
+OUT2HS                           A:E0CA
+OUT4HS                           A:E0C8
+OUTBC1                           A:E70C
+OUTBC2                           A:E716
+OUTBC3                           A:E724
+OUTBCD                           A:E6FC
+OUTCH                            A:E075
+OUTCN1                           A:E7A9
+OUTCND                           A:E7AC
+OUTDAT                           A:E5CE
+OUTDIG                           A:E424
+OUTDSH                           A:E61D
+OUTEE1                           A:E1EE
+OUTEEE                           A:E1BA
+OUTHL                            A:E067
+OUTHLST                          A:E410
+OUTHR                            A:E06B
+OUTHRST                          A:E419
+OUTK0                            A:E5E2
+OUTK1                            A:E5E5
+OUTK2                            A:E5EA
+OUTK3                            A:E5F9
+OUTKLN                           A:E5E0
+OUTLIN                           A:ED09
+OUTLN1                           A:ED13
+OUTLN2                           A:ED15
+OUTLN3                           A:ED27
+OUTLN4                           A:ED29
+OUTQIN                           A:ED32
+OUTQUD                           A:E607
+OUTS                             A:E0CC
+OUTS4                            A:F020
+OUTSEC                           A:E612
+OUTSST                           A:E429
+OUTTH0                           A:ED55
+OUTTH1                           A:ED59
+OVE                              A:E1A4
+OVER                             A:E164
+PASWRD                           E:0075
+PCOUNT                           E:006A
+PCRLF                            A:E402
+PDAT                             A:E309
+PDATA                            A:E3F7
+PDATA1                           A:E07E
+PDATA2                           A:E07B
+PDATA3                           A:E3FB
+PHAMIS                           A:F43C
+PHASOR                           A:ED65
+PHASR1                           A:ED78
+PHASR2                           A:EDA3
+PHASR3                           A:EDB2
+PHASR4                           A:EDC0
+PHASR5                           A:EE04
+PHASR6                           A:EE15
+PHITST                           A:F300
+PHOTON                           E:0046
+PHOTOR                           A:E9C1
+PHOTRO                           A:E9D9
+PHSENG                           E:0040
+PHSNDM                           A:ED6E
+PHTFLG                           E:0078
+PHTOR1                           A:EA28
+PHTOR2                           A:EA43
+PHTOR3                           A:EBCE
+PHTOR4                           A:EAAB
+PIAECH                           A:E25C
+PIAINI                           A:E263
+PLAYAG                           A:F9E6
+PNCHOF                           A:E329
+PNCHON                           A:E323
+PNCHS9                           A:E2FD
+PNOENG                           A:F318
+PNT                              A:E1AE
+PNTFLG                           E:002B
+POF1                             A:E153
+POFC4                            A:E30C
+PORADD                           E:7F0A
+PORECH                           E:7F0C
+PRINT                            A:E123
+PROM                             E:C000
+PSTRNG                           A:E40C
+PTEMPT                           A:E9CF
+PTEMST                           A:F176
+PTRND9                           A:E9C6
+PTRNDM                           A:E9CA
+PTZFLG                           E:006B
+PUN11                            A:E339
+PUN22                            A:E34B
+PUN23                            A:E34D
+PUN32                            A:E36D
+PUNCH                            A:E331
+PUNCH1                           A:E2F9
+PUNCH2                           A:E334
+PUNT2                            A:E387
+PUTIN1                           A:E943
+PUTIN2                           A:E948
+PUTIN3                           A:E952
+PUTIN4                           A:E957
+PUTIN5                           A:E96E
+PUTIN6                           A:E972
+PUTINM                           A:E92B
+QUADP                            A:F36A
+QUDMAP                           E:007C
+QUDPTR                           E:0073
+RANDOM                           A:E42E
+RDOFF                            A:E31D
+RDOFF1                           A:E2B3
+RDON                             A:E313
+RED                              A:F35D
+REFUEL                           A:E535
+REFUL1                           A:E54B
+RES                              A:E1FD
+RETT1                            A:E2A0
+RETT2                            A:E29C
+RETURN                           A:E29E
+RPTDAM                           A:EFE4
+RPTDM8                           A:EFEA
+RSDFLG                           E:0045
+RTN1                             A:E330
+RTN5                             A:E386
+RTNN                             A:E31C
+S9                               A:E17E
+SAVGET                           A:E1BC
+SCANX                            E:004F
+SCANY                            E:0050
+SCBKUP                           A:FC00
+SCONBD                           A:FA0C
+SCRATCH                          E:7F00
+SDATE                            A:F33A
+SDOCK                            A:EB4B
+SEARCH                           A:E197
+SECINF                           E:0052
+SECKLN                           E:0026
+SECMAP                           E:00FC
+SECP                             A:F377
+SELFD1                           A:EE67
+SELFD2                           A:EE7C
+SELFDA                           A:EE72
+SELFDE                           A:EE5C
+SETCLR                           A:E45F
+SETCRS                           A:E9E8
+SETFLG                           A:EE58
+SETP10                           A:E8F1
+SETPS1                           A:E887
+SETPS2                           A:E899
+SETPS3                           A:E89B
+SETPS4                           A:E8A2
+SETPS5                           A:E8A6
+SETPS6                           A:E8AA
+SETPS7                           A:E8C9
+SETPS8                           A:E8DA
+SETPS9                           A:E8EA
+SETQD                            A:E484
+SETUP0                           A:E489
+SETUP1                           A:E494
+SETUP2                           A:E49C
+SETUP3                           A:E4A4
+SETUP4                           A:E4AC
+SETUP5                           A:E4AD
+SETUP6                           A:E4C2
+SETUP7                           A:E4CA
+SETUP8                           A:E4CB
+SETUPS                           A:E87E
+SEXIT0                           A:EB44
+SEXIT1                           A:EB4F
+SEXIT2                           A:EB57
+SEXIT3                           A:EB5F
+SF0                              A:E116
+SFE                              A:E179
+SFE1                             A:E117
+SHENGY                           E:003C
+SHIELD                           E:0057
+SHLD0                            A:E737
+SHLD1                            A:E73A
+SHLDS                            A:E72C
+SHLDUP                           A:E73B
+SHLDWN                           A:E731
+SHSTR                            A:F39C
+SHTLNG                           A:F132
+SHTSIG                           A:FBC4
+SHUTCR                           E:0079
+SHUTLX                           E:007A
+SHUTLY                           E:007B
+SK1                              A:E0DE
+SK3                              A:E16F
+SKP0                             A:E1C3
+SOMWHR                           A:F664
+SP                               E:7F08
+SPSTRM                           A:F68E
+SQFLG                            E:002A
+SRMODE                           A:FD2A
+SRSCAN                           A:E75B
+SRSCN0                           A:E7B1
+SRSCN1                           A:E7B6
+SRSCN2                           A:E7BB
+SRSCN4                           A:E804
+SRSCN5                           A:E807
+SSCAN0                           A:E769
+SSCAN1                           A:E76F
+SSCAN2                           A:E77E
+STACK                            E:7F42
+STARS                            A:E4D3
+STARST                           A:F4B0
+START                            A:E0D0
+STCFLG                           E:0029
+STCRET                           A:EA9A
+STCRS2                           A:EA1F
+STCRS3                           A:EA3F
+STCRS4                           A:EA9D
+STCRS5                           A:EADD
+STCRS6                           A:EB2A
+STCRS7                           A:EB60
+STCRSA                           A:EB27
+STCRSB                           A:EAB4
+STCRSC                           A:EACD
+STCRSD                           A:EAD5
+STILFT                           A:F535
+STO                              A:E2F2
+STO1                             A:E2F5
+STORTN                           A:E2F8
+STPSEX                           A:E894
+STPSFL                           E:0020
+STPSNX                           A:E8B3
+STROBE                           A:E32D
+STRTRK                           A:E456
+STUF                             E:010C
+SUCCST                           A:F80A
+SUPDES                           A:F870
+SUPFLG                           E:006F
+SUPNOV                           A:EF80
+SUPSTR                           A:F8FD
+SWIJMP                           E:7F12
+SWISET                           A:E2E7
+SWTCTL                           A:E13D
+SWTL1                            A:E177
+TABEND                           A:E3B0
+TABLE                            A:E38C
+TABLE1                           A:E3AA
+TELEP1                           A:EE98
+TELEP2                           A:EEAA
+TELEP3                           A:EEAD
+TELEP4                           A:EEB1
+TELEP5                           A:EEB6
+TELEPA                           A:EEA7
+TELEPT                           A:EE83
+TELFLG                           E:0070
+TEMP                             E:7F46
+TEMP1                            E:0031
+TEMP2                            E:0033
+TEMP3                            E:005E
+TIMDEC                           E:0028
+TIME0                            E:0037
+TIMUSE                           E:003A
+TITLE                            A:F0FA
+TOMUCH                           A:F41E
+TOOMC1                           A:ED9F
+TOOMCH                           A:ED9C
+TOPFLG                           E:0042
+TRCTBM                           A:F0DA
+TRCTEX                           A:F0F6
+TRIALX                           E:004B
+TRIALY                           E:004C
+TRPSTR                           A:F3A8
+TS2                              A:F0B2
+TS3                              A:F0CC
+TSAVE1                           E:005A
+TSEX                             A:F0D9
+TSPRED                           A:F0A9
+TSTBN1                           A:EC18
+TSTBN2                           A:EC1F
+TSTBN3                           A:EC26
+TSTBN4                           A:EC2D
+TSTBND                           A:EC0A
+TW                               E:7F44
+UPDCMP                           A:ED2F
+UPSCAS                           A:F14E
+UPSTR                            A:F218
+WARP                             E:002D
+WRPSTR                           A:F24A
+XHI                              E:7F0D
+XLOW                             E:7F0E
+XTEMP                            E:7F10
+XTEMP1                           E:0035
+YELLOW                           A:F355
+
+Symbols by value:
+8008 CTLPOR
+C000 PROM
+E000 IRQV
+E005 JUMP
+E009 CURSOR
+E00C LOAD
+E00F LOAD3
+E02B LOAD11
+E03B LOAD15
+E040 LOAD19
+E044 LOAD21
+E047 BADDR
+E055 BYTE
+E057 BYTE1
+E067 OUTHL
+E06B OUTHR
+E075 OUTCH
+E078 INCH
+E07B PDATA2
+E07E PDATA1
+E085 C1
+E088 CHANGE
+E08A CHA51
+E09B ANOTH
+E0AA INHEX
+E0AC INHEX1
+E0BE IN1HG
+E0BF OUT2H
+E0C1 OUT2HA
+E0C8 OUT4HS
+E0CA OUT2HS
+E0CC OUTS
+E0D0 START
+E0D5 AL3
+E0DE SK1
+E0E3 EOE3
+E0E5 AL4
+E0FC C3
+E101 AL1
+E116 SF0
+E117 SFE1
+E123 PRINT
+E13D SWTCTL
+E145 CONTRL
+E153 POF1
+E159 CONTR1
+E161 LOOK
+E164 OVER
+E16F SK3
+E177 SWTL1
+E179 SFE
+E17E S9
+E181 MTAPE1
+E18A MCL
+E18E EIA5
+E190 NMIV
+E195 INEEE
+E197 SEARCH
+E1A4 OVE
+E1AE PNT
+E1B9 GOTO
+E1BA OUTEEE
+E1BC SAVGET
+E1BF GETPT1
+E1C3 SKP0
+E1C9 INCR1
+E1D1 INEEE1
+E1D6 BILD
+E1D9 INCH8
+E1E0 ACIAIN
+E1EE OUTEE1
+E1F1 ACIOUT
+E1F5 ACIOU1
+E1FD RES
+E202 IN1
+E20D IN3
+E21F IOUT
+E227 OUT1
+E230 IOUT2
+E239 DEL
+E23D DE
+E242 DDL
+E244 DDL1
+E248 OPTL
+E25C PIAECH
+E262 NOOPT
+E263 PIAINI
+E26E DISK
+E277 LOOP1
+E288 LOOP2
+E292 LOOP3
+E29C RETT2
+E29E RETURN
+E2A0 RETT1
+E2A1 DELAY
+E2A4 DELAY1
+E2A8 DUM
+E2AB CLEAR
+E2B3 RDOFF1
+E2B8 BREAK
+E2C1 BREAK0
+E2DA INUSE
+E2E7 SWISET
+E2F2 STO
+E2F5 STO1
+E2F8 STORTN
+E2F9 PUNCH1
+E2FD PNCHS9
+E309 PDAT
+E30C POFC4
+E310 C4
+E313 RDON
+E31C RTNN
+E31D RDOFF
+E323 PNCHON
+E329 PNCHOF
+E32D STROBE
+E330 RTN1
+E331 PUNCH
+E334 PUNCH2
+E339 PUN11
+E34B PUN22
+E34D PUN23
+E36D PUN32
+E386 RTN5
+E387 PUNT2
+E38C TABLE
+E3AA TABLE1
+E3B0 TABEND
+E3B6 MOVTBL
+E3C6 CHRTBL
+E3CB CMDTBL
+E3E1 JMPTBL
+E3F7 PDATA
+E3FB PDATA3
+E402 PCRLF
+E40C PSTRNG
+E410 OUTHLST
+E419 OUTHRST
+E424 OUTDIG
+E429 OUTSST
+E42E RANDOM
+E456 STRTRK
+E45F SETCLR
+E46C CLRMAP
+E484 SETQD
+E489 SETUP0
+E494 SETUP1
+E49C SETUP2
+E4A4 SETUP3
+E4AC SETUP4
+E4AD SETUP5
+E4C2 SETUP6
+E4CA SETUP7
+E4CB SETUP8
+E4D3 STARS
+E4DC CONT
+E4E3 CONT1
+E501 CONT2
+E523 GATM
+E535 REFUEL
+E54B REFUL1
+E554 MAKTIM
+E55F CONT3
+E58C CONT4
+E5C8 FIXOUT
+E5CE OUTDAT
+E5E0 OUTKLN
+E5E2 OUTK0
+E5E5 OUTK1
+E5EA OUTK2
+E5F9 OUTK3
+E607 OUTQUD
+E612 OUTSEC
+E61D OUTDSH
+E623 FIXXRG
+E62C COMAND
+E635 NOEXTC
+E63D NOEXT2
+E64E NOEXT4
+E662 CMNDAC
+E676 COMND2
+E680 CMND25
+E68B COMND0
+E6A2 CMND01
+E6AA CMNDAD
+E6B6 CMND27
+E6C2 COMND3
+E6D0 CHKCM1
+E6D8 INX2
+E6DF ILCMND
+E6E7 GOTCMD
+E6E9 GCMD1
+E6F9 CMND99
+E6FC OUTBCD
+E70C OUTBC1
+E716 OUTBC2
+E721 NOZERO
+E724 OUTBC3
+E72C SHLDS
+E731 SHLDWN
+E737 SHLD0
+E73A SHLD1
+E73B SHLDUP
+E75B SRSCAN
+E769 SSCAN0
+E76F SSCAN1
+E77E SSCAN2
+E7A9 OUTCN1
+E7AC OUTCND
+E7B1 SRSCN0
+E7B6 SRSCN1
+E7BB SRSCN2
+E804 SRSCN4
+E807 SRSCN5
+E827 DOSCAN
+E831 DOSCN
+E839 DOSCN0
+E84E CHK0
+E850 DOSCN1
+E85D GOAHD
+E870 DOSCN2
+E87E SETUPS
+E887 SETPS1
+E894 STPSEX
+E899 SETPS2
+E89B SETPS3
+E8A2 SETPS4
+E8A6 SETPS5
+E8AA SETPS6
+E8B3 STPSNX
+E8C9 SETPS7
+E8DA SETPS8
+E8EA SETPS9
+E8F1 SETP10
+E90F CSCKEN
+E915 CSCEXT
+E919 CSCKN1
+E92B PUTINM
+E943 PUTIN1
+E948 PUTIN2
+E952 PUTIN3
+E957 PUTIN4
+E96E PUTIN5
+E972 PUTIN6
+E973 CHKPOS
+E97F CHKPO1
+E984 CHKPO2
+E98D CHKPO3
+E993 CHKPO4
+E998 CHKPO5
+E9AC CHKPO6
+E9AF CHKPO7
+E9B6 CHKPO8
+E9BB CHKPO9
+E9C1 PHOTOR
+E9C6 PTRND9
+E9CA PTRNDM
+E9CF PTEMPT
+E9D9 PHOTRO
+E9E8 SETCRS
+EA1F STCRS2
+EA28 PHTOR1
+EA33 ABC29
+EA34 ABC30
+EA3F STCRS3
+EA43 PHTOR2
+EA52 ABC1
+EA5A ABC5
+EA68 ABC4
+EA7A ABC2
+EA81 ABC3
+EA87 OBATSO
+EA9A STCRET
+EA9D STCRS4
+EAAB PHTOR4
+EAB4 STCRSB
+EACD STCRSC
+EAD5 STCRSD
+EADD STCRS5
+EAE5 ABC6
+EAE9 ABC7
+EB05 ABCD0
+EB0D ABCD1
+EB27 STCRSA
+EB2A STCRS6
+EB44 SEXIT0
+EB4B SDOCK
+EB4F SEXIT1
+EB57 SEXIT2
+EB5F SEXIT3
+EB60 STCRS7
+EB77 KLGRAM
+EBAA GALBND
+EBC1 GALBN2
+EBCB ABC20
+EBCE PHTOR3
+EBF4 ABC8
+EBFE ABC9
+EC01 ABC10
+EC02 ABC11
+EC0A TSTBND
+EC18 TSTBN1
+EC1F TSTBN2
+EC26 TSTBN3
+EC2D TSTBN4
+EC2E INCHCK
+EC2F INCHK0
+EC43 INCHK1
+EC4B FIXTIM
+EC70 FIXTM1
+EC73 FIXENG
+EC83 BCDADD
+EC86 BCDSUB
+EC93 BCDFIX
+ECA2 LRSCAN
+ECAB LRSNDM
+ECCA LRSCNT
+ECD1 LRSCN2
+ECD8 LRSCN3
+ECDF LRSCN4
+ECE1 LRSCNC
+ECEF LRSCN7
+ECF1 LRSCN8
+ED06 LRSCN9
+ED08 LRSC10
+ED09 OUTLIN
+ED13 OUTLN1
+ED15 OUTLN2
+ED27 OUTLN3
+ED29 OUTLN4
+ED2F UPDCMP
+ED32 OUTQIN
+ED55 OUTTH0
+ED59 OUTTH1
+ED65 PHASOR
+ED6E PHSNDM
+ED78 PHASR1
+ED9C TOOMCH
+ED9F TOOMC1
+EDA3 PHASR2
+EDB2 PHASR3
+EDC0 PHASR4
+EDE1 KILALK
+EDE8 KILAL1
+EDEC KILAL2
+EDF3 KILAL3
+EE01 KILAL4
+EE04 PHASR5
+EE15 PHASR6
+EE20 INBCD
+EE26 INBCD1
+EE36 INBCD2
+EE45 INEROR
+EE4D EXIT
+EE4E CHECK
+EE58 SETFLG
+EE5C SELFDE
+EE67 SELFD1
+EE72 SELFDA
+EE7C SELFD2
+EE83 TELEPT
+EE98 TELEP1
+EEA7 TELEPA
+EEAA TELEP2
+EEAD TELEP3
+EEB1 TELEP4
+EEB6 TELEP5
+EECC ATTACK
+EED2 ATTAC1
+EF06 ATTAC2
+EF07 ATTAC3
+EF14 NRGOUT
+EF17 NRGOU1
+EF1C NOMTIM
+EF21 NOMKLN
+EF29 ENDGAM
+EF31 ENDGM2
+EF37 ENDGM3
+EF47 ENDGM4
+EF4A CLRCQU
+EF66 CLRCQ2
+EF70 FIXDAM
+EF73 FIXDM1
+EF79 FIXDM2
+EF80 SUPNOV
+EFB7 MANDAM
+EFBA MANDM1
+EFCA MANDM2
+EFD8 MANDM3
+EFE3 MANDM4
+EFE4 RPTDAM
+EFEA RPTDM8
+EFEB DAMRPT
+EFF9 DMRPT2
+EFFD BMPX4
+F012 DMRPT3
+F020 OUTS4
+F02B DMRPT4
+F033 COMPTR
+F03C CMPTR1
+F064 AUTO2
+F077 AUTOEX
+F078 CMPMAP
+F081 CMPMP1
+F088 CMPMP2
+F09B CMPMP3
+F09E CMPMP4
+F0A9 TSPRED
+F0B2 TS2
+F0CC TS3
+F0D9 TSEX
+F0DA TRCTBM
+F0F3 NPCKUP
+F0F6 TRCTEX
+F0FA TITLE
+F132 SHTLNG
+F14E UPSCAS
+F152 BASINF
+F169 DOCKED
+F170 DNSCAS
+F176 PTEMST
+F18A INTRO1
+F19B INTRO2
+F1B0 INTRO3
+F1D2 INTRO4
+F1E7 INTRO6
+F1F3 COMST
+F1FE DWNST
+F218 UPSTR
+F230 CRSSTR
+F24A WRPSTR
+F262 BLOKST
+F287 KRMSTR
+F2A9 GLBNDS
+F300 PHITST
+F318 PNOENG
+F33A SDATE
+F347 CNDTNS
+F355 YELLOW
+F35D RED
+F364 GREEN
+F36A QUADP
+F377 SECP
+F384 ENGSTR
+F38F KLSTR
+F39C SHSTR
+F3A8 TRPSTR
+F3B5 LRSCST
+F3C8 MLSHLD
+F3E6 ENAVLB
+F400 FIRENG
+F41E TOMUCH
+F43C PHAMIS
+F453 ALKILL
+F484 KHTADM
+F49F ERR
+F4B0 STARST
+F4C9 BASEST
+F4F7 KLGSTR
+F510 INTRO0
+F535 STILFT
+F554 KATKDN
+F570 KATKUP
+F5A5 DISINT
+F5D5 ABORT1
+F607 ABORT2
+F631 CANTUS
+F664 SOMWHR
+F68E SPSTRM
+F6BA GALDUM
+F727 NMENGS
+F761 NMTMST
+F792 NMKLST
+F7CF FAILST
+F80A SUCCST
+F870 SUPDES
+F8FD SUPSTR
+F927 HEVDAM
+F935 DMGDST
+F970 DMRPST
+F983 DEVSTR
+F9E6 PLAYAG
+FA0C SCONBD
+FA38 NOPICK
+FA66 EXPCMD
+FBC4 SHTSIG
+FC00 SCBKUP
+FC31 CPRMPT
+FCBC CMPHST
+FCF9 NOSCAN
+FCFF HWMANY
+FD2A SRMODE
+FD58 LRMODE
+0004 EOT
+0007 BELL
+000A LF
+000D CR
+0020 STPSFL
+0021 BASEX
+0022 BASEY
+0023 BASESX
+0024 BASESY
+0025 GLMFLG
+0026 SECKLN
+0027 APOS
+0027 FLAGC
+0028 TIMDEC
+0029 STCFLG
+002A SQFLG
+002B PNTFLG
+002C COURSE
+002D WARP
+002E FINCX
+002F FINCY
+0030 COUNT
+0031 TEMP1
+0033 TEMP2
+0035 XTEMP1
+0037 TIME0
+0039 GAMTIM
+003A TIMUSE
+003C SHENGY
+003E KLNENG
+0040 PHSENG
+0042 TOPFLG
+0043 BOTFLG
+0044 LSDFLG
+0045 RSDFLG
+0046 PHOTON
+0047 CURQUX
+0048 CURQUY
+0049 CURSCX
+004A CURSCY
+004B TRIALX
+004C TRIALY
+004D FLAG
+004E CNDFLG
+004F SCANX
+0050 SCANY
+0051 COUNT1
+0052 SECINF
+0053 MASK
+0054 KLNGCT
+0055 LENGTH
+0056 ASAVE
+0057 SHIELD
+0058 ENERGY
+005A TSAVE1
+005B HITKLS
+005C HITSTR
+005D HITBAS
+005E TEMP3
+0060 GALCNT
+0061 DAMENG
+0062 DAMSRS
+0063 DAMLRS
+0064 DAMPHS
+0065 DAMPHT
+0066 DAMSHL
+0069 DAMCOM
+006A PCOUNT
+006B PTZFLG
+006C GAMEND
+006D AUTOSR
+006E AUTOLR
+006F SUPFLG
+0070 TELFLG
+0071 ATKENG
+0073 QUDPTR
+0075 PASWRD
+0078 PHTFLG
+0079 SHUTCR
+007A SHUTLX
+007B SHUTLY
+007C QUDMAP
+00BC COMMAP
+00FC SECMAP
+010C STUF
+7F00 SCRATCH
+7F00 IRQ
+7F02 BEGA
+7F04 ENDA
+7F06 NMI
+7F08 SP
+7F0A PORADD
+7F0C PORECH
+7F0D XHI
+7F0E XLOW
+7F0F CKSM
+7F10 XTEMP
+7F12 SWIJMP
+7F14 BKPT
+7F16 BKLST
+7F42 STACK
+7F44 TW
+7F46 TEMP
+7F47 BYTECT

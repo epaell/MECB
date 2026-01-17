@@ -1,0 +1,80 @@
+Sections:
+00: "sege000" (E000-E03E)
+01: "sege800" (E800-E802)
+02: "segf000" (F000-F002)
+03: "segfff8" (FFF8-0)
+
+
+Source: "src/ram.asm"
+                        	     1: *    VERSION 1.00
+                        	     2: 
+                        	     3:          ORG   $E000
+                        	     4: 
+00:E000 CE0000          	     5: START    LDX   #$0000         Fill memory from $0000 to $7FFF
+00:E003 86AA            	     6: FILL     LDAA  #$AA           Fill with $AA
+00:E005 A700            	     7:          STAA  0,X            Store at current location
+00:E007 08              	     8:          INX                  Bump location
+00:E008 8C8000          	     9:          CPX   #$8000         Reached end?
+00:E00B 26F6            	    10:          BNE   FILL           No, keep filling
+                        	    11: ;
+00:E00D CE0000          	    12:          LDX   #$0000         Go back to start of RAM
+00:E010 A600            	    13: CHECK1   LDAA  0,X            Read a byte
+00:E012 81AA            	    14:          CMPA  #$AA           Was it what was written?
+00:E014 2625            	    15:          BNE   BAD_RAM        No, RAM is bad
+00:E016 08              	    16:          INX                  Bump location
+00:E017 8C8000          	    17:          CPX   #$8000         Reached end?
+00:E01A 26F4            	    18:          BNE   CHECK1         No, keep checking
+                        	    19: ;
+00:E01C CE0000          	    20:          LDX   #$0000         Fill memory from $0000 to $7FFF
+00:E01F 8655            	    21: FILL2    LDAA  #$55           Fill with $55
+00:E021 A700            	    22:          STAA  0,X            Store at current location
+00:E023 08              	    23:          INX                  Bump location
+00:E024 8C8000          	    24:          CPX   #$8000         Reached end?
+00:E027 26F6            	    25:          BNE   FILL2          No, keep filling
+                        	    26: ;
+00:E029 CE0000          	    27:          LDX   #$0000         Go back to start of RAM
+00:E02C A600            	    28: CHECK2   LDAA  0,X            Read a byte
+00:E02E 8155            	    29:          CMPA  #$55           Was it what was written?
+00:E030 2609            	    30:          BNE   BAD_RAM        No, RAM is bad
+00:E032 08              	    31:          INX                  Bump location
+00:E033 8C8000          	    32:          CPX   #$8000         Reached end?
+00:E036 26F4            	    33:          BNE   CHECK2         No, keep checking
+00:E038 7EF000          	    34:          JMP   GOOD_RAM
+00:E03B 7EE800          	    35: BAD_RAM  JMP   BAD_RAM1
+                        	    36: 
+                        	    37:          ORG   $E800
+01:E800 20FE            	    38: BAD_RAM1  BRA  BAD_RAM1        If RAM is bad then check for   A15-A14-A13-A12 = 1-1-1-0
+                        	    39: 
+                        	    40:          ORG   $F000
+02:F000 20FE            	    41: GOOD_RAM BRA   GOOD_RAM       If RAMN is good then check for A15-A14-A13-A12 = 1-1-1-1
+                        	    42: 
+                        	    43:          ORG   $FFF8
+03:FFF8 E000            	    44:          dc.w  START          IRQ VECTOR
+03:FFFA E000            	    45:          dc.w  START          SOFTWARE INTERRUPT
+03:FFFC E000            	    46:          dc.w  START          NMI VECTOR
+03:FFFE E000            	    47:          dc.w  START          RESTART VECTOR
+                        	    48: 
+                        	    49:          END
+                        	    50: 
+                        	    51: 
+
+
+Symbols by name:
+BAD_RAM                          A:E03B
+BAD_RAM1                         A:E800
+CHECK1                           A:E010
+CHECK2                           A:E02C
+FILL                             A:E003
+FILL2                            A:E01F
+GOOD_RAM                         A:F000
+START                            A:E000
+
+Symbols by value:
+E000 START
+E003 FILL
+E010 CHECK1
+E01F FILL2
+E02C CHECK2
+E03B BAD_RAM
+E800 BAD_RAM1
+F000 GOOD_RAM
