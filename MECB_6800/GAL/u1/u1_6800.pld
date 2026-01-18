@@ -19,6 +19,8 @@ Pin 8 = a10;
 Pin 9 = a9;
 Pin 10 = a8;
 Pin 11 = cpu_rw;
+Pin 15 = romaddr;
+Pin 16 = memaddr;
 Pin 17 = ioaddr;
 Pin 18 = !ecbwr;
 Pin 19 = !mreq;
@@ -27,7 +29,17 @@ Pin 21 = !csram;
 Pin 22 = !csrom;
 Pin 23 = !ecbrd;
 
+ecbwr = !cpu_rw & cpu_e;
+ecbrd = cpu_rw & cpu_e;
+ioaddr = a15 & !a14 & !a13 & !a12 & !a11 & !a10 & !a9 & !a8;   /* 0x8000 - 0x80FF */
+romaddr = a15 & a14 & a13;                               	   /* 0xE000 - 0xFFFF */
+memaddr = (!ioaddr & !romaddr);                                /* 0x0000 - 0x7FFF, 0x8100 - 0xDFFF */
+mreq = !ioaddr & vma;
+iorq = ioaddr & vma;
+csrom = vma & romaddr;
+csram = vma & memaddr;
 
+/* Original
 ecbwr = !cpu_rw & cpu_e;
 ecbrd = cpu_rw & cpu_e;
 ioaddr = a15 & !a14 & !a13 & !a12 & !a11 & !a10 & !a9 & !a8; 
@@ -35,3 +47,4 @@ mreq = !ioaddr & vma;
 iorq = ioaddr & vma;
 csrom = vma & a15 & !ioaddr ;
 csram = vma & !a15;
+*/
