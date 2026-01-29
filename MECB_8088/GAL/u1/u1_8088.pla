@@ -1,0 +1,46 @@
+# Berkeley PLA format generated using
+#
+# CUPL(WM)        5.0a Serial# MW-10400000
+# Device          p22v10  Library DLIB-h-40-17
+# Created         Sat Jan 24 13:30:08 2026
+# Name            U1_8088
+# Partno          CA0001
+# Revision        01
+# Date            01/2026
+# Designer        Emil
+# Company         None
+# Assembly        None
+# Location        None
+#
+# Inputs  1 a19 csram csrom 
+#         den dtr ecbint ecbiorq 
+#         ecbmreq ecbnmi ecbrd ecbreset 
+#         ecbwr hold int m 
+#         nmi reset sysclk test 
+# Outputs !csram !csrom ecbiorq ecbmreq 
+#         ecbreset hold int nmi 
+#         test csram.oe csrom.oe ecbiorq.oe 
+#         ecbmreq.oe ecbreset.oe hold.oe int.oe 
+#         nmi.oe test.oe 
+.i 20
+.o 18
+.p 18
+-0-------------0---- 1~~~~~~~~~~~~~~~~~
+-1-------------0---- ~1~~~~~~~~~~~~~~~~
+---------------0---- ~~1~~~~~~~~~~~~~~~
+---------------1---- ~~~1~~~~~~~~~~~~~~
+-----------------0-- ~~~~1~~~~~~~~~~~~~
+-----------------1-- ~~~~~1~~~~~~~~~~~~
+------0------------- ~~~~~~1~~~~~~~~~~~
+---------0---------- ~~~~~~~1~~~~~~~~~~
+1------------------- ~~~~~~~~1~~~~~~~~~
+1------------------- ~~~~~~~~~1~~~~~~~~
+1------------------- ~~~~~~~~~~1~~~~~~~
+1------------------- ~~~~~~~~~~~1~~~~~~
+1------------------- ~~~~~~~~~~~~1~~~~~
+1------------------- ~~~~~~~~~~~~~1~~~~
+1------------------- ~~~~~~~~~~~~~~1~~~
+1------------------- ~~~~~~~~~~~~~~~1~~
+1------------------- ~~~~~~~~~~~~~~~~1~
+1------------------- ~~~~~~~~~~~~~~~~~1
+.end

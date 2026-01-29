@@ -1,0 +1,56 @@
+LISTING FOR LOGIC DESCRIPTION FILE: u1_8088.pld                      Page 1
+
+CUPL(WM): Universal Compiler for Programmable Logic
+Version 5.0a Serial# MW-10400000
+Copyright (c) 1983, 1998 Logical Devices, Inc.
+Created Sat Jan 24 13:30:08 2026
+
+  1:Name            U1_8088;
+  2:Partno          CA0001;
+  3:Revision        01;
+  4:Date            01/2026;
+  5:Designer        Emil;
+  6:Company         None;
+  7:Location        None;
+  8:Assembly        None;
+  9:Device          g22v10;
+ 10:
+ 11:Pin 1 = sysclk; /* not used */
+ 12:Pin 2 = m;                    /* io/m* =0 for memory access; =1 for io access */
+ 13:Pin 3 = ecbnmi;
+ 14:Pin 4 = ecbint;
+ 15:Pin 5 = ecbrd;
+ 16:Pin 6 = ecbwr; 
+ 17:Pin 7 = a19;
+ 18:Pin 8 = reset;
+ 19:Pin 9 = den;    /* not used */
+ 20:Pin 10 = dtr;   /* not used */
+ 21:
+ 22:/* Pins 11, 13 and 14 are unused at the moment */
+ 23:
+ 24:Pin 15 = hold;
+ 25:Pin 16 = int;
+ 26:Pin 17 = nmi;
+ 27:Pin 18 = ecbreset;
+ 28:Pin 19 = ecbmreq;
+ 29:Pin 20 = ecbiorq;
+ 30:Pin 21 = csram;
+ 31:Pin 22 = csrom;
+ 32:Pin 23 = test; /* not really used */
+ 33:
+ 34:hold = reset;
+ 35:int = !ecbint; /*Need to add pull up resistor on ecbint before enabling this*/
+ 36:nmi = !ecbnmi; /*Need to add pull up resistor on ecbnmi before enabling this*/
+ 37:ecbreset = !reset;
+ 38:ecbmreq = m;
+ 39:ecbiorq = !m;
+ 40:csram = !(!m & !a19);
+ 41:csrom = !(!m & a19);
+ 42:test = 'b'1;
+ 43:
+ 44:
+
+
+
+Jedec Fuse Checksum       (642e)
+Jedec Transmit Checksum   (690e)

@@ -1,0 +1,42 @@
+Name            U1_8088;
+Partno          CA0001;
+Revision        01;
+Date            01/2026;
+Designer        Emil;
+Company         None;
+Location        None;
+Assembly        None;
+Device          g22v10;
+
+Pin 1 = sysclk; /* not used */
+Pin 2 = m;                    /* io/m* =0 for memory access; =1 for io access */
+Pin 3 = ecbnmi;
+Pin 4 = ecbint;
+Pin 5 = ecbrd;
+Pin 6 = ecbwr; 
+Pin 7 = a19;
+Pin 8 = reset;
+Pin 9 = den;    /* not used */
+Pin 10 = dtr;   /* not used */
+
+/* Pins 11, 13 and 14 are unused at the moment */
+
+Pin 15 = hold;
+Pin 16 = int;
+Pin 17 = nmi;
+Pin 18 = ecbreset;
+Pin 19 = ecbmreq;
+Pin 20 = ecbiorq;
+Pin 21 = csram;
+Pin 22 = csrom;
+Pin 23 = test; /* not really used */
+
+hold = reset;
+int = !ecbint; /*Need to add pull up resistor on ecbint before enabling this*/
+nmi = !ecbnmi; /*Need to add pull up resistor on ecbnmi before enabling this*/
+ecbreset = !reset;
+ecbmreq = m;
+ecbiorq = !m;
+csram = !(!m & !a19);
+csrom = !(!m & a19);
+test = 'b'1;

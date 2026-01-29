@@ -1,0 +1,81 @@
+%SIGNAL
+PIN   7 =  a19 
+PIN  21 =  csram 
+PIN  22 =  csrom 
+PIN   9 =  den 
+PIN  10 =  dtr 
+PIN   4 =  ecbint 
+PIN  20 =  ecbiorq 
+PIN  19 =  ecbmreq 
+PIN   3 =  ecbnmi 
+PIN   5 =  ecbrd 
+PIN  18 =  ecbreset 
+PIN   6 =  ecbwr 
+PIN  15 =  hold 
+PIN  16 =  int 
+PIN   2 =  m 
+PIN  17 =  nmi 
+PIN   8 =  reset 
+PIN   1 =  sysclk 
+PIN  23 =  test 
+%END
+
+%FIELD
+%END
+
+%EQUATION
+csram =>
+    !a19 & !m
+
+csrom =>
+    a19 & !m
+
+ecbiorq =>
+    !m
+
+ecbmreq =>
+    m
+
+ecbreset =>
+    !reset
+
+hold =>
+    reset
+
+int =>
+    !ecbint
+
+nmi =>
+    !ecbnmi
+
+test =>
+    1 
+
+csram.oe  =>
+    1 
+
+csrom.oe  =>
+    1 
+
+ecbiorq.oe  =>
+    1 
+
+ecbmreq.oe  =>
+    1 
+
+ecbreset.oe  =>
+    1 
+
+hold.oe  =>
+    1 
+
+int.oe  =>
+    1 
+
+nmi.oe  =>
+    1 
+
+test.oe  =>
+    1 
+
+%END
