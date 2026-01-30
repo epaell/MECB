@@ -6,10 +6,6 @@ INIT_SS     equ     07000h
 INIT_SP     equ     0FFF0h
 STACK_SIZE  equ     0100h
 ;
-ACIA        equ     08h               ; Assume MECB ACIA mapped to $08 on I/O port
-RESET       equ     03h               ; Master reset for ACIA
-CONTROL     equ     0D1h              ; Control settings for ACIA (receive interrupt enabled)
-;
 ; ASCII control characters
 BS          equ     08h               ; backspace
 CR          equ     0Dh               ; carraige return
@@ -30,42 +26,9 @@ SSA_REC     EQU     03                ; Execute Address
 ;
          org   0C000h
 ;
-; int 06h: output character in AL
-%macro PUTC 0
-         int   06h
-%endmacro
-
-; int 07h: print string in CS:SI
-%macro PUTS 0
-         int   07h
-%endmacro
-
-; int 08h: input character into AL, with echo
-%macro GETC 0
-         int   08h
-         PUTC
-%endmacro
-
-; int 08h: input character into AL, no echo
-%macro GETCNE 0
-         int   08h
-%endmacro
-
 ; int 09h: return to monitor
 %macro MONITOR 0
          int   09h
-%endmacro
-
-; Write space
-%macro WRSPACE 0
-         mov   al,SPACE
-         int   06h
-%endmacro
-
-; Write equal
-%macro WREQUAL 0
-         mov   al,'='
-         int   06h
 %endmacro
 
 section  .text
@@ -78,8 +41,91 @@ start:
          mov   ss, ax                     ; Move the address from AX to SS
          mov   sp, tos                    ; Set the stack pointer (SP) to the top of the stack
 ;
-; Load the interrupt vector table.
+; Initialise the ACIA / Serial interface
 ; Default character output device is the serial port.
+;
+         call  init_acia
+;
+         mov   si, str_welcome
+         call  puts
+;
+; ------------------------------------------------------------------------------
+; Test the 512K of RAM. (0000:0000-7000:FFFF)
+; Don't use the stack until lower RAM has been verified.
+         mov   si, str_memtest
+         call  puts
+lower_ram_test:
+         xor   si,si
+         mov   ds, si
+test_segment:
+         xor   si,si
+         xor   di,di
+         mov   ax, ds
+         mov   es, ax
+; write test pattern 1
+         mov   ax, 55AAh
+         mov   cx, 32768
+         rep stosw
+; verify test pattern 1
+         mov   cx, 32768
+.1:      lodsw
+         cmp   ax, 55AAh
+         jne   .fail
+         loop  .1
+; write test pattern 2
+         mov   ax, 0AA55h
+         mov   cx, 32768
+         rep stosw
+; verify test pattern 2
+         mov   cx, 32768
+.2:      lodsw
+         cmp   ax, 0AA55h
+         jne   .fail
+         loop  .2
+
+         in    al,ACIA         ; Check if read to transmit
+         and   al,02h          ; 
+         jz    putch1          ; Loop until ready
+         mov   al,'.'          ; Output a "." for each page checked to show progress
+         out   ACIA+1,al       ; Output the character
+;
+; advance to next page
+;
+         mov   ax, ds
+         add   ax, 1000h
+         jo    ram_test_end   ; ram test ends once 0x8000 is reached
+         mov   ds, ax
+         jmp   test_segment
+.fail:
+         in    al,ACIA         ; Check if read to transmit
+         and   al,02h          ; 
+         jz    putch1          ; Loop until ready
+         mov   al,'X'          ; Output a "X" to show failure
+         out   ACIA+1,al       ; Output the character
+
+         mov   bx,si
+         mov   si,str_mem_fail
+         call  puts
+         mov   ax,ds
+         call  puthex4
+         mov   al,':'
+         call  putch
+         mov   ax,bx
+         call  puthex4
+         mov   al,CR
+         call  putch
+         mov   al,LF
+         call  putch
+         jmp   ram_test_end2
+ram_test_end:
+; test passed, return to ROM
+         mov   si,str_mem_OK
+         call  puts
+ram_test_end2:
+
+;
+; Load the interrupt vector table.
+         cld
          mov   si, initial_ivt            ; source: initial vector table in ROM
          mov   ax, cs
          mov   ds, ax
@@ -102,26 +148,12 @@ start:
          mov   ax,BASE_SEG                ; Get Default Base segment
          mov   ss:[baseseg],ax            ; Initialise base segment
          mov   es,ax
-         ; Move test program in place
-         mov   si,test_prog
-         mov   di,0100h
-         mov   cx,(test_end-test_prog)
-         rep movsb
 
          ; Set up the Data Segment (DS)
          mov ax, stack_group              ; Load the address of 'data_group' into AX
          mov ds, ax                       ; Move the address from AX to DS
-
-         cld
-initcom:
-         mov   al, RESET                  ; reset ACIA
-         out   ACIA, al
-         mov   al, CONTROL                ; set up ACIA
-         out   ACIA, al
 ;
          sti                              ; interrupts enabled! we're live!
-         mov   si, str_welcome
-         PUTS
          
 command:                                  ; Re-establish initial conditions
 ; Set up the Stack Segment (SS)
@@ -130,16 +162,15 @@ command:                                  ; Re-establish initial conditions
          mov   es, ss:[baseseg]           ; Extra segment points to base segment
          mov   sp, tos                    ; Set the stack pointer (SP) to the top of the stack
 ;
-; Load the interrupt vector table.
-; Default character output device is the serial port.
          mov   ax, cs                     ; Data segment points to in-ROM data
          mov   ds, ax
 
          cld
 ;
          mov   si, str_prompt             ; Command prompt
-         PUTS
-         GETC                             ; Read first command character
+         call  puts                       ; Read first command character
+         call  getch
+         call  putch
          call  to_upper                   ; convert to uppercase
          mov   dl,al
 
@@ -148,7 +179,8 @@ cmpcmd1:
          mov   al,[bx]
          cmp   al,dl
          jne   nextcmd1                   ; Not found yet, try next command
-         WRSPACE
+         mov   al,SPACE
+         call  putch
          jmp   [BX+2]                     ; Execute Command
             
 nextcmd1:
@@ -156,7 +188,8 @@ nextcmd1:
          cmp   bx,endtab1
          jne   cmpcmd1                    ; Continue looking
 ;
-         GETC                             ; Get Second Command Byte, DX=command
+         call  getch                      ; Get Second Command Byte, DX=command
+         call  putch
          call  to_upper                   ; Convert to uppercase
          mov   dh,al
 
@@ -165,7 +198,8 @@ cmpcmd2:
          mov   ax,[bx]
          cmp   ax,dx
          jne   nextcmd2                   ; Not found yet, try next command
-         WRSPACE
+         mov   al,SPACE
+         call  putch
          jmp   [bx+2]                     ; Execute Command
             
 nextcmd2:
@@ -174,7 +208,7 @@ nextcmd2:
          jne   cmpcmd2                    ; Continue looking
 
          mov   si,str_errcmd              ; Display Unknown Command, followed by usage message
-         PUTS                       
+         call  puts                       
          jmp   command                    ; Try again 
 
 cmdtab1  dw    'L',loadhex                ; Single char Command Jump Table
@@ -206,7 +240,7 @@ endtab2  dw    '??'
 ;
 disphelp:
          mov   si,str_help
-         PUTS
+         call  puts
          jmp   command
 ;----------------------------------------------------------------------
 ; Quit Monitor
@@ -238,7 +272,8 @@ nextsl:     inc     ah
 outportb:   
          call  gethex4                     ; Get Port address
          mov   dx,ax
-         WREQUAL     
+         mov   al,'='
+         call  putch
          call  gethex2                     ; Get Port value
          out   dx,al
          jmp   command                     ; Next Command  
@@ -249,7 +284,8 @@ outportb:
 outportw:
          call  gethex4                     ; Get Port address
          mov   dx,ax
-         WREQUAL     
+         mov   al,'='
+         call  putch
          call  gethex4                     ; Get Port value
          out   dx,ax
          jmp   command                     ; Next Command  
@@ -260,7 +296,8 @@ outportw:
 inportb:
          call  gethex4                     ; Get Port address
          mov   dx,ax
-         WREQUAL
+         mov   al,'='
+         call  putch
          in    al,dx
          call  puthex2
          jmp   command                     ; Next Command  
@@ -270,8 +307,9 @@ inportb:
 ;----------------------------------------------------------------------
 inportw:
          call    gethex4                     ; Get Port address
-         WREQUAL
-         PUTC
+         mov     al,'='
+         call    putch
+         call    putch
          in      ax,dx
          call    puthex4
          jmp     command                     ; Next Command  
@@ -286,12 +324,13 @@ nextdmp: mov   si,dumpmems                 ; Store ASCII values
          mov   ax,es
          call  puthex4
          mov   al,':'
-         PUTC
+         call  putch
          mov   ax,bx
          and   ax,0FFF0h
          call  puthex4
-         WRSPACE                             ; Write Space
-         WRSPACE                             ; Write Space
+         mov   al,SPACE
+         call  putch
+         call  putch
          
          mov   ah,bl                       ; Save lsb
          and   ah,0Fh                      ; 16 byte boundary
@@ -308,7 +347,8 @@ loopdmp1:
          mov     al,es:[bx]                  ; Get Byte and display it in HEX
          mov     ds:[si],al                  ; Save it
          call    puthex2
-         WRSPACE                             ; Write Space
+         mov     al,SPACE
+         call    putch
          inc     bx
          inc     si
          cmp     bx,dx
@@ -343,8 +383,9 @@ skipclr: xor     ah,ah
 exitdmp: jmp     command                     ; Next Command
 
 putsdmp: mov     si,dumpmems                 ; Stored ASCII values
-         WRSPACE                             ; Add 2 spaces
-         WRSPACE
+         mov     al,SPACE
+         call    putch
+         call    putch
          call    wrnspace                    ; Write AH spaces
          mov     cx,16
          sub     cl,ah                       ; Adjust if not started at xxx0
@@ -356,7 +397,7 @@ nextch:  lodsb                               ; Get character AL=DS:[SI++]
          jmp     printch
 printdot:   
          mov     al,'.'
-printch: PUTC                          
+printch: call    putch                          
          loop    nextch                      ; Next Character
          ret
 
@@ -367,8 +408,8 @@ wrnspace:
          jz      exitwrnp
          xor     ch,ch                       ; Write AH spaces
          mov     cl,ah
-         mov     al,' '
-nextdtx: PUTC
+         mov     al,SPACE
+nextdtx: call    putch
          loop    nextdtx
 exitwrnp:
          pop     cx
@@ -379,7 +420,8 @@ exitwrnp:
 ; Fill Memory   
 ;----------------------------------------------------------------------
 fillmem: call    getrange                    ; First get range BX to DX
-         WRSPACE
+         mov     al,SPACE
+         call    putch
          call    gethex2
          push    ax                          ; Store fill character
          call    newline
@@ -409,7 +451,8 @@ setbreakp:
          shl     al,1                        
          add     bx,ax                       ; point to table entry 
          mov     byte es:[bx+3],1            ; Enable Breakpoint
-         WRSPACE
+         mov     al,SPACE
+         call    putch
          call    gethex4                     ; Get Address
          mov     es:[bx],ax                  ; Save Address
 
@@ -451,10 +494,12 @@ nextcbp: mov     ax,8
          jz      nextdbp
 
          call    puthex1                     ; Display Breakpoint Number
-         WRSPACE
+         mov     al,SPACE
+         call    putch
          mov     ax,es:[bx]                  ; Get Address
          call    puthex4                     ; Display it
-         WRSPACE
+         mov     al,SPACE
+         call    putch
 
          mov     ax,es:[bx]                  ; Get Address
 ;         call    disasm_ax                  ; Disassemble instruction & Display it
@@ -479,8 +524,8 @@ dispreg: call    newline
          push    es
          mov     ax,stack_group
          mov     es,ax
-nextdr1: PUTS                                ; Point to first "AX=" string
-         mov     ax,[es:di]                     ; DI points to AX value
+nextdr1: call    puts                        ; Point to first "AX=" string
+         mov     ax,[es:di]                  ; DI points to AX value
          call    puthex4                     ; Display AX value
          add     si,5                        ; point to "BX=" string
          add     di,2                        ; Point to BX value
@@ -488,15 +533,15 @@ nextdr1: PUTS                                ; Point to first "AX=" string
 
          call    newline
          mov     cx,5
-nextdr2: PUTS                                ; Point to first "DS=" string
-         mov     ax,[es:di]                     ; DI points to DS value
+nextdr2: call    puts                        ; Point to first "DS=" string
+         mov     ax,[es:di]                  ; DI points to DS value
          call    puthex4                     ; Display DS value
          add     si,5                        ; point to "ES=" string
          add     di,2                        ; Point to ES value
          loop    nextdr2                     ; etc
 
          mov     si,str_flag
-         PUTS
+         call    puts
          mov     si,flag_valid               ; String indicating which bits to display
          mov     bx,[es:di]                     ; get flag value in BX
          
@@ -512,12 +557,12 @@ shftcar: sal     bx,1
          mov     al,'0'
          jmp     dispbit
 disp1:   mov     al,'1'
-dispbit: PUTC
+dispbit: call    putch
 exitdisp1:
          loop    nextbit1
 
          mov     al,'-'                      ; Display seperator 0000-00000
-         PUTC
+         call    putch
 
          mov     cx,8                        ; Display remaining 5 bits
 nextbit2:   
@@ -533,7 +578,7 @@ shftcar2:
          jmp     dispbit2
 disp2:   mov     al,'1'
 dispbit2:
-         PUTC
+         call    putch
 exitdisp2:  
          loop    nextbit2
 
@@ -541,10 +586,11 @@ exitdisp2:
          mov     ax,[es:ucs]                        
          call    puthex4
          mov     al,':'
-         PUTC
+         call    putch
          mov     ax,[es:uip]
          call    puthex4
-         WRSPACE
+         mov     al,SPACE
+         call    putch
 
 ;         mov     ax,[es:uip]                    ; Address in AX
 ;         pop     es
@@ -585,7 +631,7 @@ tracentry:
          mov     ax,ss:[ucs]                 ; Display Segment Address
          call    puthex4
          mov     al,':'
-         PUTC
+         call    putch
          call    gethex4                     ; Get new IP
          mov     ss:[uip],ax                 ; Update User IP
 ;         mov     ax,es
@@ -620,7 +666,7 @@ TRACNENTRY:
          mov     sp,es:[usp]
          
          push    word es:[ufl]
-         push    word es:[ucs]                       ; Push CS (Base Segment) 
+         push    word es:[ucs]                  ; Push CS (Base Segment) 
          push    word es:[uip]
          mov     es,es:[ues]
          iret                                   ; Execute!
@@ -633,7 +679,7 @@ TRACNENTRY:
 ; Bytes are loaded at Segment=ES
 ;----------------------------------------------------------------------
 loadhex:    mov     si,str_load         ; Display Ready to receive upload
-            PUTS
+            call    puts
             
             mov     al,'>'
             jmp     dispch
@@ -651,7 +697,7 @@ rxbyte:     xchg    bh,ah                       ; save AH register
             xchg    bh,ah                       ; Restore AH register
             ret            
             
-rxnib:      GETCNE                              ; Get Hex Character in AL
+rxnib:      call    getch                       ; Get Hex Character in AL
             cmp     AL,'0'                      ; Check to make sure 0-9,A-F
             jb      error                       ; ERRHEX
             cmp     AL,'F'      
@@ -666,9 +712,9 @@ sub0:       sub     AL,'0'                      ; Convert to hex
             
                         
 error:      mov     al,'E'
-dispch:     PUTC
+dispch:     call    putch
 
-waitlds:    GETCNE                              ; Wait for ':'
+waitlds:    call    getch                       ; Wait for ':'
             cmp     al,':'
             jne     waitlds
 
@@ -739,7 +785,7 @@ goead:      call    rxbyte
 loadok:     mov     si,str_ld_ok                 ; Display Load OK
             jmp     exitld
 errhex:     mov     si,str_ld_hex                ; Display Error hex value
-exitld:     PUTS
+exitld:     call    puts
             jmp     command                      ; Exit Load Command
 
 ;----------------------------------------------------------------------
@@ -747,11 +793,13 @@ exitld:     PUTS
 ;----------------------------------------------------------------------
 wrmemb:  call    gethex4                     ; Get Address
          mov     bx,ax                       ; Store Address
-         WRSPACE
+         mov     al,SPACE
+         call    putch
             
          mov     al,es:[bx]                  ; Get current value and display it
          call    puthex2
-         WREQUAL
+         mov     al,'='
+         call    putch
          call    gethex2                     ; Get new value
          mov     es:[bx],al                  ; and write it
           
@@ -762,11 +810,13 @@ wrmemb:  call    gethex4                     ; Get Address
 ;----------------------------------------------------------------------            
 wrmemw:  call    gethex4                     ; Get Address
          mov     bx,ax
-         WRSPACE 
+         mov     al,SPACE
+         call    putch
 
          mov     ax,es:[bx]                  ; Get current value and display it
          call    puthex4
-         WREQUAL
+         mov     al,'='
+         call    putch
          call    gethex4                     ; Get new value
          mov     es:[bx],ax                  ; and write it
          
@@ -777,10 +827,12 @@ wrmemw:  call    gethex4                     ; Get Address
 ; Valid register names: AX,BX,CX,DX,SP,BP,SI,DI,DS,ES,SS,CS,IP,FL (flag)
 ;----------------------------------------------------------------------
 changereg:  
-         GETC                                ; Get Command First Register character
+         call    getch
+         call    putch                       ; Get Command First Register character
          call    to_upper
          mov     dl,al
-         GETC                                ; Get Second Register character, DX=register
+         call    getch
+         call    putch                       ; Get Second Register character, DX=register
          call    to_upper
          mov     dh,al
          mov     bx,regtab
@@ -788,7 +840,8 @@ cmpreg:  mov     ax,[bx]
          cmp     ax,dx                       ; Compare register string with user input
          jne     nextreg                     ; No, continue search
 
-         WREQUAL
+         mov     al,'='
+         call    putch
          call    gethex4                     ; Get new value
          mov     cx,ax                       ; CX=New reg value
 
@@ -810,7 +863,7 @@ nextreg:
          jne     cmpreg                      ; Continue looking
          
          mov     si,str_errreg               ; Display Unknown Register Name
-         PUTS                        
+         call    puts                        
 
          jmp     command                     ; Try Again 
 
@@ -822,7 +875,8 @@ nextreg:
 changebs:   
          mov     ax,ss:[baseseg]               ; current base segment
          call    puthex4                     ; Display current value
-         WRSPACE
+         mov     al,SPACE
+         call    putch
          call    gethex4
          push    ax
          mov     ss:[baseseg],ax               ; Save new base segment
@@ -835,9 +889,9 @@ changebs:
 ;----------------------------------------------------------------------
 newline: push    ax
          mov     al,CR
-         PUTC
+         call    putch
          mov     al,LF
-         PUTC
+         call    putch
          pop     ax
          ret
 ;----------------------------------------------------------------------
@@ -848,7 +902,7 @@ getrange:
          call    gethex4
          mov     bx,ax
          mov     al,'-'
-         PUTC
+         call    putch
          call    gethex4
          mov     dx,ax
          pop     ax
@@ -877,7 +931,8 @@ gethex2: push    bx
          pop     bx
          ret
 
-gethex1: GETC                                ; Get Hex character in AL
+gethex1: call    getch
+         call    putch          ; Get Hex character in AL
          cmp     al,ESC
          jne     okchar
          jmp     command                     ; Abort if ESC is pressed
@@ -913,7 +968,7 @@ puthex1: push    ax                          ; Save the working register
          jl      numeric                     ; Take the branch if numeric
          add     al, 7                       ; Add the adjustment for hex alpha
 numeric: add     al, '0'                     ; Add the numeric bias
-         PUTC                                ; Send to the console
+         call    putch                       ; Send to the console
          pop     ax
          ret
 
@@ -1015,14 +1070,12 @@ str_term:
 ; Mess+18=? character, change by bp number
 str_breakp:
          db  CR,LF,"**** BREAKPOINT ? ****",CR,LF,EOT
-
-;
-; Test program to pre-load
-;
-test_prog:
-         db      0beh, 12h, 01h, 0E8h, 02h, 00h, 0cdh, 0ah, 0ach, 08h, 0c0h, 74h, 04h, 0cdh, 06h, 0ebh, 0f7h, 0c3h
-         db      CR,LF,'Hello, World!', CR, LF, EOT
-test_end:
+str_memtest:
+         db  "Testing memory: ",EOT
+str_mem_OK:
+         db  " - Passed!",CR,LF,EOT
+str_mem_fail:
+         db  " - Failed at ",CR,LF,EOT
 ;----------------------------------------------------------------------
 ; Initial Register values
 ;----------------------------------------------------------------------
