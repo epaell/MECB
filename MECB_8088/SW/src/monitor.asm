@@ -57,6 +57,7 @@ start:
 lower_ram_test:
          xor   si,si
          mov   ds, si
+         xor   bx, bx                     ; Amount of memory detected in KB
 test_segment:
          xor   si,si
          xor   di,di
@@ -82,12 +83,25 @@ test_segment:
          cmp   ax, 0AA55h
          jne   .fail
          loop  .2
-
-         in    al,ACIA         ; Check if read to transmit
-         and   al,02h          ; 
-         jz    putch1          ; Loop until ready
-         mov   al,'.'          ; Output a "." for each page checked to show progress
-         out   ACIA+1,al       ; Output the character
+;
+         cmp   bx,0            ; Check if this is the first segment i.e. nothing written yet
+         jz    .3
+         mov   si, str_bs6     ; Go back to overwrite previous output
+         call  puts
+.3       mov   ax, 064h        ; Add another 64 KB to counter
+         add   al, bl
+         daa
+         mov   bl, al
+         mov   al, ah
+         adc   al, bh
+         daa
+         mov   bh, al
+         mov   ax, bx
+         call  puthex4
+         mov   al, 'K'
+         call  putch
+         mov   al, 'B'
+         call  putch
 ;
 ; advance to next page
 ;
@@ -1076,6 +1090,8 @@ str_mem_OK:
          db  " - Passed!",CR,LF,EOT
 str_mem_fail:
          db  " - Failed at ",CR,LF,EOT
+str_bs6:
+         db  BS,BS,BS,BS,BS,BS,EOT
 ;----------------------------------------------------------------------
 ; Initial Register values
 ;----------------------------------------------------------------------

@@ -87,9 +87,10 @@ def bin2rom(f_bin, f_rom):
     fout.close()
 
 build_list = [
-#    "test_8088",
+    "test_int",
     "monitor",
     "test_load",
+    "mandel",
 ]
 for source in build_list:
  #   f_rom = f"SST39SF040_{source}.bin"
