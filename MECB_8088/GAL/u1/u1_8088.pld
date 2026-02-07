@@ -19,8 +19,8 @@ Pin 8 = reset;
 Pin 9 = den;    /* not used */
 Pin 10 = dtr;   /* not used */
 
-/* Pins 11, 13 and 14 are unused at the moment */
-
+/* Pins 11 and 13 are unused at the moment */
+Pin 14 = ecbclk;
 Pin 15 = hold;
 Pin 16 = int;
 Pin 17 = nmi;
@@ -40,3 +40,4 @@ ecbiorq = !m;
 csram = !(!m & !a19);
 csrom = !(!m & a19);
 test = 'b'1;
+ecbclk = sysclk;

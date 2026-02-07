@@ -7,7 +7,7 @@
 	(title_block
 		(title "Minimalist Europe Card Bus (MECB) 8088 Board")
 		(date "2025-05")
-		(rev "1.0")
+		(rev "1.1")
 		(comment 1 "For Minimalist Europe Card Bus (MECB). ")
 	)
 	(lib_symbols
@@ -7128,6 +7128,16 @@
 	)
 	(wire
 		(pts
+			(xy 200.66 53.34) (xy 209.55 53.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0adfaeeb-c940-433c-b3df-481012fabf77")
+	)
+	(wire
+		(pts
 			(xy 120.65 35.56) (xy 167.64 35.56)
 		)
 		(stroke
@@ -10265,6 +10275,16 @@
 			(justify left bottom)
 		)
 		(uuid "afb33740-f947-40df-ad21-397ab3cc2c23")
+	)
+	(label "ECB_CLK"
+		(at 200.66 53.34 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b038d65d-0da3-4456-855f-dbcd866473cc")
 	)
 	(label "ECB_A16"
 		(at 228.6 63.5 0)

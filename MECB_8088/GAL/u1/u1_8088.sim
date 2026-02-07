@@ -4,6 +4,7 @@ PIN  21 =  csram
 PIN  22 =  csrom 
 PIN   9 =  den 
 PIN  10 =  dtr 
+PIN  14 =  ecbclk 
 PIN   4 =  ecbint 
 PIN  20 =  ecbiorq 
 PIN  19 =  ecbmreq 
@@ -30,6 +31,9 @@ csram =>
 csrom =>
     a19 & !m
 
+ecbclk =>
+    sysclk
+
 ecbiorq =>
     !m
 
@@ -55,6 +59,9 @@ csram.oe  =>
     1 
 
 csrom.oe  =>
+    1 
+
+ecbclk.oe  =>
     1 
 
 ecbiorq.oe  =>

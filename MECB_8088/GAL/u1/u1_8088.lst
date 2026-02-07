@@ -3,7 +3,7 @@ LISTING FOR LOGIC DESCRIPTION FILE: u1_8088.pld                      Page 1
 CUPL(WM): Universal Compiler for Programmable Logic
 Version 5.0a Serial# MW-10400000
 Copyright (c) 1983, 1998 Logical Devices, Inc.
-Created Sat Jan 24 13:30:08 2026
+Created Sun Feb 08 08:31:17 2026
 
   1:Name            U1_8088;
   2:Partno          CA0001;
@@ -26,8 +26,8 @@ Created Sat Jan 24 13:30:08 2026
  19:Pin 9 = den;    /* not used */
  20:Pin 10 = dtr;   /* not used */
  21:
- 22:/* Pins 11, 13 and 14 are unused at the moment */
- 23:
+ 22:/* Pins 11 and 13 are unused at the moment */
+ 23:Pin 14 = ecbclk;
  24:Pin 15 = hold;
  25:Pin 16 = int;
  26:Pin 17 = nmi;
@@ -47,10 +47,11 @@ Created Sat Jan 24 13:30:08 2026
  40:csram = !(!m & !a19);
  41:csrom = !(!m & a19);
  42:test = 'b'1;
- 43:
+ 43:ecbclk = sysclk;
  44:
+ 45:
 
 
 
-Jedec Fuse Checksum       (642e)
-Jedec Transmit Checksum   (690e)
+Jedec Fuse Checksum       (6f1f)
+Jedec Transmit Checksum   (8839)
