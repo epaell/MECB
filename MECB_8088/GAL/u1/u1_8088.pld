@@ -18,26 +18,25 @@ Pin 7 = a19;
 Pin 8 = reset;
 Pin 9 = den;    /* not used */
 Pin 10 = dtr;   /* not used */
+Pin 11 = ss0;   /* not used */
 
-/* Pins 11 and 13 are unused at the moment */
-Pin 14 = ecbclk;
-Pin 15 = hold;
-Pin 16 = int;
-Pin 17 = nmi;
-Pin 18 = ecbreset;
-Pin 19 = ecbmreq;
-Pin 20 = ecbiorq;
-Pin 21 = csram;
-Pin 22 = csrom;
-Pin 23 = test; /* not really used */
+/* Pins 13 and 14 are unused at the moment */
+Pin 15 = clk8;
+Pin 16 = clk4;
+Pin 17 = clk2;
+Pin 18 = int;
+Pin 19 = nmi;
+Pin 20 = ecbreset;
+Pin 21 = ecbiorq;
+Pin 22 = csram;
+Pin 23 = csrom;
 
-hold = reset;
-int = !ecbint; /*Need to add pull up resistor on ecbint before enabling this*/
-nmi = !ecbnmi; /*Need to add pull up resistor on ecbnmi before enabling this*/
+int = !ecbint;
+nmi = !ecbnmi;
 ecbreset = !reset;
-ecbmreq = m;
 ecbiorq = !m;
 csram = !(!m & !a19);
 csrom = !(!m & a19);
-test = 'b'1;
-ecbclk = sysclk;
+clk2.d = !clk2;
+clk4.d = clk4 $ clk2;
+clk8.d = clk8 $ (clk2 & clk4);

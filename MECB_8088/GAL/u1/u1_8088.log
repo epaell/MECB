@@ -5,23 +5,14 @@
 cuplx
 time: 0 secs
 cupla
-[0018ca] intermediate var not assigned an expression:  clk
-time: 0 secs
-Total time: 0 secs
-Fatal CUPL errors encountered ... program aborted!
-Normal exit
-Error Code = 1
-
-====================================== Compiler Message Ends ======================================
-[Error #1066] Compilation failed
-[Info] Running compilation ...
-
-===================================== Compiler Message Begins =====================================
-cuplx
-time: 0 secs
-cupla
 time: 0 secs
 cuplb
+[0016cb] Please note: no expression assigned to:  clk2.ar
+[0016cb] Please note: no expression assigned to:  clk2.sp
+[0016cb] Please note: no expression assigned to:  clk4.ar
+[0016cb] Please note: no expression assigned to:  clk4.sp
+[0016cb] Please note: no expression assigned to:  clk8.ar
+[0016cb] Please note: no expression assigned to:  clk8.sp
 time: 0 secs
 cuplm
 time: 0 secs
