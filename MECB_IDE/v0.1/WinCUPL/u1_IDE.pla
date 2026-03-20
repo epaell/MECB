@@ -1,0 +1,30 @@
+# Berkeley PLA format generated using
+#
+# CUPL(WM)        5.0a Serial# MW-10400000
+# Device          p22v10  Library DLIB-h-40-17
+# Created         Fri Mar 20 09:57:58 2026
+# Name            U1_IDE
+# Partno          CA0001
+# Revision        01
+# Date            01/2026
+# Designer        Emil
+# Company         None
+# Assembly        None
+# Location        None
+#
+# Inputs  0 1 a0 a1 
+#         a2 a3 a4 a5 
+#         a6 a7 clk !cs0 
+#         !iorq !m1 !mreq !rd 
+#         !reset !wr 
+# Outputs !cs0 a5.oe a6.oe a7.oe 
+#         cs0.oe 
+.i 18
+.o 5
+.p 5
+----000100--1----- 1~~~~
+1----------------- ~1~~~
+1----------------- ~~1~~
+1----------------- ~~~1~
+-1---------------- ~~~~1
+.end

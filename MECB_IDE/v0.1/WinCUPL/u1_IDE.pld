@@ -1,0 +1,25 @@
+Name            U1_IDE;
+Partno          CA0001;
+Revision        01;
+Date            01/2026;
+Designer        Emil;
+Company         None;
+Location        None;
+Assembly        None;
+Device          g22v10;
+
+Pin 1 = clk;
+Pin 2 = !mreq;                    /* io/m* =0 for memory access; =1 for io access */
+Pin 3 = !iorq;
+Pin 4 = !rd;
+Pin 5 = !wr;
+Pin 6 = !m1; 
+Pin 7 = !reset;
+Pin [16, 15, 14, 13, 11, 10] = [a7..a2];
+field io_addr = [a7..a2];
+Pin 8 = a0;
+Pin 9 = a1;
+/* Pins 17-22 are unused */
+Pin 23 = !cs0;
+
+cs0 = iorq & io_addr:[20..23];
