@@ -1,6 +1,6 @@
-WCP_Name=C:\WinCUPL2\Shared\u1_8088.wcp
-PLD_Name=C:\WinCUPL2\Shared\u1_8088.pld
-ABS_Name=C:\WinCUPL2\Shared\u1_8088.abs
+WCP_Name=C:\WinCUPL2\Shared\u1_z80.wcp
+PLD_Name=C:\WinCUPL2\Shared\u1_z80.pld
+ABS_Name=C:\WinCUPL2\Shared\u1_z80.abs
 DOC_Name=
 FIT_Name=
 IO_Name=

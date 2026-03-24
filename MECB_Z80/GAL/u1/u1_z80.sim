@@ -1,58 +1,64 @@
 %SIGNAL
-PIN   7 =  a19 
-PIN  21 =  csram 
-PIN  22 =  csrom 
-PIN   9 =  den 
-PIN  10 =  dtr 
-PIN  14 =  ecbclk 
-PIN   4 =  ecbint 
-PIN  20 =  ecbiorq 
-PIN  19 =  ecbmreq 
-PIN   3 =  ecbnmi 
-PIN   5 =  ecbrd 
-PIN  18 =  ecbreset 
-PIN   6 =  ecbwr 
-PIN  15 =  hold 
-PIN  16 =  int 
-PIN   2 =  m 
-PIN  17 =  nmi 
-PIN   8 =  reset 
+PIN   9 =  a2 
+PIN  10 =  a3 
+PIN  11 =  a4 
+PIN  13 =  a5 
+PIN  14 =  a6 
+PIN  15 =  a7 
+PIN   6 =  a19 
+PIN  19 =  clk2 
+PIN  18 =  clk4 
+PIN  22 =  csram 
+PIN  23 =  csrom 
+PIN  17 =  ecbiorq 
+PIN  16 =  ecbmreq 
+PIN   4 =  ecbrd 
+PIN   5 =  ecbwr 
+PIN   3 =  iorq 
+PIN   8 =  m1 
+PIN   2 =  mreq 
+PIN  20 =  pagewr 
+PIN  21 =  pgenwr 
+PIN   7 =  reset 
 PIN   1 =  sysclk 
-PIN  23 =  test 
 %END
 
 %FIELD
 %END
 
 %EQUATION
+clk2.d  =>
+    clk2
+
+clk4.d  =>
+    clk2 & !clk4
+  # !clk2 & clk4
+
 csram =>
-    !a19 & !m
+    a19 & !mreq
 
 csrom =>
-    a19 & !m
-
-ecbclk =>
-    sysclk
+    !a19 & !mreq
 
 ecbiorq =>
-    !m
+    !iorq & m1
 
-ecbmreq =>
-    m
+pagewr =>
+    !a2 & a3 & a4 & a5 & a6 & !a7 & !ecbwr & !iorq & m1
 
-ecbreset =>
-    !reset
+pgenwr =>
+    a2 & a3 & a4 & a5 & a6 & !a7 & !ecbwr & !iorq & m1
 
-hold =>
-    reset
+a6.oe  =>
+    0 
 
-int =>
-    !ecbint
+a7.oe  =>
+    0 
 
-nmi =>
-    !ecbnmi
+clk2.oe  =>
+    1 
 
-test =>
+clk4.oe  =>
     1 
 
 csram.oe  =>
@@ -61,28 +67,13 @@ csram.oe  =>
 csrom.oe  =>
     1 
 
-ecbclk.oe  =>
-    1 
-
 ecbiorq.oe  =>
     1 
 
-ecbmreq.oe  =>
+pagewr.oe  =>
     1 
 
-ecbreset.oe  =>
-    1 
-
-hold.oe  =>
-    1 
-
-int.oe  =>
-    1 
-
-nmi.oe  =>
-    1 
-
-test.oe  =>
+pgenwr.oe  =>
     1 
 
 %END

@@ -13,28 +13,30 @@ Pin 2 = mreq;
 Pin 3 = iorq;
 Pin 4 = ecbrd;
 Pin 5 = ecbwr;
-Pin 6 = ma19; 
+Pin 6 = a19; 
 Pin 7 = reset;
-Pin 8 = mi;
-Pin 9 = a0;
-Pin 10 = a1;
-Pin 11 = a2;
+Pin 8 = m1;
+Pin 9 = a2;
+Pin 10 = a3;
+Pin 11 = a4;
 
 /* Pins 13 and 14 are unused at the moment */
-Pin 13 = a3;
-Pin 14 = a4;
-Pin 15 = a5;
-Pin 16 = a6;
-Pin 17 = a7;
-Pin 18 = nc;
-Pin 19 = ecbclk;
+Pin 13 = a5;
+Pin 14 = a6;
+Pin 15 = a7;
+Pin 16 = ecbmreq;
+Pin 17 = ecbiorq;
+Pin 18 = clk4;
+Pin 19 = clk2;
 Pin 20 = pagewr;
 Pin 21 = pgenwr;
 Pin 22 = csram;
 Pin 23 = csrom;
 
 csrom = !(!mreq & !a19);
-csram = !(!mreq & a19;
-pagewr = !(!iorq * m1 *!a7 & a6 & a5 & a4 & a3 & !a2 & !wr); /* 0x0111 10xx = 78-7B */
-pgenwr = !(!iorq * m1 *!a7 & a6 & a5 & a4 & a3 & a2  & !wr); /* 0x0111 11xx = 7C-7F */
-ecbclk.d = !ecbclk;
+csram = !(!mreq & a19);
+pagewr = !(!iorq & m1 & !a7 & a6 & a5 & a4 & a3 & !a2 & !ecbwr); /* 0x0111 10xx = 78-7B */
+pgenwr = !(!iorq & m1 & !a7 & a6 & a5 & a4 & a3 & a2  & !ecbwr); /* 0x0111 11xx = 7C-7F */
+clk2.d = !clk2;
+clk4.d = clk4 $ clk2;
+ecbiorq = !(m1 & !iorq);

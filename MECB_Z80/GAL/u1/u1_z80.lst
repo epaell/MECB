@@ -1,57 +1,59 @@
-LISTING FOR LOGIC DESCRIPTION FILE: u1_8088.pld                      Page 1
+LISTING FOR LOGIC DESCRIPTION FILE: u1_z80.pld                       Page 1
 
 CUPL(WM): Universal Compiler for Programmable Logic
 Version 5.0a Serial# MW-10400000
 Copyright (c) 1983, 1998 Logical Devices, Inc.
-Created Sun Feb 08 08:31:17 2026
+Created Tue Mar 24 16:03:02 2026
 
-  1:Name            U1_8088;
+  1:Name            U1_Z80;
   2:Partno          CA0001;
   3:Revision        01;
-  4:Date            01/2026;
+  4:Date            03/2026;
   5:Designer        Emil;
   6:Company         None;
   7:Location        None;
   8:Assembly        None;
   9:Device          g22v10;
  10:
- 11:Pin 1 = sysclk; /* not used */
- 12:Pin 2 = m;                    /* io/m* =0 for memory access; =1 for io access */
- 13:Pin 3 = ecbnmi;
- 14:Pin 4 = ecbint;
- 15:Pin 5 = ecbrd;
- 16:Pin 6 = ecbwr; 
- 17:Pin 7 = a19;
- 18:Pin 8 = reset;
- 19:Pin 9 = den;    /* not used */
- 20:Pin 10 = dtr;   /* not used */
- 21:
- 22:/* Pins 11 and 13 are unused at the moment */
- 23:Pin 14 = ecbclk;
- 24:Pin 15 = hold;
- 25:Pin 16 = int;
- 26:Pin 17 = nmi;
- 27:Pin 18 = ecbreset;
- 28:Pin 19 = ecbmreq;
- 29:Pin 20 = ecbiorq;
- 30:Pin 21 = csram;
- 31:Pin 22 = csrom;
- 32:Pin 23 = test; /* not really used */
- 33:
- 34:hold = reset;
- 35:int = !ecbint; /*Need to add pull up resistor on ecbint before enabling this*/
- 36:nmi = !ecbnmi; /*Need to add pull up resistor on ecbnmi before enabling this*/
- 37:ecbreset = !reset;
- 38:ecbmreq = m;
- 39:ecbiorq = !m;
- 40:csram = !(!m & !a19);
- 41:csrom = !(!m & a19);
- 42:test = 'b'1;
- 43:ecbclk = sysclk;
- 44:
- 45:
+ 11:Pin 1 = sysclk;
+ 12:Pin 2 = mreq;
+ 13:Pin 3 = iorq;
+ 14:Pin 4 = ecbrd;
+ 15:Pin 5 = ecbwr;
+ 16:Pin 6 = a19; 
+ 17:Pin 7 = reset;
+ 18:Pin 8 = m1;
+ 19:Pin 9 = a2;
+ 20:Pin 10 = a3;
+ 21:Pin 11 = a4;
+ 22:
+ 23:/* Pins 13 and 14 are unused at the moment */
+ 24:Pin 13 = a5;
+ 25:Pin 14 = a6;
+ 26:Pin 15 = a7;
+ 27:Pin 16 = ecbmreq;
+ 28:Pin 17 = ecbiorq;
+ 29:Pin 18 = clk4;
+ 30:Pin 19 = clk2;
+ 31:Pin 20 = pagewr;
+ 32:Pin 21 = pgenwr;
+ 33:Pin 22 = csram;
+ 34:Pin 23 = csrom;
+ 35:
+ 36:csrom = !(!mreq & !a19);
+ 37:csram = !(!mreq & a19);
+ 38:pagewr = !(!iorq & m1 & !a7 & a6 & a5 & a4 & a3 & !a2 & !ecbwr); /* 0x0111 10xx = 78-7B */
+ 39:pgenwr = !(!iorq & m1 & !a7 & a6 & a5 & a4 & a3 & a2  & !ecbwr); /* 0x0111 11xx = 7C-7F */
+ 40:clk2.d = !clk2;
+ 41:clk4.d = clk4 $ clk2;
+ 42:ecbiorq = !(m1 & !iorq);
+ 43:
+
+[0016cb] Please note: no expression assigned to:  clk2.ar
+[0016cb] Please note: no expression assigned to:  clk2.sp
+[0016cb] Please note: no expression assigned to:  clk4.ar
+[0016cb] Please note: no expression assigned to:  clk4.sp
 
 
-
-Jedec Fuse Checksum       (6f1f)
-Jedec Transmit Checksum   (8839)
+Jedec Fuse Checksum       (5005)
+Jedec Transmit Checksum   (3274)
