@@ -1,0 +1,79 @@
+%SIGNAL
+PIN   8 =  a0 
+PIN   9 =  a1 
+PIN  10 =  a2 
+PIN  11 =  a3 
+PIN  13 =  a4 
+PIN  14 =  a5 
+PIN  15 =  a6 
+PIN  16 =  a7 
+PIN   1 =  clk 
+PIN  21 =  d0 
+PIN  18 = !iord 
+PIN   3 = !iorq 
+PIN  17 = !iowr 
+PIN   6 = !m1 
+PIN   4 = !rd 
+PIN   7 = !reset 
+PIN   2 =  rtcin 
+PIN  20 =  rtcio 
+PIN  22 = !rtcrd 
+PIN  19 = !rtcwe 
+PIN  23 =  rtcwr 
+PIN   5 = !wr 
+%END
+
+%FIELD
+FIELD io_addr = a7,a6,a5,a4,a3,a2,a1,a0
+%END
+
+%EQUATION
+d0 =>
+    rtcio
+
+d0.oe  =>
+    !rtcrd
+
+iord =>
+    !a0 & !a1 & a2 & !a3 & !a4 & !a5 & a6 & a7 & !iorq & !rd
+
+iowr =>
+    !a0 & !a1 & a2 & !a3 & !a4 & !a5 & a6 & a7 & !iorq & !wr
+
+rtcio =>
+    rtcin
+
+rtcio.oe  =>
+    !rtcwe
+
+rtcrd =>
+    !a0 & !a1 & !a2 & !a3 & !a4 & !a5 & a6 & a7 & !iorq & !rd
+
+rtcwr =>
+    !a0 & !a1 & !a2 & !a3 & !a4 & !a5 & a6 & a7 & !iorq & !wr
+
+a5.oe  =>
+    0 
+
+a6.oe  =>
+    0 
+
+a7.oe  =>
+    0 
+
+iord.oe  =>
+    1 
+
+iowr.oe  =>
+    1 
+
+rtcrd.oe  =>
+    1 
+
+rtcwe.oe  =>
+    0 
+
+rtcwr.oe  =>
+    1 
+
+%END

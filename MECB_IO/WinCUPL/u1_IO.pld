@@ -1,0 +1,35 @@
+Name            U1_IDE;
+Partno          CA0001;
+Revision        01;
+Date            03/2026;
+Designer        Emil;
+Company         None;
+Location        None;
+Assembly        None;
+Device          g22v10;
+
+Pin 1 = clk;      /* not used */
+Pin 2 = rtcin;
+Pin 3 = !iorq;
+Pin 4 = !rd;
+Pin 5 = !wr;
+Pin 6 = !m1;      /* not used */
+Pin 7 = !reset;   /* not used */
+Pin [16,15,14,13,11,10,9,8] = [a7..a0];
+field io_addr = [a7..a0];
+Pin 23 = rtcwr;   /* Chip select for write to RTC  */
+Pin 22 = !rtcrd;   /* Chip select for read from RTC */
+Pin 21 = d0;
+Pin 20 = rtcio;
+Pin 19 = !rtcwe;   /* input from 74hct174 */
+Pin 18 = !iord;   /* chip select for read from switches */
+Pin 17 = !iowr;   /* chip select for write to LEDs      */
+
+d0 = rtcio;      /* d0 passes through rtcio during rtcrd */
+d0.oe = rtcrd;
+rtcio = rtcin;   /* rtcio passes rtcin when during rtcwe */
+rtcio.oe = rtcwe;
+iowr = iorq & wr & io_addr:[C4];    /* IO is at $C4 as opposed to standard port of $00 */
+iord = iorq & rd & io_addr:[C4];
+rtcwr = iorq & wr & io_addr:[C0];   /* RTC is at $C0 */
+rtcrd = iorq & rd & io_addr:[C0];
