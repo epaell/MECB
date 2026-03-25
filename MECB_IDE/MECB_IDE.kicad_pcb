@@ -7619,6 +7619,17 @@
 		(layer "Edge.Cuts")
 		(uuid "e21aa84b-970e-47cf-b64f-3b55ee0e1b51")
 	)
+	(gr_text "^Remove\n Pin"
+		(at 192.5 92 90)
+		(layer "F.SilkS")
+		(uuid "7d55c23e-e00d-41a1-b31e-11e8d86a2918")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
 	(gr_text "MECB IDE Card v1.0\n"
 		(at 163 143.5 0)
 		(layer "F.SilkS")
