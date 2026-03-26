@@ -17,9 +17,9 @@ PIN   4 = !rd
 PIN   7 = !reset 
 PIN   2 =  rtcin 
 PIN  20 =  rtcio 
-PIN  22 = !rtcrd 
-PIN  19 = !rtcwe 
-PIN  23 =  rtcwr 
+PIN  22 =  rtcrd 
+PIN  19 =  rtcwe 
+PIN  23 = !rtcwr 
 PIN   5 = !wr 
 %END
 
@@ -32,13 +32,13 @@ d0 =>
     rtcio
 
 d0.oe  =>
-    !rtcrd
+    rtcrd
 
 iord =>
-    !a0 & !a1 & a2 & !a3 & !a4 & !a5 & a6 & a7 & !iorq & !rd
+    a0 & !a1 & !a2 & !a3 & !a4 & !a5 & a6 & a7 & !iorq & !rd
 
 iowr =>
-    !a0 & !a1 & a2 & !a3 & !a4 & !a5 & a6 & a7 & !iorq & !wr
+    a0 & !a1 & !a2 & !a3 & !a4 & !a5 & a6 & a7 & !iorq & !wr
 
 rtcio =>
     rtcin

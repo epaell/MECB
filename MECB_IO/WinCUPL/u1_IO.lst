@@ -3,7 +3,7 @@ LISTING FOR LOGIC DESCRIPTION FILE: u1_IO.pld                        Page 1
 CUPL(WM): Universal Compiler for Programmable Logic
 Version 5.0a Serial# MW-10400000
 Copyright (c) 1983, 1998 Logical Devices, Inc.
-Created Tue Mar 24 12:49:57 2026
+Created Thu Mar 26 14:39:05 2026
 
   1:Name            U1_IDE;
   2:Partno          CA0001;
@@ -24,25 +24,30 @@ Created Tue Mar 24 12:49:57 2026
  17:Pin 7 = !reset;   /* not used */
  18:Pin [16,15,14,13,11,10,9,8] = [a7..a0];
  19:field io_addr = [a7..a0];
- 20:Pin 23 = rtcwr;   /* Chip select for write to RTC  */
- 21:Pin 22 = !rtcrd;   /* Chip select for read from RTC */
+ 20:Pin 23 = !rtcwr;   /* Chip select for write to RTC  */
+ 21:Pin 22 = rtcrd;   /* Chip select for read from RTC */
  22:Pin 21 = d0;
  23:Pin 20 = rtcio;
- 24:Pin 19 = !rtcwe;   /* input from 74hct174 */
+ 24:Pin 19 = rtcwe;   /* input from 74hct174 */
  25:Pin 18 = !iord;   /* chip select for read from switches */
  26:Pin 17 = !iowr;   /* chip select for write to LEDs      */
  27:
  28:d0 = rtcio;      /* d0 passes through rtcio during rtcrd */
  29:d0.oe = rtcrd;
- 30:rtcio = rtcin;   /* rtcio passes rtcin when during rtcwe */
- 31:rtcio.oe = rtcwe;
- 32:iowr = iorq & wr & io_addr:[C4];    /* IO is at $C4 as opposed to standard port of $00 */
- 33:iord = iorq & rd & io_addr:[C4];
- 34:rtcwr = iorq & wr & io_addr:[C0];   /* RTC is at $C0 */
+ 30:
+ 31:rtcio = rtcin;   /* rtcio passes rtcin when during rtcwe */
+ 32:rtcio.oe = !rtcwe;
+ 33:
+ 34:rtcwr = iorq & wr & io_addr:[C0];   /* RTC is at $C0 (the default for RomWBW */
  35:rtcrd = iorq & rd & io_addr:[C0];
  36:
+ 37:iowr = iorq & wr & io_addr:[C1];    /* IO is at $C1 as opposed to standard port of $00 */
+ 38:iord = iorq & rd & io_addr:[C1];
+ 39:
+ 40:
+ 41:
 
 
 
-Jedec Fuse Checksum       (3ea1)
-Jedec Transmit Checksum   (0bda)
+Jedec Fuse Checksum       (3ea8)
+Jedec Transmit Checksum   (0be0)

@@ -9854,7 +9854,7 @@
 		)
 		(uuid "bf39430d-08fc-4230-b9f8-7740a1d8164d")
 	)
-	(label "RTC_WE"
+	(label "~{RTC_WE}"
 		(at 129.54 40.64 0)
 		(effects
 			(font
@@ -10815,13 +10815,13 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 195.58 123.19 270)
+		(at 195.58 123.19 90)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "25238928-eb6e-42cd-8597-c503fa3fe4c4")
 		(property "Reference" "R5"
 			(at 195.58 116.84 90)
@@ -10883,13 +10883,13 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 195.58 134.62 270)
+		(at 195.58 134.62 90)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "2964db70-774d-4400-8ccb-4bc08c89c09c")
 		(property "Reference" "R8"
 			(at 195.58 128.27 90)
@@ -11922,7 +11922,6 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "5f706bd6-77ed-4ab8-af31-a817b6daea7c")
 		(property "Reference" "R4"
 			(at 195.58 113.03 90)
@@ -12138,13 +12137,13 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 195.58 111.76 270)
+		(at 195.58 111.76 90)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "63e95df1-0e96-4f1e-a7c7-26db2c754859")
 		(property "Reference" "R2"
 			(at 195.58 105.41 90)
@@ -12602,13 +12601,13 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 195.58 115.57 270)
+		(at 195.58 115.57 90)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "82a57f7f-e453-4929-bcbe-027bb960735a")
 		(property "Reference" "R3"
 			(at 195.58 109.22 90)
@@ -13340,13 +13339,13 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 195.58 107.95 270)
+		(at 195.58 107.95 90)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "b30a3d0f-87e3-405a-bc1a-1f17544083c6")
 		(property "Reference" "R1"
 			(at 195.58 101.6 90)
@@ -13408,13 +13407,13 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 195.58 127 270)
+		(at 195.58 127 90)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "b4bc5a13-11d5-45d9-8b8c-8b5afbc6e0bf")
 		(property "Reference" "R6"
 			(at 195.58 120.65 90)
@@ -14581,12 +14580,12 @@
 	(symbol
 		(lib_id "Device:Crystal")
 		(at 80.01 161.29 0)
+		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "f2a1bb0c-456e-4c5d-bb23-51fc1013176f")
 		(property "Reference" "Y1"
 			(at 80.01 153.67 0)
@@ -14899,13 +14898,13 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 195.58 130.81 270)
+		(at 195.58 130.81 90)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "fe6ba354-5520-4914-bfa6-8e24f8c5d8be")
 		(property "Reference" "R7"
 			(at 195.58 124.46 90)
