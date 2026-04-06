@@ -3,36 +3,31 @@ LISTING FOR LOGIC DESCRIPTION FILE: u1_IDE.pld                       Page 1
 CUPL(WM): Universal Compiler for Programmable Logic
 Version 5.0a Serial# MW-10400000
 Copyright (c) 1983, 1998 Logical Devices, Inc.
-Created Fri Mar 20 09:57:58 2026
+Created Mon Apr 06 11:24:42 2026
 
   1:Name            U1_IDE;
-  2:Partno          CA0001;
-  3:Revision        01;
-  4:Date            01/2026;
+  2:Partno          U1;
+  3:Revision        02;
+  4:Date            04/2026;
   5:Designer        Emil;
   6:Company         None;
   7:Location        None;
   8:Assembly        None;
-  9:Device          g22v10;
+  9:Device          g16v8s;
  10:
  11:Pin 1 = clk;
- 12:Pin 2 = !mreq;                    /* io/m* =0 for memory access; =1 for io access */
- 13:Pin 3 = !iorq;
- 14:Pin 4 = !rd;
- 15:Pin 5 = !wr;
- 16:Pin 6 = !m1; 
- 17:Pin 7 = !reset;
- 18:Pin [16, 15, 14, 13, 11, 10] = [a7..a2];
- 19:field io_addr = [a7..a2];
- 20:Pin 8 = a0;
- 21:Pin 9 = a1;
- 22:/* Pins 17-22 are unused */
- 23:Pin 23 = !cs0;
- 24:
- 25:cs0 = iorq & io_addr:[20..23];
- 26:
+ 12:Pin 2 = !iorq;
+ 13:Pin [11, 9, 8, 7, 6, 5, 4, 3] = [a7..a0];
+ 14:field io_addr = [a7..a0];
+ 15:
+ 16:/* Pins 17-18 are unused */
+ 17:Pin 19 = !cs0;
+ 18:
+ 19:cs0 = iorq & io_addr:[20..23];
+ 20:
+ 21:
 
 
 
-Jedec Fuse Checksum       (0a8d)
-Jedec Transmit Checksum   (7858)
+Jedec Fuse Checksum       (0d44)
+Jedec Transmit Checksum   (7284)
