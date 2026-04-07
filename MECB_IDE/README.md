@@ -3,8 +3,6 @@ An implementation of a parallel IDE board for the MECB system. The hardware is b
 
 ![MECB IDE Board](https://github.com/epaell/MECB/blob/main/MECB_IDE/MECB_PPIDE.jpg)
 
-I have confirmed that v1.0 of the board works using the 44-pin IDE connector. Note that Pin 20 of the 44 pin IDE header should be removed as it acts as a guide for devices that plug directly into it:
+I have confirmed that v1.0 of the board works using the 44-pin IDE connector. Note that Pin 20 of the 40 pin IDE header and the 44 pin IDE header should be removed as they act as a guide for devices/cables that plug directly into it:
 
 ![MECB IDE Board Key pin removed](https://github.com/epaell/MECB/blob/main/MECB_IDE/MECB_PPIDE_KEY.jpg)
-
-NOTE: I have not yet been able to test the 40-pin IDE interface (I need to get some more hardware to test this).
