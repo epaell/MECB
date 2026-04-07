@@ -7620,6 +7620,17 @@
 		(uuid "e21aa84b-970e-47cf-b64f-3b55ee0e1b51")
 	)
 	(gr_text "^Remove\n Pin"
+		(at 173.5 93.5 90)
+		(layer "F.SilkS")
+		(uuid "656d7bbc-157f-4a06-abb4-ba2813535e88")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(gr_text "^Remove\n Pin"
 		(at 192.5 92 90)
 		(layer "F.SilkS")
 		(uuid "7d55c23e-e00d-41a1-b31e-11e8d86a2918")
