@@ -2,8 +2,8 @@
 #
 # CUPL(WM)        5.0a Serial# MW-10400000
 # Device          g16v8s  Library DLIB-h-40-9
-# Created         Mon Apr 06 11:24:42 2026
-# Name            U1_IDE
+# Created         Wed Apr 29 10:13:32 2026
+# Name            U1_KB
 # Partno          U1
 # Revision        02
 # Date            04/2026
@@ -14,10 +14,11 @@
 #
 # Inputs  a0 a1 a2 a3 
 #         a4 a5 a6 a7 
-#         clk !cs0 !iorq 
-# Outputs !cs0 
+#         addr !cs0 !iorq 
+# Outputs addr !cs0 
 .i 11
-.o 1
-.p 1
---000100--1 1
+.o 2
+.p 2
+--1-------- 1~
+00-00110--1 ~1
 .end

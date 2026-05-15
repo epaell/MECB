@@ -8,12 +8,19 @@ Location        None;
 Assembly        None;
 Device          g16v8s;
 
-Pin 1 = clk;
-Pin 2 = !iorq;
-Pin [11, 9, 8, 7, 6, 5, 4, 3] = [a7..a0];
+Pin 1 = !iorq;
+Pin [9, 8, 7, 6, 5, 4, 3, 2] = [a7..a0];
 field io_addr = [a7..a0];
 
 /* Pins 17-18 are unused */
 Pin 19 = !cs0;
+Pin 18 = addr;
 
-cs0 = iorq & io_addr:[90..91];
+cs0 = iorq & (io_addr:[60] # io_addr:[64]);
+addr = a2;
+
+/* Alternative to use ports $90 and $91 */
+/* 
+cs0 = iorq & a7 & !a6 & !a5 & a4 & !a3 & !a2 & !a1;
+addr = a20;
+*/
