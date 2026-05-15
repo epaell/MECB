@@ -1,0 +1,19 @@
+Name            U1_KB;
+Partno          U1;
+Revision        02;
+Date            04/2026;
+Designer        Emil;
+Company         None;
+Location        None;
+Assembly        None;
+Device          g16v8s;
+
+Pin 1 = clk;
+Pin 2 = !iorq;
+Pin [11, 9, 8, 7, 6, 5, 4, 3] = [a7..a0];
+field io_addr = [a7..a0];
+
+/* Pins 17-18 are unused */
+Pin 19 = !cs0;
+
+cs0 = iorq & io_addr:[90..91];

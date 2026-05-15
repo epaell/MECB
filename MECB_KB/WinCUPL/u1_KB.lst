@@ -1,0 +1,33 @@
+LISTING FOR LOGIC DESCRIPTION FILE: u1_IDE.pld                       Page 1
+
+CUPL(WM): Universal Compiler for Programmable Logic
+Version 5.0a Serial# MW-10400000
+Copyright (c) 1983, 1998 Logical Devices, Inc.
+Created Mon Apr 06 11:24:42 2026
+
+  1:Name            U1_IDE;
+  2:Partno          U1;
+  3:Revision        02;
+  4:Date            04/2026;
+  5:Designer        Emil;
+  6:Company         None;
+  7:Location        None;
+  8:Assembly        None;
+  9:Device          g16v8s;
+ 10:
+ 11:Pin 1 = clk;
+ 12:Pin 2 = !iorq;
+ 13:Pin [11, 9, 8, 7, 6, 5, 4, 3] = [a7..a0];
+ 14:field io_addr = [a7..a0];
+ 15:
+ 16:/* Pins 17-18 are unused */
+ 17:Pin 19 = !cs0;
+ 18:
+ 19:cs0 = iorq & io_addr:[20..23];
+ 20:
+ 21:
+
+
+
+Jedec Fuse Checksum       (0d44)
+Jedec Transmit Checksum   (7284)

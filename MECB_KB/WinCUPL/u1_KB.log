@@ -1,0 +1,25 @@
+[Info] Opening project file
+[Error #1132] Invalid Device Option selected
+[Error #1077] Device type has not been specified
+[Error #1132] Invalid Device Option selected
+[Error #1077] Device type has not been specified
+[Info] Running compilation ...
+
+===================================== Compiler Message Begins =====================================
+cuplx
+time: 0 secs
+cupla
+time: 0 secs
+cuplb
+time: 0 secs
+cuplm
+time: 0 secs
+cuplc
+time: 0 secs
+total time: 0 secs
+Normal exit
+Error Code = 0
+
+====================================== Compiler Message Ends ======================================
+[Info] Design compiled successfully
+[Info] Project file saved ... exiting application
