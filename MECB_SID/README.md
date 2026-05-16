@@ -1,6 +1,8 @@
 # MECB_SID
-An implementation of a basic SID Interface for the MECB system.
+An implementation of a basic SID Interface for the MECB system. If only one SID is required only that half of the board needs to be populated.
 
 The jumpers select different operating modes depending on your system. For systems with a 1 MHz system clock the clock from the MECB bus can be used to drive the SID. Under such circumstances it is also possible to pass the address lines directly to the SID chip. With the PLD set up for this mode (default) addressing the first SID is at $A0-$BF and the second SID is at $D0-$EF. This has been tested with the MECB 68008 running at 10 MHz (as this generates a 1 MHz system clock) and the MECB 6502 with a 1 MHz clock (which also provides the 1 MHz system clock). Some sample programs are available in the MECB_6502 area of this repository.
 
 For higher clock rate systems a 1 MHz crystal can be installed and the jumper selected to use this clock in place of the system clock. Under this setup, the SID chip likely can't be addressed directly and so the onboard latch is used to hold the address of the register. With the PLD set up appropriately, writing to $A0 selects the SID register to work with, writing to $A1 writes to the selected register on the first SID and writing to $A2 writes to the selected register on the second SID. NOTE: this mode is yet to be tested. Testing is also needed to see how high a CPU clock this can operate at.
+
+Note: The audio input section hasn't been tested either.
