@@ -1,0 +1,36 @@
+# Berkeley PLA format generated using
+#
+# CUPL(WM)        5.0a Serial# MW-10400000
+# Device          p22v10  Library DLIB-h-40-17
+# Created         Fri May 15 16:36:33 2026
+# Name            U1_SID
+# Partno          CA0001
+# Revision        01
+# Date            05/2026
+# Designer        Emil
+# Company         None
+# Assembly        None
+# Location        None
+#
+# Inputs  0 1 a0 a1 
+#         a2 a3 a4 a5 
+#         a6 a7 clk !iorq 
+#         !m1 !rd !reset !sidaddr 
+#         !sidcs1 !sidcs2 !wr 
+# Outputs !sidaddr !sidcs1 !sidcs2 a5.oe 
+#         a6.oe a7.oe sidaddr.oe sidcs1.oe 
+#         sidcs2.oe 
+.i 19
+.o 9
+.p 10
+1------------------ 1~~~~~~~~
+-------101-1------- ~1~~~~~~~
+------0111-1------- ~~1~~~~~~
+------1011-1------- ~~1~~~~~~
+1------------------ ~~~1~~~~~
+1------------------ ~~~~1~~~~
+1------------------ ~~~~~1~~~
+-1----------------- ~~~~~~1~~
+-1----------------- ~~~~~~~1~
+-1----------------- ~~~~~~~~1
+.end

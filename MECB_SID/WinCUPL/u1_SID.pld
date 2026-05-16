@@ -1,0 +1,31 @@
+Name            U1_SID;
+Partno          CA0001;
+Revision        01;
+Date            05/2026;
+Designer        Emil;
+Company         None;
+Location        None;
+Assembly        None;
+Device          g22v10;
+
+Pin 1 = clk;      /* not used */
+Pin 3 = !iorq;
+Pin 4 = !rd;
+Pin 5 = !wr;
+Pin 6 = !m1;      /* not used */
+Pin 7 = !reset;   /* not used */
+Pin [16,15,14,13,11,10,9,8] = [a7..a0];
+field io_addr = [a7..a0];
+Pin 23 = !sidcs1;   /* Chip select for SID1 */
+Pin 22 = !sidcs2;   /* Chip select for SID2 */
+Pin 21 = !sidaddr;
+
+/* If directly using CPU address lines */
+sidcs1 = iorq & io_addr:[A0..BF];
+sidcs2 = iorq & io_addr:[D0..EF];
+sidaddr = 'b'0;              /* disable address latch */
+
+/* If using latch to hold address lines */
+/* sidcs1 = iorq & io_addr:[A1]; */ /* SID write goes to address specified in latch */
+/* sidcs2 = iorq & io_addr:[A2]; */
+/* sidaddr = iorq & wr & io_addr:[A0]; */  /* Latch write to set up address lines */
