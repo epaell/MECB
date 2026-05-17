@@ -6,3 +6,5 @@ The jumpers select different operating modes depending on your system. For syste
 For higher clock rate systems a 1 MHz crystal can be installed and the jumper selected to use this clock in place of the system clock. Under this setup, the SID chip likely can't be addressed directly and so the onboard latch is used to hold the address of the register. With the PLD set up appropriately, writing to $A0 selects the SID register to work with, writing to $A1 writes to the selected register on the first SID and writing to $A2 writes to the selected register on the second SID. NOTE: this mode is yet to be tested. Testing is also needed to see how high a CPU clock this can operate at.
 
 Note: The audio input section hasn't been tested either.
+
+![MECB SID Board](https://github.com/epaell/MECB/blob/main/MECB_SID/MECB_SID.jpg)
