@@ -33,9 +33,9 @@ IRQ_HI          EQU     $0315         ; Vector: Hardware IRQ Interrupt Address H
 ;
                 ORG     $1000
 ;
-start           ldx     #<isr       ; Set up IRQ vector in SMON
+start           ldx     #isr&$ff       ; Set up IRQ vector in SMON
                 stx     IRQ_LO
-                ldx     #>isr
+                ldx     #isr>>8
                 stx     IRQ_HI
 ;
                 lda     #$03        ; Initialise the ACIA
@@ -105,18 +105,18 @@ ptm_init        lda     timer_MSB   ; Set up the countdown timer for timer 1
 ;
                 rts 
 ;
-ten_ms          ds.b    1
-ticks           ds.b    1
-seconds         ds.b    1
-minutes         ds.b    1
-hours           ds.b    1
-dayofweek       ds.b    1
-weeks           ds.b    1
+ten_ms          rmb     1
+ticks           rmb     1
+seconds         rmb     1
+minutes         rmb     1
+hours           rmb     1
+dayofweek       rmb     1
+weeks           rmb     1
 ;
-;timer_LSB       dc.b    $E7          ; 1 mS at 1 MHz
-;timer_MSB       dc.b    $03
-timer_LSB       dc.b    $9C           ; 1 mS at 4 Mhz
-timer_MSB       dc.b    $0F
+;timer_LSB       fcb     $E7          ; 1 mS at 1 MHz
+;timer_MSB       fcb     $03
+timer_LSB       fcb     $9C           ; 1 mS at 4 Mhz
+timer_MSB       fcb     $0F
 ;
 isr             ;pha                 ; Note: Registers already pushed on stack by SMON
                 ;txa
@@ -217,14 +217,14 @@ outnum          adc     #$30        ; Add '0'
 ;
 ; Convert binary byte in A as a decimal with leading zeros
 ;
-binary          ds.b    1
-hundredsDigit   ds.b    1
-tensDigit       ds.b    1
-onesDigit       ds.b    1
-eotDigit        dc.b    $00
+binary          rmb     1
+hundredsDigit   rmb     1
+tensDigit       rmb     1
+onesDigit       rmb     1
+eotDigit        fcb     $00
 ;
-outsLSB         ds.b    1
-outsMSB         ds.b    1
+outsLSB         rmb     1
+outsMSB         rmb     1
 ;
 ;
 ; Output binary in A as 3-digit decimal value
@@ -287,5 +287,5 @@ OnesLoop        lda     binary
                 sta     onesDigit        ; result is already under 10, can copy directly to result
                 rts
 ;
-outd8zA         dc.b    128,160,200
-outd8zB         ds.b    1
+outd8zA         fcb     128,160,200
+outd8zB         rmb     1
