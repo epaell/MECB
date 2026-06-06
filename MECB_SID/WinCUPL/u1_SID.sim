@@ -30,8 +30,7 @@ sidcs1 =>
     a5 & !a6 & a7 & !iorq
 
 sidcs2 =>
-    !a4 & a5 & a6 & a7 & !iorq
-  # a4 & !a5 & a6 & a7 & !iorq
+    a5 & a6 & a7 & !iorq
 
 a5.oe  =>
     0 

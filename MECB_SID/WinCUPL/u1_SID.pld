@@ -22,7 +22,7 @@ Pin 21 = !sidaddr;
 
 /* If directly using CPU address lines */
 sidcs1 = iorq & io_addr:[A0..BF];
-sidcs2 = iorq & io_addr:[D0..EF];
+sidcs2 = iorq & io_addr:[E0..FF];
 sidaddr = 'b'0;              /* disable address latch */
 
 /* If using latch to hold address lines */

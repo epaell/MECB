@@ -3,7 +3,7 @@ LISTING FOR LOGIC DESCRIPTION FILE: u1_SID.pld                       Page 1
 CUPL(WM): Universal Compiler for Programmable Logic
 Version 5.0a Serial# MW-10400000
 Copyright (c) 1983, 1998 Logical Devices, Inc.
-Created Fri May 15 16:36:33 2026
+Created Sat Jun 06 11:23:10 2026
 
   1:Name            U1_SID;
   2:Partno          CA0001;
@@ -29,7 +29,7 @@ Created Fri May 15 16:36:33 2026
  22:
  23:/* If directly using CPU address lines */
  24:sidcs1 = iorq & io_addr:[A0..BF];
- 25:sidcs2 = iorq & io_addr:[D0..EF];
+ 25:sidcs2 = iorq & io_addr:[E0..FF];
  26:sidaddr = 'b'0;              /* disable address latch */
  27:
  28:/* If using latch to hold address lines */
@@ -41,5 +41,5 @@ Created Fri May 15 16:36:33 2026
 
 
 
-Jedec Fuse Checksum       (1f57)
-Jedec Transmit Checksum   (b667)
+Jedec Fuse Checksum       (1b97)
+Jedec Transmit Checksum   (ae96)
