@@ -7,4 +7,6 @@ For higher clock rate systems a 1 MHz crystal can be installed and the jumper se
 
 Note: The audio input section hasn't been tested either.
 
+WARNING: This design doesn't work with clocks greater than 1 MHz. A new design update will be needed to alleviate this issue (currently only the address of the register is buffered but the data going to the register also needs buffering).
+
 ![MECB SID Board](https://github.com/epaell/MECB/blob/main/MECB_SID/MECB_SID.jpg)
