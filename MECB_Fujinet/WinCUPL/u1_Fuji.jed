@@ -1,0 +1,22 @@
+
+CUPL(WM)        5.0a  Serial# MW-10400000
+Device          g16v8s  Library DLIB-h-40-9
+Created         Wed Apr 15 14:46:19 2026
+Name            U1_Fuji
+Partno          U1
+Revision        01
+Date            04/2026
+Designer        Emil
+Company         None
+Assembly        None
+Location        None
+*QP20 
+*QF2194 
+*G0 
+*F0 
+*L02048 00000000010101010011000100000000
+*L02112 00000000111111111111111111111111
+*L02144 11111111111111111111111111111111
+*L02176 111111111111111110
+*C0A2E
+*6B97

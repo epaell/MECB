@@ -1,0 +1,2 @@
+# MECB Fujinet Board
+An implementation of a Fujinet board for the MECB system. The hardware is based on a preliminary RC2014 Fujinet interface that is still under development. The PLD is set to select the device at port $C2 (or $XXC2 on the MECB memory map if used with CPUs without a separate I/O map).

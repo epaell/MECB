@@ -1,0 +1,29 @@
+%SIGNAL
+PIN   5 =  a0 
+PIN   6 =  a1 
+PIN   7 =  a2 
+PIN   8 =  a3 
+PIN   9 =  a4 
+PIN  11 =  a5 
+PIN  12 =  a6 
+PIN  13 =  a7 
+PIN   1 =  clk 
+PIN  19 = !io_rd 
+PIN  18 = !io_wr 
+PIN   2 = !iorq 
+PIN   3 = !rd 
+PIN   4 = !wr 
+%END
+
+%FIELD
+FIELD io_addr = a7,a6,a5,a4,a3,a2,a1,a0
+%END
+
+%EQUATION
+iord =>
+    !a0 & a1 & !a2 & !a3 & !a4 & !a5 & a6 & a7 & iorq & rd
+
+iowr =>
+    !a0 & a1 & !a2 & !a3 & !a4 & !a5 & a6 & a7 & iorq & wr
+
+%END

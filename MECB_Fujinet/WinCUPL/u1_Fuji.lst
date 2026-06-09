@@ -1,0 +1,37 @@
+LISTING FOR LOGIC DESCRIPTION FILE: u1_Fuji.pld                      Page 1
+
+CUPL(WM): Universal Compiler for Programmable Logic
+Version 5.0a Serial# MW-10400000
+Copyright (c) 1983, 1998 Logical Devices, Inc.
+Created Wed Apr 15 14:46:19 2026
+
+  1:Name            U1_Fuji;
+  2:Partno          U1;
+  3:Revision        01;
+  4:Date            04/2026;
+  5:Designer        Emil;
+  6:Company         None;
+  7:Location        None;
+  8:Assembly        None;
+  9:Device          g16v8s;
+ 10:
+ 11:Pin 1 = clk;
+ 12:Pin 2 = !iorq;
+ 13:Pin 3 = !rd;
+ 14:Pin 4 = !wr;
+ 15:Pin [13, 12, 11, 9, 8, 7, 6, 5] = [a7..a0];
+ 16:field io_addr = [a7..a0];
+ 17:
+ 18:/* Pins 17-18 are unused */
+ 19:Pin 19 = !io_rd;
+ 20:Pin 18 = !io_wr;
+ 21:
+ 22:iowr = iorq & wr & io_addr:[C2];    /* IO is at $C2 */
+ 23:iord = iorq & rd & io_addr:[C2];
+ 24:
+ 25:
+
+
+
+Jedec Fuse Checksum       (0a2e)
+Jedec Transmit Checksum   (6b97)
