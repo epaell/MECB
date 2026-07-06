@@ -1,0 +1,636 @@
+; For some reason mounting a large disk didn't work
+; The SIR needs to be read in order for the tracks/sector information to work.
+; qload appears to overwrite driver - need to update what gets loaded
+; startup.txt calls date - I think this expects the RTC hardware.
+
+
+         include  "mecb.inc"
+         include  "ASSISTMacros.inc"
+         include  "libfujinet.inc"
+;
+DEBUG    equ   0                 ; 0 for no debug, 1 for I/O debug, 2 for detailed load debugging
+;
+MONITOR  equ   $f2ab             ; ASSIST09 cold entry point
+STACK    equ   $c07f
+READ     equ   $de00
+DRIVE    equ   $de0c
+INIT     equ   $de15
+SCTBUF   equ   $c300             ; Data sector buffer
+; SCTBUF + 0 = trk
+; SCTBUF + 1 = dct
+; SCTBUF + 2 = ?
+; SCTBUF + 3 = drive
+
+;
+; Start of utility
+
+         org   $c100
+;
+qload    bra   load0
+;
+         fcb   $00,$00,$00
+trk      fcb   $00             ; track
+sct      fcb   $00             ; sector
+dns      fcb   $00             ; Density flag
+tadr     fdb   $cd00           ; Transfer address
+ladr     fdb   $0000           ; Load address
+;
+load0    lds   #STACK          ; Set up the stack
+         jsr   INIT            ; Initialise Fujinet
+
+         ldx   #stmount
+         lbsr  print
+         
+         ldb   #0
+         lbsr  fujinet_mount_all    ; Mount the host slot
+         cmpa  #FUJINET_RC_OK       ; Check if OK
+         lbne  load_err             ; if not, report error
+
+         pshs  a,b,x,y
+         ldx   #stboot
+         lbsr  print
+         puls  a,b,x,y
+         bra   load0b
+stmount: fcb   "Mounting disks",CR,LF,EOT
+stboot:  fcb   "Booting FLEX 6809 ",EOT
+sterr:   fcb   CR,LF,"Error encountered",CR,LF,EOT
+load0b:
+
+         ldx   #SCTBUF         ; Point to FCB
+         clr   3,X             ; Set for drive 0
+         jsr   DRIVE           ; Select drive 0
+         ldx   #SCTBUF         ; Point to FCB
+         ldd   #$0003          ; Read the SIR (track 0, sector 3 = logical sector 3)
+         jsr   READ            ; This will update the sectors/track for the drive
+         ldx   #SCTBUF         ; Point to buffer in which to read data
+         ldd   #$0000          ; Read the boot sector (Track 0, sector 0)
+         jsr   READ
+         ldx   #SCTBUF         ; Point to buffer in which to read data
+         ldd   5,x             ; get the track/sector from which to start loading
+         ldd   #$0101          ; For QLOAD need this to load FLEX.COR
+         STD   SCTBUF
+         ldy   #SCTBUF+256     ; Force a read of the sector
+;
+; Perform actual file load
+;
+load1    bsr   getch           ; Get a character
+         cmpa  #$02            ; Data record header?
+         beq   load2           ; Skip if so
+         cmpa  #$16            ; XFR address header?
+         bne   load1           ; Loop if neither
+         bsr   getch           ; Get transfer address
+         sta   tadr
+         bsr   getch
+         sta   tadr+1
+         bra   load1           ; Continue load
+load2    bsr   getch           ; Get load address
+         sta   ladr
+         bsr   getch
+         sta   ladr+1
+         bsr   getch           ; Get byte count
+         tfr   a,b             ; Put in B
+         tsta
+         beq   load1           ; Loop if count=0
+;
+         ldx   ladr            ; Get load address in X
+load3    pshs  b,x
+         bsr   getch           ; Get a data character
+         puls  b,x
+
+         if DEBUG>1
+         pshs    a,b,x,y
+         pshs  a
+         pshs  x
+         ldx   #read1
+         lbsr  print
+         puls  d
+         lbsr  out4h
+         lda   #' '
+         outch
+         puls  a
+         lbsr  out2h
+         pcrlf
+         puls    a,b,x,y
+         endif
+
+         cmpx  #$DE00          ; ensure current disk drivers are not messed up
+         bgt   skip
+         cmpx  #$D370          ; ensure console drivers are not messed up
+         blt   store
+         cmpx  #$D3FD
+         blt   skip
+store:   sta   ,x+             ; Put character
+skip:    decb                  ; End of data in record?
+         bne   load3           ; Loop if not
+         bra   load1           ; Get another record
+;
+; Get character routine - reads a sector if necessary
+;
+getch    cmpy  #SCTBUF+256     ; Out of data?
+         bne   getch4          ; Go read character if not
+getch2   ldx   #SCTBUF         ; Point to buffer in which to read data
+         ldd   0,X             ; Get forward link (from previous read)
+         beq   go              ; If zero, file is loaded
+;
+         pshs  a,b,x,y
+         lda   #'.'
+         outch
+         puls  a,b,x,y
+;
+         jsr   READ            ; Read next sector
+         lbne  load_err        ; Exit if error occurred
+         ldy   #SCTBUF+4       ; Point past link for data transfer
+getch4   lda   ,y+             ; Else, get a character
+         rts
+
+load_err:
+         ldx   #sterr
+         lbsr  print
+         monitr   1
+
+; At this point the loader is done
+go:
+         if DEBUG>0
+         monitr  1             ; Jump to monitor
+         endif
+         jmp   [tadr]          ; Jump to transfer address
+;
+         if DEBUG>1
+read1    fcb   "Set transfer address to: 0x",EOT
+         endif
+;
+         org   $d370
+;
+; $D370-D3E4 set aside for console drivers
+;
+
+; Read a character from the terminal, no echo
+; Entry: -
+; Exit: A - character read from terminal
+; 
+finche:  lda    ACIA             ; get port status
+         bita   #1               ; test ready bit, rdrf?
+         beq    finche           ; if not ready, try again
+         lda    ACIA+1           ; read the character
+         rts
+; Read a character from the terminal, echo
+finch:
+         bsr   finche            ; Fall through to output
+
+; Output character to terminal
+; entry: a - character to be transmitted
+; exit: -
+foutch:  pshs  a
+fetsta:  lda   ACIA              ; fetch port status
+         bita  #2                ; test tdre, OK to transmit?
+         beq   fetsta            ; if not look until ready
+         puls  a                 ; restore character for transmit
+         sta   ACIA+1            ; transmit character
+         rts
+;
+fstat:   pshs  a
+         lda   ACIA
+         anda  #1
+         puls  a
+         rts
+
+ftmint:
+ftmon:
+ftmoff:
+ftinit:
+         rts
+fihndlr:
+         rts
+
+         org   $d3e5
+;
+; Console I/O driver vector table for FLEX 6809
+;
+         fdb   finche   ; input character without echo
+         fdb   fihndlr  ; IRQ interrupt handler
+         fdb   $F800    ; SWI3 vector location
+         fdb   $F800    ; IRQ vector location
+         fdb   ftmoff   ; timer off routine
+         fdb   ftmon    ; timer on routine
+         fdb   ftmint   ; timer initialisation
+         fdb   MONITOR  ; monitor entry address
+         fdb   ftinit   ; terminal initialisation
+         fdb   fstat    ; check terminal status
+         fdb   foutch   ; output character
+         fdb   finch    ; input character with echo
+;
+         org   $de00
+;
+; Disk driver jump table for FLEX 6809
+; Must be in area from $DE00 to $DE1D for FLEX 6809
+;
+         jmp   fread    ; read a single sector
+         jmp   fwrite   ; write a single sector
+         jmp   fverify  ; verify last sector written
+         jmp   frestore ; restore head to track #0
+         jmp   fdrive   ; select the specified drive
+         jmp   fchkrdy  ; check for drive ready
+         jmp   fchkrdy  ; quick check for drive ready
+         jmp   finit    ; driver initialise (cold start)
+         jmp   fwarm     ; driver initialise (warm start)
+         jmp   fseek    ; seek to specified track
+;
+; $DE00-$DFFF set aside for drivers
+; Can use memory above $E000-$EEFF
+
+         org   $E000
+
+;====================================================
+; READ
+; Entry: x - address where data is to be placed
+;        a - track number
+;        b - sector number
+; The sector referenced by the track and sector
+; number is to be read into the sector buffer
+; area of the indicated FCB.
+;
+fread:
+         sta   fcbtrk            ; Store values in FCB
+         stb   fcbsec
+         stx   fcbptr
+
+         ;  The following is additional outputs for troubleshooting and is not needed
+         if DEBUG>0
+         pshs  a,b,x,y
+         ldx   #read2a
+         lbsr  print
+         ldx   #fcbtrk
+         out2hs
+         ldx   #read2b
+         lbsr  print
+         ldx   #fcbsec
+         out2hs
+         pcrlf
+         puls  a,b,x,y
+         endif
+
+         jsr   getlsec           ; Convert to logical sector
+         tfr   d,y
+         ldb   fcbdrv
+         incb
+         ldx   #fujinet_dcb
+         jsr   fujinet_disk_read
+         cmpa  #FUJINET_RC_OK    ; Check if OK
+         lbne  diskerr           ; if not, report error
+
+; Copy data read to destination
+         ldx   #rxdata           ; assume copying first half of sector to destination
+         tst   fcbfirsthalf      ; check if working on first half of sector
+         beq   fread2            ; if so, copy to destination
+         ldx   #rxdata+256       ; otherwise, copying second half of sector to destination
+fread2:
+         ldy   fcbptr
+         clrb                    ; copy 256-byte sector to destination
+rcopy:   lda   ,x+
+         sta   ,y+
+         decb
+         bne   rcopy
+;
+; See if we just read the SIR, and grab the
+; sectors-per-track value if so.
+;
+         lda   fcbtrk
+         bne   retgood ; Not track zero
+         lda   fcbsec
+         cmpa  #2      ; SIR sector (256-byte logical sector 2)?
+         bne   retgood ; branch if not
+;
+; We just read the SIR so grab the sectors
+; per track from offset 39.
+;
+         ldx   fcbptr  ; pointer to buffer
+         lda   39,x
+         sta   fcbspt  ; update FCB
+;
+; Now update the table for this drive for
+; future reference
+;
+         lda   fcbdrv
+         lbsr  getsect
+         lda   fcbspt
+         sta   ,x
+;
+; Common return point when there are no errors.
+; C clear, Z set, and B contains 0 indicating no
+; 1771 FDC errors.
+;
+retgood  clrb
+         rts
+;
+         if DEBUG>0
+read2a   fcb   "Reading track: 0x",EOT
+read2b   fcb   " sector: 0x",EOT
+         endif
+
+;
+; This is a common error return point.  C set,
+; Z clear, and B will contain a "record not
+; found" error code.
+;
+diskerr: ldb   #$08
+         orcc  #$01
+         rts
+
+         
+;
+;=====================================================
+; WRITE
+; Entry: x - address of data of be written
+;        a - track number
+;        b - sector number
+;
+; Exit:  b = Error condition (1771 status register)
+;        z = set if no error, clear on error
+;        c = clear if no eror, set if error
+;
+fwrite:  sta   fcbtrk
+         stb   fcbsec
+         stx   fcbptr
+
+         if DEBUG>0
+         pshs  a,b,x,y
+         ldx   #write2a
+         lbsr  print
+         ldx   #fcbtrk
+         out2hs
+         ldx   #write2b
+         lbsr  print
+         ldx   #fcbsec
+         out2hs
+         pcrlf
+         puls  a,b,x,y
+         endif
+
+         jsr   getlsec           ; Convert to logical sector
+         std   fcblsec           ; Save it
+         tfr   d,y
+         
+         ; Read the full 512-byte sector first
+         ldx   #fujinet_dcb
+         ldd   #txdata
+         std   DCB_RX_BUFFER,x   ; read into the transmit buffer
+         ldb   fcbdrv            ; get the drive to read
+         incb                    ; convert to device slot (start from 1)
+         jsr   fujinet_disk_read
+         cmpa  #FUJINET_RC_OK    ; Check if OK
+         lbne  diskerr           ; if not, report error
+;
+         ldx   fcbptr            
+         ldy   #txdata           ; assume working on the first half of the sector
+         tst   fcbfirsthalf      ; check if we are working on the first half
+         beq   fwrite2
+         ldy   #txdata+256       ; working on the second half of the sector
+fwrite2:
+         ldb   #0                ; Copy 256-byte sector
+tcopy:   lda   ,x+               ; Copy data to DCB
+         sta   ,y+
+         decb
+         bne   tcopy
+;
+         ldx   #fujinet_dcb
+         ldd   #rxdata
+         std   DCB_RX_BUFFER,x   ; restore the receive buffer
+         ldb   fcbdrv
+         incb                    ; Adjust the drive to align so device=drive+1
+         ldy   fcblsec
+         jsr   fujinet_disk_write
+         cmpa  #FUJINET_RC_OK    ; Check if OK
+         lbne  diskerr           ; if not, report error
+;
+; See if this is the SIR and update the
+; sectors-per-track value if it is.
+;
+         lda   fcbtrk
+         lbne  retgood           ; Not track zero
+         lda   fcbsec
+         cmpa  #2                ; SIR sector (256-byte logical sector 2)?
+         lbne  retgood           ; no
+;
+; Update table with the number of sectors
+; per track
+;
+         lda   fcbdrv
+         lbsr  getsect
+         lda   fcbspt
+         sta   ,x       ; update table
+         lbra  retgood
+
+         if DEBUG>0
+write2a  fcb   "Writing track: 0x",EOT
+write2b  fcb   " sector: 0x",EOT
+         endif
+
+;=====================================================
+; VERIFY
+; Entry - (No parameters)
+; The sector just written isto be verified to
+; determine if there are CRC errors.
+;
+; There are no error that weren't reported
+; already, so just return a good value.
+;
+
+fverify:
+         clrb
+         rts
+
+;=====================================================
+; RESTORE
+; Entry: x - FCB Addess
+; Exit -  CC, NE, &B=$B if write protected
+;         CS, NE, &B=$F if no drive
+; A Restore Operation (also known as a Seek
+; to Track 00) is to be performed on the
+; drive whose number is in the FCB.
+;
+; Given that the SD card has no heads to move, this
+; this always returns immediately without errors.
+;
+frestore:
+         clrb
+         rts
+
+;
+;=====================================================
+; DRIVE SELECT
+; Entry: x - FCB Address
+; The drive whose number is in the FCB is
+; to be selected
+;
+; This also updates the FCB with the number of
+; sectors per track.
+;
+fdrive:  lda   3,x      ; get the drive
+         sta   fcbdrv
+         lbsr  getsect
+         lda   ,x       ; get the number of sectors per track
+         sta   fcbspt
+         clrb
+         rts
+
+;
+;=====================================================
+; CHECK DRIVE READY
+; Entry: x - FCB Address
+; Exit -  NE & CS if drive no ready
+;         EQ & CS if drive ready
+;
+fchkrdy:
+         lda   3,x                     ; get the drive
+         cmpa  #3                      ; There are only four drives
+         lbls  retgood
+         ldb   $80                     ; "drive not ready"
+         orcc  #$01
+         rts
+
+finit:
+         ldx   #fujinet_dcb            ; Set up the receive and transmit buffer in the DCB
+         ldd   #rxdata
+         std   DCB_RX_BUFFER,x
+         ldd   #txdata
+         std   DCB_TX_BUFFER,x
+         lbsr  fujinet_init            ; Initialise the fujinet device
+         rts
+
+ierror:
+         ldx   #sterror
+         lbsr  print
+         rts
+
+;
+; output as hex digits contents of D register
+;
+out4h    pshs  d
+         bsr   out2h
+         exg   b,a
+         bsr   out2h
+         puls  pc,d
+
+;
+; output two hex digits in A
+;
+out2h    pshs  a
+         asra
+         asra
+         asra
+         asra
+         bsr   outnyb
+         puls  a
+         bsr   outnyb
+         rts
+
+;
+; output least significant nybble in A
+;
+outnyb   anda  #$0F
+         cmpa  #$0A
+         bcs   outnyb2
+         adda  #$07
+outnyb2  adda  #$30
+         outch
+         rts
+
+;
+; print string pointed to by X
+;
+print    pshs  a,x
+print2   lda   ,x+
+         beq   print3
+         outch
+         bra   print2
+print3   puls  a,x,pc
+
+
+fwarm:
+         rts
+
+fseek:
+         clrb
+         rts
+;
+;=====================================================
+; The driver needs to keep track of how many sectors
+; per track on a per-drive basis.  This code is called
+; with a drive (0-3) in A and will return X pointing
+; to the memory location containing the sectors per
+; track for that drive.
+;
+; The values here are updaed whenever the SIR is read
+; in the read sector routine or written in the sector
+; write routine.  Values are taken from here
+; whenever a new drive is selected.
+;
+getsect  ldx     #sectrk-1
+getse2   leax    1,x
+         deca
+         bpl     getse2
+         rts
+
+;
+; return logical 512-byte sector based on 256-byte sector, track and sectors per track
+; Entry: a = track
+;        b = sector
+;
+; Exit:  d = logical sector
+getlsec:
+         tsta                 ; is it track 0
+         bne   getlsec2
+         tstb                 ; is it sector 0
+         beq   getlsec3
+getlsec2:
+         decb                 ; make 0-based
+getlsec3:
+         stb   fcbsec         ; save the sector number
+         ldb   fcbspt         ; get the sectors per track
+         mul                  ; multiply by the track number
+         addb  fcbsec         ; add the sector number
+         adca  #0
+         clr   fcbfirsthalf   ; assume it is the first half sector
+         bitb  #$01           ; check which half of the 512-sector to work on
+         beq   getlsec4
+         inc   fcbfirsthalf   ; actually working on the upper half of the sector
+getlsec4:
+         lsra                 ; divide the logical number by 2 since there are 2 x 256-byte sectors in each 512-byte sector
+         rorb
+         rts
+
+sterror: fcb   "Failed to mount drives",CR,LF,EOT
+;
+;         include  "aciaio.asm"
+         include  "libfujicmdbase.asm"
+         include  "libfujicmddisk.asm"
+         include  "libfujinet.asm"
+;
+;
+; The FCB for accessing the low level disk functions.
+;
+lfcb            equ     *
+fcbdrv          fcb     0       ; drive 0
+fcbtrk          fcb     0       ; track 0
+fcbsec          fcb     0       ; sector 0
+fcblsec         fdb     0       ; logical sector
+fcbspt          fcb     0       ; sectors per track
+fcbptr          fdb     0       ; buffer address
+fcbfirsthalf    fcb     0       ; zero if 256-byte sector in first half of 512-byte sector
+;
+sectrk:  fcb   0,0,0,0        ; Sectors per track on per-drive basis (filled when SIR read)
+;
+fujinet_dcb:
+         rmb   1              ; FujiNet device
+         rmb   1              ; FujiNet command
+         rmb   1              ; Aux1
+         rmb   1              ; Aux2
+         fdb   txdata         ; pointer to transmit buffer
+         rmb   2              ; length of data in bytes
+         fdb   rxdata         ; pointer to receive buffer
+         rmb   2              ; length of response buffer in bytes
+         rmb   2              ; timeout in milliseconds
+;
+txdata   rmb   512
+rxdata   rmb   512
+;
