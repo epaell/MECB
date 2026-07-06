@@ -1,9 +1,13 @@
 # FLEX
 
 6800FLEX.DSK - FLEX 2.0 boot disk that can be used with a 6800/6802 System
+
 FLEX3-DS.DSK - FLEX 3.0 boot disk that can be used with a 6800/6802 System
+
 flex2fuji.py - a simple conversion script to convert original FLEX disks to a format FujiNet will accept.
+
 lsflex.py - lists information associated with the FLEX disk and outputs a directory listing
+
 FujiNet/. - Converted FLEX disks for use with FujiNet
 
 To boot FLEX 2.0 with FujiNet
