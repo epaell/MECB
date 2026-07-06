@@ -33,8 +33,8 @@
 *     E  EXORTAPE CASSETTE INTERFACE
 *
 *      OPT    S,O,LLEN=80,CREF
-ACIAS  EQU    $8008
-ACIAD  EQU    $8009
+ACIAS  EQU    $EF08
+ACIAD  EQU    $EF09
 SWI    EQU    $3F      SWI OP CODE
 *
 RAMORG EQU    $7F00    Origin for variables used by MIKBUG2
