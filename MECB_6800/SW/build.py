@@ -4,8 +4,10 @@ import sys
 import os
 
 build_list = [
+    "digibug_trek",
+    "digibug_othello",
 #    "DigiBug",
-    "test_fn",
+#    "test_fn",
 #    "flex2_load",
 #    "flex3_load",
 #    "flex2",
