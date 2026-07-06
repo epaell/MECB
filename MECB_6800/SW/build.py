@@ -4,24 +4,22 @@ import sys
 import os
 
 build_list = [
-#    "mikbug",
-    "beep",
-#    "DREAM_invaders6800",
-#    "mikbug2",
-    "CHIPOS",
-#    "trek"
+#    "DigiBug",
+    "test_fn",
+#    "flex2_load",
+#    "flex3_load",
+#    "flex2",
             ]
 
-def clean_s19(f_in):
-    with open(f_in) as file:
-        lines = [line for line in file]
-    fout = open(f_in, "wt")
-    for line in lines:
-        if line[:2] == "S9":
-            fout.write("%s\n" %(line[:2]))
-        else:
-            fout.write(line)
+def clean_hex(fin):
+    fout = open("temp.hex", "wt")
+    for line in open(fin, "rt"):
+        if line.find("S9") !=-1:
+            fout.write("S9")
+            continue
+        fout.write(line)
     fout.close()
+    os.system(f"mv temp.hex {fin}")
 
 def bin2rom(f_bin, f_rom):
     # f_bin - original combined binary produced by the build
@@ -33,8 +31,10 @@ def bin2rom(f_bin, f_rom):
     fin.close()
 
     # Initialise the lower (unused) part of the ROM to 0xFF
+    nbin = len(bin_contents)
+    print(nbin)
     rom = bytearray(np.full((0x8000), 0xFF, np.ubyte))
-    rom[0x7000:] = bin_contents[-0x1000:]
+    rom[0x8000-nbin:] = bin_contents[-nbin:]
     
     # Write the 512 KB binary that is more easily burned to FLASH ROM
     fout = open(f_rom, "wb")
@@ -43,13 +43,14 @@ def bin2rom(f_bin, f_rom):
 
 for source in build_list:
     print(f"*** Compiling {source}.asm ***")
-    os.system(f"rm {source}.lst {source}.s19")
-    os.system(f"vasm6800_mot -Fsrec -s19 -L {source}.lst src/{source}.asm")
-    os.system(f"mv a.out {source}.s19")
-    clean_s19(f"{source}.s19")
-    if source in ["mikbug2"]:
-        os.system(f"vasm6800_mot -Fbin -L {source}.lst src/{source}.asm")
-        os.system(f"mv a.out {source}.bin")
-        bin2rom(f"{source}.bin", f"rom_mikbug2.bin")
-#    os.system(f"vasmm68k_mot -Fbin -L {source}.lst src/{source}.asm")
-#    os.system(f"mv a.out {source}.bin")
+    os.system(f"rm {source}.lst {source}.hex")
+    if source in ["DigiBug", "mikbug", "mikbug2"]:
+        os.system(f"asl  -L -olist ./{source}.lst -cpu 6800 -o ./{source}.p src/{source}.asm")
+        os.system(f"p2bin {source}.p")
+        bin2rom(f"{source}.bin", f"rom_{source}.bin")
+    else:
+        os.system(f"asl  -L -olist ./{source}.lst -cpu 6800 -o ./{source}.p src/{source}.asm")
+        os.system(f"p2hex {source}.p -l 64 -F Moto")
+#    clean_hex(f"{source}.hex")
+        
+        
