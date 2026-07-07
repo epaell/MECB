@@ -6,17 +6,17 @@
 ;
 ; FujiNet device directory commands
 ;
-;         include "libfujicmddir.asm"
+         include "libfujicmddir.asm"
 
 ;
 ; FujiNet WiFi commands
 ;
-;         include "libfujicmdwifi.asm"
+         include "libfujicmdwifi.asm"
 
 ;
 ; file commands - not implemented
 ;
-;         include  "libfujicmdfile.asm"
+         include  "libfujicmdfile.asm"
 ;
 ; disk commands
 ;
@@ -24,21 +24,21 @@
 ;
 ; MODEM commands - not implemented
 ;
-;         include "libfujicmdmodem.asm"
+         include "libfujicmdmodem.asm"
 ;
 ; Network commands - not implemented
 ;
-;         include "libfujicmdnet.asm"
+         include "libfujicmdnet.asm"
 
 ;
 ; Printer commands - not implemented
 ;
-;         include "libfujicmdprint.asm"
+         include "libfujicmdprint.asm"
 
 ;
 ; AppKey commands - not implemented
 ;
-;         include "libfujicmdappkey.asm"
+         include "libfujicmdappkey.asm"
 ;
 
 ;
@@ -90,4 +90,4 @@ fujinet_logical_device_url:
 ;
 ; Unimplemented commands
 ;
-;         include "libfujicmdnotimp.asm"
+         include "libfujicmdnotimp.asm"

@@ -7,7 +7,7 @@
          include  "DigiBug.inc"
          include  "aciaio.inc"
 ;
-DEBUG    equ   1                 ; 0 for no debug, 1 for I/O debug, 2 for detailed load debugging
+DEBUG    equ   0                 ; 0 for no debug, 1 for I/O debug, 2 for detailed load debugging
 ;
 STACK    equ   $a07f
 READ     equ   $be80
@@ -230,6 +230,88 @@ lsttrk   rmb   1        ; Last track
 ; Can use memory above $c000-$ceff
 
          org   $c000
+;
+; Jump table for FujiNet library
+;
+lfujinet_reset                            jmp   fujinet_reset
+lfujinet_dcb_exec                         jmp   fujinet_dcb_exec
+lfn_perror                                jmp   fn_perror
+lfujinet_mount_all                        jmp   fujinet_mount_all
+lfujinet_mount_host                       jmp   fujinet_mount_host
+lfujinet_read_host_slots                  jmp   fujinet_read_host_slots
+lfujinet_read_device_slots                jmp   fujinet_read_device_slots
+lfujinet_random_number                    jmp   fujinet_random_number
+lfujinet_get_time                         jmp   fujinet_get_time
+lfujinet_open_directory                   jmp   fujinet_open_directory
+lfujinet_read_dir_entry                   jmp   fujinet_read_dir_entry
+lfujinet_close_directory                  jmp   fujinet_close_directory
+lfujinet_set_directory_position           jmp   fujinet_set_directory_position
+lfujinet_get_directory_position           jmp   fujinet_get_directory_position
+lfujinet_write_appkey                     jmp   fujinet_write_appkey
+lfujinet_read_appkey                      jmp   fujinet_read_appkey
+lfujinet_open_appkey                      jmp   fujinet_open_appkey
+lfujinet_close_appkey                     jmp   fujinet_close_appkey
+
+lfujinet_device_create_new                jmp   fujinet_device_create_new
+lfujinet_device_disable_device            jmp   fujinet_device_disable_device
+lfujinet_device_enable_device             jmp   fujinet_device_enable_device
+lfujinet_device_get_adapter_config        jmp   fujinet_device_get_adapter_config
+lfujinet_device_get_device_enabled_status jmp   fujinet_device_get_device_enabled_status
+lfujinet_device_get_device_filename       jmp   fujinet_device_get_device_filename
+lfujinet_write_device_slots               jmp   fujinet_write_device_slots
+lfujinet_write_host_slots                 jmp   fujinet_write_host_slots
+lfujinet_device_set_boot_config           jmp   fujinet_device_set_boot_config
+lfujinet_device_set_device_filename       jmp   fujinet_device_set_device_filename
+lfujinet_logical_device_type              jmp   fujinet_logical_device_type
+lfujinet_logical_device_unit              jmp   fujinet_logical_device_unit
+lfujinet_logical_device_url               jmp   fujinet_logical_device_url
+lfujinet_mount_image                      jmp   fujinet_mount_image
+lfujinet_disk_read                        jmp   fujinet_disk_read
+lfujinet_unmount_image                    jmp   fujinet_unmount_image
+lfujinet_disk_get_sector_size             jmp   fujinet_disk_get_sector_size
+lfujinet_disk_write                       jmp   fujinet_disk_write
+
+lfujinet_file_open                        jmp   fujinet_file_open
+lfujinet_file_read                        jmp   fujinet_file_read
+lfujinet_file_status                      jmp   fujinet_file_status
+lfujinet_file_write                       jmp   fujinet_file_write
+lfujinet_file_close                       jmp   fujinet_file_close
+
+lfujinet_network_open                     jmp   fujinet_network_open
+lfujinet_network_read                     jmp   fujinet_network_read
+lfujinet_network_status                   jmp   fujinet_network_status
+lfujinet_network_write                    jmp   fujinet_network_write
+lfujinet_network_close                    jmp   fujinet_network_close
+lfujinet_network_channel_mode             jmp   fujinet_network_channel_mode
+lfujinet_network_json_parse               jmp   fujinet_network_json_parse
+lfujinet_network_json_query               jmp   fujinet_network_json_query
+lfujinet_network_login                    jmp   fujinet_network_login
+
+lfujinet_modem_read                       jmp   fujinet_modem_read
+lfujinet_modem_status                     jmp   fujinet_modem_status
+lfujinet_modem_stream                     jmp   fujinet_modem_stream
+lfujinet_modem_write                      jmp   fujinet_modem_write
+
+lfujinet_printer_stream                   jmp   fujinet_printer_stream
+lfujinet_printer_write                    jmp   fujinet_printer_write
+
+lfujinet_scan_for_networks                jmp   fujinet_scan_for_networks
+lfujinet_get_scan_result                  jmp   fujinet_get_scan_result
+lfujinet_get_ssid                         jmp   fujinet_get_ssid
+lfujinet_get_wifi_status                  jmp   fujinet_get_wifi_status
+lfujinet_set_ssid                         jmp   fujinet_set_ssid
+lfujinet_get_wifi_enabled                 jmp   fujinet_get_wifi_enabled
+
+lfujinet_new_disk                         jmp   fujinet_new_disk
+lfujinet_set_host_prefix                  jmp   fujinet_set_host_prefix
+lfujinet_get_host_prefix                  jmp   fujinet_get_host_prefix
+lfujinet_copy_file                        jmp   fujinet_copy_file
+lfujinet_set_boot_mode                    jmp   fujinet_set_boot_mode
+lfujinet_status                           jmp   fujinet_status
+lfujinet_get_adapterconfig_extended       jmp   fujinet_get_adapterconfig_extended
+lfujinet_generate_guid                    jmp   fujinet_generate_guid
+lfujinet_set_status                       jmp   fujinet_set_status
+lfujinet_unmount_host                     jmp   fujinet_unmount_host
 
 ; Read a character from the terminal, no echo
 ; Entry: -
@@ -659,8 +741,8 @@ mpy16c:  dex
 sterror: fcb   "Failed to mount drives",CR,LF,EOT
 ;
          include "aciaio.asm"
-         include  "libfujicmdbase.asm"
-         include  "libfujicmddisk.asm"
+         include  "libfujicmd.asm"
+         include  "libfujierr.asm"
          include  "libfujinet.asm"
 ;
 mpyx:    rmb   2
