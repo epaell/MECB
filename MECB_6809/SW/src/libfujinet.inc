@@ -68,36 +68,34 @@ WIFI_CONNECT_FAIL                   equ   4
 WIFI_CONNECTION_LOST                equ   5
 WIFI_DISCONNECTED                   equ   6
 
-;
-; Network errors used in extended_error
-;
-NETWORK_ERROR_SUCCESS               equ   1
-NETWORK_ERROR_WRITE_ONLY            equ   131
-NETWORK_ERROR_INVALID_COMMAND       equ   132
-NETWORK_ERROR_READ_ONLY             equ   135
-NETWORK_ERROR_END_OF_FILE           equ   136
-NETWORK_ERROR_GENERAL_TIMEOUT       equ   138
-NETWORK_ERROR_GENERAL               equ   144
-NETWORK_ERROR_NOT_IMPLEMENTED       equ   146
-NETWORK_ERROR_FILE_EXISTS           equ   151
-NETWORK_ERROR_NO_SPACE_ON_DEVICE    equ   162
-NETWORK_ERROR_INVALID_DEVICESPEC    equ   165
-NETWORK_ERROR_ACCESS_DENIED         equ   167
-NETWORK_ERROR_FILE_NOT_FOUND        equ   170
-NETWORK_ERROR_CONNECTION_REFUSED    equ   200
-NETWORK_ERROR_NETWORK_UNREACHABLE   equ   201
-NETWORK_ERROR_SOCKET_TIMEOUT        equ   202
-NETWORK_ERROR_NETWORK_DOWN          equ   203
-NETWORK_ERROR_CONNECTION_RESET      equ   204
-NETWORK_ERROR_CONNECTION_ALREADY_IN_PROGRESS equ   205
-NETWORK_ERROR_ADDRESS_IN_USE        equ   206
-NETWORK_ERROR_NOT_CONNECTED         equ   207
-NETWORK_ERROR_SERVER_NOT_RUNNING    equ   208
-NETWORK_ERROR_NO_CONNECTION_WAITING equ   209
-NETWORK_ERROR_SERVICE_NOT_AVAILABLE equ   210
-NETWORK_ERROR_CONNECTION_ABORTED    equ   211
-NETWORK_ERROR_INVALID_USERNAME_OR_PASSWORD   equ   212
-NETWORK_ERROR_COULD_NOT_ALLOCATE_BUFFERS     equ   255
+; Network extended_error
+NETWORK_ERROR_SUCCESS                        equ   1     ; $01
+NETWORK_ERROR_WRITE_ONLY                     equ   131   ; $83
+NETWORK_ERROR_INVALID_COMMAND                equ   132   ; $84
+NETWORK_ERROR_READ_ONLY                      equ   135   ; $87
+NETWORK_ERROR_END_OF_FILE                    equ   136   ; $88
+NETWORK_ERROR_GENERAL_TIMEOUT                equ   138   ; $8a
+NETWORK_ERROR_GENERAL                        equ   144   ; $90
+NETWORK_ERROR_NOT_IMPLEMENTED                equ   146   ; $92
+NETWORK_ERROR_FILE_EXISTS                    equ   151   ; $97
+NETWORK_ERROR_NO_SPACE_ON_DEVICE             equ   162   ; $a2
+NETWORK_ERROR_INVALID_DEVICESPEC             equ   165   ; $a5
+NETWORK_ERROR_ACCESS_DENIED                  equ   167   ; $a7
+NETWORK_ERROR_FILE_NOT_FOUND                 equ   170   ; $aa
+NETWORK_ERROR_CONNECTION_REFUSED             equ   200   ; $c8
+NETWORK_ERROR_NETWORK_UNREACHABLE            equ   201   ; $c9
+NETWORK_ERROR_SOCKET_TIMEOUT                 equ   202   ; $ca
+NETWORK_ERROR_NETWORK_DOWN                   equ   203   ; $cb
+NETWORK_ERROR_CONNECTION_RESET               equ   204   ; $cc
+NETWORK_ERROR_CONNECTION_ALREADY_IN_PROGRESS equ   205   ; $cd
+NETWORK_ERROR_ADDRESS_IN_USE                 equ   206   ; $ce
+NETWORK_ERROR_NOT_CONNECTED                  equ   207   ; $cf
+NETWORK_ERROR_SERVER_NOT_RUNNING             equ   208   ; $d0
+NETWORK_ERROR_NO_CONNECTION_WAITING          equ   209   ; $d1
+NETWORK_ERROR_SERVICE_NOT_AVAILABLE          equ   210   ; $d2
+NETWORK_ERROR_CONNECTION_ABORTED             equ   211   ; $d3
+NETWORK_ERROR_INVALID_USERNAME_OR_PASSWORD   equ   212   ; $d4
+NETWORK_ERROR_COULD_NOT_ALLOCATE_BUFFERS     equ   255   ; $ff
 
 ;
 ; FujiNet commands
@@ -250,6 +248,13 @@ CHANNELMODE_JSON                    equ   1
 ;    uint8_t mode;
 ;    uint8_t reserved;
 
+FN_TIME_YEARH                       equ   0
+FN_TIME_YEARL                       equ   1
+FN_TIME_MONTH                       equ   2
+FN_TIME_MDAY                        equ   3
+FN_TIME_HOUR                        equ   4
+FN_TIME_MIN                         equ   5
+FN_TIME_SEC                         equ   6
 
 MAX_FILE_HANDLE                     equ   8
 FILE_STATUS_LEN                     equ   6  ; 2 bytes and a long int
@@ -276,3 +281,10 @@ DIR_ENTRY_FF_TRUNC                  equ   2
 
 ; file_type definitions
 DIR_ENTRY_FT_UNKNOWN                equ   0
+
+; Network line translation
+NET_TRANS_NONE                      equ   0
+NET_TRANS_CR                        equ   1
+NET_TRANS_LF                        equ   2
+NET_TRANS_CRLF                      equ   3
+

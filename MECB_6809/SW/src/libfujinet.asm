@@ -420,7 +420,6 @@ rx_buff2:
 
          ; rx byte to pointer
          lbsr  fujinet_hal_rx
-         RDUMP "RX "
          sta   ,x+   
          decb
          bra   rx_buff2

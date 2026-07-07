@@ -3,8 +3,9 @@
 ; Known issues:
 ;
 ; fujinet_reset - WiFi stops working after calling, requires hardware reset on ESP32 to re-initiate.
-; fujinet_get_scan_result - firmare returns one less byte than it should (changed to fix).
+; fujinet_get_scan_result - firmare returns one less byte than it should (changed firmware to fix).
 ; fujinet_scan_for_networks - ESP32 log reports different number of networks compared to what is returned.
+; fujinet_network_open - only seems to work for device 0
 ;
 ; In firmware : mediaTypeIMG.cpp, "_media_last_sector = INVALID_SECTOR_VALUE;" on line 206 prevents write to sector 0
 ; disk_write results in Error: FUJINET_RC_NO_ACK
@@ -34,12 +35,12 @@ main:
 ;
          lbsr  fujinet_init   ; Initialise the fujinet device
 ;
-         lbsr  config_tests   ; Check configuration of hosts and devices
+;         lbsr  config_tests   ; Check configuration of hosts and devices
 ;         lbsr  wifi_tests     ; Check WiFi commands
 ;         lbsr  dir_tests      ; Check directory access
 ;         lbsr  file_tests      ; Check file access
 ;         lbsr  image_tests    ; Check image access
-;         lbsr  network_tests
+         lbsr  net_tests
 exit     monitr  $01          ; return to monitor
 
          include "test_fn_config.asm"
@@ -47,7 +48,7 @@ exit     monitr  $01          ; return to monitor
 ;         include "test_fn_dir.asm"
 ;         include "test_fn_file.asm"
 ;         include "test_fn_image.asm"
-;         include "test_fn_network.asm"
+         include "test_fn_net.asm"
 ;
 error    lbsr  fn_perror      ; Print the error string
          monitr  $01          ; return to monitor
