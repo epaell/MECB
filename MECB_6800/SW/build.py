@@ -4,13 +4,15 @@ import sys
 import os
 
 build_list = [
-    "digibug_trek",
-    "digibug_othello",
+#    "digibug_trek",
+#    "digibug_othello",
+#    "digibug_adventure",
 #    "DigiBug",
 #    "test_fn",
-#    "flex2_load",
-#    "flex3_load",
+    "flex2_load",
+    "flex3_load",
 #    "flex2",
+    "date",
             ]
 
 def clean_hex(fin):
