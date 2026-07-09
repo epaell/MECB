@@ -175,7 +175,7 @@ FUJINET_MAX_HOST_SLOTS              equ   8
 FUJINET_MAX_DEVICE_SLOTS            equ   8
 DIR_ENTRY_ATTR_LEN                  equ   12
 MAX_PATH_LEN                        equ   256
-DISK_SECTOR_SIZE                    equ   512
+DISK_SECTOR_SIZE                    equ   256
 MAX_NETWORK_UNITS                   equ   8
 
 ; Network

@@ -50,6 +50,24 @@ PIACTLB         equ     PIABASE+3       ; control reg B
 ;
 FN_CSR          equ     IO_BASE+$C2    ; Fujinet I/O port
 ;
+;
+; I/O mapping for VDP
+;
+VDP            equ      IO_BASE+$80  ; TMS9918A Video Display Processor
+VDP_VRAM       equ      VDP+0        ; used for VRAM reads/writes
+VDP_REG        equ      VDP+1        ; control registers/address latch
+;
+; I/O mapping for OLED
+;
+OLED           equ      IO_BASE+$88  ; OLED Panel base address
+OLED_CMD       equ      OLED         ; OLED Command address
+OLED_DTA       equ      OLED+1       ; OLED Data address
+;
+; I/O mapping for I/O and RTC card
+;
+RTC            equ      IO_BASE+$C0
+IO_PORT        equ      IO_BASE+$C1
+;
 CR              EQU     $0D         ; Carriage return
 LF              EQU     $0A         ; Linefeed
 EOT             EQU     $00
