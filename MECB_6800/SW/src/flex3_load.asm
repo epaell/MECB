@@ -408,37 +408,21 @@ fread:
          ldx   #fujinet_dcb
          sta   DCB_AUX2,x        ; Store the logical sector MSB
          stb   DCB_AUX1,x        ; Store the logical sector LSB
+         lda   fcbptr            ; Set receive buffer to point to final destination
+         sta   DCB_RX_BUFFER,x
+         lda   fcbptr+1
+         sta   DCB_RX_BUFFER+1,x
          ldb   fcbdrv
          incb
          jsr   fujinet_disk_read
          cmpa  #FUJINET_RC_OK    ; Check if OK
          beq   fread1
          jmp   diskerr           ; if not, report error
-
-; Copy data read to destination
-fread1:
-         ldx   fcbptr            ; set up destination pointer
-         stx   destptr
-         ldx   #rxdata           ; assume copying first half of sector to destination
-         tst   fcbfirsthalf      ; check if working on first half of sector
-         beq   fread2            ; if so, copy to destination
-         ldx   #rxdata+256       ; otherwise, copying second half of sector to destination
-fread2:
-         clrb                    ; copy 256-byte sector to destination
-rcopy:   lda   ,x                ; read a value
-         inx                     ; update and store source pointer
-         stx   srcptr
-         ldx   destptr           ; get the destination pointer
-         sta   ,x                ; write the value
-         inx                     ; update and store destination pointer
-         stx   destptr
-         ldx   srcptr            ; restore source pointer
-         decb
-         bne   rcopy
 ;
 ; See if we just read the SIR, and grab the
 ; sectors-per-track value if so.
 ;
+fread1:
          lda   fcbtrk
          bne   retgood ; Not track zero
          lda   fcbsec
@@ -526,53 +510,12 @@ fwrite:  sta   fcbtrk
          stb   DCB_AUX1,x        ; Set the logical sector (LSB)
          RDUMPA 1,"sector (MSB)="
          RDUMPB 1,"sector (LSB)="
-         
-         ; Read the full 512-byte sector first
-         lda   #txdata>>8
-         sta   DCB_RX_BUFFER,x   ; read into the transmit buffer
-         lda   #txdata&$ff
-         sta   DCB_RX_BUFFER+1,x ;
+         lda   fcbptr
+         sta   DCB_TX_BUFFER,x
+         lda   fcbptr+1
+         sta   DCB_TX_BUFFER+1,x
          ldb   fcbdrv            ; get the drive to read
          incb                    ; convert to device slot (start from 1)
-         jsr   fujinet_disk_read
-         cmpa  #FUJINET_RC_OK    ; Check if OK
-         beq   fwrite1
-         DUMP  1,"READ OK"
-         jmp   diskerr           ; if not, report error
-;
-fwrite1:
-         ldx   #txdata           ; assume working on the first half of the sector
-         tst   fcbfirsthalf      ; check if we are working on the first half
-         beq   fwrite2
-         DUMP  1,"Write second half sector"
-         ldx   #txdata+256       ; working on the second half of the sector
-fwrite2:
-         stx   destptr           ; save the destination pointer
-         ldx   fcbptr            ; get the source pointer
-         ldb   #0                ; Copy 256-byte sector
-tcopy:   lda   ,x                ; Copy data to DCB
-         inx
-         stx   srcptr
-         ldx   destptr
-         sta   ,x
-         inx
-         stx   destptr
-         ldx   srcptr
-         decb
-         bne   tcopy
-;
-         ldx   #fujinet_dcb
-         lda   #rxdata>>8
-         sta   DCB_RX_BUFFER,x   ; restore the receive buffer
-         lda   #rxdata&$ff
-         sta   DCB_RX_BUFFER+1,x ;
-         
-         ldb   fcbdrv
-         incb                    ; Adjust the drive to align so device=drive+1
-         lda   fcblsec
-         sta   DCB_AUX2,x
-         lda   fcblsec+1
-         sta   DCB_AUX1,x
          jsr   fujinet_disk_write
          cmpa  #FUJINET_RC_OK    ; Check if OK
          beq   fwrite3
@@ -669,13 +612,10 @@ fchkretgood:
          
 finit:
          ldx   #fujinet_dcb            ; Set up the receive and transmit buffer in the DCB
-         lda   #rxdata>>8
+         lda   #0
          sta   DCB_RX_BUFFER,x
-         lda   #rxdata&$ff
          sta   DCB_RX_BUFFER+1,x
-         lda   #txdata>>8
          sta   DCB_TX_BUFFER,x
-         lda   #txdata&$ff
          sta   DCB_TX_BUFFER+1,x
          jsr   fujinet_init            ; Initialise the fujinet device
          rts
@@ -729,13 +669,6 @@ getlsec3:
          bsr   mpy16          ; multiply by the track number
          addb  fcbsec         ; add the sector number
          adca  #0
-         clr   fcbfirsthalf   ; assume it is the first half sector
-         bitb  #$01           ; check which half of the 512-sector to work on
-         beq   getlsec4
-         inc   fcbfirsthalf   ; actually working on the upper half of the sector
-getlsec4:
-         lsra                 ; divide the logical number by 2 since there are 2 x 256-byte sectors in each 512-byte sector
-         rorb
          rts
 ;
 ; 8 x 8-bit multiply
@@ -783,7 +716,6 @@ fcbsec          fcb     0       ; sector 0
 fcblsec         fdb     0       ; logical sector
 fcbspt          fcb     0       ; sectors per track
 fcbptr          fdb     0       ; buffer address
-fcbfirsthalf    fcb     0       ; zero if 256-byte sector in first half of 512-byte sector
 ;
 sectrk:  fcb   0,0,0,0        ; Sectors per track on per-drive basis (filled when SIR read)
 ;
@@ -792,12 +724,9 @@ fujinet_dcb:
          rmb   1              ; FujiNet command
          rmb   1              ; Aux1
          rmb   1              ; Aux2
-         fdb   txdata         ; pointer to transmit buffer
+         fdb   0              ; pointer to transmit buffer
          rmb   2              ; length of data in bytes
-         fdb   rxdata         ; pointer to receive buffer
+         fdb   0              ; pointer to receive buffer
          rmb   2              ; length of response buffer in bytes
          rmb   2              ; timeout in milliseconds
-;
-txdata   rmb   512
-rxdata   rmb   512
 ;

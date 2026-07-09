@@ -11,7 +11,7 @@
 ;
 ; Support added for MECB FujiNet network time 07/07/2026
 ; Modified to allow compilation with asl
-; The binary can be saved to a FLEX disk by
+; The binary can be saved to a FLEX 3 disk by
 ; 1. Boot to FLEX
 ; 2. Type 'MON' to enter DigiBug
 ; 3. Use 'L' to load the S19 hex code
