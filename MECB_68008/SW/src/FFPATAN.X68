@@ -1,62 +1,62 @@
-*         TTL       FAST FLOATING POINT ARCTANGENT (FFPATAN)
-***************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC. *
-***************************************
+;         TTL       FAST FLOATING POINT ARCTANGENT (FFPATAN)
+;**************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC. *
+;**************************************
 
-*FFPATAN  IDNT      1,2                   ;FFP ARCTANGENT
-*         OPT       PCS
-*         SECTION   9
-*         XDEF      FFPATAN               ;ENTRY POINT
-*         XREF      9:FFPTHETA            ;ARCTANGENT TABLE
-*         XREF      9:FFPDIV,9:FFPSUB     ;ARITHMETIC PRIMITIVES
-*         XREF      9:FFPTNORM            ;TRANSCENDENTAL NORMALIZE ROUTINE
-*         XREF      FFPCPYRT              ;COPYRIGHT STUB
+;FFPATAN  IDNT      1,2                   ;FFP ARCTANGENT
+;         OPT       PCS
+;         SECTION   9
+;         XDEF      FFPATAN               ;ENTRY POINT
+;         XREF      9:FFPTHETA            ;ARCTANGENT TABLE
+;         XREF      9:FFPDIV,9:FFPSUB     ;ARITHMETIC PRIMITIVES
+;         XREF      9:FFPTNORM            ;TRANSCENDENTAL NORMALIZE ROUTINE
+;         XREF      FFPCPYRT              ;COPYRIGHT STUB
 
-*************************************************
-*                  FFPATAN                      *
-*       FAST FLOATING POINT ARCTANGENT          *
-*                                               *
-*  INPUT:   D7 - INPUT ARGUMENT                 *
-*                                               *
-*  OUTPUT:  D7 - ARCTANGENT RADIAN RESULT       *
-*                                               *
-*     ALL OTHER REGISTERS TOTALLY TRANSPARENT   *
-*                                               *
-*  CODE SIZE: 132 BYTES   STACK WORK: 32 BYTES  *
-*                                               *
-*  CONDITION CODES:                             *
-*        Z - SET IF THE RESULT IS ZERO          *
-*        N - CLEARED                            *
-*        V - CLEARED                            *
-*        C - UNDEFINED                          *
-*        X - UNDEFINED                          *
-*                                               *
-*                                               *
-*  NOTES:                                       *
-*    1) SPOT CHECKS SHOW AT LEAST SIX DIGIT     *
-*       PRECISION ON ALL SAMPLED CASES.         *
-*                                               *
-*  TIME: (8MHZ NO WAIT STATES ASSUMED)          *
-*                                               *
-*        THE TIME IS VERY DATA SENSITIVE WITH   *
-*        SAMPLE VALUES RANGING FROM 238 TO      *
-*        465 MICROSECONDS                       *
-*                                               *
-*************************************************
-*         PAGE
+;************************************************
+;                  FFPATAN                      *
+;       FAST FLOATING POINT ARCTANGENT          *
+;                                               *
+;  INPUT:   D7 - INPUT ARGUMENT                 *
+;                                               *
+;  OUTPUT:  D7 - ARCTANGENT RADIAN RESULT       *
+;                                               *
+;     ALL OTHER REGISTERS TOTALLY TRANSPARENT   *
+;                                               *
+;  CODE SIZE: 132 BYTES   STACK WORK: 32 BYTES  *
+;                                               *
+;  CONDITION CODES:                             *
+;        Z - SET IF THE RESULT IS ZERO          *
+;        N - CLEARED                            *
+;        V - CLEARED                            *
+;        C - UNDEFINED                          *
+;        X - UNDEFINED                          *
+;                                               *
+;                                               *
+;  NOTES:                                       *
+;    1) SPOT CHECKS SHOW AT LEAST SIX DIGIT     *
+;       PRECISION ON ALL SAMPLED CASES.         *
+;                                               *
+;  TIME: (8MHZ NO WAIT STATES ASSUMED)          *
+;                                               *
+;        THE TIME IS VERY DATA SENSITIVE WITH   *
+;        SAMPLE VALUES RANGING FROM 238 TO      *
+;        465 MICROSECONDS                       *
+;                                               *
+;************************************************
+;         PAGE
 
 PIOV2     EQU       $C90FDB41             ;FLOAT PI/2
 FPONEA    EQU       $80000041             ;FLOAT 1
 
-********************
-* ARCTANGENT ENTRY *
-********************
+;*******************
+; ARCTANGENT ENTRY *
+;*******************
 
-* SAVE REGISTERS AND PERFORM ARGUMENT REDUCTION
+; SAVE REGISTERS AND PERFORM ARGUMENT REDUCTION
 FFPATAN   MOVEM.L   D1-D6/A0,-(SP)        ;SAVE CALLER'S REGISTERS
           MOVE.B    D7,-(SP)              ;SAVE ORIGINAL SIGN ON STACK
           AND.B     #$7F,D7               ;TAKE ABSOLUTE VALUE OF ARG
-* INSURE LESS THAN ONE FOR CORDIC LOOP
+; INSURE LESS THAN ONE FOR CORDIC LOOP
           MOVE.L    #FPONEA,D6            ;LOAD UP 1
           CLR.B     -(SP)                 ;DEFAULT NO INVERSE REQUIRED
           CMP.B     D6,D7                 ;? LESS THAN ONE
@@ -64,13 +64,13 @@ FFPATAN   MOVEM.L   D1-D6/A0,-(SP)        ;SAVE CALLER'S REGISTERS
           BHI.S     FPARDC                ;HIGHER - MUST REDUCE
           CMP.L     D6,D7                 ;? LESS OR EQUAL TO ONE
           BLS.S     FPAINRG               ;BRANCH YES, IS IN RANGE
-* ARGUMENT > 1:  ATAN(1/X) =  PI/2 - ATAN(X)
+; ARGUMENT > 1:  ATAN(1/X) =  PI/2 - ATAN(X)
 FPARDC    NOT.B     (SP)                  ;FLAG INVERSE TAKEN
           EXG       D6,D7                 ;TAKE INVERSE OF ARGUMENT
           BSR       FFPDIV                ;PERFORM DIVIDE
 
-* PERFORM CORDIC FUNCTION
-* CONVERT TO BIN(31,29) PRECISION
+; PERFORM CORDIC FUNCTION
+; CONVERT TO BIN(31,29) PRECISION
 FPAINRG   SUB.B     #64+3,D7              ;ADJUST EXPONENT
           NEG.B     D7                    ;FOR SHIFT NECESSARY
           CMP.B     #31,D7                ;? TOO SMALL TO WORRY ABOUT
@@ -79,14 +79,14 @@ FPAINRG   SUB.B     #64+3,D7              ;ADJUST EXPONENT
           BRA.S     FPAZR1                ;BRANCH IF ZERO
 FPANOTZ   LSR.L     D7,D7                 ;SHIFT TO BIN(31,29) PRECISION
 
-*****************************************
-* CORDIC CALCULATION REGISTERS:         *
-* D1 - LOOP COUNT   A0 - TABLE POINTER  *
-* D2 - SHIFT COUNT                      *
-* D3 - Y'   D5 - Y                      *
-* D4 - X'   D6 - Z                      *
-* D7 - X                                *
-*****************************************
+;****************************************
+; CORDIC CALCULATION REGISTERS:         *
+; D1 - LOOP COUNT   A0 - TABLE POINTER  *
+; D2 - SHIFT COUNT                      *
+; D3 - Y'   D5 - Y                      *
+; D4 - X'   D6 - Z                      *
+; D7 - X                                *
+;****************************************
 
           MOVEQ     #0,D6                 ;Z=0
           MOVE.L    #1<<29,D5             ;Y=1
@@ -95,7 +95,7 @@ FPANOTZ   LSR.L     D7,D7                 ;SHIFT TO BIN(31,29) PRECISION
           MOVEQ     #1,D2                 ;PRIME SHIFT COUNTER
           BRA.S     CORDICA               ;ENTER CORDIC LOOP
 
-* CORDIC LOOP
+; CORDIC LOOP
 FPLPLSA   ASR.L     D2,D4                 ;SHIFT(X')
           ADD.L     D4,D5                 ;Y = Y + X'
           ADD.L     (A0),D6               ;Z = Z + ARCTAN(I)
@@ -110,7 +110,7 @@ FPLNLPA   SUB.L     D3,D7                 ;X = X - Y'
           LSR.L     #1,D3                 ;SHIFT(Y')
           DBRA      D1,FPLNLPA            ;AND LOOP UNTIL DONE
 
-* NOW CONVERT TO FLOAT AND RECONSTRUCT THE RESULT
+; NOW CONVERT TO FLOAT AND RECONSTRUCT THE RESULT
           BSR       FFPTNORM              ;FLOAT Z
 FPAZR1    MOVE.L    D6,D7                 ;COPY ANSWER TO D7
           TST.B     (SP)+                 ;? WAS INVERSE TAKEN
@@ -125,4 +125,4 @@ FPANINV   MOVE.B    (SP)+,D6              ;LOAD ORIGINAL SIGN
 FPARTN    MOVEM.L   (SP)+,D1-D6/A0        ;RESTORE CALLER'S REGISTERS
           RTS                             ;RETURN TO CALLER
 
-*         END
+;         END

@@ -1,22 +1,22 @@
-*         TTL       ARCTANGENT CORDIC TABLE - FFPTHETA
-***************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC. *
-***************************************
+;         TTL       ARCTANGENT CORDIC TABLE - FFPTHETA
+;**************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC. *
+;**************************************
 
-*FFPTHETA IDNT      1,1                   ;FFP ARCTANGENT TABLE
-*         SECTION   9
-*         XDEF      FFPTHETA              ;EXTERNAL DEFINITION
+;FFPTHETA IDNT      1,1                   ;FFP ARCTANGENT TABLE
+;         SECTION   9
+;         XDEF      FFPTHETA              ;EXTERNAL DEFINITION
 
-*********************************************************
-*             ARCTANGENT TABLE FOR CORDIC               *
-*                                                       *
-* THE FOLLOWING TABLE IS USED DURING CORDIC             *
-* TRANSCENDENTAL EVALUATIONS FOR SINE, COSINE, AND      *
-* TANGENT AND REPRESENTS ARCTANGENT VALUES 2**-N WHERE  *
-* N RANGES FROM 0 TO 24.  THE FORMAT IS BINARY(31,29)   *
-* PRECISION (I.E. THE BINARY POINT IS BETWEEN BITS      *
-* 28 AND 27 GIVING TWO LEADING NON-FRACTION BITS.)      *
-*********************************************************
+;********************************************************
+;             ARCTANGENT TABLE FOR CORDIC               *
+;                                                       *
+; THE FOLLOWING TABLE IS USED DURING CORDIC             *
+; TRANSCENDENTAL EVALUATIONS FOR SINE, COSINE, AND      *
+; TANGENT AND REPRESENTS ARCTANGENT VALUES 2**-N WHERE  *
+; N RANGES FROM 0 TO 24.  THE FORMAT IS BINARY(31,29)   *
+; PRECISION (I.E. THE BINARY POINT IS BETWEEN BITS      *
+; 28 AND 27 GIVING TWO LEADING NON-FRACTION BITS.)      *
+;********************************************************
 
 FFPTHETA  DC.L      $1921FB54             ;ARCTAN(2**0)
           DC.L      $76B19C15>>3          ;ARCTAN(2**-1)
@@ -46,4 +46,4 @@ FFPTHETA  DC.L      $1921FB54             ;ARCTAN(2**0)
           DC.L      $0000007F>>3          ;ARCTAN(2**-25)
           DC.L      $0000003F>>3          ;ARCTAN(2**-26)
 
-*         END
+;         END

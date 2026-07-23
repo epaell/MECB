@@ -1,5 +1,5 @@
                align    2              ; Make sure everything is aligned to long boundary
-               include  'vdp.inc'
+               include  "vdp.inc"
 ;
 ; VDP set mode
 ;

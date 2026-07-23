@@ -1,6 +1,6 @@
-               include  'mecb.inc'
-               include  'tutor.inc'
-               include  'library_rom.inc'
+               include  "mecb.inc"
+               include  "tutor.inc"
+               include  "library_rom.inc"
 ;
                org      $4000
 ;

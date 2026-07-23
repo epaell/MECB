@@ -1,62 +1,62 @@
-*         TTL       FAST FLOATING POINT HYPERBOLICS (FFPSINH)
-***************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC. *
-***************************************
+;         TTL       FAST FLOATING POINT HYPERBOLICS (FFPSINH)
+;**************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC. *
+;**************************************
 
-*FFPSINH  IDNT      1,2                   ;FFP SINH COSH TANH
-*         OPT       PCS
-*         SECTION   9
-*         XDEF      FFPSINH,FFPCOSH,FFPTANH  ;ENTRY POINTS
-*         XREF      9:FFPEXP,9:FFPDIV,9:FFPADD,9:FFPSUB  ;FUNCTIONS CALLED
-*         XREF      FFPCPYRT              ;COPYRIGHT STUB
+;FFPSINH  IDNT      1,2                   ;FFP SINH COSH TANH
+;         OPT       PCS
+;         SECTION   9
+;         XDEF      FFPSINH,FFPCOSH,FFPTANH  ;ENTRY POINTS
+;         XREF      9:FFPEXP,9:FFPDIV,9:FFPADD,9:FFPSUB  ;FUNCTIONS CALLED
+;         XREF      FFPCPYRT              ;COPYRIGHT STUB
 
-*************************************************
-*            FFPSINH/FFPCOSH/FFPTANH            *
-*       FAST FLOATING POINT HYPERBOLICS         *
-*                                               *
-*  INPUT:   D7 - FLOATING POINT ARGUMENT        *
-*                                               *
-*  OUTPUT:  D7 - HYPERBOLIC RESULT              *
-*                                               *
-*     ALL OTHER REGISTERS ARE TRANSPARENT       *
-*                                               *
-*  CODE SIZE:  36 BYTES   STACK WORK: 50 BYTES  *
-*                                               *
-*  CALLS: FFPEXP, FFPDIV, FFPADD AND FFPSUB     *
-*                                               *
-*  CONDITION CODES:                             *
-*        Z - SET IF THE RESULT IS ZERO          *
-*        N - SET IF THE RESULT IS NEGATIVE      *
-*        V - SET IF OVERFLOW OCCURRED           *
-*        C - UNDEFINED                          *
-*        X - UNDEFINED                          *
-*                                               *
-*  NOTES:                                       *
-*    1) AN OVERFLOW WILL PRODUCE THE MAXIMUM    *
-*       SIGNED VALUE WITH THE "V" BIT SET.      *
-*    2) SPOT CHECKS SHOW AT LEAST SEVEN DIGIT   *
-*       PRECISION.                              *
-*                                               *
-*  TIME: (8MHZ NO WAIT STATES ASSUMED)          *
-*                                               *
-*        SINH  623 MICROSECONDS                 *
-*        COSH  601 MICROSECONDS                 *
-*        TANH  623 MICROSECONDS                 *
-*                                               *
-*************************************************
-*         PAGE
+;************************************************
+;            FFPSINH/FFPCOSH/FFPTANH            *
+;       FAST FLOATING POINT HYPERBOLICS         *
+;                                               *
+;  INPUT:   D7 - FLOATING POINT ARGUMENT        *
+;                                               *
+;  OUTPUT:  D7 - HYPERBOLIC RESULT              *
+;                                               *
+;     ALL OTHER REGISTERS ARE TRANSPARENT       *
+;                                               *
+;  CODE SIZE:  36 BYTES   STACK WORK: 50 BYTES  *
+;                                               *
+;  CALLS: FFPEXP, FFPDIV, FFPADD AND FFPSUB     *
+;                                               *
+;  CONDITION CODES:                             *
+;        Z - SET IF THE RESULT IS ZERO          *
+;        N - SET IF THE RESULT IS NEGATIVE      *
+;        V - SET IF OVERFLOW OCCURRED           *
+;        C - UNDEFINED                          *
+;        X - UNDEFINED                          *
+;                                               *
+;  NOTES:                                       *
+;    1) AN OVERFLOW WILL PRODUCE THE MAXIMUM    *
+;       SIGNED VALUE WITH THE "V" BIT SET.      *
+;    2) SPOT CHECKS SHOW AT LEAST SEVEN DIGIT   *
+;       PRECISION.                              *
+;                                               *
+;  TIME: (8MHZ NO WAIT STATES ASSUMED)          *
+;                                               *
+;        SINH  623 MICROSECONDS                 *
+;        COSH  601 MICROSECONDS                 *
+;        TANH  623 MICROSECONDS                 *
+;                                               *
+;************************************************
+;         PAGE
 
 FPONES    EQU       $80000041             ;FLOATING ONE
 
-**********************************
-*            FFPCOSH             *
-*  THIS FUNCTION IS DEFINED AS   *
-*            X    -X             *
-*           E  + E               *
-*           --------             *
-*              2                 *
-* WE EVALUATE EXACTLY AS DEFINED *
-**********************************
+;*********************************
+;            FFPCOSH             *
+;  THIS FUNCTION IS DEFINED AS   *
+;            X    -X             *
+;           E  + E               *
+;           --------             *
+;              2                 *
+; WE EVALUATE EXACTLY AS DEFINED *
+;*********************************
 
 FFPCOSH   MOVE.L    D6,-(SP)              ;SAVE OUR ONE WORK REGISTER
           AND.B     #$7F,D7               ;FORCE POSITIVE (RESULTS SAME BUT EXP FASTER)
@@ -74,24 +74,24 @@ FFPCOSH   MOVE.L    D6,-(SP)              ;SAVE OUR ONE WORK REGISTER
           MOVEQ     #0,D7                 ;RETURN ZERO IF UNDERFLOW
 FHCRTN    MOVEM.L   (SP)+,D6              ;RESTORE OUR WORK REGISTER
           RTS                             ;RETURN TO CALLER WITH ANSWER
-*         PAGE
-**********************************
-*            FFPSINH             *
-*  THIS FUNCTION IS DEFINED AS   *
-*            X    -X             *
-*           E  - E               *
-*           --------             *
-*              2                 *
-* HOWEVER, WE EVALUATE IT VIA    *
-* THE COSH FORMULA SINCE ITS     *
-* ADDITION IN THE NUMERATOR      *
-* IS SAFER THAN OUR SUBTRACTION  *
-*                                *
-* THUS THE FUNCTION BECOMES:     *
-*            X                   *
-*    SINH = E  - COSH            *
-*                                *
-**********************************
+;         PAGE
+;*********************************
+;            FFPSINH             *
+;  THIS FUNCTION IS DEFINED AS   *
+;            X    -X             *
+;           E  - E               *
+;           --------             *
+;              2                 *
+; HOWEVER, WE EVALUATE IT VIA    *
+; THE COSH FORMULA SINCE ITS     *
+; ADDITION IN THE NUMERATOR      *
+; IS SAFER THAN OUR SUBTRACTION  *
+;                                *
+; THUS THE FUNCTION BECOMES:     *
+;            X                   *
+;    SINH = E  - COSH            *
+;                                *
+;*********************************
 
 FFPSINH   MOVE.L    D6,-(SP)              ;SAVE OUR ONE WORK REGISTER
           BSR       FFPEXP                ;EVALUATE E TO THE X
@@ -111,19 +111,19 @@ FHSZRO    MOVE.L    D7,D6                 ;MOVE FOR FINAL SUBTRACT
           BSR       FFPSUB                ;RESULT IS E TO X MINUS COSH
 FHSRTN    MOVEM.L   (SP)+,D6              ;RESTORE OUR WORK REGISTER
           RTS                             ;RETURN TO CALLER WITH ANSWER
-*         PAGE
-**********************************
-*            FFPTANH             *
-*  THIS FUNCTION IS DEFINED AS   *
-*  SINH/COSH WHICH REDUCES TO:   *
-*            2X                  *
-*           E  - 1               *
-*           ------               *
-*            2X                  *
-*           E  + 1               *
-*                                *
-* WHICH WE EVALUATE.             *
-**********************************
+;         PAGE
+;*********************************
+;            FFPTANH             *
+;  THIS FUNCTION IS DEFINED AS   *
+;  SINH/COSH WHICH REDUCES TO:   *
+;            2X                  *
+;           E  - 1               *
+;           ------               *
+;            2X                  *
+;           E  + 1               *
+;                                *
+; WHICH WE EVALUATE.             *
+;*********************************
 
 FFPTANH   MOVE.L    D6,-(SP)              ;SAVE OUR ONE WORK REGISTER
           TST.B     D7                    ;? ZERO
@@ -151,4 +151,4 @@ FFPTOVF   MOVE.L    #$80000082,D7         ;FLOAT ONE WITH EXPONENT OVER TO LEFT
 FFPTOVF2  MOVE.L    #FPONES,D7            ;RETURN +1 AS RESULT
           BRA.S     FFPTRTN
 
-*         END
+;         END

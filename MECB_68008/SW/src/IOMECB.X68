@@ -1,5 +1,5 @@
          align    2
-* DISPLAY CHARACTER IN D0
+; DISPLAY CHARACTER IN D0
 
 CHAROUT  MOVEM.L   A0/D7,-(A7)
          MOVE.B   #248,D7
@@ -19,7 +19,7 @@ CHARIN   MOVEM.L   A0/D7,-(A7)
 CHARIN2  MOVEM.L   (A7)+,A0/D7
          RTS
 
-* HALT - RETURN TO TUTOR
+; HALT - RETURN TO TUTOR
 
 HALT      MOVE.W    #228,D7
           TRAP      #14

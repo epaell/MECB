@@ -1,7 +1,9 @@
+               cpu      68008
+;
                org      $4000
 ;
-               include  'mecb.inc'
-               include  'tutor.inc'
+               include  "mecb.inc"
+               include  "tutor.inc"
 ;
 start          move.l   #RAM_END+1,a7           ; Set up stack
                bsr      oled_init

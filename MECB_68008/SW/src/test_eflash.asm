@@ -1,6 +1,8 @@
-               include 'mecb.inc'
-               include 'tutor.inc'
-               include 'library_rom.inc'
+               cpu      68008
+;
+               include "mecb.inc"
+               include "tutor.inc"
+               include "library_rom.inc"
 ;
                org      $4000
 ;

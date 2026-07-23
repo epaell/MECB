@@ -40,7 +40,7 @@ flash_wbytes3 movem.l  (a7)+,d0-d2     ; Restore registers
 ;       a0 = location that was written + 1
 ;       Register contents are conserved.
 flash_wbyte move.l   a0,-(a7)          ; save pointer
-            move.l   #FLASH_BYTE_PROG,a0
+            move.l   #CFLASH_BYTE_PROG,a0
             bsr      flash_cmd
             move.l   (a7)+,a0          ; restore pointer
             move.b   d1,(a0)
@@ -60,7 +60,7 @@ flash_wbyte move.l   a0,-(a7)          ; save pointer
 ;
 flash_chip_erase
             movem.l  d1/a0,-(a7)       ; save registers
-            move.l   #FLASH_CHIP_ERASE,a0
+            move.l   #CFLASH_CHIP_ERASE,a0
             bsr      flash_cmd
             move.b   #$FF,d1
             move.l   d0,a0             ; a0 points to start of ROM
@@ -92,7 +92,7 @@ flash_chip_erase2
 ;       All other registers are conserved.
 ;
 flash_erase movem.l  d1/a0,-(a7)    ; save registers
-            move.l   #FLASH_SEC_ERASE,a0
+            move.l   #CFLASH_SEC_ERASE,a0
             bsr      flash_cmd
             move.b   #$30,(a1)      ; Initiate erasure of the sector by writing $30 to the sector
             move.b   #$FF,d1
@@ -147,17 +147,17 @@ flash_wait2 move.l  (a7)+,d1        ; Restore register
 ;        All other registers are conserved
 ;
 flash_swid  move.l   d2,-(a7)                ; save registers
-            move.l   #FLASH_SW_ID_ENTER,a0   ; send command to retrieve ID
+            move.l   #CFLASH_SW_ID_ENTER,a0   ; send command to retrieve ID
             bsr      flash_cmd
             move.l   d0,a0
             move.w   (a0),d1                 ; get the IDs
-            move.l   #FLASH_SW_ID_EXIT,a0    ; send command to exit mode
+            move.l   #CFLASH_SW_ID_EXIT,a0    ; send command to exit mode
             bsr      flash_cmd
             move.w   d1,d2
             lsr      #8,d2                   ; get the manufacturer ID
             cmp.b    #$BF,d2                 ; Only know about Microchip (=$BF)
             bne      flash_swid2
-            move.l   #FLASH_ATTR,a0          ; Point to the device attribute table
+            move.l   #CFLASH_ATTR,a0          ; Point to the device attribute table
 flash_swid1 move.b   (a0),d2                 ; Get current device ID
             beq      flash_swid2             ; If end of table reached then device not found, exit
             cmp.b    d1,d2                   ; Does it match
@@ -191,7 +191,7 @@ flash_cmd2  movem.l  (a7)+,d0-d2/a2 ; restore registers
 ;
 ; FLASH Commands
 ;
-FLASH_SW_ID_ENTER 
+CFLASH_SW_ID_ENTER 
             dc.l     $AA
             dc.l     $5555
             dc.l     $55
@@ -200,7 +200,7 @@ FLASH_SW_ID_ENTER
             dc.l     $5555
             dc.l     $00
 ;
-FLASH_SW_ID_EXIT
+CFLASH_SW_ID_EXIT
             dc.l     $AA
             dc.l     $5555
             dc.l     $55
@@ -209,7 +209,7 @@ FLASH_SW_ID_EXIT
             dc.l     $5555
             dc.l     $00
 ;
-FLASH_BYTE_PROG
+CFLASH_BYTE_PROG
             dc.l     $AA
             dc.l     $5555
             dc.l     $55
@@ -218,7 +218,7 @@ FLASH_BYTE_PROG
             dc.l     $5555
             dc.l     $00
 ;
-FLASH_SEC_ERASE
+CFLASH_SEC_ERASE
             dc.l     $AA
             dc.l     $5555
             dc.l     $55
@@ -231,7 +231,7 @@ FLASH_SEC_ERASE
             dc.l     $2AAA
             dc.l     $00
 ;
-FLASH_CHIP_ERASE
+CFLASH_CHIP_ERASE
             dc.l     $AA
             dc.l     $5555
             dc.l     $55
@@ -250,7 +250,7 @@ FLASH_CHIP_ERASE
 ;     byte8  device_id (terminated with $00)
 ;     char   device_name[11]
 ;     int32  size
-FLASH_ATTR  dc.b     $B5
+CFLASH_ATTR  dc.b     $B5
             dc.b     'SST39SF010A'
             dc.l     $20000
             dc.b     $B6

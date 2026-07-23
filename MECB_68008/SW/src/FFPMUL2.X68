@@ -1,54 +1,54 @@
 
-********************************************
-*          FFPMUL2 SUBROUTINE              *
-*                                          *
-*   THIS MODULE IS THE SECOND OF THE       *
-*   MULTIPLY ROUTINES.  IT IS 18% SLOWER   *
-*   BUT PROVIDES THE HIGHEST ACCURACY      *
-*   POSSIBLE.  THE ERROR IS EXACTLY .5     *
-*   LEAST SIGNIFICANT BIT VERSUS AN ERROR  *
-*   IN THE HIGH-SPEED DEFAULT ROUTINE OF   *
-*   .50390625 LEAST SIGNIFICANT BIT DUE    *
-*   TO TRUNCATION.                         *
-*                                          *
-* INPUT:                                   *
-*          D6 - FLOATING POINT MULTIPLIER  *
-*          D7 - FLOATING POINT MULTIPLICAN *
-*                                          *
-* OUTPUT:                                  *
-*          D7 - FLOATING POINT RESULT      *
-*                                          *
-* REGISTERS D3 THRU D5 ARE VOLATILE        *
-*                                          *
-* CONDITION CODES:                         *
-*          N - SET IF RESULT NEGATIVE      *
-*          Z - SET IF RESULT IS ZERO       *
-*          V - SET IF OVERFLOW OCCURRED    *
-*          C - UNDEFINED                   *
-*          X - UNDEFINED                   *
-*                                          *
-* CODE: 134 BYTES    STACK WORK: 0 BYTES   *
-*                                          *
-* NOTES:                                   *
-*   1) MULTIPIER UNALTERED (D6).           *
-*   2) UNDERFLOWS RETURN ZERO WITH NO      *
-*      INDICATOR SET.                      *
-*   3) OVERFLOWS WILL RETURN THE MAXIMUM   *
-*      VALUE WITH THE PROPER SIGN AND THE  *
-*      'V' BIT SET IN THE CCR.             *
-*                                          *
-*  TIMES: (8MHZ NO WAIT STATES ASSUMED)    *
-* ARG1 ZERO            5.750 MICROSECONDS  *
-* ARG2 ZERO            3.750 MICROSECONDS  *
-* MINIMUM TIME OTHERS 45.750 MICROSECONDS  *
-* MAXIMUM TIME OTHERS 61.500 MICROSECONDS  *
-* AVERAGE OTHERS      52.875 MICROSECONDS  *
-*                                          *
-********************************************
+;*******************************************
+;          FFPMUL2 SUBROUTINE              *
+;                                          *
+;   THIS MODULE IS THE SECOND OF THE       *
+;   MULTIPLY ROUTINES.  IT IS 18% SLOWER   *
+;   BUT PROVIDES THE HIGHEST ACCURACY      *
+;   POSSIBLE.  THE ERROR IS EXACTLY .5     *
+;   LEAST SIGNIFICANT BIT VERSUS AN ERROR  *
+;   IN THE HIGH-SPEED DEFAULT ROUTINE OF   *
+;   .50390625 LEAST SIGNIFICANT BIT DUE    *
+;   TO TRUNCATION.                         *
+;                                          *
+; INPUT:                                   *
+;          D6 - FLOATING POINT MULTIPLIER  *
+;          D7 - FLOATING POINT MULTIPLICAN *
+;                                          *
+; OUTPUT:                                  *
+;          D7 - FLOATING POINT RESULT      *
+;                                          *
+; REGISTERS D3 THRU D5 ARE VOLATILE        *
+;                                          *
+; CONDITION CODES:                         *
+;          N - SET IF RESULT NEGATIVE      *
+;          Z - SET IF RESULT IS ZERO       *
+;          V - SET IF OVERFLOW OCCURRED    *
+;          C - UNDEFINED                   *
+;          X - UNDEFINED                   *
+;                                          *
+; CODE: 134 BYTES    STACK WORK: 0 BYTES   *
+;                                          *
+; NOTES:                                   *
+;   1) MULTIPIER UNALTERED (D6).           *
+;   2) UNDERFLOWS RETURN ZERO WITH NO      *
+;      INDICATOR SET.                      *
+;   3) OVERFLOWS WILL RETURN THE MAXIMUM   *
+;      VALUE WITH THE PROPER SIGN AND THE  *
+;      'V' BIT SET IN THE CCR.             *
+;                                          *
+;  TIMES: (8MHZ NO WAIT STATES ASSUMED)    *
+; ARG1 ZERO            5.750 MICROSECONDS  *
+; ARG2 ZERO            3.750 MICROSECONDS  *
+; MINIMUM TIME OTHERS 45.750 MICROSECONDS  *
+; MAXIMUM TIME OTHERS 61.500 MICROSECONDS  *
+; AVERAGE OTHERS      52.875 MICROSECONDS  *
+;                                          *
+;*******************************************
 
        XDEF     FFPMUL2      ENTRY POINT
 
-* FFPMUL2 SUBROUTINE ENTRY POINT
+; FFPMUL2 SUBROUTINE ENTRY POINT
 FFPMUL2 MOVE.B D7,D5     PREPARE SIGN/EXPONENT WORK       4
        BEQ.S  FFMRTN2    RETURN IF RESULT ALREADY ZERO    8/10
        MOVE.B D6,D4     COPY ARG1 SIGN/EXPONENT          4

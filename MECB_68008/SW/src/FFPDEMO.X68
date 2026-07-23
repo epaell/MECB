@@ -1,19 +1,19 @@
-*         TTL       FAST FLOATING POINT DEMO PROGRAM
-***************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC. *
-***************************************
+;         TTL       FAST FLOATING POINT DEMO PROGRAM
+;**************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC. *
+;**************************************
 
-*         OPT       FRS
-*         XREF      FFPSQRT               ;EXTERNAL ROUTINES
-*         XREF      FFPADD,FFPDIV,FFPMUL
-*         XREF      FFPSINCS
-*         XREF      FFPAFP,FFPFPA
-*         XDEF      FFPDEMO
-*         SECTION   2
+;         OPT       FRS
+;         XREF      FFPSQRT               ;EXTERNAL ROUTINES
+;         XREF      FFPADD,FFPDIV,FFPMUL
+;         XREF      FFPSINCS
+;         XREF      FFPAFP,FFPFPA
+;         XDEF      FFPDEMO
+;         SECTION   2
 
-***************************************************
-* THIS IS A DEMO OF THE 68343 FAST FLOATING POINT *
-***************************************************
+;**************************************************
+; THIS IS A DEMO OF THE 68343 FAST FLOATING POINT *
+;**************************************************
 
 FFPDEMO   LEA       STACK,SP              ;LOAD STACK
 
@@ -36,9 +36,9 @@ FFPDEMO   LEA       STACK,SP              ;LOAD STACK
           BSR       FFPAFP
           MOVE.L    D7,D1                 ;SAVE E IN D1
 
-*****************
-* ADDITION DEMO *
-*****************
+;****************
+; ADDITION DEMO *
+;****************
 
           LEA       MSGADD,A0             ;POINT TO MESSAGE
           LEA       MSGADDE,A1            ;POINT TO END
@@ -54,9 +54,9 @@ ADDLOOP   MOVE.L    D1,D7                 ;RELOAD E
           BSR       RESULT                ;DISPLAY RESULT
 
 
-*****************
-* MULTIPLY DEMO *
-*****************
+;****************
+; MULTIPLY DEMO *
+;****************
 
           LEA       MSGMUL,A0             ;POINT TO MESSAGE
           LEA       MSGMULE,A1            ;AND END
@@ -71,9 +71,9 @@ MULLOOP   MOVE.L    D1,D7                 ;SETUP E
 
           BSR.S     RESULT                ;DISPLAY RESULT
 
-***************
-* DIVIDE DEMO *
-***************
+;**************
+; DIVIDE DEMO *
+;**************
 
           LEA       MSGDIV,A0             ;POINT TO MESSAGE
           LEA       MSGDIVE,A1            ;AND END
@@ -88,9 +88,9 @@ DIVLOOP   MOVE.L    D1,D7                 ;SETUP E
 
           BSR.S     RESULT                ;DISPLAY RESULT
 
-********************
-* SQUARE ROOT DEMO *
-********************
+;*******************
+; SQUARE ROOT DEMO *
+;*******************
 
           LEA       MSGSQR,A0             ;POINT TO MESSAGE
           LEA       MSGSQRE,A1            ;AND END
@@ -104,9 +104,9 @@ SQRLOOP   MOVE.L    D0,D7                 ;SETUP PI
 
           BSR.S     RESULT                ;DISPLAY RESULT
 
-************************
-* SINE AND COSINE DEMO *
-************************
+;***********************
+; SINE AND COSINE DEMO *
+;***********************
 
           LEA       MSGSIN,A0             ;POINT TO MESSAGE
           LEA       MSGSINE,A1            ;AND END
@@ -122,9 +122,9 @@ SINLOOP   MOVE.L    D1,D7                 ;SETUP E
           MOVE.L    D6,D7                 ;ALSO DISPLAY SINE
           BSR.S     RESULT                ;AS WELL
 
-************
-* END TEST *
-************
+;***********
+; END TEST *
+;***********
 QUIT      BSR.S     MSG                   ;ISSUE DONE MESSAGE
           DC.B      '  DONE  '
           BSR.S     MSG                   ;AND FINAL BLANK LINE
@@ -133,10 +133,10 @@ QUIT      BSR.S     MSG                   ;ISSUE DONE MESSAGE
           BRA       HALT
 
 
-*   *
-*   * RESULT DISPLAY SUBROUTINE
-*   *   INPUT IS FLOAT IN D7
-*   *
+;   *
+;   * RESULT DISPLAY SUBROUTINE
+;   *   INPUT IS FLOAT IN D7
+;   *
 RESULT    BSR       FFPFPA
           MOVE.L    #'LT: ',-(SP)         ;MOVE RESULT HEADER
           MOVE.L    #'RESU',-(SP)         ;ONTO STACK
@@ -149,10 +149,10 @@ RESULT    BSR       FFPFPA
           RTS                             ;RETURN TO CALLER
 
 
-*   *
-*   * MSG SUBROUTINE
-*   *  INPUT: (SP) POINT TO EIGHT BYTE TEXT FOLLOWING BSR/JSR
-*   *
+;   *
+;   * MSG SUBROUTINE
+;   *  INPUT: (SP) POINT TO EIGHT BYTE TEXT FOLLOWING BSR/JSR
+;   *
 MSG       MOVEM.L   D0/A0/A1,-(SP)        ;SAVE REGS
           MOVE.L    3*4(SP),A0            ;LOAD RETURN POINTER
           LEA       7(A0),A1              ;POINT TO BUFFER END
@@ -161,10 +161,10 @@ MSG       MOVEM.L   D0/A0/A1,-(SP)        ;SAVE REGS
           ADD.L     #8,(SP)               ;ADJUST RETURN ADDRESS
           RTS                             ;RETURN TO CALLER
 
-*   *
-*   * PUT SUBROUTINE
-*   *  INPUT: A0->TEXT START, A1->TEXT END
-*   *
+;   *
+;   * PUT SUBROUTINE
+;   *  INPUT: A0->TEXT START, A1->TEXT END
+;   *
 
 PUT       MOVEM.L   D0/A0,-(SP)           ;SAVE REGS
 PUT1      MOVE.B    (A0)+,D0
@@ -179,11 +179,11 @@ PUT1      MOVE.B    (A0)+,D0
           RTS                             ;RETURN TO CALLER
 
 
-* PI AND E ASCII CONSTANTS
+; PI AND E ASCII CONSTANTS
 ASCIIPI   DC.B      '+3.1415926535897 '
 ASCIIE    DC.B      '+2.718281828459045 '
 
-* MESSAGES FOR THE DEMO PARTS
+; MESSAGES FOR THE DEMO PARTS
 HELLO     DC.B      'MOTOROLA MC68000 FAST FLOATING POINT DEMO'
 HELLOE    DC.B      0
 
@@ -205,8 +205,8 @@ MSGSQRE   DC.B      0
 MSGSIN    DC.B      'TEN THOUSAND COSINES AND SINES OF 2.718281828'
 MSGSINE   DC.B      0
 
-* PROGRAM STACK
+; PROGRAM STACK
           DC.W     100,0                 ;STACK AREA
 STACK     EQU       *
 
-*         END       FFPDEMO
+;         END       FFPDEMO

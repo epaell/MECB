@@ -1,9 +1,11 @@
+               cpu      68008
+;
                org      $4000
 ;
-               include  'mecb.inc'
-               include  'tutor.inc'
-               include  'library_rom.inc'       ; Make use of library routines
-               include  'oled.inc'              ; OLED specific definitions
+               include  "mecb.inc"
+               include  "tutor.inc"
+               include  "library_rom.inc"       ; Make use of library routines
+               include  "oled.inc"              ; OLED specific definitions
 ;
 start          move.l   #RAM_END+1,a7           ; Set up stack
                jsr      oled_init
@@ -103,7 +105,7 @@ result         movem.l  d7/a0-a1,-(a7)
                movem.l  (a7)+,d7/a0-a1
                rts                             ; RETURN TO CALLER
 
-* DISPLAY CHARACTER IN D0
+; DISPLAY CHARACTER IN D0
 
 charout        MOVEM.L  A0/D7,-(A7)
                MOVE.B   #OUTCH,D7
@@ -111,10 +113,10 @@ charout        MOVEM.L  A0/D7,-(A7)
                MOVEM.L  (A7)+,A0/D7
                RTS
 
-*   *
-*   * MSG SUBROUTINE
-*   *  INPUT: (SP) POINT TO EIGHT BYTE TEXT FOLLOWING BSR/JSR
-*   *
+;   *
+;   * MSG SUBROUTINE
+;   *  INPUT: (SP) POINT TO EIGHT BYTE TEXT FOLLOWING BSR/JSR
+;   *
 msg            MOVEM.L  D0/A0/A1,-(SP)        ; SAVE REGS
                MOVE.L   3*4(SP),A0            ; LOAD RETURN POINTER
                LEA      7(A0),A1              ; POINT TO BUFFER END
@@ -123,10 +125,10 @@ msg            MOVEM.L  D0/A0/A1,-(SP)        ; SAVE REGS
                ADD.L    #8,(SP)               ; ADJUST RETURN ADDRESS
                RTS                            ; RETURN TO CALLER
 
-*   *
-*   * PUT SUBROUTINE
-*   *  INPUT: A0->TEXT START, A1->TEXT END
-*   *
+;   *
+;   * PUT SUBROUTINE
+;   *  INPUT: A0->TEXT START, A1->TEXT END
+;   *
 
 put            MOVEM.L  D0/A0,-(SP)           ; SAVE REGS
 put1           MOVE.B   (A0)+,D0

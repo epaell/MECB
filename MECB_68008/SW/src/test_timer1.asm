@@ -1,5 +1,7 @@
-               include  'mecb.inc'
-               include  'tutor.inc'
+               cpu      68008
+;
+               include  "mecb.inc"
+               include  "tutor.inc"
 ;
 CR              EQU     $0D         ; Carriage return
 LF              EQU     $0A         ; Linefeed

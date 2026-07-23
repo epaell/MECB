@@ -1,80 +1,80 @@
-*         TTL       FAST FLOATING POINT LOG (FFPLOG)
-***************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC. *
-***************************************
+;         TTL       FAST FLOATING POINT LOG (FFPLOG)
+;**************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC. *
+;**************************************
 
-*FFPLOG   IDNT      1,2                   ;FFP LOG
-*         OPT       PCS
-*         SECTION   9
-*         XDEF      FFPLOG                ;ENTRY POINT
-*         XREF      9:FFPHTHET            ;HYPERTANGENT TABLE
-*         XREF      9:FFPADD,9:FFPDIV,9:FFPSUB,9:FFPMUL  ;ARITHMETIC PRIMITIVES
-*         XREF      9:FFPTNORM            ;TRANSCENDENTAL NORMALIZE ROUTINE
-*         XREF      FFPCPYRT              ;COPYRIGHT STUB
+;FFPLOG   IDNT      1,2                   ;FFP LOG
+;         OPT       PCS
+;         SECTION   9
+;         XDEF      FFPLOG                ;ENTRY POINT
+;         XREF      9:FFPHTHET            ;HYPERTANGENT TABLE
+;         XREF      9:FFPADD,9:FFPDIV,9:FFPSUB,9:FFPMUL  ;ARITHMETIC PRIMITIVES
+;         XREF      9:FFPTNORM            ;TRANSCENDENTAL NORMALIZE ROUTINE
+;         XREF      FFPCPYRT              ;COPYRIGHT STUB
 
-*************************************************
-*                  FFPLOG                       *
-*       FAST FLOATING POINT LOGORITHM           *
-*                                               *
-*  INPUT:   D7 - INPUT ARGUMENT                 *
-*                                               *
-*  OUTPUT:  D7 - LOGORITHMIC RESULT TO BASE E   *
-*                                               *
-*     ALL OTHER REGISTERS TOTALLY TRANSPARENT   *
-*                                               *
-*  CODE SIZE: 184 BYTES   STACK WORK: 38 BYTES  *
-*                                               *
-*  CONDITION CODES:                             *
-*        Z - SET IF THE RESULT IS ZERO          *
-*        N - SET IF RESULT IN IS NEGATIVE       *
-*        V - SET IF INVALID NEGATIVE ARGUMENT   *
-*            OR ZERO ARGUMENT                   *
-*        C - UNDEFINED                          *
-*        X - UNDEFINED                          *
-*                                               *
-*                                               *
-*  NOTES:                                       *
-*    1) SPOT CHECKS SHOW ERRORS BOUNDED BY      *
-*       5 X 10**-8.                             *
-*    2) NEGATIVE ARGUMENTS ARE ILLEGAL AND CAUSE*
-*       THE "V" BIT TO BE SET AND THE ABSOLUTE  *
-*       VALUE USED INSTEAD.                     *
-*    3) A ZERO ARGUMENT RETURNS THE LARGEST     *
-*       NEGATIVE VALUE POSSIBLE WITH THE "V" BIT*
-*       SET.                                    *
-*                                               *
-*  TIME: (8MHZ NO WAIT STATES ASSUMED)          *
-*                                               *
-*        TIMES ARE VERY DATA SENSITIVE WITH     *
-*        SAMPLES RANGING FROM 170 TO 556        *
-*        MICROSECONDS                           *
-*                                               *
-*************************************************
-*         PAGE
+;************************************************
+;                  FFPLOG                       *
+;       FAST FLOATING POINT LOGORITHM           *
+;                                               *
+;  INPUT:   D7 - INPUT ARGUMENT                 *
+;                                               *
+;  OUTPUT:  D7 - LOGORITHMIC RESULT TO BASE E   *
+;                                               *
+;     ALL OTHER REGISTERS TOTALLY TRANSPARENT   *
+;                                               *
+;  CODE SIZE: 184 BYTES   STACK WORK: 38 BYTES  *
+;                                               *
+;  CONDITION CODES:                             *
+;        Z - SET IF THE RESULT IS ZERO          *
+;        N - SET IF RESULT IN IS NEGATIVE       *
+;        V - SET IF INVALID NEGATIVE ARGUMENT   *
+;            OR ZERO ARGUMENT                   *
+;        C - UNDEFINED                          *
+;        X - UNDEFINED                          *
+;                                               *
+;                                               *
+;  NOTES:                                       *
+;    1) SPOT CHECKS SHOW ERRORS BOUNDED BY      *
+;       5 X 10**-8.                             *
+;    2) NEGATIVE ARGUMENTS ARE ILLEGAL AND CAUSE*
+;       THE "V" BIT TO BE SET AND THE ABSOLUTE  *
+;       VALUE USED INSTEAD.                     *
+;    3) A ZERO ARGUMENT RETURNS THE LARGEST     *
+;       NEGATIVE VALUE POSSIBLE WITH THE "V" BIT*
+;       SET.                                    *
+;                                               *
+;  TIME: (8MHZ NO WAIT STATES ASSUMED)          *
+;                                               *
+;        TIMES ARE VERY DATA SENSITIVE WITH     *
+;        SAMPLES RANGING FROM 170 TO 556        *
+;        MICROSECONDS                           *
+;                                               *
+;************************************************
+;         PAGE
 
 FPONEL    EQU       $80000041             ;FLOATING VALUE FOR ONE
 LOG2      EQU       $B1721840             ;LOG(2) = .6931471805
 
-**************
-* LOG ENTRY  *
-**************
+;*************
+; LOG ENTRY  *
+;*************
 
-* INSURE ARGUMENT POSITIVE
+; INSURE ARGUMENT POSITIVE
 FFPLOG    TST.B     D7                    ;? TEST SIGN
           BEQ.S     FPLZRO                ;BRANCH ARGUMENT ZERO
           BPL.S     FPLOK                 ;BRANCH ALRIGHT
 
-* ARGUMENT IS NEGATIVE - USE THE ABSOLUTE VALUE AND SET THE "V" BIT
+; ARGUMENT IS NEGATIVE - USE THE ABSOLUTE VALUE AND SET THE "V" BIT
           AND.B     #$7F,D7               ;TAKE ABSOLUTE VALUE
           BSR.S     FPLOK                 ;FIND LOG(ABS(X))
 FPSETV    OR.B      #$02,CCR              ;SET OVERFLOW BIT
           RTS                             ;RETURN TO CALLER
 
-* ARGUMENT IS ZERO - RETURN LARGEST NEGATIVE NUMBER WITH "V" BIT
+; ARGUMENT IS ZERO - RETURN LARGEST NEGATIVE NUMBER WITH "V" BIT
 FPLZRO    MOVEQ     #-1,D7                ;RETURN LARGEST NEGATIVE
           BRA       FPSETV                ;RETURN WITH "V" BIT SET
 
-* SAVE WORK REGISTERS AND STRIP EXPONENT OFF
+; SAVE WORK REGISTERS AND STRIP EXPONENT OFF
 FPLOK     MOVEM.L   D1-D6/A0,-(SP)        ;SAVE ALL WORK REGISTERS
           MOVE.B    D7,-(SP)              ;SAVE ORIGINAL EXPONENT
           MOVE.B    #64+1,D7              ;FORCE BETWEEN 1 AND 2
@@ -86,7 +86,7 @@ FPLOK     MOVEM.L   D1-D6/A0,-(SP)        ;SAVE ALL WORK REGISTERS
           MOVE.L    D2,D6                 ;PREPARE FOR DIVIDE
           BSR       FFPDIV                ;RESULT IS (ARG-1)/(ARG+1)
           BEQ.S     FPLNOCR               ;ZERO SO CORDIC NOT NEEDED
-* CONVERT TO BIN(31,29) PRECISION
+; CONVERT TO BIN(31,29) PRECISION
           SUB.B     #64+3,D7              ;ADJUST EXPONENT
           NEG.B     D7                    ;FOR SHIFT NECESSARY
           CMP.B     #31,D7                ;? INSURE NOT TOO SMALL
@@ -94,14 +94,14 @@ FPLOK     MOVEM.L   D1-D6/A0,-(SP)        ;SAVE ALL WORK REGISTERS
           MOVEQ     #0,D7                 ;FORCE TO ZERO
 FPLSHF    LSR.L     D7,D7                 ;SHIFT TO BIN(31,29) PRECISION
 
-*****************************************
-* CORDIC CALCULATION REGISTERS:         *
-* D1 - LOOP COUNT   A0 - TABLE POINTER  *
-* D2 - SHIFT COUNT                      *
-* D3 - Y'   D5 - Y                      *
-* D4 - X'   D6 - Z                      *
-* D7 - X                                *
-*****************************************
+;****************************************
+; CORDIC CALCULATION REGISTERS:         *
+; D1 - LOOP COUNT   A0 - TABLE POINTER  *
+; D2 - SHIFT COUNT                      *
+; D3 - Y'   D5 - Y                      *
+; D4 - X'   D6 - Z                      *
+; D7 - X                                *
+;****************************************
 
           MOVEQ     #0,D6                 ;Z=0
           MOVE.L    #1<<29,D5             ;Y=1
@@ -110,7 +110,7 @@ FPLSHF    LSR.L     D7,D7                 ;SHIFT TO BIN(31,29) PRECISION
           MOVEQ     #1,D2                 ;PRIME SHIFT COUNTER
           BRA.S     CORDICL               ;ENTER CORDIC LOOP
 
-* CORDIC LOOP
+; CORDIC LOOP
 FPLPLSL   ASR.L     D2,D4                 ;SHIFT(X')
           SUB.L     D4,D5                 ;Y = Y - X'
           ADD.L     (A0),D6               ;Z = Z + HYPERTAN(I)
@@ -125,7 +125,7 @@ FPLNLPL   SUB.L     D3,D7                 ;X = X - Y'
           LSR.L     #1,D3                 ;SHIFT(Y')
           DBRA      D1,FPLNLPL            ;AND LOOP UNTIL DONE
 
-* NOW CONVERT TO FLOAT AND ADD EXPONENT*LOG(2) FOR FINAL RESULT
+; NOW CONVERT TO FLOAT AND ADD EXPONENT*LOG(2) FOR FINAL RESULT
           MOVEQ     #0,D7                 ;DEFAULT ZERO IF TOO SMALL
           BSR       FFPTNORM              ;FLOAT Z
           BEQ.S     FPLNOCR               ;BRANCH IF TOO SMALL
@@ -154,4 +154,4 @@ FPLNORM   ADD.L     D6,D6                 ;SHIFT TO LEFT
 FPLZPR    MOVEM.L   (SP)+,D1-D6/A0        ;RESTORE REGISTERS
           RTS                             ;RETURN TO CALLER
 
-*         END
+;         END

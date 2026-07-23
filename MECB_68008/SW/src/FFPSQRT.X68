@@ -1,59 +1,59 @@
-*         TTL       FAST FLOATING POINT SQUARE ROOT (FFPSQRT)
-*******************************************
-* (C)  COPYRIGHT 1981 BY MOTOROLA INC.    *
-*******************************************
+;         TTL       FAST FLOATING POINT SQUARE ROOT (FFPSQRT)
+;******************************************
+; (C)  COPYRIGHT 1981 BY MOTOROLA INC.    *
+;******************************************
 
-*FFPSQRT  IDNT      1,4                   ;FFP SQUARE ROOT
-*         SECTION   9
-*         XDEF      FFPSQRT               ;ENTRY POINT
-*         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
+;FFPSQRT  IDNT      1,4                   ;FFP SQUARE ROOT
+;         SECTION   9
+;         XDEF      FFPSQRT               ;ENTRY POINT
+;         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
 
-********************************************
-*           FFPSQRT SUBROUTINE             *
-*                                          *
-* INPUT:                                   *
-*          D7 - FLOATING POINT ARGUMENT    *
-*                                          *
-* OUTPUT:                                  *
-*          D7 - FLOATING POINT SQUARE ROOT *
-*                                          *
-* CONDITION CODES:                         *
-*                                          *
-*          N - CLEARED                     *
-*          Z - SET IF RESULT IS ZERO       *
-*          V - SET IF ARGUMENT WAS NEGATIVE*
-*          C - CLEARED                     *
-*          X - UNDEFINED                   *
-*                                          *
-*    REGISTERS D3 THRU D6 ARE VOLATILE     *
-*                                          *
-* CODE: 194 BYTES    STACK WORK: 4 BYTES   *
-*                                          *
-* NOTES:                                   *
-*   1) NO OVERFLOWS OR UNDERFLOWS CAN      *
-*      OCCUR.                              *
-*   2) A NEGATIVE ARGUMENT CAUSES THE      *
-*      ABSOLUTE VALUE TO BE USED AND THE   *
-*      "V" BIT SET TO INDICATE THAT A      *
-*      NEGATIVE SQUARE ROOT WAS ATTEMPTED. *
-*                                          *
-* TIMES:                                   *
-* ARGUMENT ZERO         3.50 MICROSECONDS  *
-* MINIMUM TIME > 0    187.50 MICROSECONDS  *
-* AVERAGE TIME > 0    193.75 MICROSECONDS  *
-* MAXIMUM TIME > 0    200.00 MICROSECONDS  *
-********************************************
-*         PAGE
+;*******************************************
+;           FFPSQRT SUBROUTINE             *
+;                                          *
+; INPUT:                                   *
+;          D7 - FLOATING POINT ARGUMENT    *
+;                                          *
+; OUTPUT:                                  *
+;          D7 - FLOATING POINT SQUARE ROOT *
+;                                          *
+; CONDITION CODES:                         *
+;                                          *
+;          N - CLEARED                     *
+;          Z - SET IF RESULT IS ZERO       *
+;          V - SET IF ARGUMENT WAS NEGATIVE*
+;          C - CLEARED                     *
+;          X - UNDEFINED                   *
+;                                          *
+;    REGISTERS D3 THRU D6 ARE VOLATILE     *
+;                                          *
+; CODE: 194 BYTES    STACK WORK: 4 BYTES   *
+;                                          *
+; NOTES:                                   *
+;   1) NO OVERFLOWS OR UNDERFLOWS CAN      *
+;      OCCUR.                              *
+;   2) A NEGATIVE ARGUMENT CAUSES THE      *
+;      ABSOLUTE VALUE TO BE USED AND THE   *
+;      "V" BIT SET TO INDICATE THAT A      *
+;      NEGATIVE SQUARE ROOT WAS ATTEMPTED. *
+;                                          *
+; TIMES:                                   *
+; ARGUMENT ZERO         3.50 MICROSECONDS  *
+; MINIMUM TIME > 0    187.50 MICROSECONDS  *
+; AVERAGE TIME > 0    193.75 MICROSECONDS  *
+; MAXIMUM TIME > 0    200.00 MICROSECONDS  *
+;*******************************************
+;         PAGE
 
-* NEGATIVE ARGUMENT HANDLER
+; NEGATIVE ARGUMENT HANDLER
 FPSINV    AND.B     #$7F,D7               ;TAKE ABSOLUTE VALUE
           BSR.S     FFPSQRT               ;FIND SQRT(ABS(X))
           ORI.B     #$02,CCR              ;SET "V" BIT
           RTS                             ;RETURN TO CALLER
 
-*********************
-* SQUARE ROOT ENTRY *
-*********************
+;********************
+; SQUARE ROOT ENTRY *
+;********************
 FFPSQRT   MOVE.B    D7,D3                 ;COPY S+EXPONENT OVER
           BEQ.S     FPSRTN                ;RETURN ZERO IF ZERO ARGUMENT
           BMI.S     FPSINV                ;NEGATIVE, REJECT WITH SPECIAL CONDITION CODES
@@ -74,14 +74,14 @@ FPSEVEN   ADD.B     #$20,D3               ;RENORMALIZE EXPONENT
           SUB.L     #$01200000,D5         ;COMBINE FIRST LOOP CALCULATIONS
           BRA.S     FPSENT                ;GO ENTER LOOP CALCULATIONS
 
-*                   SQUARE ROOT CALCULATION
-* THIS IS AN OPTIMIZED SCHEME FOR THE RECURSIVE SQUARE ROOT ALGORITHM:
-*
-*  STEP N+1:
-*     TEST VALUE <= .0  0  0  R  R  R  0 1  THEN GENERATE A ONE IN RESULT R
-*                     N  2  1  N  2  1        ELSE A ZERO IN RESULT R      N+1
-*                                                                    N+1
-* PRECALCULATIONS ARE DONE SUCH THAT THE ENTRY IS MIDWAY INTO STEP 2
+;                   SQUARE ROOT CALCULATION
+; THIS IS AN OPTIMIZED SCHEME FOR THE RECURSIVE SQUARE ROOT ALGORITHM:
+;
+;  STEP N+1:
+;     TEST VALUE <= .0  0  0  R  R  R  0 1  THEN GENERATE A ONE IN RESULT R
+;                     N  2  1  N  2  1        ELSE A ZERO IN RESULT R      N+1
+;                                                                    N+1
+; PRECALCULATIONS ARE DONE SUCH THAT THE ENTRY IS MIDWAY INTO STEP 2
 
 FPSONE    BSET      D3,D7                 ;INSERT A ONE INTO THIS POSITION
           MOVE.L    D5,D4                 ;UPDATE NEW TEST VALUE
@@ -92,7 +92,7 @@ FPSZERO   ADD.L     D4,D4                 ;MULTIPLY TEST RESULT BY TWO
 FPSENT    DBMI      D3,FPSONE             ;BRANCH IF A ONE GENERATED IN THE RESULT
           DBPL      D3,FPSZERO            ;BRANCH IF A ZERO GENERATED
 
-* ALL 24 BITS CALCULATED. NOW TEST RESULT OF 25TH BIT
+; ALL 24 BITS CALCULATED. NOW TEST RESULT OF 25TH BIT
           BLS.S     FPSFIN                ;BRANCH NEXT BIT ZERO, NO ROUNDING
           CMP.L     #$00FFFFFF,D7         ;INSURE NO OVERFLOW    V1,4
           BEQ.S     FPSFIN                ;BR MANTISSA ALL ONES      V1,4
@@ -103,10 +103,10 @@ FPSFIN    LSL.L     #8,D7                 ;NORMALIZE RESULT
           MOVE.B    D3,D7                 ;MOVE IN FINAL SIGN+EXPONENT
 FPSRTN    RTS                             ;RETURN TO CALLER
 
-* TABLE TO FURNISH '01' SHIFTS DURING THE ALGORITHM LOOP
+; TABLE TO FURNISH '01' SHIFTS DURING THE ALGORITHM LOOP
 FPSTBL    DC.L      1<<20,1<<19,1<<18,1<<17,1<<16,1<<15
           DC.L      1<<14,1<<13,1<<12,1<<11,1<<10,1<<9,1<<8
           DC.L      1<<7,1<<6,1<<5,1<<4,1<<3,1<<2,1<<1,1<<0
           DC.L      0,0
 
-*         END
+;         END

@@ -1,84 +1,84 @@
-*         TTL       FAST FLOATING POINT ASCII ROUND ROUTINE (FFPARND)
-****************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC.  *
-****************************************
+;         TTL       FAST FLOATING POINT ASCII ROUND ROUTINE (FFPARND)
+;***************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC.  *
+;***************************************
 
-*FFPARND  IDNT      1,5                   ;FFP ASCII ROUND SUBROUTINE
-*         XDEF      FFPARND               ;ENTRY POINT
-*         SECTION   9
+;FFPARND  IDNT      1,5                   ;FFP ASCII ROUND SUBROUTINE
+;         XDEF      FFPARND               ;ENTRY POINT
+;         SECTION   9
 
-***********************************************
-*                  FFPARND                    *
-*           ASCII ROUND SUBROUTINE            *
-*                                             *
-*  THIS ROUTINE IS NORMALLY CALLED AFTER THE  *
-*  'FFPFPA' FLOAT TO ASCII ROUTINE AND ACTS   *
-*  UPON ITS RESULTS.                          *
-*                                             *
-*  INPUT:  D6 - ROUNDING MAGNITUDE IN BINARY  *
-*               AS EXPLAINED BELOW.           *
-*          D7 - BINARY REPRESENTATION OF THE  *
-*               BASE 10 EXPONENT.             *
-*          SP ->  RETURN ADDRESS AND OUTPUT   *
-*                 FROM FFPFPA ROUTINE         *
-*                                             *
-*  OUTPUT: THE ASCII VALUE ON THE STACK IS    *
-*          CORRECTLY ROUNDED                  *
-*                                             *
-*          THE CONDITION CODES ARE UNDEFINED  *
-*                                             *
-*          ALL REGISTERS TRANSPARENT          *
-*                                             *
-*     THE ROUNDING PRECISION REPRESENTS THE   *
-*     POWER OF TEN TO WHICH THE ROUNDING WILL *
-*     OCCUR.  (I.E. A -2 MEANS ROUND THE DIGIT*
-*     IN THE HUNDREDTH POSITION FOR RESULTANT *
-*     ROUNDING TO TENTHS.)  A POSITIVE VALUE  *
-*     INDICATES ROUNDING TO THE LEFT OF THE   *
-*     DECIMAL POINT (0 IS UNITS, 1 IS TENS    *
-*     E.T.C.)                                 *
-*                                             *
-*     THE BASE TEN EXPONENT IN BINARY IS D7   *
-*     FROM THE 'FFPFPA' ROUTINE OR COMPUTED BY*
-*     THE CALLER.                             *
-*                                             *
-*     THE STACK CONTAINS THE RETURN ADDRESS   *
-*     FOLLOWED BY THE ASCII NUMBER AS FROM    *
-*     THE 'FFPFPA' ROUTINE.  SEE THE          *
-*     DESCRIPTION OF THAT ROUTINE FOR THE     *
-*     REQUIRED FORMAT.                        *
-*                                             *
-*  EXAMPLE:                                   *
-*                                             *
-*  INPUT PATTERN '+.98765432+01' = 9.8765432  *
-*                                             *
-*     ROUND +1 IS +.00000000+00 =  0.         *
-*     ROUND  0 IS +.10000000+02 = 10.         *
-*     ROUND -1 IS +.10000000+02 = 10.         *
-*     ROUND -2 IS +.99000000+01 =  9.9        *
-*     ROUND -3 IS +.98800000+01 =  9.88       *
-*     ROUND -6 IS +.98765400+01 =  9.87654    *
-*                                             *
-*  NOTES:                                     *
-*     1) IF THE ROUNDING DIGIT IS TO THE LEFT *
-*        OF THE MOST SIGNIFICANT DIGIT, A ZERO*
-*        RESULTS.  IF THE ROUNDING DIGIT IS TO*
-*        THE RIGHT OF THE LEAST SIGNIFICANT   *
-*        DIGIT, THEN NO ROUNDING OCCURS       *
-*     2) ROUNDING IS HANDY FOR ELIMINATING THE*
-*        DANGLING '999...' PROBLEM COMMON WITH*
-*        FLOAT TO DECIMAL CONVERSIONS.        *
-*     3) POSITIONS FROM THE ROUNDED DIGIT AND *
-*        TO THE RIGHT ARE SET TO ZEROES.      *
-*     4) THE EXPONENT MAY BE AFFECTED.        *
-*     5) ROUNDING IS FORCED BY ADDING FIVE.   *
-*     6) THE BINARY EXPONENT IN D7 MAY BE     *
-*        PRE-BIASED BY THE CALLER TO PROVIDE  *
-*        ENHANCED EDITING CONTROL.            *
-*     7) THE RETURN ADDRESS IS REMOVED FROM   *
-*        THE STACK UPON EXIT.                 *
-***********************************************
-*         PAGE
+;**********************************************
+;                  FFPARND                    *
+;           ASCII ROUND SUBROUTINE            *
+;                                             *
+;  THIS ROUTINE IS NORMALLY CALLED AFTER THE  *
+;  'FFPFPA' FLOAT TO ASCII ROUTINE AND ACTS   *
+;  UPON ITS RESULTS.                          *
+;                                             *
+;  INPUT:  D6 - ROUNDING MAGNITUDE IN BINARY  *
+;               AS EXPLAINED BELOW.           *
+;          D7 - BINARY REPRESENTATION OF THE  *
+;               BASE 10 EXPONENT.             *
+;          SP ->  RETURN ADDRESS AND OUTPUT   *
+;                 FROM FFPFPA ROUTINE         *
+;                                             *
+;  OUTPUT: THE ASCII VALUE ON THE STACK IS    *
+;          CORRECTLY ROUNDED                  *
+;                                             *
+;          THE CONDITION CODES ARE UNDEFINED  *
+;                                             *
+;          ALL REGISTERS TRANSPARENT          *
+;                                             *
+;     THE ROUNDING PRECISION REPRESENTS THE   *
+;     POWER OF TEN TO WHICH THE ROUNDING WILL *
+;     OCCUR.  (I.E. A -2 MEANS ROUND THE DIGIT*
+;     IN THE HUNDREDTH POSITION FOR RESULTANT *
+;     ROUNDING TO TENTHS.)  A POSITIVE VALUE  *
+;     INDICATES ROUNDING TO THE LEFT OF THE   *
+;     DECIMAL POINT (0 IS UNITS, 1 IS TENS    *
+;     E.T.C.)                                 *
+;                                             *
+;     THE BASE TEN EXPONENT IN BINARY IS D7   *
+;     FROM THE 'FFPFPA' ROUTINE OR COMPUTED BY*
+;     THE CALLER.                             *
+;                                             *
+;     THE STACK CONTAINS THE RETURN ADDRESS   *
+;     FOLLOWED BY THE ASCII NUMBER AS FROM    *
+;     THE 'FFPFPA' ROUTINE.  SEE THE          *
+;     DESCRIPTION OF THAT ROUTINE FOR THE     *
+;     REQUIRED FORMAT.                        *
+;                                             *
+;  EXAMPLE:                                   *
+;                                             *
+;  INPUT PATTERN '+.98765432+01' = 9.8765432  *
+;                                             *
+;     ROUND +1 IS +.00000000+00 =  0.         *
+;     ROUND  0 IS +.10000000+02 = 10.         *
+;     ROUND -1 IS +.10000000+02 = 10.         *
+;     ROUND -2 IS +.99000000+01 =  9.9        *
+;     ROUND -3 IS +.98800000+01 =  9.88       *
+;     ROUND -6 IS +.98765400+01 =  9.87654    *
+;                                             *
+;  NOTES:                                     *
+;     1) IF THE ROUNDING DIGIT IS TO THE LEFT *
+;        OF THE MOST SIGNIFICANT DIGIT, A ZERO*
+;        RESULTS.  IF THE ROUNDING DIGIT IS TO*
+;        THE RIGHT OF THE LEAST SIGNIFICANT   *
+;        DIGIT, THEN NO ROUNDING OCCURS       *
+;     2) ROUNDING IS HANDY FOR ELIMINATING THE*
+;        DANGLING '999...' PROBLEM COMMON WITH*
+;        FLOAT TO DECIMAL CONVERSIONS.        *
+;     3) POSITIONS FROM THE ROUNDED DIGIT AND *
+;        TO THE RIGHT ARE SET TO ZEROES.      *
+;     4) THE EXPONENT MAY BE AFFECTED.        *
+;     5) ROUNDING IS FORCED BY ADDING FIVE.   *
+;     6) THE BINARY EXPONENT IN D7 MAY BE     *
+;        PRE-BIASED BY THE CALLER TO PROVIDE  *
+;        ENHANCED EDITING CONTROL.            *
+;     7) THE RETURN ADDRESS IS REMOVED FROM   *
+;        THE STACK UPON EXIT.                 *
+;**********************************************
+;         PAGE
 
 FFPARND   MOVEM.L   D7/A0,-(SP)           ;SAVE WORK ON STACK
           SUB.W     D6,D7                 ;COMPUTE ROUNDING DIGIT OFFSET
@@ -89,14 +89,14 @@ FFPARND   MOVEM.L   D7/A0,-(SP)           ;SAVE WORK ON STACK
           CMP.B     #'5',(A0)             ;? MUST ROUND UP
           BCC.S     FADORND               ;YEP - GO ROUND
           SUB.W     #1,D7                 ;? ROUND LEADING DIGIT ZERO (D7=1)
-          BNE.S     FAZEROL               ;NOPE, JUST ZERO OUT
+          BNE       FAZEROL               ;NOPE, JUST ZERO OUT
 FAFZRO    LEA       8+4+2(SP),A0          ;FORCE ZEROES ALL THE WAY ACROSS
           MOVE.L    #'E+00',8+4+10(SP)    ;FORCE ZERO EXPONENT
 
           MOVE.B    #'+',8+4(SP)          ;ZERO IS ALWAYS POSITIVE
           BRA.S     FAZEROL               ;ZERO MANTISSA THEN RETURN
 
-* ROUND UP MUST OCCUR
+; ROUND UP MUST OCCUR
 FADORND   MOVE.L    A0,-(SP)              ;SAVE ZERO START ADDRESS ON STACK
 FACARRY   CMP.B     #'.',-(A0)            ;? HIT BEGINNING
           BEQ.S     FASHIFT               ;YES, MUST SHIFT DOWN
@@ -106,7 +106,7 @@ FACARRY   CMP.B     #'.',-(A0)            ;? HIT BEGINNING
           MOVE.B    #'0',(A0)             ;FORCE ZERO FOR OVERFLOW
           BRA       FACARRY               ;LOOP FOR CARRY
 
-* OVERFLOW PAST TOP DIGIT - SHIFT RIGHT AND UP EXPONENT
+; OVERFLOW PAST TOP DIGIT - SHIFT RIGHT AND UP EXPONENT
 FASHIFT   ADD.L     #1,(SP)               ;ZERO PADD STARTS ONE LOWER NOW
           ADDQ.L    #1,A0                 ;BACK TO LEADING DIGIT
           MOVEQ     #$31,D7               ;DEFAULT FIRST DIGIT ASCII ONE
@@ -118,7 +118,7 @@ FASHFTR   SWAP      D7                    ;TO PREVIOUS DIGIT
           CMP.B     #'E',D7               ;? THE END
           BNE.S     FASHFTR               ;NO, SHIFT ANOTHER TO THE RIGHT
 
-* INCREMENT EXPONENT FOR SHIFT RIGHT
+; INCREMENT EXPONENT FOR SHIFT RIGHT
           CMP.B     #'+',1(A0)            ;? POSITIVE EXPONENT
           ADDQ.L    #3,A0                 ;POINT TO LEAST EXP DIGIT
           BNE.S     FANGEXP               ;BRANCH NEGATIVE EXPONENT
@@ -136,15 +136,15 @@ FANGOK    SUB.B     #1,(A0)               ;SUBTRACT ONE FROM EXPONENT
           BNE.S     FAZERO                ;NO, ZERO REMAINDER
           SUB.B     #1,-(A0)              ;BORROW FROM NEXT DIGIT
 
-* ZERO THE DIGITS PAST PRECISION REQUIRED
+; ZERO THE DIGITS PAST PRECISION REQUIRED
 FAZERO    MOVE.L    (SP)+,A0              ;RELOAD SAVED PRECISION
 FAZEROL   CMP.B     #'E',(A0)             ;? AT END
           BEQ.S     FARTN                 ;BRANCH IF SO
           MOVE.B    #'0',(A0)+            ;ZERO NEXT DIGIT
           BRA.S     FAZEROL               ;AND TEST AGAIN
 
-* RETURN TO THE CALLER
+; RETURN TO THE CALLER
 FARTN     MOVEM.L   (SP)+,D7/A0           ;RESTORE REGISTERS
           RTS                             ;RETURN TO CALLER
 
-*         END
+;         END

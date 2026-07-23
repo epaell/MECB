@@ -1,3 +1,5 @@
+         cpu      68008
+;
          include  "mecb.inc"
 ;
          org      $4000

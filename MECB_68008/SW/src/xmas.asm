@@ -1,9 +1,11 @@
+               cpu      68008
+;
 ;               org      $4000
 ;
-;               include  'mecb.inc'
-;               include  'tutor.inc'
-;               include  'library_rom.inc'
-;               include  'oled.inc'
+;               include  "mecb.inc"
+;               include  "tutor.inc"
+;               include  "library_rom.inc"
+;               include  "oled.inc"
 ;
 BUFFER_SIZE    equ      255
 TIMER_VAL      equ      $5000      ; timer 1 count setting
@@ -1064,4 +1066,3 @@ image          dc.b     $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
                dc.b     $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
                dc.b     $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 ;
-               end

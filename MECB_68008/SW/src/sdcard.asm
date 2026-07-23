@@ -1,4 +1,4 @@
-         include  'sdcard.inc'
+         include  "sdcard.inc"
 ;
 ; Low-level routines to communicate with SD-card interface
 ;         jmp   SDParInit           ; init parallel interface

@@ -1,58 +1,58 @@
-*         TTL       MC68343 FAST FLOATING POINT COPYRIGHT NOTICE (FFPCPYRT)
+;         TTL       MC68343 FAST FLOATING POINT COPYRIGHT NOTICE (FFPCPYRT)
 
-*FFPCPYRT IDNT      1,1                   ;FFP COPYRIGHT NOTICE
-*         XDEF      FFPCPYRT
-*         SECTION   9
+;FFPCPYRT IDNT      1,1                   ;FFP COPYRIGHT NOTICE
+;         XDEF      FFPCPYRT
+;         SECTION   9
 
-*************************************
-* FFP LIBRARY COPYRIGHT NOTICE STUB *
-*                                   *
-*  THIS MODULE IS INCLUDED BY ALL   *
-*  LINK EDITS WITH THE FFPLIB.RO    *
-*  LIBRARY TO PROTECT MOTOROLA'S    *
-*  COPYRIGHT STATUS.                *
-*                                   *
-*  CODE: 68 BYTES                   *
-*                                   *
-*  NOTE: THIS MODULE MUST RESIDE    *
-*  LAST IN THE LIBRARY AS IT IS     *
-*  REFERENCED BY ALL OTHER MC68343  *
-*  MODULES.                         *
-*************************************
+;************************************
+; FFP LIBRARY COPYRIGHT NOTICE STUB *
+;                                   *
+;  THIS MODULE IS INCLUDED BY ALL   *
+;  LINK EDITS WITH THE FFPLIB.RO    *
+;  LIBRARY TO PROTECT MOTOROLA'S    *
+;  COPYRIGHT STATUS.                *
+;                                   *
+;  CODE: 68 BYTES                   *
+;                                   *
+;  NOTE: THIS MODULE MUST RESIDE    *
+;  LAST IN THE LIBRARY AS IT IS     *
+;  REFERENCED BY ALL OTHER MC68343  *
+;  MODULES.                         *
+;************************************
 
 FFPCPYRT  EQU       *
           DC.B      'MC68343 FLOATING POINT FIRMWARE '
           DC.B      '(C) COPYRIGHT 1981 BY MOTOROLA INC.'
           DC.B      0
 
-*         END
+;         END
 
-*         TTL       FAST FLOATING POINT POWER OF TEN TABLE (FFP10TBL)
-************************************
-* (C) COPYRIGHT 1980 MOTORLA INC.  *
-************************************
+;         TTL       FAST FLOATING POINT POWER OF TEN TABLE (FFP10TBL)
+;***********************************
+; (C) COPYRIGHT 1980 MOTORLA INC.  *
+;***********************************
 
-*FFP10TBL IDNT      1,1                   ;FFP POWER OF TEN TABLE
-*         XDEF      FFP10TBL              ;ENTRY POINT
-*         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
-*         SECTION   9
+;FFP10TBL IDNT      1,1                   ;FFP POWER OF TEN TABLE
+;         XDEF      FFP10TBL              ;ENTRY POINT
+;         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
+;         SECTION   9
 
-*****************************************
-*         POWER OF TEN TABLE            *
-*                                       *
-*  EACH ENTRY CORRESPONDS TO A FLOATING *
-*  POINT POWER OF TEN WITH A 16 BIT     *
-*  EXPONENT AND 32 BIT MANTISSA.        *
-*  THIS TABLE IS USED TO INSURE         *
-*  PRECISE CONVERSIONS TO AND FROM      *
-*  FLOATING POINT AND EXTERNAL FORMATS. *
-*  THS IS USED IN ROUTINES "FFPDBF" AND *
-*  "FFPFASC".                           *
-*                                       *
-*          CODE SIZE: 288 BYTES         *
-*                                       *
-*****************************************
-*         PAGE
+;****************************************
+;         POWER OF TEN TABLE            *
+;                                       *
+;  EACH ENTRY CORRESPONDS TO A FLOATING *
+;  POINT POWER OF TEN WITH A 16 BIT     *
+;  EXPONENT AND 32 BIT MANTISSA.        *
+;  THIS TABLE IS USED TO INSURE         *
+;  PRECISE CONVERSIONS TO AND FROM      *
+;  FLOATING POINT AND EXTERNAL FORMATS. *
+;  THS IS USED IN ROUTINES "FFPDBF" AND *
+;  "FFPFASC".                           *
+;                                       *
+;          CODE SIZE: 288 BYTES         *
+;                                       *
+;****************************************
+;         PAGE
 
           DC.W      64                    ;10**19
           DC.L      $8AC72305
@@ -151,173 +151,173 @@ FFP10TBL  DC.W      1                     ;10**0
           DC.W      -93                   ;10**-28
           DC.L      $FD87B5F3
 
-*         END
-*         TTL       FAST FLOATING POINT ABS/NEG (FFPABS/FFPNEG)
-***************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC. *
-***************************************
+;         END
+;         TTL       FAST FLOATING POINT ABS/NEG (FFPABS/FFPNEG)
+;**************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC. *
+;**************************************
 
-*FFPABS   IDNT      1,1                   ;FFP ABS/NEG
-*         XDEF      FFPABS                ;FAST FLOATING POINT ABSOLUTE VALUE
-*         XDEF      FFPNEG                ;FAST FLOATING POINT NEGATE
-*         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
-*         SECTION   9
+;FFPABS   IDNT      1,1                   ;FFP ABS/NEG
+;         XDEF      FFPABS                ;FAST FLOATING POINT ABSOLUTE VALUE
+;         XDEF      FFPNEG                ;FAST FLOATING POINT NEGATE
+;         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
+;         SECTION   9
 
-*************************************************************
-*                     FFPABS                                *
-*           FAST FLOATING POINT ABSOLUTE VALUE              *
-*                                                           *
-*  INPUT:  D7 - FAST FLOATING POINT ARGUMENT                *
-*                                                           *
-*  OUTPUT: D7 - FAST FLOATING POINT ABSOLUTE VALUE RESULT   *
-*                                                           *
-*      CONDITION CODES:                                     *
-*              N - CLEARED                                  *
-*              Z - SET IF RESULT IS ZERO                    *
-*              V - CLEARED                                  *
-*              C - UNDEFINED                                *
-*              X - UNDEFINED                                *
-*                                                           *
-*               ALL REGISTERS TRANSPARENT                   *
-*                                                           *
-*************************************************************
-*         PAGE
+;************************************************************
+;                     FFPABS                                *
+;           FAST FLOATING POINT ABSOLUTE VALUE              *
+;                                                           *
+;  INPUT:  D7 - FAST FLOATING POINT ARGUMENT                *
+;                                                           *
+;  OUTPUT: D7 - FAST FLOATING POINT ABSOLUTE VALUE RESULT   *
+;                                                           *
+;      CONDITION CODES:                                     *
+;              N - CLEARED                                  *
+;              Z - SET IF RESULT IS ZERO                    *
+;              V - CLEARED                                  *
+;              C - UNDEFINED                                *
+;              X - UNDEFINED                                *
+;                                                           *
+;               ALL REGISTERS TRANSPARENT                   *
+;                                                           *
+;************************************************************
+;         PAGE
 
-******************************
-* ABSOLUTE VALUE ENTRY POINT *
-******************************
+;*****************************
+; ABSOLUTE VALUE ENTRY POINT *
+;*****************************
 FFPABS    AND.B     #$7F,D7               ;CLEAR THE SIGN BIT
           RTS                             ;AND RETURN TO THE CALLER
 
-*         PAGE
-*************************************************************
-*                     FFPNEG                                *
-*           FAST FLOATING POINT NEGATE                      *
-*                                                           *
-*  INPUT:  D7 - FAST FLOATING POINT ARGUMENT                *
-*                                                           *
-*  OUTPUT: D7 - FAST FLOATING POINT NEGATED RESULT          *
-*                                                           *
-*      CONDITION CODES:                                     *
-*              N - SET IF RESULT IS NEGATIVE                *
-*              Z - SET IF RESULT IS ZERO                    *
-*              V - CLEARED                                  *
-*              C - UNDEFINED                                *
-*              X - UNDEFINED                                *
-*                                                           *
-*               ALL REGISTERS TRANSPARENT                   *
-*                                                           *
-*************************************************************
-*         PAGE
+;         PAGE
+;************************************************************
+;                     FFPNEG                                *
+;           FAST FLOATING POINT NEGATE                      *
+;                                                           *
+;  INPUT:  D7 - FAST FLOATING POINT ARGUMENT                *
+;                                                           *
+;  OUTPUT: D7 - FAST FLOATING POINT NEGATED RESULT          *
+;                                                           *
+;      CONDITION CODES:                                     *
+;              N - SET IF RESULT IS NEGATIVE                *
+;              Z - SET IF RESULT IS ZERO                    *
+;              V - CLEARED                                  *
+;              C - UNDEFINED                                *
+;              X - UNDEFINED                                *
+;                                                           *
+;               ALL REGISTERS TRANSPARENT                   *
+;                                                           *
+;************************************************************
+;         PAGE
 
-**********************
-* NEGATE ENTRY POINT *
-**********************
+;*********************
+; NEGATE ENTRY POINT *
+;*********************
 FFPNEG    TST.B     D7                    ;? IS ARGUMENT A ZERO
           BEQ.S     FFPRTN                ;RETURN IF SO
           EOR.B     #$80,D7               ;INVERT THE SIGN BIT
 FFPRTN    RTS                             ;AND RETURN TO CALLER
 
-*         END
-*         TTL       FAST FLOATING POINT ADD/SUBTRACT (FFPADD/FFPSUB)
-***************************************
-* (C) COPYRIGHT 1980 BY MOTOROLA INC. *
-***************************************
+;         END
+;         TTL       FAST FLOATING POINT ADD/SUBTRACT (FFPADD/FFPSUB)
+;**************************************
+; (C) COPYRIGHT 1980 BY MOTOROLA INC. *
+;**************************************
 
-*FFPADD   IDNT      1,1                   ;FFP ADD/SUBTRACT
-*         XDEF      FFPADD,FFPSUB         ;ENTRY POINTS
-*         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
-*         SECTION   9
+;FFPADD   IDNT      1,1                   ;FFP ADD/SUBTRACT
+;         XDEF      FFPADD,FFPSUB         ;ENTRY POINTS
+;         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
+;         SECTION   9
 
-*************************************************************
-*                  FFPADD/FFPSUB                            *
-*             FAST FLOATING POINT ADD/SUBTRACT              *
-*                                                           *
-*  FFPADD/FFPSUB - FAST FLOATING POINT ADD AND SUBTRACT     *
-*                                                           *
-*  INPUT:                                                   *
-*      FFPADD                                               *
-*          D6 - FLOATING POINT ADDEND                       *
-*          D7 - FLOATING POINT ADDER                        *
-*      FFPSUB                                               *
-*          D6 - FLOATING POINT SUBTRAHEND                   *
-*          D7 - FLOATING POINT MINUEND                      *
-*                                                           *
-*  OUTPUT:                                                  *
-*          D7 - FLOATING POINT ADD RESULT                   *
-*                                                           *
-*  CONDITION CODES:                                         *
-*          N - RESULT IS NEGATIVE                           *
-*          Z - RESULT IS ZERO                               *
-*          V - OVERFLOW HAS OCCURED                         *
-*          C - UNDEFINED                                    *
-*          X - UNDEFINED                                    *
-*                                                           *
-*           REGISTERS D3 THRU D5 ARE VOLATILE               *
-*                                                           *
-*  CODE SIZE: 228 BYTES       STACK WORK AREA:  0 BYTES     *
-*                                                           *
-*  NOTES:                                                   *
-*    1) ADDEND/SUBTRAHEND UNALTERED (D6).                   *
-*    2) UNDERFLOW RETURNS ZERO AND IS UNFLAGGED.            *
-*    3) OVERFLOW RETURNS THE HIGHEST VALUE WITH THE         *
-*       CORRECT SIGN AND THE 'V' BIT SET IN THE CCR.        *
-*                                                           *
-*  TIME: (8 MHZ NO WAIT STATES ASSUMED)                     *
-*                                                           *
-*           COMPOSITE AVERAGE  20.625 MICROSECONDS          *
-*                                                           *
-*  ADD:         ARG1=0              7.75 MICROSECONDS       *
-*               ARG2=0              5.25 MICROSECONDS       *
-*                                                           *
-*          LIKE SIGNS  14.50 - 26.00  MICROSECONDS          *
-*                    AVERAGE   18.00  MICROSECONDS          *
-*         UNLIKE SIGNS 20.13 - 54.38  MICROCECONDS          *
-*                    AVERAGE   22.00  MICROSECONDS          *
-*                                                           *
-*  SUBTRACT:    ARG1=0              4.25 MICROSECONDS       *
-*               ARG2=0              9.88 MICROSECONDS       *
-*                                                           *
-*          LIKE SIGNS  15.75 - 27.25  MICROSECONDS          *
-*                    AVERAGE   19.25  MICROSECONDS          *
-*         UNLIKE SIGNS 21.38 - 55.63  MICROSECONDS          *
-*                    AVERAGE   23.25  MICROSECONDS          *
-*                                                           *
-*************************************************************
-*         PAGE
+;************************************************************
+;                  FFPADD/FFPSUB                            *
+;             FAST FLOATING POINT ADD/SUBTRACT              *
+;                                                           *
+;  FFPADD/FFPSUB - FAST FLOATING POINT ADD AND SUBTRACT     *
+;                                                           *
+;  INPUT:                                                   *
+;      FFPADD                                               *
+;          D6 - FLOATING POINT ADDEND                       *
+;          D7 - FLOATING POINT ADDER                        *
+;      FFPSUB                                               *
+;          D6 - FLOATING POINT SUBTRAHEND                   *
+;          D7 - FLOATING POINT MINUEND                      *
+;                                                           *
+;  OUTPUT:                                                  *
+;          D7 - FLOATING POINT ADD RESULT                   *
+;                                                           *
+;  CONDITION CODES:                                         *
+;          N - RESULT IS NEGATIVE                           *
+;          Z - RESULT IS ZERO                               *
+;          V - OVERFLOW HAS OCCURED                         *
+;          C - UNDEFINED                                    *
+;          X - UNDEFINED                                    *
+;                                                           *
+;           REGISTERS D3 THRU D5 ARE VOLATILE               *
+;                                                           *
+;  CODE SIZE: 228 BYTES       STACK WORK AREA:  0 BYTES     *
+;                                                           *
+;  NOTES:                                                   *
+;    1) ADDEND/SUBTRAHEND UNALTERED (D6).                   *
+;    2) UNDERFLOW RETURNS ZERO AND IS UNFLAGGED.            *
+;    3) OVERFLOW RETURNS THE HIGHEST VALUE WITH THE         *
+;       CORRECT SIGN AND THE 'V' BIT SET IN THE CCR.        *
+;                                                           *
+;  TIME: (8 MHZ NO WAIT STATES ASSUMED)                     *
+;                                                           *
+;           COMPOSITE AVERAGE  20.625 MICROSECONDS          *
+;                                                           *
+;  ADD:         ARG1=0              7.75 MICROSECONDS       *
+;               ARG2=0              5.25 MICROSECONDS       *
+;                                                           *
+;          LIKE SIGNS  14.50 - 26.00  MICROSECONDS          *
+;                    AVERAGE   18.00  MICROSECONDS          *
+;         UNLIKE SIGNS 20.13 - 54.38  MICROCECONDS          *
+;                    AVERAGE   22.00  MICROSECONDS          *
+;                                                           *
+;  SUBTRACT:    ARG1=0              4.25 MICROSECONDS       *
+;               ARG2=0              9.88 MICROSECONDS       *
+;                                                           *
+;          LIKE SIGNS  15.75 - 27.25  MICROSECONDS          *
+;                    AVERAGE   19.25  MICROSECONDS          *
+;         UNLIKE SIGNS 21.38 - 55.63  MICROSECONDS          *
+;                    AVERAGE   23.25  MICROSECONDS          *
+;                                                           *
+;************************************************************
+;         PAGE
 
-************************
-* SUBTRACT ENTRY POINT *
-************************
+;***********************
+; SUBTRACT ENTRY POINT *
+;***********************
 FFPSUB    MOVE.B    D6,D4                 ;TEST ARG1
           BEQ.S     FPART2                ;RETURN ARG2 IF ARG1 ZERO
           EOR.B     #$80,D4               ;INVERT COPIED SIGN OF ARG1
           BMI.S     FPAMI1                ;BRANCH ARG1 MINUS
-* + ARG1
+; + ARG1
           MOVE.B    D7,D5                 ;COPY AND TEST ARG2
           BMI.S     FPAMS                 ;BRANCH ARG2 MINUS
           BNE.S     FPALS                 ;BRANCH POSITIVE NOT ZERO
           BRA.S     FPART1                ;RETURN ARG1 SINCE ARG2 IS ZERO
 
-*******************
-* ADD ENTRY POINT *
-*******************
+;******************
+; ADD ENTRY POINT *
+;******************
 FFPADD    MOVE.B    D6,D4                 ;TEST ARGUMENT1
           BMI.S     FPAMI1                ;BRANCH IF ARG1 MINUS
           BEQ.S     FPART2                ;RETURN ARG2 IF ZERO
 
-* + ARG1
+; + ARG1
           MOVE.B    D7,D5                 ;TEST ARGUMENT2
           BMI.S     FPAMS                 ;BRANCH IF MIXED SIGNS
           BEQ.S     FPART1                ;ZERO SO RETURN ARGUMENT1
 
-* +ARG1 +ARG2
-* -ARG1 -ARG2
+; +ARG1 +ARG2
+; -ARG1 -ARG2
 FPALS     SUB.B     D4,D5                 ;TEST EXPONENT MAGNITUDES
           BMI.S     FPA2LT                ;BRANCH ARG1 GREATER
           MOVE.B    D7,D4                 ;SETUP STRONGER S+EXP IN D4
 
-* ARG1EXP <= ARG2EXP
+; ARG1EXP <= ARG2EXP
           CMP.B     #24,D5                ;OVERBEARING SIZE
           BCC.S     FPART2                ;BRANCH YES, RETURN ARG2
           MOVE.L    D6,D3                 ;COPY ARG1
@@ -329,7 +329,7 @@ FPALS     SUB.B     D4,D5                 ;TEST EXPONENT MAGNITUDES
 FPARSR    MOVE.B    D4,D7                 ;RESTORE SIGN/EXPONENT
           RTS                             ;RETURN TO CALLER
 
-* ADD SAME SIGN OVERFLOW NORMALIZATION
+; ADD SAME SIGN OVERFLOW NORMALIZATION
 FPA2GC    ROXR.L    #1,D7                 ;SHIFT CARRY BACK INTO RESULT
           ADD.B     #1,D4                 ;ADD ONE TO EXPONENT
           BVS.S     FPA2OS                ;BRANCH OVERFLOW
@@ -340,17 +340,17 @@ FPA2OS    MOVEQ     #-1,D7                ;CREATE ALL ONES
           OR.B      #$02,CCR              ;SHOW OVERFLOW OCCURRED
           RTS                             ;RETURN TO CALLER
 
-* RETURN ARGUMENT1
+; RETURN ARGUMENT1
 FPART1    MOVE.L    D6,D7                 ;MOVE IN AS RESULT
           MOVE.B    D4,D7                 ;MOVE IN PREPARED SIGN+EXPONENT
           RTS                             ;RETURN TO CALLER
 
-* RETURN ARGUMENT2
+; RETURN ARGUMENT2
 FPART2    TST.B     D7                    ;TEST FOR RETURNED VALUE
           RTS                             ;RETURN TO CALLER
 
-* -ARG1EXP > -ARG2EXP
-* +ARG1EXP > +ARG2EXP
+; -ARG1EXP > -ARG2EXP
+; +ARG1EXP > +ARG2EXP
 FPA2LT    CMP.B     #-24,D5               ;? ARGUMENTS WITHIN RANGE
           BLE.S     FPART1                ;NOPE, RETURN LARGER
           NEG.B     D5                    ;CHANGE DIFFERENCE TO POSITIVE
@@ -363,19 +363,19 @@ FPA2LT    CMP.B     #-24,D5               ;? ARGUMENTS WITHIN RANGE
           MOVE.B    D4,D7                 ;RESTORE SIGN/EXPONENT
           RTS                             ;RETURN TO CALLER
 
-* -ARG1
+; -ARG1
 FPAMI1    MOVE.B    D7,D5                 ;TEST ARG2'S SIGN
           BMI.S     FPALS                 ;BRANCH FOR LIKE SIGNS
           BEQ.S     FPART1                ;IF ZERO RETURN ARGUMENT1
 
-* -ARG1 +ARG2
-* +ARG1 -ARG2
+; -ARG1 +ARG2
+; +ARG1 -ARG2
 FPAMS     MOVEQ     #-128,D3              ;CREATE A CARRY MASK ($80)
           EOR.B     D3,D5                 ;STRIP SIGN OFF ARG2 S+EXP COPY
           SUB.B     D4,D5                 ;COMPARE MAGNITUDES
           BEQ.S     FPAEQ                 ;BRANCH EQUAL MAGNITUDES
           BMI.S     FPATLT                ;BRANCH IF ARG1 LARGER
-* ARG1 <= ARG2
+; ARG1 <= ARG2
           CMP.B     #24,D5                ;COMPARE MAGNITUDE DIFFERENCE
           BCC.S     FPART2                ;BRANCH ARG2 MUCH BIGGER
           MOVE.B    D7,D4                 ;ARG2 S+EXP DOMINATES
@@ -386,7 +386,7 @@ FPAMSS    CLR.B     D3                    ;CLEAR EXTRANEOUS BITS
           SUB.L     D3,D7                 ;SUBTRACT SMALLER FROM LARGER
           BMI.S     FPARSR                ;RETURN FINAL RESULT IF NO OVERFLOW
 
-* MIXED SIGNS NORMALIZE
+; MIXED SIGNS NORMALIZE
 FPANOR    MOVE.B    D4,D5                 ;SAVE CORRECT SIGN
 FPANRM    CLR.B     D7                    ;CLEAR SUBTRACT RESIDUE
           SUB.B     #1,D4                 ;MAKE UP FOR FIRST SHIFT
@@ -402,11 +402,11 @@ FPAXQN    ADD.L     D7,D7                 ;SHIFT UP ONE BIT
           BEQ.S     FPAZRO                ;RETURN ZERO IF EXPONENT UNDERFLOWED
           RTS                             ;RETURN TO CALLER
 
-* EXPONENT UNDERFLOWED - RETURN ZERO
+; EXPONENT UNDERFLOWED - RETURN ZERO
 FPAZRO    MOVEQ     #0,D7                 ;CREATE A TRUE ZERO
           RTS                             ;RETURN TO THE CALLER
 
-* ARG1 > ARG2
+; ARG1 > ARG2
 FPATLT    CMP.B     #-24,D5               ;? ARG1 >> ARG2
           BLE.S     FPART1                ;RETURN IT IF SO
           NEG.B     D5                    ;ABSOLUTIZE DIFFERENCE
@@ -415,7 +415,7 @@ FPATLT    CMP.B     #-24,D5               ;? ARG1 >> ARG2
           MOVE.B    #$80,D7               ;SETUP ROUNDING BIT
           BRA.S     FPAMSS                ;PERFORM THE ADDITION
 
-* EQUAL MAGNITUDES
+; EQUAL MAGNITUDES
 FPAEQ     MOVE.B    D7,D5                 ;SAVE ARG1 SIGN
           EXG       D5,D4                 ;SWAP ARG2 WITH ARG1 S+EXP
           MOVE.B    D6,D7                 ;INSURE SAME LOW BYTE
@@ -426,161 +426,161 @@ FPAEQ     MOVE.B    D7,D5                 ;SAVE ARG1 SIGN
           MOVE.B    D5,D4                 ;USE ARG2'S SIGN+EXPONENT
           BRA.S     FPANRM                ;AND GO NORMALIZE
 
-*         END
-*         TTL       FAST FLOATING POINT ASCII TO FLOAT (FFPAFP)
-************************************
-* (C) COPYRIGHT 1980 MOTORLA INC.  *
-************************************
+;         END
+;         TTL       FAST FLOATING POINT ASCII TO FLOAT (FFPAFP)
+;***********************************
+; (C) COPYRIGHT 1980 MOTORLA INC.  *
+;***********************************
 
-*FFPAFP   IDNT      1,1                   ;FFP ASCII TO FLOAT
-*         OPT       PCS
-*         XDEF      FFPAFP                ;ENTRY POINT
-*         XREF      9:FFPDBF,FFPCPYRT
-*         SECTION   9
+;FFPAFP   IDNT      1,1                   ;FFP ASCII TO FLOAT
+;         OPT       PCS
+;         XDEF      FFPAFP                ;ENTRY POINT
+;         XREF      9:FFPDBF,FFPCPYRT
+;         SECTION   9
 
-***********************************************************
-*                        FFPAFP                           *
-*                    ASCII TO FLOAT                       *
-*                                                         *
-*      INPUT:  A0 - POINTER TO ASCII STRING OF A FORMAT   *
-*                   DESCRIBED BELOW                       *
-*                                                         *
-*      OUTPUT: D7 - FAST FLOATING POINT EQUIVALENT        *
-*              A0 - POINTS TO THE CHARACTER WHICH         *
-*                   TERMINATED THE SCAN                   *
-*                                                         *
-*      CONDITION CODES:                                   *
-*                N - SET IF RESULT IS NEGATIVE            *
-*                Z - SET IF RESULT IS ZERO                *
-*                V - SET IF RESULT OVERFLOWED             *
-*                C - SET IF INVALID FORMAT DETECTED       *
-*                X - UNDEFINED                            *
-*                                                         *
-*      REGISTERS D3 THRU D6 ARE VOLATILE                  *
-*                                                         *
-*      CODE SIZE: 246 BYTES     STACK WORK: 8 BYTES       *
-*                                                         *
-*      INPUT FORMAT:                                      *
-*                                                         *
-*     {SIGN}{DIGITS}{'.'}{DIGITS}{'E'}{SIGN}{DIGITS}      *
-*     <*********MANTISSA********><*****EXPONENT****>      *
-*                                                         *
-*                   SYNTAX RULES                          *
-*          BOTH SIGNS ARE OPTIONAL AND ARE '+' OR '-'.    *
-*          THE MANTISSA MUST BE PRESENT.                  *
-*          THE EXPONENT NEED NOT BE PRESENT.              *
-*          THE MANTISSA MAY LEAD WITH A DECIMAL POINT.    *
-*          THE MANTISSA NEED NOT HAVE A DECIMAL POINT.    *
-*                                                         *
-*      EXAMPLES:  ALL OF THESE VALUES REPRESENT THE       *
-*                 NUMBER ONE-HUNDRED-TWENTY.              *
-*                                                         *
-*                       120            .120E3             *
-*                       120.          +.120E+03           *
-*                      +120.          0.000120E6          *
-*                   0000120.00  1200000E-4                *
-*                               1200000.00E-0004          *
-*                                                         *
-*      FLOATING POINT RANGE:                              *
-*                                                         *
-*          FAST FLOATING POINT SUPPORTS THE VALUE ZERO    *
-*          AND NON-ZERO VALUES WITHIN THE FOLLOWING       *
-*          BOUNDS -                                       *
-*                                                         *
-*                   18                             -20    *
-*    9.22337177 X 10   > +NUMBER >  5.42101070 X 10       *
-*                                                         *
-*                   18                             -20    *
-*   -9.22337177 X 10   > -NUMBER > -2.71050535 X 10       *
-*                                                         *
-*      PRECISION:                                         *
-*                                                         *
-*          THIS CONVERSION RESULTS IN A 24 BIT PRECISION  *
-*          WITH GUARANTEED ERROR LESS THAN OR EQUAL TO    *
-*          ONE-HALF LEAST SIGNIFICANT BIT.                *
-*                                                         *
-*                                                         *
-*      NOTES:                                             *
-*          1) THIS ROUTINE CALLS THE DUAL-BINARY TO FLOAT *
-*             ROUTINE AND CAN BE USED AS AN ILLUSTRATION  *
-*             OF HOW TO 'FRONT-END' THAT ROUTINE WITH     *
-*             A CUSTOMIZED SCANNER.                       *
-*          2) UNDERFLOWS RETURN A ZERO WITHOUT ANY        *
-*             INDICATORS SET.                             *
-*          3) OVERFLOWS WILL RETURN THE MAXIMUM VALUE     *
-*             POSSIBLE WITH PROPER SIGN AND THE 'V' BIT   *
-*             SET IN THE CCR.                             *
-*          4) IF THE 'C' BIT IN THE CCR INDICATES AN      *
-*             INVALID PATTERN DETECTED, THEN A0 WILL      *
-*             POINT TO THE INVALID CHARACTER.             *
-*                                                         *
-*      LOGIC SUMMARY:                                     *
-*                                                         *
-*          A) PROCESS LEADING SIGN                        *
-*          B) PROCESS PRE-DECIMALPOINT DIGITS AND         *
-*             INCREMENT 10 POWER BIAS FOR EACH            *
-*             DIGIT BYPASSED DUE TO 32 BIT OVERFLOW       *
-*          C) PROCESS POST-DECIMALPOINT DIGITS            *
-*             DECREMENTING THE 10 POWER BIAS FOR EACH     *
-*          D) PROCESS THE EXPONENT                        *
-*          E) ADD THE 10 POWER BIAS TO THE EXPONENT       *
-*          F) CALL 'FFPDBF' ROUTINE TO FINISH CONVERSION  *
-*                                                         *
-*   TIMES: (8 MHZ NO WAIT STATES)                         *
-*          374 MICROSECONDS CONVERTING THE STRING         *
-*                                                         *
-*                                                         *
-***********************************************************
-*         PAGE
+;**********************************************************
+;                        FFPAFP                           *
+;                    ASCII TO FLOAT                       *
+;                                                         *
+;      INPUT:  A0 - POINTER TO ASCII STRING OF A FORMAT   *
+;                   DESCRIBED BELOW                       *
+;                                                         *
+;      OUTPUT: D7 - FAST FLOATING POINT EQUIVALENT        *
+;              A0 - POINTS TO THE CHARACTER WHICH         *
+;                   TERMINATED THE SCAN                   *
+;                                                         *
+;      CONDITION CODES:                                   *
+;                N - SET IF RESULT IS NEGATIVE            *
+;                Z - SET IF RESULT IS ZERO                *
+;                V - SET IF RESULT OVERFLOWED             *
+;                C - SET IF INVALID FORMAT DETECTED       *
+;                X - UNDEFINED                            *
+;                                                         *
+;      REGISTERS D3 THRU D6 ARE VOLATILE                  *
+;                                                         *
+;      CODE SIZE: 246 BYTES     STACK WORK: 8 BYTES       *
+;                                                         *
+;      INPUT FORMAT:                                      *
+;                                                         *
+;     {SIGN}{DIGITS}{'.'}{DIGITS}{'E'}{SIGN}{DIGITS}      *
+;     <*********MANTISSA********><*****EXPONENT****>      *
+;                                                         *
+;                   SYNTAX RULES                          *
+;          BOTH SIGNS ARE OPTIONAL AND ARE '+' OR '-'.    *
+;          THE MANTISSA MUST BE PRESENT.                  *
+;          THE EXPONENT NEED NOT BE PRESENT.              *
+;          THE MANTISSA MAY LEAD WITH A DECIMAL POINT.    *
+;          THE MANTISSA NEED NOT HAVE A DECIMAL POINT.    *
+;                                                         *
+;      EXAMPLES:  ALL OF THESE VALUES REPRESENT THE       *
+;                 NUMBER ONE-HUNDRED-TWENTY.              *
+;                                                         *
+;                       120            .120E3             *
+;                       120.          +.120E+03           *
+;                      +120.          0.000120E6          *
+;                   0000120.00  1200000E-4                *
+;                               1200000.00E-0004          *
+;                                                         *
+;      FLOATING POINT RANGE:                              *
+;                                                         *
+;          FAST FLOATING POINT SUPPORTS THE VALUE ZERO    *
+;          AND NON-ZERO VALUES WITHIN THE FOLLOWING       *
+;          BOUNDS -                                       *
+;                                                         *
+;                   18                             -20    *
+;    9.22337177 X 10   > +NUMBER >  5.42101070 X 10       *
+;                                                         *
+;                   18                             -20    *
+;   -9.22337177 X 10   > -NUMBER > -2.71050535 X 10       *
+;                                                         *
+;      PRECISION:                                         *
+;                                                         *
+;          THIS CONVERSION RESULTS IN A 24 BIT PRECISION  *
+;          WITH GUARANTEED ERROR LESS THAN OR EQUAL TO    *
+;          ONE-HALF LEAST SIGNIFICANT BIT.                *
+;                                                         *
+;                                                         *
+;      NOTES:                                             *
+;          1) THIS ROUTINE CALLS THE DUAL-BINARY TO FLOAT *
+;             ROUTINE AND CAN BE USED AS AN ILLUSTRATION  *
+;             OF HOW TO 'FRONT-END' THAT ROUTINE WITH     *
+;             A CUSTOMIZED SCANNER.                       *
+;          2) UNDERFLOWS RETURN A ZERO WITHOUT ANY        *
+;             INDICATORS SET.                             *
+;          3) OVERFLOWS WILL RETURN THE MAXIMUM VALUE     *
+;             POSSIBLE WITH PROPER SIGN AND THE 'V' BIT   *
+;             SET IN THE CCR.                             *
+;          4) IF THE 'C' BIT IN THE CCR INDICATES AN      *
+;             INVALID PATTERN DETECTED, THEN A0 WILL      *
+;             POINT TO THE INVALID CHARACTER.             *
+;                                                         *
+;      LOGIC SUMMARY:                                     *
+;                                                         *
+;          A) PROCESS LEADING SIGN                        *
+;          B) PROCESS PRE-DECIMALPOINT DIGITS AND         *
+;             INCREMENT 10 POWER BIAS FOR EACH            *
+;             DIGIT BYPASSED DUE TO 32 BIT OVERFLOW       *
+;          C) PROCESS POST-DECIMALPOINT DIGITS            *
+;             DECREMENTING THE 10 POWER BIAS FOR EACH     *
+;          D) PROCESS THE EXPONENT                        *
+;          E) ADD THE 10 POWER BIAS TO THE EXPONENT       *
+;          F) CALL 'FFPDBF' ROUTINE TO FINISH CONVERSION  *
+;                                                         *
+;   TIMES: (8 MHZ NO WAIT STATES)                         *
+;          374 MICROSECONDS CONVERTING THE STRING         *
+;                                                         *
+;                                                         *
+;**********************************************************
+;         PAGE
 
 FFPAFP    MOVEQ     #0,D7                 ;CLEAR MANTISSA BUILD
           MOVEQ     #0,D6                 ;CLEAR SIGN+BASE10 BUILD
 
-* CHECK FOR LEADING SIGN
+; CHECK FOR LEADING SIGN
           BSR       FPANXT                ;OBTAIN NEXT CHARACTER
           BEQ.S     FPANMB                ;BRANCH DIGIT FOUND
           BCS.S     FPANOS                ;BRANCH NO SIGN ENCOUNTERED
 
-* LEADING SIGN ENCOUNTERED
+; LEADING SIGN ENCOUNTERED
           CMP.B     #'-',D5               ;COMPARE FOR MINUS
           SEQ       D6                    ;SET ONES IF SO
           SWAP      D6                    ;SIGN TO HIGH WORD IN D6
 
-* TEST FOR DIGIT OR PERIOD
+; TEST FOR DIGIT OR PERIOD
           BSR       FPANXT                ;OBTAIN NEXT CHARACTER
           BEQ.S     FPANMB                ;BRANCH DIGIT TO BUILD MANTISSA
 FPANOS    CMP.B     #'.',D5               ;? LEADING DECIMALPOINT
           BNE.S     FPABAD                ;BRANCH INVALID PATTERN IF NOT
 
-* INSURE AT LEAST ONE DIGIT
+; INSURE AT LEAST ONE DIGIT
           BSR       FPANXT                ;OBTAIN NEXT CHARACTER
           BEQ.S     FPADOF                ;BRANCH IF FRACTION DIGIT
 
-* INVALID PATTERN DETECTED
+; INVALID PATTERN DETECTED
 FPABAD    SUBQ.L    #1,A0                 ;POINT TO INVALID CHARACTER
           ORI.B     #$01,CCR              ;FORCE CARRY BIT ON
           RTS                             ;RETURN TO CALLER
 
-* PRE-DECIMALPOINT MANTISSA BUILD
+; PRE-DECIMALPOINT MANTISSA BUILD
 FPANXD    BSR       FPANXT                ;NEXT CHARACTER
           BNE.S     FPANOD                ;BRANCH NOT A DIGIT
 FPANMB    BSR.S     FPAX10                ;MULTIPLY TIMES TEN
           BCC.S     FPANXD                ;LOOP FOR MORE DIGITS
 
-* PRE-DECIMALPOINT MANTISSA OVERFLOW, COUNT TILL END OR DECIMAL REACHED
+; PRE-DECIMALPOINT MANTISSA OVERFLOW, COUNT TILL END OR DECIMAL REACHED
 FPAMOV    ADD.W     #1,D6                 ;INCREMENT TEN POWER BY ONE
           BSR.S     FPANXT                ;OBTAIN NEXT PATTERN
           BEQ.S     FPAMOV                ;LOOP UNTIL NON-DIGIT
           CMP.B     #'.',D5               ;? DECIMAL POINT REACHED
           BNE.S     FPATSE                ;NO, NO CHECK FOR EXPONENT
 
-* FLUSH REMAINING FRACTIONAL DIGITS
+; FLUSH REMAINING FRACTIONAL DIGITS
 FPASRD    BSR.S     FPANXT                ;NEXT CHARACTER
           BEQ.S     FPASRD                ;IGNORE IT IF STILL DIGIT
 FPATSE    CMP.B     #'E',D5               ;? EXPONENT HERE
           BNE.S     FPACNV                ;NO, FINISHED - GO CONVERT
 
-* NOW PROCESS THE EXPONENT
+; NOW PROCESS THE EXPONENT
           BSR.S     FPANXT                ;OBTAIN FIRST DIGIT
           BEQ.S     FPANTE                ;BRANCH GOT IT
           BCS.S     FPABAD                ;BRANCH INVALID FORMAT, NO SIGN OR DIGITS
@@ -591,7 +591,7 @@ FPATSE    CMP.B     #'E',D5               ;? EXPONENT HERE
           BSR.S     FPANXT                ;NOW TO FIRST DIGIT
           BNE.S     FPABAD                ;BRANCH INVALID - DIGIT EXPECTED
 
-* PROCESS EXPONENT'S DIGITS
+; PROCESS EXPONENT'S DIGITS
 FPANTE    MOVE.W    D5,D4                 ;COPY DIGIT JUST LOADED
 FPANXE    BSR.S     FPANXT                ;EXAMINE NEXT CHARACTER
           BNE.S     FPAFNE                ;BRANCH END OF EXPONENT
@@ -601,7 +601,7 @@ FPANXE    BSR.S     FPANXT                ;EXAMINE NEXT CHARACTER
           ADD.W     D5,D4                 ;ADD LATEST DIGIT
           BRA.S     FPANXE                ;LOOP FOR NEXT CHARACTER
 
-* ADJUST FOR SIGN AND ADD TO ORIGINAL INDEX
+; ADJUST FOR SIGN AND ADD TO ORIGINAL INDEX
 FPAFNE    TST.L     D6                    ;? WAS EXPONENT NEGATIVE
           BPL.S     FPAADP                ;BRANCH IF SO
           NEG.W     D4                    ;CONVERT TO NEGATIVE VALUE
@@ -609,11 +609,11 @@ FPAADP    ADD.W     D4,D6                 ;FINAL RESULT
 FPACNV    SUBQ.L    #1,A0                 ;POINT TO TERMINATION CHARACTER
           BRA       FFPDBF                ;NOW CONVERT TO FLOAT
 
-* PRE-DECIMALPOINT NON-DIGIT ENCOUNTERED
+; PRE-DECIMALPOINT NON-DIGIT ENCOUNTERED
 FPANOD    CMP.B     #'.',D5               ;? DECIMAL POINT HERE
           BNE.S     FPATSE                ;NOPE, TRY FOR THE 'E'
 
-* POST-DECIMALPOINT PROCESSING
+; POST-DECIMALPOINT PROCESSING
 FPADPN    BSR.S     FPANXT                ;OBTAIN NEXT CHARACTER
           BNE.S     FPATSE                ;NOT A DIGIT, TEST FOR 'E'
 FPADOF    BSR.S     FPAX10                ;TIMES TEN PREVIOUS VALUE
@@ -621,10 +621,10 @@ FPADOF    BSR.S     FPAX10                ;TIMES TEN PREVIOUS VALUE
           SUB.W     #1,D6                 ;ADJUST 10 POWER BIAS
           BRA.S     FPADPN                ;AND TO NEXT CHARACTER
 
-*   *
-*   * FPAX10 SUBROUTINE - PROCESS NEXT DIGIT
-*   *  OUTPUT: C=0 NO OVERFLOW, C=1 OVERFLOW (D7 UNALTERED)
-*   *
+;   *
+;   * FPAX10 SUBROUTINE - PROCESS NEXT DIGIT
+;   *  OUTPUT: C=0 NO OVERFLOW, C=1 OVERFLOW (D7 UNALTERED)
+;   *
 FPAX10    MOVE.L    D7,D3                 ;COPY VALUE
           LSL.L     #1,D3                 ;TIMES TWO
           BCS.S     FPAXRT                ;RETURN IF OVERFLOW
@@ -642,17 +642,17 @@ FPAX10    MOVE.L    D7,D3                 ;COPY VALUE
 FPAXRT    RTS                             ;RETURN TO CALLER
 
 
-*
-* FPANXT SUBROUTINE - RETURN NEXT INPUT PATTERN
-*
-*    INPUT:  A0
-*
-*    OUTPUT:  A0 INCREMENTED BY ONE
-*             IF Z=1 THEN DIGIT ENCOUNTERED AND D5.L SET TO BINARY VALUE
-*             IF Z=0 THEN D6.B SET TO CHARACTER ENCOUNTERED
-*                         AND C=0 IF PLUS OR MINUS SIGN
-*                             C=1 IF NOT PLUS OR MINUS SIGN
-*
+;
+; FPANXT SUBROUTINE - RETURN NEXT INPUT PATTERN
+;
+;    INPUT:  A0
+;
+;    OUTPUT:  A0 INCREMENTED BY ONE
+;             IF Z=1 THEN DIGIT ENCOUNTERED AND D5.L SET TO BINARY VALUE
+;             IF Z=0 THEN D6.B SET TO CHARACTER ENCOUNTERED
+;                         AND C=0 IF PLUS OR MINUS SIGN
+;                             C=1 IF NOT PLUS OR MINUS SIGN
+;
 
 FPANXT    MOVEQ     #0,D5                 ;ZERO RETURN REGISTER
           MOVE.B    (A0)+,D5              ;LOAD CHARACTER
@@ -664,101 +664,101 @@ FPANXT    MOVEQ     #0,D5                 ;ZERO RETURN REGISTER
           BCS.S     FPAOTR                ;BRANCH IF NON-SIGNDIGIT
           CMP.B     #'9',D5               ;? HIGHER THAN A DIGIT
           BHI.S     FPAOTR                ;BRANCH IF NON-SIGNDIGIT
-* IT IS A DIGIT
+; IT IS A DIGIT
           AND.B     #$0F,D5               ;TO BINARY
           MOVE.W    #$0004,CCR            ;SET Z=1 FOR DIGIT
           RTS                             ;RETURN TO CALLER
 
-* IT IS A SIGN
+; IT IS A SIGN
 FPASGN    MOVE.W    #$0000,CCR            ;CLEAR Z=0 AND C=0
           RTS                             ;RETURN TO CALLER
 
-* IT IS NEITHER SIGN NOR DIGIT
+; IT IS NEITHER SIGN NOR DIGIT
 FPAOTR    MOVE.W    #$0001,CCR            ;CLEAR Z=0 AND SET C=1
           RTS                             ;RETURN TO CALLER
 
-*         END
-*         TTL       FAST FLOATING POINT ASCII ROUND ROUTINE (FFPARND)
-****************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC.  *
-****************************************
+;         END
+;         TTL       FAST FLOATING POINT ASCII ROUND ROUTINE (FFPARND)
+;***************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC.  *
+;***************************************
 
-*FFPARND  IDNT      1,5                   ;FFP ASCII ROUND SUBROUTINE
-*         XDEF      FFPARND               ;ENTRY POINT
-*         SECTION   9
+;FFPARND  IDNT      1,5                   ;FFP ASCII ROUND SUBROUTINE
+;         XDEF      FFPARND               ;ENTRY POINT
+;         SECTION   9
 
-***********************************************
-*                  FFPARND                    *
-*           ASCII ROUND SUBROUTINE            *
-*                                             *
-*  THIS ROUTINE IS NORMALLY CALLED AFTER THE  *
-*  'FFPFPA' FLOAT TO ASCII ROUTINE AND ACTS   *
-*  UPON ITS RESULTS.                          *
-*                                             *
-*  INPUT:  D6 - ROUNDING MAGNITUDE IN BINARY  *
-*               AS EXPLAINED BELOW.           *
-*          D7 - BINARY REPRESENTATION OF THE  *
-*               BASE 10 EXPONENT.             *
-*          SP ->  RETURN ADDRESS AND OUTPUT   *
-*                 FROM FFPFPA ROUTINE         *
-*                                             *
-*  OUTPUT: THE ASCII VALUE ON THE STACK IS    *
-*          CORRECTLY ROUNDED                  *
-*                                             *
-*          THE CONDITION CODES ARE UNDEFINED  *
-*                                             *
-*          ALL REGISTERS TRANSPARENT          *
-*                                             *
-*     THE ROUNDING PRECISION REPRESENTS THE   *
-*     POWER OF TEN TO WHICH THE ROUNDING WILL *
-*     OCCUR.  (I.E. A -2 MEANS ROUND THE DIGIT*
-*     IN THE HUNDREDTH POSITION FOR RESULTANT *
-*     ROUNDING TO TENTHS.)  A POSITIVE VALUE  *
-*     INDICATES ROUNDING TO THE LEFT OF THE   *
-*     DECIMAL POINT (0 IS UNITS, 1 IS TENS    *
-*     E.T.C.)                                 *
-*                                             *
-*     THE BASE TEN EXPONENT IN BINARY IS D7   *
-*     FROM THE 'FFPFPA' ROUTINE OR COMPUTED BY*
-*     THE CALLER.                             *
-*                                             *
-*     THE STACK CONTAINS THE RETURN ADDRESS   *
-*     FOLLOWED BY THE ASCII NUMBER AS FROM    *
-*     THE 'FFPFPA' ROUTINE.  SEE THE          *
-*     DESCRIPTION OF THAT ROUTINE FOR THE     *
-*     REQUIRED FORMAT.                        *
-*                                             *
-*  EXAMPLE:                                   *
-*                                             *
-*  INPUT PATTERN '+.98765432+01' = 9.8765432  *
-*                                             *
-*     ROUND +1 IS +.00000000+00 =  0.         *
-*     ROUND  0 IS +.10000000+02 = 10.         *
-*     ROUND -1 IS +.10000000+02 = 10.         *
-*     ROUND -2 IS +.99000000+01 =  9.9        *
-*     ROUND -3 IS +.98800000+01 =  9.88       *
-*     ROUND -6 IS +.98765400+01 =  9.87654    *
-*                                             *
-*  NOTES:                                     *
-*     1) IF THE ROUNDING DIGIT IS TO THE LEFT *
-*        OF THE MOST SIGNIFICANT DIGIT, A ZERO*
-*        RESULTS.  IF THE ROUNDING DIGIT IS TO*
-*        THE RIGHT OF THE LEAST SIGNIFICANT   *
-*        DIGIT, THEN NO ROUNDING OCCURS       *
-*     2) ROUNDING IS HANDY FOR ELIMINATING THE*
-*        DANGLING '999...' PROBLEM COMMON WITH*
-*        FLOAT TO DECIMAL CONVERSIONS.        *
-*     3) POSITIONS FROM THE ROUNDED DIGIT AND *
-*        TO THE RIGHT ARE SET TO ZEROES.      *
-*     4) THE EXPONENT MAY BE AFFECTED.        *
-*     5) ROUNDING IS FORCED BY ADDING FIVE.   *
-*     6) THE BINARY EXPONENT IN D7 MAY BE     *
-*        PRE-BIASED BY THE CALLER TO PROVIDE  *
-*        ENHANCED EDITING CONTROL.            *
-*     7) THE RETURN ADDRESS IS REMOVED FROM   *
-*        THE STACK UPON EXIT.                 *
-***********************************************
-*         PAGE
+;**********************************************
+;                  FFPARND                    *
+;           ASCII ROUND SUBROUTINE            *
+;                                             *
+;  THIS ROUTINE IS NORMALLY CALLED AFTER THE  *
+;  'FFPFPA' FLOAT TO ASCII ROUTINE AND ACTS   *
+;  UPON ITS RESULTS.                          *
+;                                             *
+;  INPUT:  D6 - ROUNDING MAGNITUDE IN BINARY  *
+;               AS EXPLAINED BELOW.           *
+;          D7 - BINARY REPRESENTATION OF THE  *
+;               BASE 10 EXPONENT.             *
+;          SP ->  RETURN ADDRESS AND OUTPUT   *
+;                 FROM FFPFPA ROUTINE         *
+;                                             *
+;  OUTPUT: THE ASCII VALUE ON THE STACK IS    *
+;          CORRECTLY ROUNDED                  *
+;                                             *
+;          THE CONDITION CODES ARE UNDEFINED  *
+;                                             *
+;          ALL REGISTERS TRANSPARENT          *
+;                                             *
+;     THE ROUNDING PRECISION REPRESENTS THE   *
+;     POWER OF TEN TO WHICH THE ROUNDING WILL *
+;     OCCUR.  (I.E. A -2 MEANS ROUND THE DIGIT*
+;     IN THE HUNDREDTH POSITION FOR RESULTANT *
+;     ROUNDING TO TENTHS.)  A POSITIVE VALUE  *
+;     INDICATES ROUNDING TO THE LEFT OF THE   *
+;     DECIMAL POINT (0 IS UNITS, 1 IS TENS    *
+;     E.T.C.)                                 *
+;                                             *
+;     THE BASE TEN EXPONENT IN BINARY IS D7   *
+;     FROM THE 'FFPFPA' ROUTINE OR COMPUTED BY*
+;     THE CALLER.                             *
+;                                             *
+;     THE STACK CONTAINS THE RETURN ADDRESS   *
+;     FOLLOWED BY THE ASCII NUMBER AS FROM    *
+;     THE 'FFPFPA' ROUTINE.  SEE THE          *
+;     DESCRIPTION OF THAT ROUTINE FOR THE     *
+;     REQUIRED FORMAT.                        *
+;                                             *
+;  EXAMPLE:                                   *
+;                                             *
+;  INPUT PATTERN '+.98765432+01' = 9.8765432  *
+;                                             *
+;     ROUND +1 IS +.00000000+00 =  0.         *
+;     ROUND  0 IS +.10000000+02 = 10.         *
+;     ROUND -1 IS +.10000000+02 = 10.         *
+;     ROUND -2 IS +.99000000+01 =  9.9        *
+;     ROUND -3 IS +.98800000+01 =  9.88       *
+;     ROUND -6 IS +.98765400+01 =  9.87654    *
+;                                             *
+;  NOTES:                                     *
+;     1) IF THE ROUNDING DIGIT IS TO THE LEFT *
+;        OF THE MOST SIGNIFICANT DIGIT, A ZERO*
+;        RESULTS.  IF THE ROUNDING DIGIT IS TO*
+;        THE RIGHT OF THE LEAST SIGNIFICANT   *
+;        DIGIT, THEN NO ROUNDING OCCURS       *
+;     2) ROUNDING IS HANDY FOR ELIMINATING THE*
+;        DANGLING '999...' PROBLEM COMMON WITH*
+;        FLOAT TO DECIMAL CONVERSIONS.        *
+;     3) POSITIONS FROM THE ROUNDED DIGIT AND *
+;        TO THE RIGHT ARE SET TO ZEROES.      *
+;     4) THE EXPONENT MAY BE AFFECTED.        *
+;     5) ROUNDING IS FORCED BY ADDING FIVE.   *
+;     6) THE BINARY EXPONENT IN D7 MAY BE     *
+;        PRE-BIASED BY THE CALLER TO PROVIDE  *
+;        ENHANCED EDITING CONTROL.            *
+;     7) THE RETURN ADDRESS IS REMOVED FROM   *
+;        THE STACK UPON EXIT.                 *
+;**********************************************
+;         PAGE
 
 FFPARND   MOVEM.L   D7/A0,-(SP)           ;SAVE WORK ON STACK
           SUB.W     D6,D7                 ;COMPUTE ROUNDING DIGIT OFFSET
@@ -769,14 +769,14 @@ FFPARND   MOVEM.L   D7/A0,-(SP)           ;SAVE WORK ON STACK
           CMP.B     #'5',(A0)             ;? MUST ROUND UP
           BCC.S     FADORND               ;YEP - GO ROUND
           SUB.W     #1,D7                 ;? ROUND LEADING DIGIT ZERO (D7=1)
-          BNE.S     FAZEROL               ;NOPE, JUST ZERO OUT
+          BNE       FAZEROL               ;NOPE, JUST ZERO OUT
 FAFZRO    LEA       8+4+2(SP),A0          ;FORCE ZEROES ALL THE WAY ACROSS
           MOVE.L    #'E+00',8+4+10(SP)    ;FORCE ZERO EXPONENT
 
           MOVE.B    #'+',8+4(SP)          ;ZERO IS ALWAYS POSITIVE
           BRA.S     FAZEROL               ;ZERO MANTISSA THEN RETURN
 
-* ROUND UP MUST OCCUR
+; ROUND UP MUST OCCUR
 FADORND   MOVE.L    A0,-(SP)              ;SAVE ZERO START ADDRESS ON STACK
 FACARRY   CMP.B     #'.',-(A0)            ;? HIT BEGINNING
           BEQ.S     FASHIFT               ;YES, MUST SHIFT DOWN
@@ -786,7 +786,7 @@ FACARRY   CMP.B     #'.',-(A0)            ;? HIT BEGINNING
           MOVE.B    #'0',(A0)             ;FORCE ZERO FOR OVERFLOW
           BRA       FACARRY               ;LOOP FOR CARRY
 
-* OVERFLOW PAST TOP DIGIT - SHIFT RIGHT AND UP EXPONENT
+; OVERFLOW PAST TOP DIGIT - SHIFT RIGHT AND UP EXPONENT
 FASHIFT   ADD.L     #1,(SP)               ;ZERO PADD STARTS ONE LOWER NOW
           ADDQ.L    #1,A0                 ;BACK TO LEADING DIGIT
           MOVEQ     #$31,D7               ;DEFAULT FIRST DIGIT ASCII ONE
@@ -798,7 +798,7 @@ FASHFTR   SWAP      D7                    ;TO PREVIOUS DIGIT
           CMP.B     #'E',D7               ;? THE END
           BNE.S     FASHFTR               ;NO, SHIFT ANOTHER TO THE RIGHT
 
-* INCREMENT EXPONENT FOR SHIFT RIGHT
+; INCREMENT EXPONENT FOR SHIFT RIGHT
           CMP.B     #'+',1(A0)            ;? POSITIVE EXPONENT
           ADDQ.L    #3,A0                 ;POINT TO LEAST EXP DIGIT
           BNE.S     FANGEXP               ;BRANCH NEGATIVE EXPONENT
@@ -816,77 +816,77 @@ FANGOK    SUB.B     #1,(A0)               ;SUBTRACT ONE FROM EXPONENT
           BNE.S     FAZERO                ;NO, ZERO REMAINDER
           SUB.B     #1,-(A0)              ;BORROW FROM NEXT DIGIT
 
-* ZERO THE DIGITS PAST PRECISION REQUIRED
+; ZERO THE DIGITS PAST PRECISION REQUIRED
 FAZERO    MOVE.L    (SP)+,A0              ;RELOAD SAVED PRECISION
 FAZEROL   CMP.B     #'E',(A0)             ;? AT END
           BEQ.S     FARTN                 ;BRANCH IF SO
           MOVE.B    #'0',(A0)+            ;ZERO NEXT DIGIT
           BRA.S     FAZEROL               ;AND TEST AGAIN
 
-* RETURN TO THE CALLER
+; RETURN TO THE CALLER
 FARTN     MOVEM.L   (SP)+,D7/A0           ;RESTORE REGISTERS
           RTS                             ;RETURN TO CALLER
 
-*         END
-*         TTL       FAST FLOATING POINT ARCTANGENT (FFPATAN)
-***************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC. *
-***************************************
+;         END
+;         TTL       FAST FLOATING POINT ARCTANGENT (FFPATAN)
+;**************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC. *
+;**************************************
 
-*FFPATAN  IDNT      1,2                   ;FFP ARCTANGENT
-*         OPT       PCS
-*         SECTION   9
-*         XDEF      FFPATAN               ;ENTRY POINT
-*         XREF      9:FFPTHETA            ;ARCTANGENT TABLE
-*         XREF      9:FFPDIV,9:FFPSUB     ;ARITHMETIC PRIMITIVES
-*         XREF      9:FFPTNORM            ;TRANSCENDENTAL NORMALIZE ROUTINE
-*         XREF      FFPCPYRT              ;COPYRIGHT STUB
+;FFPATAN  IDNT      1,2                   ;FFP ARCTANGENT
+;         OPT       PCS
+;         SECTION   9
+;         XDEF      FFPATAN               ;ENTRY POINT
+;         XREF      9:FFPTHETA            ;ARCTANGENT TABLE
+;         XREF      9:FFPDIV,9:FFPSUB     ;ARITHMETIC PRIMITIVES
+;         XREF      9:FFPTNORM            ;TRANSCENDENTAL NORMALIZE ROUTINE
+;         XREF      FFPCPYRT              ;COPYRIGHT STUB
 
-*************************************************
-*                  FFPATAN                      *
-*       FAST FLOATING POINT ARCTANGENT          *
-*                                               *
-*  INPUT:   D7 - INPUT ARGUMENT                 *
-*                                               *
-*  OUTPUT:  D7 - ARCTANGENT RADIAN RESULT       *
-*                                               *
-*     ALL OTHER REGISTERS TOTALLY TRANSPARENT   *
-*                                               *
-*  CODE SIZE: 132 BYTES   STACK WORK: 32 BYTES  *
-*                                               *
-*  CONDITION CODES:                             *
-*        Z - SET IF THE RESULT IS ZERO          *
-*        N - CLEARED                            *
-*        V - CLEARED                            *
-*        C - UNDEFINED                          *
-*        X - UNDEFINED                          *
-*                                               *
-*                                               *
-*  NOTES:                                       *
-*    1) SPOT CHECKS SHOW AT LEAST SIX DIGIT     *
-*       PRECISION ON ALL SAMPLED CASES.         *
-*                                               *
-*  TIME: (8MHZ NO WAIT STATES ASSUMED)          *
-*                                               *
-*        THE TIME IS VERY DATA SENSITIVE WITH   *
-*        SAMPLE VALUES RANGING FROM 238 TO      *
-*        465 MICROSECONDS                       *
-*                                               *
-*************************************************
-*         PAGE
+;************************************************
+;                  FFPATAN                      *
+;       FAST FLOATING POINT ARCTANGENT          *
+;                                               *
+;  INPUT:   D7 - INPUT ARGUMENT                 *
+;                                               *
+;  OUTPUT:  D7 - ARCTANGENT RADIAN RESULT       *
+;                                               *
+;     ALL OTHER REGISTERS TOTALLY TRANSPARENT   *
+;                                               *
+;  CODE SIZE: 132 BYTES   STACK WORK: 32 BYTES  *
+;                                               *
+;  CONDITION CODES:                             *
+;        Z - SET IF THE RESULT IS ZERO          *
+;        N - CLEARED                            *
+;        V - CLEARED                            *
+;        C - UNDEFINED                          *
+;        X - UNDEFINED                          *
+;                                               *
+;                                               *
+;  NOTES:                                       *
+;    1) SPOT CHECKS SHOW AT LEAST SIX DIGIT     *
+;       PRECISION ON ALL SAMPLED CASES.         *
+;                                               *
+;  TIME: (8MHZ NO WAIT STATES ASSUMED)          *
+;                                               *
+;        THE TIME IS VERY DATA SENSITIVE WITH   *
+;        SAMPLE VALUES RANGING FROM 238 TO      *
+;        465 MICROSECONDS                       *
+;                                               *
+;************************************************
+;         PAGE
 
 PIOV2     EQU       $C90FDB41             ;FLOAT PI/2
 FPONEA    EQU       $80000041             ;FLOAT 1
 
-********************
-* ARCTANGENT ENTRY *
-********************
+;*******************
+; ARCTANGENT ENTRY *
+;*******************
 
-* SAVE REGISTERS AND PERFORM ARGUMENT REDUCTION
+; SAVE REGISTERS AND PERFORM ARGUMENT REDUCTION
 FFPATAN   MOVEM.L   D1-D6/A0,-(SP)        ;SAVE CALLER'S REGISTERS
           MOVE.B    D7,-(SP)              ;SAVE ORIGINAL SIGN ON STACK
           AND.B     #$7F,D7               ;TAKE ABSOLUTE VALUE OF ARG
-* INSURE LESS THAN ONE FOR CORDIC LOOP
+; INSURE LESS THAN ONE FOR CORDIC LOOP
           MOVE.L    #FPONEA,D6            ;LOAD UP 1
           CLR.B     -(SP)                 ;DEFAULT NO INVERSE REQUIRED
           CMP.B     D6,D7                 ;? LESS THAN ONE
@@ -894,13 +894,13 @@ FFPATAN   MOVEM.L   D1-D6/A0,-(SP)        ;SAVE CALLER'S REGISTERS
           BHI.S     FPARDC                ;HIGHER - MUST REDUCE
           CMP.L     D6,D7                 ;? LESS OR EQUAL TO ONE
           BLS.S     FPAINRG               ;BRANCH YES, IS IN RANGE
-* ARGUMENT > 1:  ATAN(1/X) =  PI/2 - ATAN(X)
+; ARGUMENT > 1:  ATAN(1/X) =  PI/2 - ATAN(X)
 FPARDC    NOT.B     (SP)                  ;FLAG INVERSE TAKEN
           EXG       D6,D7                 ;TAKE INVERSE OF ARGUMENT
           BSR       FFPDIV                ;PERFORM DIVIDE
 
-* PERFORM CORDIC FUNCTION
-* CONVERT TO BIN(31,29) PRECISION
+; PERFORM CORDIC FUNCTION
+; CONVERT TO BIN(31,29) PRECISION
 FPAINRG   SUB.B     #64+3,D7              ;ADJUST EXPONENT
           NEG.B     D7                    ;FOR SHIFT NECESSARY
           CMP.B     #31,D7                ;? TOO SMALL TO WORRY ABOUT
@@ -909,14 +909,14 @@ FPAINRG   SUB.B     #64+3,D7              ;ADJUST EXPONENT
           BRA.S     FPAZR1                ;BRANCH IF ZERO
 FPANOTZ   LSR.L     D7,D7                 ;SHIFT TO BIN(31,29) PRECISION
 
-*****************************************
-* CORDIC CALCULATION REGISTERS:         *
-* D1 - LOOP COUNT   A0 - TABLE POINTER  *
-* D2 - SHIFT COUNT                      *
-* D3 - Y'   D5 - Y                      *
-* D4 - X'   D6 - Z                      *
-* D7 - X                                *
-*****************************************
+;****************************************
+; CORDIC CALCULATION REGISTERS:         *
+; D1 - LOOP COUNT   A0 - TABLE POINTER  *
+; D2 - SHIFT COUNT                      *
+; D3 - Y'   D5 - Y                      *
+; D4 - X'   D6 - Z                      *
+; D7 - X                                *
+;****************************************
 
           MOVEQ     #0,D6                 ;Z=0
           MOVE.L    #1<<29,D5             ;Y=1
@@ -925,7 +925,7 @@ FPANOTZ   LSR.L     D7,D7                 ;SHIFT TO BIN(31,29) PRECISION
           MOVEQ     #1,D2                 ;PRIME SHIFT COUNTER
           BRA.S     CORDICA               ;ENTER CORDIC LOOP
 
-* CORDIC LOOP
+; CORDIC LOOP
 FPLPLSA   ASR.L     D2,D4                 ;SHIFT(X')
           ADD.L     D4,D5                 ;Y = Y + X'
           ADD.L     (A0),D6               ;Z = Z + ARCTAN(I)
@@ -940,7 +940,7 @@ FPLNLPA   SUB.L     D3,D7                 ;X = X - Y'
           LSR.L     #1,D3                 ;SHIFT(Y')
           DBRA      D1,FPLNLPA            ;AND LOOP UNTIL DONE
 
-* NOW CONVERT TO FLOAT AND RECONSTRUCT THE RESULT
+; NOW CONVERT TO FLOAT AND RECONSTRUCT THE RESULT
           BSR       FFPTNORM              ;FLOAT Z
 FPAZR1    MOVE.L    D6,D7                 ;COPY ANSWER TO D7
           TST.B     (SP)+                 ;? WAS INVERSE TAKEN
@@ -955,57 +955,57 @@ FPANINV   MOVE.B    (SP)+,D6              ;LOAD ORIGINAL SIGN
 FPARTN    MOVEM.L   (SP)+,D1-D6/A0        ;RESTORE CALLER'S REGISTERS
           RTS                             ;RETURN TO CALLER
 
-*         END
-*         TTL       FAST FLOATING POINT CMP/TST (FFPCMP/FFPTST)
-***************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC. *
-***************************************
+;         END
+;         TTL       FAST FLOATING POINT CMP/TST (FFPCMP/FFPTST)
+;**************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC. *
+;**************************************
 
-*FFPCMP   IDNT      1,3                   ;FFP CMP/TST
-*         XDEF      FFPCMP                ;FAST FLOATING POINT COMPARE
-*         XDEF      FFPTST                ;FAST FLOATING POINT TEST
-*         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
-*         SECTION   9
+;FFPCMP   IDNT      1,3                   ;FFP CMP/TST
+;         XDEF      FFPCMP                ;FAST FLOATING POINT COMPARE
+;         XDEF      FFPTST                ;FAST FLOATING POINT TEST
+;         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
+;         SECTION   9
 
-*************************************************************
-*                      FFPCMP                               *
-*              FAST FLOATING POINT COMPARE                  *
-*                                                           *
-*  INPUT:  D6 - FAST FLOATING POINT ARGUMENT (SOURCE)       *
-*          D7 - FAST FLOATING POINT ARGUMENT (DESTINATION)  *
-*                                                           *
-*  OUTPUT: CONDITION CODE REFLECTING THE FOLLOWING BRANCHES *
-*          FOR THE RESULT OF COMPARING THE DESTINATION      *
-*          MINUS THE SOURCE:                                *
-*                                                           *
-*                  GT - DESTINATION GREATER                 *
-*                  GE - DESTINATION GREATER OR EQUAL TO     *
-*                  EQ - DESTINATION EQUAL                   *
-*                  NE - DESTINATION NOT EQUAL               *
-*                  LT - DESTINATION LESS THAN               *
-*                  LE - DESTINATION LESS THAN OR EQUAL TO   *
-*                                                           *
-*      CONDITION CODES:                                     *
-*              N - CLEARED                                  *
-*              Z - SET IF RESULT IS ZERO                    *
-*              V - CLEARED                                  *
-*              C - UNDEFINED                                *
-*              X - UNDEFINED                                *
-*                                                           *
-*               ALL REGISTERS TRANSPARENT                   *
-*                                                           *
-*************************************************************
-*         PAGE
+;************************************************************
+;                      FFPCMP                               *
+;              FAST FLOATING POINT COMPARE                  *
+;                                                           *
+;  INPUT:  D6 - FAST FLOATING POINT ARGUMENT (SOURCE)       *
+;          D7 - FAST FLOATING POINT ARGUMENT (DESTINATION)  *
+;                                                           *
+;  OUTPUT: CONDITION CODE REFLECTING THE FOLLOWING BRANCHES *
+;          FOR THE RESULT OF COMPARING THE DESTINATION      *
+;          MINUS THE SOURCE:                                *
+;                                                           *
+;                  GT - DESTINATION GREATER                 *
+;                  GE - DESTINATION GREATER OR EQUAL TO     *
+;                  EQ - DESTINATION EQUAL                   *
+;                  NE - DESTINATION NOT EQUAL               *
+;                  LT - DESTINATION LESS THAN               *
+;                  LE - DESTINATION LESS THAN OR EQUAL TO   *
+;                                                           *
+;      CONDITION CODES:                                     *
+;              N - CLEARED                                  *
+;              Z - SET IF RESULT IS ZERO                    *
+;              V - CLEARED                                  *
+;              C - UNDEFINED                                *
+;              X - UNDEFINED                                *
+;                                                           *
+;               ALL REGISTERS TRANSPARENT                   *
+;                                                           *
+;************************************************************
+;         PAGE
 
-***********************
-* COMPARE ENTRY POINT *
-***********************
+;**********************
+; COMPARE ENTRY POINT *
+;**********************
 FFPCMP    TST.B     D6                    ;? FIRST NEGATIVE
           BPL.S     FFPCP                 ;NO FIRST IS POSITIVE
           TST.B     D7                    ;? SECOND NEGATIVE
           BPL.S     FFPCP                 ;NO, ONE IS POSITIVE
 
-* IF BOTH NEGATIVE THEN COMPARE MUST BE DONE BACKWARDS
+; IF BOTH NEGATIVE THEN COMPARE MUST BE DONE BACKWARDS
 
           CMP.B     D7,D6                 ;COMPARE SIGN AND EXPONENT ONLY FIRST
           BNE.S     FFPCRTN               ;RETURN IF THAT IS SUFFICIENT
@@ -1017,118 +1017,118 @@ FFPCP     CMP.B     D6,D7                 ;COMPARE SIGN AND EXPONENT ONLY FIRST
           CMP.L     D6,D7                 ;NO, COMPARE FULL LONGWORDS THEN
 FFPCRTN   RTS                             ;AND RETURN TO THE CALLER
 
-*        PAGE
-*************************************************************
-*                     FFPTST                                *
-*           FAST FLOATING POINT TEST                        *
-*                                                           *
-*  INPUT:  D7 - FAST FLOATING POINT ARGUMENT                *
-*                                                           *
-*  OUTPUT: CONDITION CODES SET FOR THE FOLLOWING BRANCHES:  *
-*                                                           *
-*                  EQ - ARGUMENT EQUALS ZERO                *
-*                  NE - ARGUMENT NOT EQUAL ZERO             *
-*                  PL - ARGUMENT IS POSITIVE (INCLUDES ZERO)*
-*                  MI - ARGUMENT IS NEGATIVE                *
-*                                                           *
-*      CONDITION CODES:                                     *
-*              N - SET IF RESULT IS NEGATIVE                *
-*              Z - SET IF RESULT IS ZERO                    *
-*              V - CLEARED                                  *
-*              C - UNDEFINED                                *
-*              X - UNDEFINED                                *
-*                                                           *
-*               ALL REGISTERS TRANSPARENT                   *
-*                                                           *
-*************************************************************
-*         PAGE
+;        PAGE
+;************************************************************
+;                     FFPTST                                *
+;           FAST FLOATING POINT TEST                        *
+;                                                           *
+;  INPUT:  D7 - FAST FLOATING POINT ARGUMENT                *
+;                                                           *
+;  OUTPUT: CONDITION CODES SET FOR THE FOLLOWING BRANCHES:  *
+;                                                           *
+;                  EQ - ARGUMENT EQUALS ZERO                *
+;                  NE - ARGUMENT NOT EQUAL ZERO             *
+;                  PL - ARGUMENT IS POSITIVE (INCLUDES ZERO)*
+;                  MI - ARGUMENT IS NEGATIVE                *
+;                                                           *
+;      CONDITION CODES:                                     *
+;              N - SET IF RESULT IS NEGATIVE                *
+;              Z - SET IF RESULT IS ZERO                    *
+;              V - CLEARED                                  *
+;              C - UNDEFINED                                *
+;              X - UNDEFINED                                *
+;                                                           *
+;               ALL REGISTERS TRANSPARENT                   *
+;                                                           *
+;************************************************************
+;         PAGE
 
-********************
-* TEST ENTRY POINT *
-********************
+;*******************
+; TEST ENTRY POINT *
+;*******************
 FFPTST    TST.B     D7                    ;RETURN TESTED CONDITION CODE
           RTS                             ;TO CALLER
 
-*         END
+;         END
 
-*         TTL       FAST FLOATING POINT DUAL-BINARY FLOAT (FFPDBF)
-************************************
-* (C) COPYRIGHT 1980 MOTORLA INC.  *
-************************************
+;         TTL       FAST FLOATING POINT DUAL-BINARY FLOAT (FFPDBF)
+;***********************************
+; (C) COPYRIGHT 1980 MOTORLA INC.  *
+;***********************************
 
-*FFPDBF   IDNT      1,1                   ;FFP DUAL-BINARY TO FLOAT
-*         OPT       PCS
-*         XDEF      FFPDBF                ;ENTRY POINT
-*         XREF      9:FFP10TBL            ;POWER OF TEN TABLE
-*         SECTION   9
+;FFPDBF   IDNT      1,1                   ;FFP DUAL-BINARY TO FLOAT
+;         OPT       PCS
+;         XDEF      FFPDBF                ;ENTRY POINT
+;         XREF      9:FFP10TBL            ;POWER OF TEN TABLE
+;         SECTION   9
 
-***********************************************************
-*                                                         *
-*          FAST FLOATING POINT DUAL-BINARY TO FLOAT       *
-*                                                         *
-*      INPUT:  D6 BIT #16 - REPRESENTS SIGN (0=POSITIVE)  *
-*                                           (1=NEGATIVE)  *
-*              D6.W - REPRESENTS BASE TEN EXPONENT        *
-*                     CONSIDERING D7 A BINARY INTEGER     *
-*              D7 -   BINARY INTEGER MANTISSA             *
-*                                                         *
-*      OUTPUT: D7 - FAST FLOATING POINT EQUIVALENT        *
-*                                                         *
-*      CONDITION CODES:                                   *
-*                N - SET IF RESULT IS NEGATIVE            *
-*                Z - SET IF RESULT IS ZERO                *
-*                V - SET IF RESULT OVERFLOWED             *
-*                C - CLEARED                              *
-*                X - UNDEFINED                            *
-*                                                         *
-*      REGISTERS D3 THRU D6 DESTROYED                     *
-*                                                         *
-*      CODE SIZE: 164 BYTES     STACK WORK AREA: 4 BYTES  *
-*                                                         *
-*                                                         *
-*      FLOATING POINT RANGE:                              *
-*                                                         *
-*          FAST FLOATING POINT SUPPORTS THE VALUE ZERO    *
-*          AND NON-ZERO VALUES WITHIN THE FOLLOWING       *
-*          BOUNDS -                                       *
-*                                                         *
-* BASE 10                                                 *
-*                  18                             -20     *
-*   9.22337177 X 10   > +NUMBER >  5.42101070 X 10        *
-*                                                         *
-*                  18                             -20     *
-*  -9.22337177 X 10   > -NUMBER > -2.71050535 X 10        *
-*                                                         *
-* BASE 2                                                  *
-*                   63                            -63     *
-*      .FFFFFF  X  2   > +NUMBER >  .FFFFFF  X  2         *
-*                                                         *
-*                   63                            -64     *
-*     -.FFFFFF  X  2   > -NUMBER > -.FFFFFF  X  2         *
-*                                                         *
-*      PRECISION:                                         *
-*                                                         *
-*          THIS CONVERSION RESULTS IN A 24 BIT PRECISION  *
-*          WITH GUARANTEED ERROR LESS THAN OR EQUAL TO    *
-*          ONE-HALF LEAST SIGNIFICANT BIT.                *
-*                                                         *
-*                                                         *
-*      NOTES:                                             *
-*          1) THE INPUT FORMATS HAVE BEEN DESIGNED FOR    *
-*             EASE OF PARSING TEXT FOR CONVERSION TO      *
-*             FLOATING POINT.  SEE FFPASF FOR COMMENTS    *
-*             DESCRIBING THE METHOD FOR SETUP TO THIS     *
-*             ROUTINE.                                    *
-*          2) UNDERFLOWS RETURN A ZERO WITHOUT ANY        *
-*             INDICATORS SET.                             *
-*          3) OVERFLOWS WILL RETURN THE MAXIMUM VALUE     *
-*             POSSIBLE WITH PROPER SIGN AND THE 'V' BIT   *
-*             SET IN THE CCR REGISTER.                    *
-*                                                         *
-***********************************************************
-*         PAGE
+;**********************************************************
+;                                                         *
+;          FAST FLOATING POINT DUAL-BINARY TO FLOAT       *
+;                                                         *
+;      INPUT:  D6 BIT #16 - REPRESENTS SIGN (0=POSITIVE)  *
+;                                           (1=NEGATIVE)  *
+;              D6.W - REPRESENTS BASE TEN EXPONENT        *
+;                     CONSIDERING D7 A BINARY INTEGER     *
+;              D7 -   BINARY INTEGER MANTISSA             *
+;                                                         *
+;      OUTPUT: D7 - FAST FLOATING POINT EQUIVALENT        *
+;                                                         *
+;      CONDITION CODES:                                   *
+;                N - SET IF RESULT IS NEGATIVE            *
+;                Z - SET IF RESULT IS ZERO                *
+;                V - SET IF RESULT OVERFLOWED             *
+;                C - CLEARED                              *
+;                X - UNDEFINED                            *
+;                                                         *
+;      REGISTERS D3 THRU D6 DESTROYED                     *
+;                                                         *
+;      CODE SIZE: 164 BYTES     STACK WORK AREA: 4 BYTES  *
+;                                                         *
+;                                                         *
+;      FLOATING POINT RANGE:                              *
+;                                                         *
+;          FAST FLOATING POINT SUPPORTS THE VALUE ZERO    *
+;          AND NON-ZERO VALUES WITHIN THE FOLLOWING       *
+;          BOUNDS -                                       *
+;                                                         *
+; BASE 10                                                 *
+;                  18                             -20     *
+;   9.22337177 X 10   > +NUMBER >  5.42101070 X 10        *
+;                                                         *
+;                  18                             -20     *
+;  -9.22337177 X 10   > -NUMBER > -2.71050535 X 10        *
+;                                                         *
+; BASE 2                                                  *
+;                   63                            -63     *
+;      .FFFFFF  X  2   > +NUMBER >  .FFFFFF  X  2         *
+;                                                         *
+;                   63                            -64     *
+;     -.FFFFFF  X  2   > -NUMBER > -.FFFFFF  X  2         *
+;                                                         *
+;      PRECISION:                                         *
+;                                                         *
+;          THIS CONVERSION RESULTS IN A 24 BIT PRECISION  *
+;          WITH GUARANTEED ERROR LESS THAN OR EQUAL TO    *
+;          ONE-HALF LEAST SIGNIFICANT BIT.                *
+;                                                         *
+;                                                         *
+;      NOTES:                                             *
+;          1) THE INPUT FORMATS HAVE BEEN DESIGNED FOR    *
+;             EASE OF PARSING TEXT FOR CONVERSION TO      *
+;             FLOATING POINT.  SEE FFPASF FOR COMMENTS    *
+;             DESCRIBING THE METHOD FOR SETUP TO THIS     *
+;             ROUTINE.                                    *
+;          2) UNDERFLOWS RETURN A ZERO WITHOUT ANY        *
+;             INDICATORS SET.                             *
+;          3) OVERFLOWS WILL RETURN THE MAXIMUM VALUE     *
+;             POSSIBLE WITH PROPER SIGN AND THE 'V' BIT   *
+;             SET IN THE CCR REGISTER.                    *
+;                                                         *
+;**********************************************************
+;         PAGE
 
-* NORMALIZE THE INPUT BINARY MANTISSA
+; NORMALIZE THE INPUT BINARY MANTISSA
 FFPDBF    MOVEQ     #32,D5                ;SETUP BASE 2 EXPONENT MAX
           TST.L     D7                    ;? TEST FOR ZERO
           BEQ       FPDRTN1               ;RETURN, NO CONVERSION NEEDED
@@ -1137,9 +1137,9 @@ FFPDBF    MOVEQ     #32,D5                ;SETUP BASE 2 EXPONENT MAX
 FPDNMI    ADD.L     D7,D7                 ;SHIFT UP BY ONE
           DBMI      D5,FPDNMI             ;DECREMENT AND LOOP IF NOT YET
 
-* INSURE INPUT 10 POWER INDEX NOT WAY OFF BASE
+; INSURE INPUT 10 POWER INDEX NOT WAY OFF BASE
 FPDINM    CMP.W     #18,D6                ;? WAY TOO LARGE
-          BGT.S     FPDOVF1               ;BRANCH OVERFLOW
+          BGT       FPDOVF1               ;BRANCH OVERFLOW
           CMP.W     #-28,D6               ;? WAY TOO SMALL
           BLT.S     FPDRT0                ;RETURN ZERO IF UNDERFLOW
           MOVE.W    D6,D4                 ;COPY 10 POWER INDEX
@@ -1150,7 +1150,7 @@ FPDINM    CMP.W     #18,D6                ;? WAY TOO LARGE
           ADD.W     0(A0,D4.W),D5         ;ADD EXPONENTS FOR MULTIPLY
           MOVE.W    D5,D6                 ;SAVE RESULT EXPONENT IN D6.W
 
-* NOW PERFORM 32 BIT MULTIPLY OF INPUT WITH POWER OF TEN TABLE
+; NOW PERFORM 32 BIT MULTIPLY OF INPUT WITH POWER OF TEN TABLE
           MOVE.L    2(A0,D4.W),D3         ;LOAD TABLE MANTISSA VALUE
           MOVE.L    (SP),A0               ;RESTORE WORK REGISTER
           MOVE.L    D3,(SP)               ;NOW SAVE TABLE MANTISSA ON STACK
@@ -1191,11 +1191,11 @@ FPDROK    MOVEQ     #9,D3                 ;PREPARE TO FINALIZE EXPONENT TO 7 BIT
           BEQ.S     FPDRT0                ;RETURN ZERO IF EXPONENT ZERO
 FPDRTN1   RTS                             ;RETURN TO CALLER
 
-* RETURN ZERO FOR UNDERFLOW
+; RETURN ZERO FOR UNDERFLOW
 FPDRT0    MOVEQ     #0,D7                 ;RETURN ZERO
           RTS                             ;RETURN TO CALLER
 
-* EXPONENT OVERFLOW/UNDERFLOW
+; EXPONENT OVERFLOW/UNDERFLOW
 FPDXOV    TST.W     D4                    ;TEST ORIGINAL SIGN
           BMI.S     FPDRT0                ;BRANCH UNDERFLOW TO RETURN ZERO
 FPDOVF1   MOVEQ     #-1,D7                ;CREATE ALL ONES
@@ -1206,80 +1206,80 @@ FPDOVF1   MOVEQ     #-1,D7                ;CREATE ALL ONES
           ORI.B     #$02,CCR              ;SET OVERFLOW BIT
           RTS                             ;RETURN TO CALLER WITH OVERFLOW
 
-*         END
-*         TTL       FAST FLOATING POINT DIVIDE (FFPDIV)
-*****************************************
-*  (C) COPYRIGHT 1980 BY MOTOROLA INC.  *
-*****************************************
+;         END
+;         TTL       FAST FLOATING POINT DIVIDE (FFPDIV)
+;****************************************
+;  (C) COPYRIGHT 1980 BY MOTOROLA INC.  *
+;****************************************
 
-*FFPDIV   IDNT      1,4                   ;FFP DIVIDE
-*         XDEF      FFPDIV                ;ENTRY POINT
-*         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
-*         SECTION   9
+;FFPDIV   IDNT      1,4                   ;FFP DIVIDE
+;         XDEF      FFPDIV                ;ENTRY POINT
+;         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
+;         SECTION   9
 
-********************************************
-*           FFPDIV SUBROUTINE              *
-*                                          *
-* INPUT:                                   *
-*        D6 - FLOATING POINT DIVISOR       *
-*        D7 - FLOATING POINT DIVIDEND      *
-*                                          *
-* OUTPUT:                                  *
-*        D7 - FLOATING POINT QUOTIENT      *
-*                                          *
-* CONDITION CODES:                         *
-*        N - SET IF RESULT NEGATIVE        *
-*        Z - SET IF RESULT ZERO            *
-*        V - SET IF RESULT OVERFLOWED      *
-*        C - UNDEFINED                     *
-*        X - UNDEFINED                     *
-*                                          *
-* REGISTERS D3 THRU D5 VOLATILE            *
-*                                          *
-* CODE: 150 BYTES     STACK WORK: 0 BYTES  *
-*                                          *
-* NOTES:                                   *
-*   1) DIVISOR IS UNALTERED (D6).          *
-*   2) UNDERFLOWS RETURN ZERO WITHOUT      *
-*      ANY INDICATORS SET.                 *
-*   3) OVERFLOWS RETURN THE HIGHEST VALUE  *
-*      WITH THE PROPER SIGN AND THE 'V'    *
-*      BIT SET IN THE CCR.                 *
-*   4) IF A DIVIDE BY ZERO IS ATTEMPTED    *
-*      THE DIVIDE BY ZERO EXCEPTION TRAP   *
-*      IS FORCED BY THIS CODE WITH THE     *
-*      ORIGINAL ARGUMENTS INTACT.  IF THE  *
-*      EXCEPTION RETURNS WITH THE DENOM-   *
-*      INATOR ALTERED THE DIVIDE OPERATION *
-*      CONTINUES, OTHERWISE AN OVERFLOW    *
-*      IS FORCED WITH THE PROPER SIGN.     *
-*      THE FLOATING DIVIDE BY ZERO CAN BE  *
-*      DISTINGUISHED FROM TRUE ZERO DIVIDE *
-*      BY THE FACT THAT IT IS AN IMMEDIATE *
-*      ZERO DIVIDING INTO REGISTER D7.     *
-*                                          *
-* TIME: (8 MHZ NO WAIT STATES ASSUMED)     *
-* DIVIDEND ZERO         5.250 MICROSECONDS *
-* MINIMUM TIME OTHERS  72.750 MICROSECONDS *
-* MAXIMUM TIME OTHERS  85.000 MICROSECONDS *
-* AVERAGE OTHERS       76.687 MICROSECONDS *
-*                                          *
-********************************************
-*         PAGE
+;*******************************************
+;           FFPDIV SUBROUTINE              *
+;                                          *
+; INPUT:                                   *
+;        D6 - FLOATING POINT DIVISOR       *
+;        D7 - FLOATING POINT DIVIDEND      *
+;                                          *
+; OUTPUT:                                  *
+;        D7 - FLOATING POINT QUOTIENT      *
+;                                          *
+; CONDITION CODES:                         *
+;        N - SET IF RESULT NEGATIVE        *
+;        Z - SET IF RESULT ZERO            *
+;        V - SET IF RESULT OVERFLOWED      *
+;        C - UNDEFINED                     *
+;        X - UNDEFINED                     *
+;                                          *
+; REGISTERS D3 THRU D5 VOLATILE            *
+;                                          *
+; CODE: 150 BYTES     STACK WORK: 0 BYTES  *
+;                                          *
+; NOTES:                                   *
+;   1) DIVISOR IS UNALTERED (D6).          *
+;   2) UNDERFLOWS RETURN ZERO WITHOUT      *
+;      ANY INDICATORS SET.                 *
+;   3) OVERFLOWS RETURN THE HIGHEST VALUE  *
+;      WITH THE PROPER SIGN AND THE 'V'    *
+;      BIT SET IN THE CCR.                 *
+;   4) IF A DIVIDE BY ZERO IS ATTEMPTED    *
+;      THE DIVIDE BY ZERO EXCEPTION TRAP   *
+;      IS FORCED BY THIS CODE WITH THE     *
+;      ORIGINAL ARGUMENTS INTACT.  IF THE  *
+;      EXCEPTION RETURNS WITH THE DENOM-   *
+;      INATOR ALTERED THE DIVIDE OPERATION *
+;      CONTINUES, OTHERWISE AN OVERFLOW    *
+;      IS FORCED WITH THE PROPER SIGN.     *
+;      THE FLOATING DIVIDE BY ZERO CAN BE  *
+;      DISTINGUISHED FROM TRUE ZERO DIVIDE *
+;      BY THE FACT THAT IT IS AN IMMEDIATE *
+;      ZERO DIVIDING INTO REGISTER D7.     *
+;                                          *
+; TIME: (8 MHZ NO WAIT STATES ASSUMED)     *
+; DIVIDEND ZERO         5.250 MICROSECONDS *
+; MINIMUM TIME OTHERS  72.750 MICROSECONDS *
+; MAXIMUM TIME OTHERS  85.000 MICROSECONDS *
+; AVERAGE OTHERS       76.687 MICROSECONDS *
+;                                          *
+;*******************************************
+;         PAGE
 
-* DIVIDE BY ZERO EXIT
+; DIVIDE BY ZERO EXIT
 FPDDZR    DIVU.W    #0,D7                 ;**FORCE DIVIDE BY ZERO **
 
-* IF THE EXCEPTION RETURNS WITH ALTERED DENOMINATOR - CONTINUE DIVIDE
+; IF THE EXCEPTION RETURNS WITH ALTERED DENOMINATOR - CONTINUE DIVIDE
           TST.L     D6                    ;? EXCEPTION ALTER THE ZERO
           BNE.S     FFPDIV                ;BRANCH IF SO TO CONTINUE
-* SETUP MAXIMUM NUMBER FOR DIVIDE OVERFLOW
+; SETUP MAXIMUM NUMBER FOR DIVIDE OVERFLOW
 FPDOVF    OR.L      #$FFFFFF7F,D7         ;MAXIMIZE WITH PROPER SIGN
           TST.B     D7                    ;SET CONDITION CODE FOR SIGN
           OR.B      #$02,CCR              ;SET OVERFLOW BIT
 FPDRTN    RTS                             ;RETURN TO CALLER
 
-* OVER OR UNDERFLOW DETECTED
+; OVER OR UNDERFLOW DETECTED
 FPDOV2    SWAP      D6                    ;RESTORE ARG1
           SWAP      D7                    ;RESTORE ARG2 FOR SIGN
 FPDOVFS   EOR.B     D6,D7                 ;SETUP CORRECT SIGN
@@ -1288,11 +1288,11 @@ FPDOUF    BMI.S     FPDOVFS               ;BRANCH IF OVERFLOW
 FPDUND    MOVEQ     #0,D7                 ;UNDERFLOW TO ZERO
           RTS                             ;AND RETURN TO CALLER
 
-***************
-* ENTRY POINT *
-***************
+;**************
+; ENTRY POINT *
+;**************
 
-* FIRST SUBTRACT EXPONENTS
+; FIRST SUBTRACT EXPONENTS
 FFPDIV    MOVE.B    D6,D5                 ;COPY ARG1 (DIVISOR)
           BEQ.S     FPDDZR                ;BRANCH IF DIVIDE BY ZERO
           MOVE.L    D7,D4                 ;COPY ARG2 (DIVIDEND)
@@ -1309,7 +1309,7 @@ FFPDIV    MOVE.B    D6,D5                 ;COPY ARG1 (DIVISOR)
           SWAP      D6                    ;AGAINST ARG1 AND ARG2
           CMP.W     D6,D7                 ;? CHECK IF OVERFLOW WILL OCCUR
           BMI.S     FPDNOV                ;BRANCH IF NOT
-* ADJUST FOR FIXED POINT DIVIDE OVERFLOW
+; ADJUST FOR FIXED POINT DIVIDE OVERFLOW
           ADD.B     #2,D4                 ;ADJUST EXPONENT UP ONE
           BVS.S     FPDOV2                ;BRANCH OVERFLOW HERE
           ROR.L     #1,D7                 ;SHIFT DOWN BY POWER OF TWO
@@ -1318,15 +1318,15 @@ FPDNOV    SWAP      D7                    ;CORRECT ARG2
           EOR.W     D5,D4                 ;CREATE SIGN AND ABSOLUTIZE EXPONENT
           LSR.W     #1,D4                 ;D4.B NOW HAS SIGN+EXPONENT OF RESULT
 
-* NOW DIVIDE JUST USING 16 BITS INTO 24
+; NOW DIVIDE JUST USING 16 BITS INTO 24
           MOVE.L    D7,D3                 ;COPY ARG1 FOR INITIAL DIVIDE
           DIVU.W    D6,D3                 ;OBTAIN TEST QUOTIENT
           MOVE.W    D3,D5                 ;SAVE TEST QUOTIENT
 
-* NOW MULTIPLY 16-BIT DIVIDE RESULT TIMES FULL 24 BIT DIVISOR AND COMPARE
-* WITH THE DIVIDEND.  MULTIPLYING BACK OUT WITH THE FULL 24-BITS ALLOWS
-* US TO SEE IF THE RESULT WAS TOO LARGE DUE TO THE 8 MISSING DIVISOR BITS
-* USED IN THE HARDWARE DIVIDE.  THE RESULT CAN ONLY BE TOO LARGE BY 1 UNIT.
+; NOW MULTIPLY 16-BIT DIVIDE RESULT TIMES FULL 24 BIT DIVISOR AND COMPARE
+; WITH THE DIVIDEND.  MULTIPLYING BACK OUT WITH THE FULL 24-BITS ALLOWS
+; US TO SEE IF THE RESULT WAS TOO LARGE DUE TO THE 8 MISSING DIVISOR BITS
+; USED IN THE HARDWARE DIVIDE.  THE RESULT CAN ONLY BE TOO LARGE BY 1 UNIT.
           MULU.W    D6,D3                 ;HIGH DIVISOR X QUOTIENT
           SUB.L     D3,D7                 ;D7=PARTIAL SUBTRACTION
           SWAP      D7                    ;TO LOW DIVISOR
@@ -1337,30 +1337,30 @@ FPDNOV    SWAP      D7                    ;CORRECT ARG2
           SUB.L     D3,D7                 ;NOW HAVE FULL SUBTRACTION
           BCC.S     FPDQOK                ;BRANCH FIRST 16 BITS CORRECT
 
-* ESTIMATE TOO HIGH, DECREMENT QUOTIENT BY ONE
+; ESTIMATE TOO HIGH, DECREMENT QUOTIENT BY ONE
 FPDCRT    SUB.W     #1,D5                 ;DOWN ANOTHER DIVISOR                    V1,4
           ADD.L     D6,D7                 ;ADJUST UP BY DIVISOR                    V1,4
           BCC       FPDCRT                ;ADJUST MORE IF NOT BACK TO POSITIVE     V1,4
 
-* COMPUTE LAST 8 BITS WITH ANOTHER DIVIDE.  THE EXACT REMAINDER FROM THE
-* MULTIPLY AND COMPARE ABOVE IS DIVIDED AGAIN BY A 16-BIT ONLY DIVISOR.
-* HOWEVER, THIS TIME WE REQUIRE ONLY 9 BITS OF ACCURACY IN THE RESULT
-* (8 TO MAKE 24 BITS TOTAL AND 1 EXTRA BIT FOR ROUNDING PURPOSES) AND THIS
-* DIVIDE ALWAYS RETURNS A PRECISION OF AT LEAST 9 BITS.
+; COMPUTE LAST 8 BITS WITH ANOTHER DIVIDE.  THE EXACT REMAINDER FROM THE
+; MULTIPLY AND COMPARE ABOVE IS DIVIDED AGAIN BY A 16-BIT ONLY DIVISOR.
+; HOWEVER, THIS TIME WE REQUIRE ONLY 9 BITS OF ACCURACY IN THE RESULT
+; (8 TO MAKE 24 BITS TOTAL AND 1 EXTRA BIT FOR ROUNDING PURPOSES) AND THIS
+; DIVIDE ALWAYS RETURNS A PRECISION OF AT LEAST 9 BITS.
 FPDQOK    MOVE.L    D6,D3                 ;COPY ARG1 AGAIN
           SWAP      D3                    ;FIRST 16 BITS DIVISOR IN D3.W
           CLR.W     D7                    ;INTO FIRST 16 BITS OF DIVIDEND
           DIVU.W    D3,D7                 ;OBTAIN FINAL 16 BIT RESULT
           SWAP      D5                    ;FIRST 16 QUOTIENT TO HIGH HALF
           BMI.S     FPDISN                ;BRANCH IF NORMALIZED
-* RARE OCCURRANCE - UNNORMALIZED
-* HAPPENDS WHEN MANTISSA ARG1 < ARG2 AND THEY DIFFER ONLY IN LAST 8 BITS
+; RARE OCCURRANCE - UNNORMALIZED
+; HAPPENDS WHEN MANTISSA ARG1 < ARG2 AND THEY DIFFER ONLY IN LAST 8 BITS
           MOVE.W    D7,D5                 ;INSERT LOW WORD OF QUOTIENT
           ADD.L     D5,D5                 ;SHIFT MANTISSA LEFT ONE
           SUB.B     #1,D4                 ;ADJUST EXPONENT DOWN (CANNOT ZERO)
           MOVE.W    D5,D7                 ;CANCEL NEXT INSTRUCTION
 
-* REBUILD OUR FINAL RESULT AND RETURN
+; REBUILD OUR FINAL RESULT AND RETURN
 FPDISN    MOVE.W    D7,D5                 ;APPEND NEXT 16 BITS
           ADD.L     #$80,D5               ;ROUND TO 24 BITS (CANNOT OVERFLOW)
           MOVE.L    D5,D7                 ;RETURN IN D7
@@ -1368,70 +1368,70 @@ FPDISN    MOVE.W    D7,D5                 ;APPEND NEXT 16 BITS
           BEQ.S     FPDUND                ;UNDERFLOW IF ZERO EXPONENT
           RTS                             ;RETURN RESULT TO CALLER
 
-*         END
-*         TTL       FAST FLOATING POINT EXPONENT (FFPEXP)
-***************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC. *
-***************************************
+;         END
+;         TTL       FAST FLOATING POINT EXPONENT (FFPEXP)
+;**************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC. *
+;**************************************
 
-*FFPEXP   IDNT      1,2                   ;FFP EXP
-*         OPT       PCS
-*         SECTION   9
-*         XDEF      FFPEXP                ;ENTRY POINT
-*         XREF      9:FFPHTHET            ;HYPERTANGENT TABLE
-*         XREF      9:FFPMUL,9:FFPSUB     ;ARITHMETIC PRIMITIVES
-*         XREF      9:FFPTNORM            ;TRANSCENDENTAL NORMALIZE ROUTINE
-*         XREF      FFPCPYRT              ;COPYRIGHT STUB
+;FFPEXP   IDNT      1,2                   ;FFP EXP
+;         OPT       PCS
+;         SECTION   9
+;         XDEF      FFPEXP                ;ENTRY POINT
+;         XREF      9:FFPHTHET            ;HYPERTANGENT TABLE
+;         XREF      9:FFPMUL,9:FFPSUB     ;ARITHMETIC PRIMITIVES
+;         XREF      9:FFPTNORM            ;TRANSCENDENTAL NORMALIZE ROUTINE
+;         XREF      FFPCPYRT              ;COPYRIGHT STUB
 
-*************************************************
-*                  FFPEXP                       *
-*       FAST FLOATING POINT EXPONENT            *
-*                                               *
-*  INPUT:   D7 - INPUT ARGUMENT                 *
-*                                               *
-*  OUTPUT:  D7 - EXPONENTIAL RESULT             *
-*                                               *
-*     ALL OTHER REGISTERS ARE TRANSPARENT       *
-*                                               *
-*  CODE SIZE: 256 BYTES   STACK WORK: 34 BYTES  *
-*                                               *
-*  CONDITION CODES:                             *
-*        Z - SET IF RESULT IN D7 IS ZERO        *
-*        N - CLEARED                            *
-*        V - SET IF OVERLOW OCCURRED            *
-*        C - UNDEFINED                          *
-*        X - UNDEFINED                          *
-*                                               *
-*                                               *
-*  NOTES:                                       *
-*    1) AN OVERFLOW RETURNS THE LARGEST         *
-*       MAGNITUDE NUMBER.                       *
-*    2) SPOT CHECKS SHOW AT LEAST 6.8 DIGIT     *
-*       ACCURACY FOR ALL ABS(ARG) < 30.         *
-*                                               *
-*  TIME: (8MHZ NO WAIT STATES ASSUMED)          *
-*                                               *
-*              488 MICROSECONDS                 *
-*                                               *
-*  LOGIC:   1) FIND N = INT(ARG/LN 2).  THIS IS *
-*              ADDED TO THE MANTISSA AT THE END.*
-*           3) REDUCE ARGUMENT TO RANGE BY      *
-*              FINDING ARG = MOD(ARG, LN 2).    *
-*           4) DERIVE EXP(ARG) WITH CORDIC LOOP.*
-*           5) ADD N TO EXPONENT GIVING RESULT. *
-*                                               *
-*************************************************
-*         PAGE
+;************************************************
+;                  FFPEXP                       *
+;       FAST FLOATING POINT EXPONENT            *
+;                                               *
+;  INPUT:   D7 - INPUT ARGUMENT                 *
+;                                               *
+;  OUTPUT:  D7 - EXPONENTIAL RESULT             *
+;                                               *
+;     ALL OTHER REGISTERS ARE TRANSPARENT       *
+;                                               *
+;  CODE SIZE: 256 BYTES   STACK WORK: 34 BYTES  *
+;                                               *
+;  CONDITION CODES:                             *
+;        Z - SET IF RESULT IN D7 IS ZERO        *
+;        N - CLEARED                            *
+;        V - SET IF OVERLOW OCCURRED            *
+;        C - UNDEFINED                          *
+;        X - UNDEFINED                          *
+;                                               *
+;                                               *
+;  NOTES:                                       *
+;    1) AN OVERFLOW RETURNS THE LARGEST         *
+;       MAGNITUDE NUMBER.                       *
+;    2) SPOT CHECKS SHOW AT LEAST 6.8 DIGIT     *
+;       ACCURACY FOR ALL ABS(ARG) < 30.         *
+;                                               *
+;  TIME: (8MHZ NO WAIT STATES ASSUMED)          *
+;                                               *
+;              488 MICROSECONDS                 *
+;                                               *
+;  LOGIC:   1) FIND N = INT(ARG/LN 2).  THIS IS *
+;              ADDED TO THE MANTISSA AT THE END.*
+;           3) REDUCE ARGUMENT TO RANGE BY      *
+;              FINDING ARG = MOD(ARG, LN 2).    *
+;           4) DERIVE EXP(ARG) WITH CORDIC LOOP.*
+;           5) ADD N TO EXPONENT GIVING RESULT. *
+;                                               *
+;************************************************
+;         PAGE
 
 LN2       EQU       $B1721840             ;LN 2 (BASE E)             .693147180
 LN2INV    EQU       $B8AA3B41             ;INVERSE OF LN 2 (BASE E) 1.44269504
 CNJKHINV  EQU       $9A8F4441             ;FLOATING CONJUGATE OF K INVERSE
-*                                          CORRECTED FOR THE EXTRA CONVERGENCE
-*                                          DURING SHIFTS FOR 4 AND 13
+;                                          CORRECTED FOR THE EXTRA CONVERGENCE
+;                                          DURING SHIFTS FOR 4 AND 13
 KFCTSEED  EQU       $26A3D100             ;K CORDIC SEED
 
 
-* OVERFLOW - RETURN ZERO OR HIGHEST VALUE AND "V" BIT
+; OVERFLOW - RETURN ZERO OR HIGHEST VALUE AND "V" BIT
 FPEOVFLW  MOVE.W    (SP)+,D6              ;LOAD SIGN WORD AND WORK OFF STACK
           TST.B     D6                    ;? WAS ARGUMENT NEGATIVE
           BPL.S     FPOVNZRO              ;NO, CONTINUE
@@ -1443,28 +1443,28 @@ FPOVNZRO  MOVEQ     #-1,D7                ;SET ALL ZEROES
 FPOVRTN   MOVEM.L   (SP)+,D1-D6/A0        ;RESTORE REGISTERS
           RTS                             ;RETURN TO CALLER
 
-* RETURN ONE FOR ZERO ARGUMENT
+; RETURN ONE FOR ZERO ARGUMENT
 FFPE1     MOVE.L    #$80000041,D7         ;RETURN A TRUE ONE
           LEA       7*4+2(SP),SP          ;IGNORE STACK SAVES
           TST.B     D7                    ;SET CONDITION CODE PROPERLY
           RTS                             ;RETURN TO CALLER
 
-**************
-* EXP ENTRY  *
-**************
+;*************
+; EXP ENTRY  *
+;*************
 
-* SAVE WORK REGISTERS AND INSURE POSITIVE ARGUMENT
+; SAVE WORK REGISTERS AND INSURE POSITIVE ARGUMENT
 FFPEXP    MOVEM.L   D1-D6/A0,-(SP)        ;SAVE ALL WORK REGISTERS
           MOVE.W    D7,-(SP)              ;SAVE SIGN IN LOW ORDER BYTE FOR LATER
           BEQ.S     FFPE1                 ;RETURN A TRUE ONE FOR ZERO EXPONENT
           AND.B     #$7F,D7               ;TAKE ABSOLUTE VALUE
 
-* DIVIDE BY LOG 2 BASE E FOR PARTIAL RESULT
+; DIVIDE BY LOG 2 BASE E FOR PARTIAL RESULT
 FPEPOS    MOVE.L    D7,D2                 ;SAVE ORIGINAL ARGUMENT
           MOVE.L    #LN2INV,D6            ;LOAD INVERSE TO MULTIPLY (FASTER)
           BSR       FFPMUL                ;OBTAIN DIVISION THRU MULTIPLY
           BVS       FPEOVFLW              ;BRANCH IF TOO LARGE
-* CONVERT QUOTIENT TO BOTH FIXED AND FLOAT INTEGER
+; CONVERT QUOTIENT TO BOTH FIXED AND FLOAT INTEGER
           MOVE.B    D7,D5                 ;COPY EXPONENT OVER
           MOVE.B    D7,D6                 ;COPY EXPONENT OVER
           SUB.B     #64+32,D5             ;FIND NON-FRACTIONAL PRECISION
@@ -1485,11 +1485,11 @@ FPEPOS    MOVE.L    D7,D2                 ;SAVE ORIGINAL ARGUMENT
           MOVE.L    D7,D2                 ;COPY FLOAT ARGUMENT
           BRA.S     FPEADJ                ;ADJUST TO FIXED
 
-* MULTIPLE LESS THAN ONE
+; MULTIPLE LESS THAN ONE
 FPESML    CLR.B     (SP)                  ;DEFAULT INITIAL MULTIPLY TO ZERO
           MOVE.L    D2,D7                 ;BACK TO ORIGINAL ARGUMENT
 
-* CONVERT ARGUMENT TO BINARY(31,29) PRECISION
+; CONVERT ARGUMENT TO BINARY(31,29) PRECISION
 FPEADJ    CLR.B     D7                    ;CLEAR SIGN AND EXPONENT
           SUB.B     #64+3,D2              ;OBTAIN SHIFT VALUE
           NEG.B     D2                    ;FOR 2 NON-FRACTION BITS
@@ -1498,24 +1498,24 @@ FPEADJ    CLR.B     D7                    ;CLEAR SIGN AND EXPONENT
           MOVEQ     #0,D7                 ;FORCE TO ZERO
 FPESHF    LSR.L     D2,D7                 ;CONVERT TO FIXED POINT
 
-*****************************************
-* CORDIC CALCULATION REGISTERS:         *
-* D1 - LOOP COUNT   A0 - TABLE POINTER  *
-* D2 - SHIFT COUNT                      *
-* D3 - Y'   D5 - Y                      *
-* D4 - X'   D6 - X                      *
-* D7 - TEST ARGUMENT                    *
-*****************************************
+;****************************************
+; CORDIC CALCULATION REGISTERS:         *
+; D1 - LOOP COUNT   A0 - TABLE POINTER  *
+; D2 - SHIFT COUNT                      *
+; D3 - Y'   D5 - Y                      *
+; D4 - X'   D6 - X                      *
+; D7 - TEST ARGUMENT                    *
+;****************************************
 
-* INPUT WITHIN RANGE, NOW START CORDIC SETUP
+; INPUT WITHIN RANGE, NOW START CORDIC SETUP
 FPECOM    MOVEQ     #0,D5                 ;Y=0
           MOVE.L    #KFCTSEED,D6          ;X=1 WITH JKHINVERSE FACTORED OUT
           LEA       FFPHTHET,A0           ;POINT TO HPERBOLIC TANGENT TABLE
           MOVEQ     #0,D2                 ;PRIME SHIFT COUNTER
 
-* PERFORM CORDIC LOOP REPEATING SHIFTS 4 AND 13 TO GUARANTEE CONVERGENCE
-* (REF. "A UNIFIED ALGORITHM FOR ELEMENTARY FUNCTIONS" J.S.WALTHER
-*        PG. 380 SPRING JOINT COMPUTER CONFERENCE 1971)
+; PERFORM CORDIC LOOP REPEATING SHIFTS 4 AND 13 TO GUARANTEE CONVERGENCE
+; (REF. "A UNIFIED ALGORITHM FOR ELEMENTARY FUNCTIONS" J.S.WALTHER
+;        PG. 380 SPRING JOINT COMPUTER CONFERENCE 1971)
           MOVEQ     #3,D1                 ;DO SHIFTS 1 THRU 4
           BSR.S     CORDIC                ;FIRST CORDIC LOOPS
           SUBQ.L    #4,A0                 ;REDO TABLE ENTRY
@@ -1527,7 +1527,7 @@ FPECOM    MOVEQ     #0,D5                 ;Y=0
           MOVEQ     #10,D1                ;NOW 13 THROUGH 23
           BSR.S     CORDIC                ;AND FINISH UP
 
-* NOW FINALIZE THE RESULT
+; NOW FINALIZE THE RESULT
           TST.B     1(SP)                 ;TEST ORIGINAL SIGN
           BPL.S     FSEPOS                ;BRANCH POSITIVE ARGUMENT
           NEG.L     D5                    ;CHANGE Y FOR SUBTRACTION
@@ -1535,7 +1535,7 @@ FPECOM    MOVEQ     #0,D5                 ;Y=0
 FSEPOS    ADD.L     D5,D6                 ;ADD OR SUBTRACT Y TO/FROM X
           BSR       FFPTNORM              ;FLOAT X
           MOVE.L    D6,D7                 ;SETUP RESULT
-* ADD LN2 FACTOR INTEGER TO THE EXPONENT
+; ADD LN2 FACTOR INTEGER TO THE EXPONENT
           ADD.B     (SP),D7               ;ADD TO EXPONENT
           BMI       FPEOVFLW              ;BRANCH IF TOO LARGE
           BEQ       FPEOVFLW              ;BRANCH IF TOO SMALL
@@ -1543,9 +1543,9 @@ FSEPOS    ADD.L     D5,D6                 ;ADD OR SUBTRACT Y TO/FROM X
           MOVEM.L   (SP)+,D1-D6/A0        ;RESTORE REGISTERS
           RTS                             ;RETURN TO CALLER
 
-*************************
-* CORDIC LOOP SUBROUTINE*
-*************************
+;************************
+; CORDIC LOOP SUBROUTINE*
+;************************
 CORDIC    ADD.W     #1,D2                 ;INCREMENT SHIFT COUNT
           MOVE.L    D5,D3                 ;COPY Y
           MOVE.L    D6,D4                 ;COPY X
@@ -1565,80 +1565,80 @@ FEBMI     SUB.L     D4,D5                 ;Y=Y-X'
           DBRA      D1,CORDIC             ;LOOP UNTIL DONE
           RTS                             ;RETURN
 
-*         END
-*         TTL       FAST FLOATING POINT FLOAT TO ASCII (FFPFPA)
-***************************************
-* (C) COPYRIGHT 1980 BY MOTOROLA INC. *
-***************************************
+;         END
+;         TTL       FAST FLOATING POINT FLOAT TO ASCII (FFPFPA)
+;**************************************
+; (C) COPYRIGHT 1980 BY MOTOROLA INC. *
+;**************************************
 
-*FFPFPA   IDNT      1,1                   ;FFP FLOAT TO ASCII
-*         OPT       PCS,P=68010
-*         SECTION   9
-*         XDEF      FFPFPA                ;ENTRY POINT
-*         XREF      9:FFP10TBL,FFPCPYRT   ;POWER OF TEN TABLE
+;FFPFPA   IDNT      1,1                   ;FFP FLOAT TO ASCII
+;         OPT       PCS,P=68010
+;         SECTION   9
+;         XDEF      FFPFPA                ;ENTRY POINT
+;         XREF      9:FFP10TBL,FFPCPYRT   ;POWER OF TEN TABLE
 
-*******************************************************
-*                     FFPFPA                          *
-*                 FLOAT TO ASCII                      *
-*                                                     *
-*    INPUT:  D7 - FLOATING POINT NUMBER               *
-*                                                     *
-*    OUTPUT: D7 - THE BASE TEN EXPONENT IN BINARY     *
-*                 FOR THE RETURNED FORMAT             *
-*            SP - DECREMENTED BY 14 AND               *
-*                 POINTING TO THE CONVERTED           *
-*                 NUMBER IN ASCII FORMAT              *
-*                                                     *
-*            ALL OTHER REGISTERS UNAFFECTED           *
-*                                                     *
-*    CONDITION CODES:                                 *
-*            N - SET IF THE RESULT IS NEGATIVE        *
-*            Z - SET IF THE RESULT IS ZERO            *
-*            V - CLEARED                              *
-*            C - CLEARED                              *
-*            X - UNDEFINED                            *
-*                                                     *
-*   CODE SIZE: 192 BYTES   STACK WORK AREA: 42 BYTES  *
-*                                                     *
-*                                                     *
-*            {S}{'.'}{DDDDDDDD}{'E'}{S}{DD}           *
-*            <     FRACTION   >< EXPONENT >           *
-*                                                     *
-*        WHERE  S - SIGN OF MANTISSA OR EXPONENT      *
-*                   ('+' OR '-')                      *
-*               D - DECIMAL DIGIT                     *
-*                                                     *
-*        STACK OFFSET OF RESULT  S.DDDDDDDDESDD       *
-*        AFTER RETURN            00000000001111       *
-*                                01234567890123       *
-*                                                     *
-*                                                     *
-*        EXAMPLES   +.12000000E+03  120               *
-*                   +.31415927E+01  PI                *
-*                   +.10000000E-01  ONE-HUNDREDTH     *
-*                   -.12000000E+03  MINUS 120         *
-*                                                     *
-*     NOTES:                                          *
-*       1) THE BINARY BASE 10 EXPONENT IS RETURNED    *
-*          IN D7 TO FACILITATE CONVERSIONS TO         *
-*          OTHER FORMATS.                             *
-*       2) EVEN THOUGH EIGHT DIGITS ARE RETURNED, THE *
-*          PRECISION AVAILABLE IS ONLY 7.167 DIGITS.  *
-*          ROUNDING SHOULD BE PERFORMED WHEN LESS     *
-*          THAN EIGHT DIGITS ARE ACTUALLY UTILIZED    *
-*          IN THE MANTISSA.                           *
-*       3) THE STACK IS LOWERED BY 14 BYTES BY THIS   *
-*          ROUTINE.  THE RETURN ADDRESS TO THE CALLER *
-*          IS REPLACED BY A PORTION OF THE RESULTS.   *
-*                                                     *
-*  TIME: (8MHZ NO WAIT STATES ASSUMED)                *
-*        330 MICROSECONDS CONVERTING THE SAMPLE FLOAT *
-*        VALUE OF 55.55 TO ASCII.                     *
-*                                                     *
-*******************************************************
-*         PAGE
+;******************************************************
+;                     FFPFPA                          *
+;                 FLOAT TO ASCII                      *
+;                                                     *
+;    INPUT:  D7 - FLOATING POINT NUMBER               *
+;                                                     *
+;    OUTPUT: D7 - THE BASE TEN EXPONENT IN BINARY     *
+;                 FOR THE RETURNED FORMAT             *
+;            SP - DECREMENTED BY 14 AND               *
+;                 POINTING TO THE CONVERTED           *
+;                 NUMBER IN ASCII FORMAT              *
+;                                                     *
+;            ALL OTHER REGISTERS UNAFFECTED           *
+;                                                     *
+;    CONDITION CODES:                                 *
+;            N - SET IF THE RESULT IS NEGATIVE        *
+;            Z - SET IF THE RESULT IS ZERO            *
+;            V - CLEARED                              *
+;            C - CLEARED                              *
+;            X - UNDEFINED                            *
+;                                                     *
+;   CODE SIZE: 192 BYTES   STACK WORK AREA: 42 BYTES  *
+;                                                     *
+;                                                     *
+;            {S}{'.'}{DDDDDDDD}{'E'}{S}{DD}           *
+;            <     FRACTION   >< EXPONENT >           *
+;                                                     *
+;        WHERE  S - SIGN OF MANTISSA OR EXPONENT      *
+;                   ('+' OR '-')                      *
+;               D - DECIMAL DIGIT                     *
+;                                                     *
+;        STACK OFFSET OF RESULT  S.DDDDDDDDESDD       *
+;        AFTER RETURN            00000000001111       *
+;                                01234567890123       *
+;                                                     *
+;                                                     *
+;        EXAMPLES   +.12000000E+03  120               *
+;                   +.31415927E+01  PI                *
+;                   +.10000000E-01  ONE-HUNDREDTH     *
+;                   -.12000000E+03  MINUS 120         *
+;                                                     *
+;     NOTES:                                          *
+;       1) THE BINARY BASE 10 EXPONENT IS RETURNED    *
+;          IN D7 TO FACILITATE CONVERSIONS TO         *
+;          OTHER FORMATS.                             *
+;       2) EVEN THOUGH EIGHT DIGITS ARE RETURNED, THE *
+;          PRECISION AVAILABLE IS ONLY 7.167 DIGITS.  *
+;          ROUNDING SHOULD BE PERFORMED WHEN LESS     *
+;          THAN EIGHT DIGITS ARE ACTUALLY UTILIZED    *
+;          IN THE MANTISSA.                           *
+;       3) THE STACK IS LOWERED BY 14 BYTES BY THIS   *
+;          ROUTINE.  THE RETURN ADDRESS TO THE CALLER *
+;          IS REPLACED BY A PORTION OF THE RESULTS.   *
+;                                                     *
+;  TIME: (8MHZ NO WAIT STATES ASSUMED)                *
+;        330 MICROSECONDS CONVERTING THE SAMPLE FLOAT *
+;        VALUE OF 55.55 TO ASCII.                     *
+;                                                     *
+;******************************************************
+;         PAGE
 
-* STACK DEFINITION
+; STACK DEFINITION
 STKOLD    EQU       48                    ;PREVIOUS CALLERS STACK POINTER
 STKEXP    EQU       46                    ;EXPONENT
 STKEXPS   EQU       45                    ;EXPONENTS SIGN
@@ -1657,17 +1657,17 @@ FFPFPA    LEA       -10(SP),SP            ;SET STACK TO NEW LOCATION
           MOVE.W    SR,-(SP)              ;SAVE FOR RETURN CODE
           MOVEM.L   D2-D6/A0/A1,-(SP)     ;SAVE WORK ADDRESS REGISTER
 
-* ADJUST FOR ZERO VALUE
+; ADJUST FOR ZERO VALUE
           BNE.S     FPFNOT0               ;BRANCH NO ZERO INPUT
           MOVEQ     #$41,D7               ;SETUP PSUEDO INTEGER EXPONENT
 
-* SETUP MANTISSA'S SIGN
+; SETUP MANTISSA'S SIGN
 FPFNOT0   MOVE.W    #'+.',STKMANS(SP)     ;INSERT PLUS AND DECIMAL
           MOVE.B    D7,D6                 ;COPY SIGN+EXPONENT
           BPL.S     FPFPLS                ;BRANCH IF PLUS
           ADD.B     #2,STKMANS(SP)        ;CHANGE PLUS TO MINUS
 
-* START SEARCH FOR MAGNITUDE IN BASE 10 POWER TABLE
+; START SEARCH FOR MAGNITUDE IN BASE 10 POWER TABLE
 FPFPLS    ADD.B     D6,D6                 ;SIGN OUT OF PICTURE
           MOVE.B    #$80,D7               ;SET ROUDING FACTOR FOR SEARCH
           EOR.B     D7,D6                 ;CONVERT EXPONENT TO BINARY
@@ -1684,7 +1684,7 @@ FPFBCK    ADD.W     #6,A0                 ;TO NEXT LOWER ENTRY IN TABLE
           SUB.W     #1,D3                 ;DECREMENT BASE 10 EXPONENT
           BRA.S     FPFFND                ;BRANCH POWER OF TEN FOUND
 
-* EXPONENT IS HIGHER THAN TABLE
+; EXPONENT IS HIGHER THAN TABLE
 FPFPLU    LEA       -6(A0),A0             ;TO NEXT HIGHER ENTRY
           ADD.W     #1,D3                 ;INCREMENT POWER OF TEN
           CMP.W     (A0),D6               ;TEST NEW MAGNITUDE
@@ -1692,14 +1692,14 @@ FPFPLU    LEA       -6(A0),A0             ;TO NEXT HIGHER ENTRY
           BEQ.S     FPFEQE                ;BRANCH EQUAL EXPONENT
           BRA.S     FPFBCK                ;BACK TO LOWER AND FOUND
 
-* EXPONENT IS LOWER THAN TABLE
+; EXPONENT IS LOWER THAN TABLE
 FPFMIN    LEA       6(A0),A0              ;TO NEXT LOWER ENTRY
           SUB.W     #1,D3                 ;DECREMENT POWER OF TEN BY ONE
           CMP.W     (A0),D6               ;TEST NEW MAGNITUDE
           BLT.S     FPFMIN                ;LOOP IF STILL LESS THAN
           BEQ.S     FPFEQE                ;BRANCH EQUAL EXPONENT
 
-* CONVERT THE EXPONENT TO ASCII
+; CONVERT THE EXPONENT TO ASCII
 FPFFND    MOVE.L    #'E+00',STKLTRE(SP)   ;SETUP EXPONENT PATTERN
           MOVE.W    D3,D2                 ;? EXPONENT POSITIVE
           BPL.S     FPFPEX                ;BRANCH IF SO
@@ -1711,10 +1711,10 @@ FPFPEX    CMP.W     #10,D2                ;? TEN OR GREATER
           SUB.W     #10,D2                ;ADJUST TO DECIMAL
 FPFGEN    OR.B      D2,STKEXP+1(SP)       ;FILL IN LOW DIGIT
 
-* GENERATE THE MANTISSA IN ASCII A0->TABLE  D7=BINARY MANTISSA
-* D5 - MANTISSA FROM TABLE       D6.W = BINARY EXPONENT
-* D4 - SHIFT AND DIGIT BUILDER   D2 = DBRA MANTISSA DIGIT COUNT
-* A1->MANTISSA STACK POSITION
+; GENERATE THE MANTISSA IN ASCII A0->TABLE  D7=BINARY MANTISSA
+; D5 - MANTISSA FROM TABLE       D6.W = BINARY EXPONENT
+; D4 - SHIFT AND DIGIT BUILDER   D2 = DBRA MANTISSA DIGIT COUNT
+; A1->MANTISSA STACK POSITION
           MOVEQ     #7,D2                 ;COUNT FOR EIGHT DIGITS
           LEA       STKMANT(SP),A1        ;POINT TO MANTISSA START
           TST.L     D7                    ;? ZERO TO CONVERT
@@ -1738,51 +1738,51 @@ FPFNIM    ADD.L     D5,D7                 ;MAKE UP FOR OVER SUBTRACTION
           MOVE.B    D4,(A1)+              ;INSERT INTO ASCII MANTISSA PATTERN
           DBRA      D2,FPFNXI             ;BRANCH IF MORE DIGITS TO GO
 
-* RETURN WITH BASE TEN EXPONENT BINARY IN D7
+; RETURN WITH BASE TEN EXPONENT BINARY IN D7
           MOVE.W    D3,D7                 ;TO D7
           EXT.L     D7                    ;TO FULL WORD
           MOVEM.L   (SP)+,D2-D6/A0/A1     ;RESTORE WORK REGISTERS
           RTR                             ;RETURN WITH PROPER CONDITION CODE
 
-*         END
-*         TTL       FAST FLOATING POINT FLOAT TO INTEGER (FFPFPI)
-**************************************
-* (C) COPYRIGHT 1980 BY MOTORLA INC. *
-**************************************
+;         END
+;         TTL       FAST FLOATING POINT FLOAT TO INTEGER (FFPFPI)
+;*************************************
+; (C) COPYRIGHT 1980 BY MOTORLA INC. *
+;*************************************
 
-*         XDEF      FFPFPI                ;ENTRY POINT
-*         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
-*FFPFPI   IDNT      1,1                   ;FFP FLOAT TO INTEGER
-*         SECTION   9
+;         XDEF      FFPFPI                ;ENTRY POINT
+;         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
+;FFPFPI   IDNT      1,1                   ;FFP FLOAT TO INTEGER
+;         SECTION   9
 
-***********************************************************
-*            FAST FLOATING POINT TO INTEGER               *
-*                                                         *
-*      INPUT:  D7 = FAST FLOATING POINT NUMBER            *
-*      OUTPUT: D7 = FIXED POINT INTEGER (2'S COMPLEMENT)  *
-*                                                         *
-*  CONDITION CODES:                                       *
-*             N - SET IF RESULT IS NEGATIVE               *
-*             Z - SET IF RESULT IS ZERO                   *
-*             V - SET IF OVERFLOW OCCURRED                *
-*             C - UNDEFINED                               *
-*             X - UNDEFINED                               *
-*                                                         *
-*  REGISTER D5 IS DESTROYED                               *
-*                                                         *
-*  INTEGERS OF OVER 24 BIT PRECISION WILL BE IMPRECISE    *
-*                                                         *
-*  NOTE: MAXIMUM SIZE INTEGER RETURNED IF OVERFLOW        *
-*                                                         *
-*   CODE SIZE: 78 BYTES        STACK WORK AREA: 0 BYTES   *
-*                                                         *
-*      TIMINGS:  (8 MHZ NO WAIT STATES ASSUMED)           *
-*           COMPOSITE AVERAGE 15.00 MICROSECONDS          *
-*            ARG = 0   4.75 MICROSECONDS                  *
-*            ARG # 0   10.50 - 18.25 MICROSECONDS         *
-*                                                         *
-***********************************************************
-*         PAGE
+;**********************************************************
+;            FAST FLOATING POINT TO INTEGER               *
+;                                                         *
+;      INPUT:  D7 = FAST FLOATING POINT NUMBER            *
+;      OUTPUT: D7 = FIXED POINT INTEGER (2'S COMPLEMENT)  *
+;                                                         *
+;  CONDITION CODES:                                       *
+;             N - SET IF RESULT IS NEGATIVE               *
+;             Z - SET IF RESULT IS ZERO                   *
+;             V - SET IF OVERFLOW OCCURRED                *
+;             C - UNDEFINED                               *
+;             X - UNDEFINED                               *
+;                                                         *
+;  REGISTER D5 IS DESTROYED                               *
+;                                                         *
+;  INTEGERS OF OVER 24 BIT PRECISION WILL BE IMPRECISE    *
+;                                                         *
+;  NOTE: MAXIMUM SIZE INTEGER RETURNED IF OVERFLOW        *
+;                                                         *
+;   CODE SIZE: 78 BYTES        STACK WORK AREA: 0 BYTES   *
+;                                                         *
+;      TIMINGS:  (8 MHZ NO WAIT STATES ASSUMED)           *
+;           COMPOSITE AVERAGE 15.00 MICROSECONDS          *
+;            ARG = 0   4.75 MICROSECONDS                  *
+;            ARG # 0   10.50 - 18.25 MICROSECONDS         *
+;                                                         *
+;**********************************************************
+;         PAGE
 
 FFPFPI    MOVE.B    D7,D5                 ;SAVE SIGN/EXPONENT                4
           BMI.S     FPIMI                 ;BRANCH IF MINUS VALUE             8/10
@@ -1796,17 +1796,17 @@ FFPFPI    MOVE.B    D7,D5                 ;SAVE SIGN/EXPONENT                4
           LSR.L     D5,D7                 ;FINALIZE INTEGER                  8-70
 FPIRTN    RTS                             ;RETURN TO CALLER                  16
 
-* POSITIVE OVERFLOW
+; POSITIVE OVERFLOW
 FPIOVP    MOVEQ     #-1,D7                ;LOAD ALL ONES
           LSR.L     #1,D7                 ;PUT ZERO IN AS SIGN
           OR.B      #$02,CCR              ;SET OVERFLOW BIT ON
           RTS                             ;RETURN TO CALLER
 
-* FRACTION ONLY RETURNS ZERO
+; FRACTION ONLY RETURNS ZERO
 FPIRT0    MOVEQ     #0,D7                 ;RETURN ZERO
           RTS                             ;BACK TO CALLER
 
-* INPUT IS A MINUS INTEGER
+; INPUT IS A MINUS INTEGER
 FPIMI     CLR.B     D7                    ;CLEAR FOR CLEAN SHIFT                 4
           SUB.B     #$80+65,D5            ;EXPONENT-1 TO BINARY AND STRIP SIGN   8
           BMI.S     FPIRT0                ;RETURN ZERO FOR FRACTION              8/10
@@ -1817,7 +1817,7 @@ FPIMI     CLR.B     D7                    ;CLEAR FOR CLEAN SHIFT                
           NEG.L     D7                    ;TO MINUS NOW                          6
           RTS                             ;RETURN TO CALLER                      16
 
-* CHECK FOR MAXIMUM MINUS NUMBER OR MINUS OVERFLOW
+; CHECK FOR MAXIMUM MINUS NUMBER OR MINUS OVERFLOW
 FPICHM    BNE.S     FPIOVM                ;BRANCH MINUS OVERFLOW
           NEG.L     D7                    ;ATTEMPT CONVERT TO NEGATIVE
           TST.L     D7                    ;CLEAR OVERFLOW BIT
@@ -1827,26 +1827,26 @@ FPIOVM    MOVEQ     #0,D7                 ;CLEAR D7
           OR.B      #$02,CCR              ;SET OVERFLOW BIT ON
           RTS                             ;AND RETURN TO CALLER
 
-*         END
-*         TTL       FAST FLOATING POINT CORDIC HYPERBOLIC TABLE (FFPHTHET)
-***************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC. *
-***************************************
+;         END
+;         TTL       FAST FLOATING POINT CORDIC HYPERBOLIC TABLE (FFPHTHET)
+;**************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC. *
+;**************************************
 
-*FFPHTHET IDNT      1,1                   ;FFP INVERSE HYPERBOLIC TABLE
-*         SECTION   9
-*         XDEF      FFPHTHET              ;EXTERNAL DEFINITION
+;FFPHTHET IDNT      1,1                   ;FFP INVERSE HYPERBOLIC TABLE
+;         SECTION   9
+;         XDEF      FFPHTHET              ;EXTERNAL DEFINITION
 
-*********************************************************
-*     INVERSE HYPERBOLIC TANGENT TABLE FOR CORDIC       *
-*                                                       *
-* THE FOLLOWING TABLE IS USED DURING CORDIC             *
-* TRANSCENDENTAL EVALUATIONS FOR LOG AND EXP. IT HAS    *
-* INVERSE HYPERBOLIC TANGENT FOR 2**-N WHERE N RANGES   *
-* FROM 1 TO 24.  THE FORMAT IS BINARY(31,29)            *
-* PRECISION (I.E. THE BINARY POINT IS ASSUMED BETWEEN   *
-* BITS 27 AND 28 WITH THREE LEADING NON-FRACTION BITS.) *
-*********************************************************
+;********************************************************
+;     INVERSE HYPERBOLIC TANGENT TABLE FOR CORDIC       *
+;                                                       *
+; THE FOLLOWING TABLE IS USED DURING CORDIC             *
+; TRANSCENDENTAL EVALUATIONS FOR LOG AND EXP. IT HAS    *
+; INVERSE HYPERBOLIC TANGENT FOR 2**-N WHERE N RANGES   *
+; FROM 1 TO 24.  THE FORMAT IS BINARY(31,29)            *
+; PRECISION (I.E. THE BINARY POINT IS ASSUMED BETWEEN   *
+; BITS 27 AND 28 WITH THREE LEADING NON-FRACTION BITS.) *
+;********************************************************
 
 FFPHTHET  DC.L      $1193EA7A             ;HARCTAN(2**-1)   .549306144 !elenc vasm does signed shift so force value
           DC.L      $4162BBE8>>3          ;HARCTAN(2**-2)   .255412812
@@ -1873,45 +1873,45 @@ FFPHTHET  DC.L      $1193EA7A             ;HARCTAN(2**-1)   .549306144 !elenc va
           DC.L      $00000200>>3          ;HARCTAN(2**-23)
           DC.L      $00000100>>3          ;HARCTAN(2**-24)
 
-*         END
-*         TTL       FAST FLOATING POINT INTEGER TO FLOAT (FFPIFP)
-************************************
-* (C) COPYRIGHT 1980 MOTORLA INC.  *
-************************************
+;         END
+;         TTL       FAST FLOATING POINT INTEGER TO FLOAT (FFPIFP)
+;***********************************
+; (C) COPYRIGHT 1980 MOTORLA INC.  *
+;***********************************
 
-*         XDEF      FFPIFP                ;EXTERNAL NAME
-*         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
-*FFPIFP   IDNT      1,1                   ;FFP INTEGER TO FLOAT
-*         SECTION   9
+;         XDEF      FFPIFP                ;EXTERNAL NAME
+;         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
+;FFPIFP   IDNT      1,1                   ;FFP INTEGER TO FLOAT
+;         SECTION   9
 
-***********************************************************
-*               INTEGER TO FLOATING POINT                 *
-*                                                         *
-*      INPUT: D7 = FIXED POINT INTEGER (2'S COMPLEMENT)   *
-*      OUTPUT: D7 = FAST FLOATING POINT EQUIVALENT        *
-*                                                         *
-*      CONDITION CODES:                                   *
-*                N - SET IF RESULT IS NEGATIVE            *
-*                Z - SET IF RESULT IS ZERO                *
-*                V - CLEARED                              *
-*                C - UNDEFINED                            *
-*                X - UNDEFINED                            *
-*                                                         *
-*      D5 IS DESTROYED                                    *
-*                                                         *
-*      INTEGERS OF GREATER THAN 24 BITS WILL BE ROUNDED   *
-*      AND IMPRECISE.                                     *
-*                                                         *
-*      CODE SIZE: 56 BYTES      STACK WORK AREA: 0 BYTES  *
-*                                                         *
-*      TIMINGS: (8MHZ NO WAIT STATES ASSUMED)             *
-*         COMPOSITE AVERATE 31.75 MICROSECONDS            *
-*            ARG = 0   4.25          MICROSECONDS         *
-*            ARG > 0   13.75 - 47.50 MICROSECONDS         *
-*            ARG < 0   15.50 - 50.25 MICROSECONDS         *
-*                                                         *
-***********************************************************
-*         PAGE
+;**********************************************************
+;               INTEGER TO FLOATING POINT                 *
+;                                                         *
+;      INPUT: D7 = FIXED POINT INTEGER (2'S COMPLEMENT)   *
+;      OUTPUT: D7 = FAST FLOATING POINT EQUIVALENT        *
+;                                                         *
+;      CONDITION CODES:                                   *
+;                N - SET IF RESULT IS NEGATIVE            *
+;                Z - SET IF RESULT IS ZERO                *
+;                V - CLEARED                              *
+;                C - UNDEFINED                            *
+;                X - UNDEFINED                            *
+;                                                         *
+;      D5 IS DESTROYED                                    *
+;                                                         *
+;      INTEGERS OF GREATER THAN 24 BITS WILL BE ROUNDED   *
+;      AND IMPRECISE.                                     *
+;                                                         *
+;      CODE SIZE: 56 BYTES      STACK WORK AREA: 0 BYTES  *
+;                                                         *
+;      TIMINGS: (8MHZ NO WAIT STATES ASSUMED)             *
+;         COMPOSITE AVERATE 31.75 MICROSECONDS            *
+;            ARG = 0   4.25          MICROSECONDS         *
+;            ARG > 0   13.75 - 47.50 MICROSECONDS         *
+;            ARG < 0   15.50 - 50.25 MICROSECONDS         *
+;                                                         *
+;**********************************************************
+;         PAGE
 
 FFPIFP    MOVEQ     #64+31,D5             ;SETUP HIGH END EXPONENT
           TST.L     D7                    ;? INTEGER A ZERO
@@ -1936,84 +1936,84 @@ ITOLP     ADD.L     D7,D7                 ;SHIFT MANTISSA UP
 ITORTI    MOVE.B    D5,D7                 ;INSERT SIGN/EXPONENT
 ITORTN    RTS                             ;RETURN TO CALLER
 
-*         END
-*         TTL       FAST FLOATING POINT LOG (FFPLOG)
-***************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC. *
-***************************************
+;         END
+;         TTL       FAST FLOATING POINT LOG (FFPLOG)
+;**************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC. *
+;**************************************
 
-*FFPLOG   IDNT      1,2                   ;FFP LOG
-*         OPT       PCS
-*         SECTION   9
-*         XDEF      FFPLOG                ;ENTRY POINT
-*         XREF      9:FFPHTHET            ;HYPERTANGENT TABLE
-*         XREF      9:FFPADD,9:FFPDIV,9:FFPSUB,9:FFPMUL  ;ARITHMETIC PRIMITIVES
-*         XREF      9:FFPTNORM            ;TRANSCENDENTAL NORMALIZE ROUTINE
-*         XREF      FFPCPYRT              ;COPYRIGHT STUB
+;FFPLOG   IDNT      1,2                   ;FFP LOG
+;         OPT       PCS
+;         SECTION   9
+;         XDEF      FFPLOG                ;ENTRY POINT
+;         XREF      9:FFPHTHET            ;HYPERTANGENT TABLE
+;         XREF      9:FFPADD,9:FFPDIV,9:FFPSUB,9:FFPMUL  ;ARITHMETIC PRIMITIVES
+;         XREF      9:FFPTNORM            ;TRANSCENDENTAL NORMALIZE ROUTINE
+;         XREF      FFPCPYRT              ;COPYRIGHT STUB
 
-*************************************************
-*                  FFPLOG                       *
-*       FAST FLOATING POINT LOGORITHM           *
-*                                               *
-*  INPUT:   D7 - INPUT ARGUMENT                 *
-*                                               *
-*  OUTPUT:  D7 - LOGORITHMIC RESULT TO BASE E   *
-*                                               *
-*     ALL OTHER REGISTERS TOTALLY TRANSPARENT   *
-*                                               *
-*  CODE SIZE: 184 BYTES   STACK WORK: 38 BYTES  *
-*                                               *
-*  CONDITION CODES:                             *
-*        Z - SET IF THE RESULT IS ZERO          *
-*        N - SET IF RESULT IN IS NEGATIVE       *
-*        V - SET IF INVALID NEGATIVE ARGUMENT   *
-*            OR ZERO ARGUMENT                   *
-*        C - UNDEFINED                          *
-*        X - UNDEFINED                          *
-*                                               *
-*                                               *
-*  NOTES:                                       *
-*    1) SPOT CHECKS SHOW ERRORS BOUNDED BY      *
-*       5 X 10**-8.                             *
-*    2) NEGATIVE ARGUMENTS ARE ILLEGAL AND CAUSE*
-*       THE "V" BIT TO BE SET AND THE ABSOLUTE  *
-*       VALUE USED INSTEAD.                     *
-*    3) A ZERO ARGUMENT RETURNS THE LARGEST     *
-*       NEGATIVE VALUE POSSIBLE WITH THE "V" BIT*
-*       SET.                                    *
-*                                               *
-*  TIME: (8MHZ NO WAIT STATES ASSUMED)          *
-*                                               *
-*        TIMES ARE VERY DATA SENSITIVE WITH     *
-*        SAMPLES RANGING FROM 170 TO 556        *
-*        MICROSECONDS                           *
-*                                               *
-*************************************************
-*         PAGE
+;************************************************
+;                  FFPLOG                       *
+;       FAST FLOATING POINT LOGORITHM           *
+;                                               *
+;  INPUT:   D7 - INPUT ARGUMENT                 *
+;                                               *
+;  OUTPUT:  D7 - LOGORITHMIC RESULT TO BASE E   *
+;                                               *
+;     ALL OTHER REGISTERS TOTALLY TRANSPARENT   *
+;                                               *
+;  CODE SIZE: 184 BYTES   STACK WORK: 38 BYTES  *
+;                                               *
+;  CONDITION CODES:                             *
+;        Z - SET IF THE RESULT IS ZERO          *
+;        N - SET IF RESULT IN IS NEGATIVE       *
+;        V - SET IF INVALID NEGATIVE ARGUMENT   *
+;            OR ZERO ARGUMENT                   *
+;        C - UNDEFINED                          *
+;        X - UNDEFINED                          *
+;                                               *
+;                                               *
+;  NOTES:                                       *
+;    1) SPOT CHECKS SHOW ERRORS BOUNDED BY      *
+;       5 X 10**-8.                             *
+;    2) NEGATIVE ARGUMENTS ARE ILLEGAL AND CAUSE*
+;       THE "V" BIT TO BE SET AND THE ABSOLUTE  *
+;       VALUE USED INSTEAD.                     *
+;    3) A ZERO ARGUMENT RETURNS THE LARGEST     *
+;       NEGATIVE VALUE POSSIBLE WITH THE "V" BIT*
+;       SET.                                    *
+;                                               *
+;  TIME: (8MHZ NO WAIT STATES ASSUMED)          *
+;                                               *
+;        TIMES ARE VERY DATA SENSITIVE WITH     *
+;        SAMPLES RANGING FROM 170 TO 556        *
+;        MICROSECONDS                           *
+;                                               *
+;************************************************
+;         PAGE
 
 FPONEL    EQU       $80000041             ;FLOATING VALUE FOR ONE
 LOG2      EQU       $B1721840             ;LOG(2) = .6931471805
 
-**************
-* LOG ENTRY  *
-**************
+;*************
+; LOG ENTRY  *
+;*************
 
-* INSURE ARGUMENT POSITIVE
+; INSURE ARGUMENT POSITIVE
 FFPLOG    TST.B     D7                    ;? TEST SIGN
           BEQ.S     FPLZRO                ;BRANCH ARGUMENT ZERO
           BPL.S     FPLOK                 ;BRANCH ALRIGHT
 
-* ARGUMENT IS NEGATIVE - USE THE ABSOLUTE VALUE AND SET THE "V" BIT
+; ARGUMENT IS NEGATIVE - USE THE ABSOLUTE VALUE AND SET THE "V" BIT
           AND.B     #$7F,D7               ;TAKE ABSOLUTE VALUE
           BSR.S     FPLOK                 ;FIND LOG(ABS(X))
 FPSETV    OR.B      #$02,CCR              ;SET OVERFLOW BIT
           RTS                             ;RETURN TO CALLER
 
-* ARGUMENT IS ZERO - RETURN LARGEST NEGATIVE NUMBER WITH "V" BIT
+; ARGUMENT IS ZERO - RETURN LARGEST NEGATIVE NUMBER WITH "V" BIT
 FPLZRO    MOVEQ     #-1,D7                ;RETURN LARGEST NEGATIVE
           BRA       FPSETV                ;RETURN WITH "V" BIT SET
 
-* SAVE WORK REGISTERS AND STRIP EXPONENT OFF
+; SAVE WORK REGISTERS AND STRIP EXPONENT OFF
 FPLOK     MOVEM.L   D1-D6/A0,-(SP)        ;SAVE ALL WORK REGISTERS
           MOVE.B    D7,-(SP)              ;SAVE ORIGINAL EXPONENT
           MOVE.B    #64+1,D7              ;FORCE BETWEEN 1 AND 2
@@ -2025,7 +2025,7 @@ FPLOK     MOVEM.L   D1-D6/A0,-(SP)        ;SAVE ALL WORK REGISTERS
           MOVE.L    D2,D6                 ;PREPARE FOR DIVIDE
           BSR       FFPDIV                ;RESULT IS (ARG-1)/(ARG+1)
           BEQ.S     FPLNOCR               ;ZERO SO CORDIC NOT NEEDED
-* CONVERT TO BIN(31,29) PRECISION
+; CONVERT TO BIN(31,29) PRECISION
           SUB.B     #64+3,D7              ;ADJUST EXPONENT
           NEG.B     D7                    ;FOR SHIFT NECESSARY
           CMP.B     #31,D7                ;? INSURE NOT TOO SMALL
@@ -2033,14 +2033,14 @@ FPLOK     MOVEM.L   D1-D6/A0,-(SP)        ;SAVE ALL WORK REGISTERS
           MOVEQ     #0,D7                 ;FORCE TO ZERO
 FPLSHF    LSR.L     D7,D7                 ;SHIFT TO BIN(31,29) PRECISION
 
-*****************************************
-* CORDIC CALCULATION REGISTERS:         *
-* D1 - LOOP COUNT   A0 - TABLE POINTER  *
-* D2 - SHIFT COUNT                      *
-* D3 - Y'   D5 - Y                      *
-* D4 - X'   D6 - Z                      *
-* D7 - X                                *
-*****************************************
+;****************************************
+; CORDIC CALCULATION REGISTERS:         *
+; D1 - LOOP COUNT   A0 - TABLE POINTER  *
+; D2 - SHIFT COUNT                      *
+; D3 - Y'   D5 - Y                      *
+; D4 - X'   D6 - Z                      *
+; D7 - X                                *
+;****************************************
 
           MOVEQ     #0,D6                 ;Z=0
           MOVE.L    #1<<29,D5             ;Y=1
@@ -2049,7 +2049,7 @@ FPLSHF    LSR.L     D7,D7                 ;SHIFT TO BIN(31,29) PRECISION
           MOVEQ     #1,D2                 ;PRIME SHIFT COUNTER
           BRA.S     CORDICL               ;ENTER CORDIC LOOP
 
-* CORDIC LOOP
+; CORDIC LOOP
 FPLPLSL   ASR.L     D2,D4                 ;SHIFT(X')
           SUB.L     D4,D5                 ;Y = Y - X'
           ADD.L     (A0),D6               ;Z = Z + HYPERTAN(I)
@@ -2064,7 +2064,7 @@ FPLNLPL   SUB.L     D3,D7                 ;X = X - Y'
           LSR.L     #1,D3                 ;SHIFT(Y')
           DBRA      D1,FPLNLPL            ;AND LOOP UNTIL DONE
 
-* NOW CONVERT TO FLOAT AND ADD EXPONENT*LOG(2) FOR FINAL RESULT
+; NOW CONVERT TO FLOAT AND ADD EXPONENT*LOG(2) FOR FINAL RESULT
           MOVEQ     #0,D7                 ;DEFAULT ZERO IF TOO SMALL
           BSR       FFPTNORM              ;FLOAT Z
           BEQ.S     FPLNOCR               ;BRANCH IF TOO SMALL
@@ -2093,64 +2093,64 @@ FPLNORM   ADD.L     D6,D6                 ;SHIFT TO LEFT
 FPLZPR    MOVEM.L   (SP)+,D1-D6/A0        ;RESTORE REGISTERS
           RTS                             ;RETURN TO CALLER
 
-*         END
-*         TTL       FAST FLOATING POINT MULTIPLY (FFPMUL)
-*******************************************
-* (C)  COPYRIGHT 1980 BY MOTOROLA INC.    *
-*******************************************
+;         END
+;         TTL       FAST FLOATING POINT MULTIPLY (FFPMUL)
+;******************************************
+; (C)  COPYRIGHT 1980 BY MOTOROLA INC.    *
+;******************************************
 
-*FFPMUL   IDNT      1,1                   ;FFP MULTIPLY
-*         XDEF      FFPMUL                ;ENTRY POINT
-*         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
-*         SECTION   9
+;FFPMUL   IDNT      1,1                   ;FFP MULTIPLY
+;         XDEF      FFPMUL                ;ENTRY POINT
+;         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
+;         SECTION   9
 
-********************************************
-*          FFPMUL  SUBROUTINE              *
-*                                          *
-* INPUT:                                   *
-*          D6 - FLOATING POINT MULTIPLIER  *
-*          D7 - FLOATING POINT MULTIPLICAN *
-*                                          *
-* OUTPUT:                                  *
-*          D7 - FLOATING POINT RESULT      *
-*                                          *
-*                                          *
-* CONDITION CODES:                         *
-*          N - SET IF RESULT NEGATIVE      *
-*          Z - SET IF RESULT IS ZERO       *
-*          V - SET IF OVERFLOW OCCURRED    *
-*          C - UNDEFINED                   *
-*          X - UNDEFINED                   *
-*                                          *
-* REGISTERS D3 THRU D5 ARE VOLATILE        *
-*                                          *
-* SIZE: 122 BYTES    STACK WORK: 0 BYTES   *
-*                                          *
-* NOTES:                                   *
-*   1) MULTIPIER UNALTERED (D6).           *
-*   2) UNDERFLOWS RETURN ZERO WITH NO      *
-*      INDICATOR SET.                      *
-*   3) OVERFLOWS WILL RETURN THE MAXIMUM   *
-*      VALUE WITH THE PROPER SIGN AND THE  *
-*      'V' BIT SET IN THE CCR.             *
-*   4) THIS VERSION OF THE MULTIPLY HAS A  *
-*      SLIGHT ERROR DUE TO TRUNCATION      *
-*      OF .00390625 IN THE LEAST SIGNIFIC- *
-*      ANT BIT.  THIS AMOUNTS TO AN AVERAGE*
-*      OF 1 INCORRECT LEAST  SIGNIFICANT   *
-*      BIT RESULT FOR EVERY 512 MULTIPLIES.*
-*                                          *
-*  TIMES: (8MHZ NO WAIT STATES ASSUMED)    *
-* ARG1 ZERO            5.750 MICROSECONDS  *
-* ARG2 ZERO            3.750 MICROSECONDS  *
-* MINIMUM TIME OTHERS 38.000 MICROSECONDS  *
-* MAXIMUM TIME OTHERS 51.750 MICROSECONDS  *
-* AVERAGE OTHERS      44.125 MICROSECONDS  *
-*                                          *
-********************************************
-*         PAGE
+;*******************************************
+;          FFPMUL  SUBROUTINE              *
+;                                          *
+; INPUT:                                   *
+;          D6 - FLOATING POINT MULTIPLIER  *
+;          D7 - FLOATING POINT MULTIPLICAN *
+;                                          *
+; OUTPUT:                                  *
+;          D7 - FLOATING POINT RESULT      *
+;                                          *
+;                                          *
+; CONDITION CODES:                         *
+;          N - SET IF RESULT NEGATIVE      *
+;          Z - SET IF RESULT IS ZERO       *
+;          V - SET IF OVERFLOW OCCURRED    *
+;          C - UNDEFINED                   *
+;          X - UNDEFINED                   *
+;                                          *
+; REGISTERS D3 THRU D5 ARE VOLATILE        *
+;                                          *
+; SIZE: 122 BYTES    STACK WORK: 0 BYTES   *
+;                                          *
+; NOTES:                                   *
+;   1) MULTIPIER UNALTERED (D6).           *
+;   2) UNDERFLOWS RETURN ZERO WITH NO      *
+;      INDICATOR SET.                      *
+;   3) OVERFLOWS WILL RETURN THE MAXIMUM   *
+;      VALUE WITH THE PROPER SIGN AND THE  *
+;      'V' BIT SET IN THE CCR.             *
+;   4) THIS VERSION OF THE MULTIPLY HAS A  *
+;      SLIGHT ERROR DUE TO TRUNCATION      *
+;      OF .00390625 IN THE LEAST SIGNIFIC- *
+;      ANT BIT.  THIS AMOUNTS TO AN AVERAGE*
+;      OF 1 INCORRECT LEAST  SIGNIFICANT   *
+;      BIT RESULT FOR EVERY 512 MULTIPLIES.*
+;                                          *
+;  TIMES: (8MHZ NO WAIT STATES ASSUMED)    *
+; ARG1 ZERO            5.750 MICROSECONDS  *
+; ARG2 ZERO            3.750 MICROSECONDS  *
+; MINIMUM TIME OTHERS 38.000 MICROSECONDS  *
+; MAXIMUM TIME OTHERS 51.750 MICROSECONDS  *
+; AVERAGE OTHERS      44.125 MICROSECONDS  *
+;                                          *
+;*******************************************
+;         PAGE
 
-* FFPMUL SUBROUTINE ENTRY POINT
+; FFPMUL SUBROUTINE ENTRY POINT
 FFPMUL    MOVE.B    D7,D5                 ;PREPARE SIGN/EXPONENT WORK       4
           BEQ.S     FFMRTN                ;RETURN IF RESULT ALREADY ZERO    8/10
           MOVE.B    D6,D4                 ;COPY ARG1 SIGN/EXPONENT          4
@@ -2188,7 +2188,7 @@ FFMCON    ADD.L     #$80,D7               ;ROUND UP (CANNOT OVERFLOW)       16
           BEQ.S     FFMRT0                ;RETURN ZERO IF ZERO EXPONENT     8/10
 FFMRTN    RTS                             ;RETURN TO CALLER                 16
 
-* MUST NORMALIZE RESULT
+; MUST NORMALIZE RESULT
 FFMNOR    SUB.B     #1,D5                 ;BUMP EXPONENT DOWN BY ONE        4
           BVS.S     FFMRT0                ;RETURN ZERO IF UNDERFLOW         8/10
           BCS.S     FFMRT0                ;RETURN ZERO IF SIGN INVERTED     8/10
@@ -2202,11 +2202,11 @@ FFMCLN    MOVE.B    D5,D7                 ;INSERT SIGN AND EXPONENT         4
           BEQ.S     FFMRT0                ;RETURN ZERO IF EXPONENT ZERO     8/10
           RTS                             ;RETURN TO CALLER                 16
 
-* ARG1 ZERO
+; ARG1 ZERO
 FFMRT0    MOVEQ     #0,D7                 ;RETURN ZERO                      4
           RTS                             ;RETURN TO CALLER                 16
 
-* OVERFLOW OR UNDERFLOW EXPONENT
+; OVERFLOW OR UNDERFLOW EXPONENT
 FFMOUF    BPL.S     FFMRT0                ;BRANCH IF UNDERFLOW TO GIVE ZERO 8/10
           EOR.B     D6,D7                 ;CALCULATE PROPER SIGN            4
           OR.L      #$FFFFFF7F,D7         ;FORCE HIGHEST VALUE POSSIBLE     16
@@ -2214,68 +2214,68 @@ FFMOUF    BPL.S     FFMRT0                ;BRANCH IF UNDERFLOW TO GIVE ZERO 8/10
           ORI.B     #$02,CCR              ;SET OVERFLOW BIT                 20
           RTS                             ;RETURN TO CALLER                 16
 
-*         END
-*         TTL       FAST FLOATING POINT POWER (FFPPWR)
-***************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC. *
-***************************************
+;         END
+;         TTL       FAST FLOATING POINT POWER (FFPPWR)
+;**************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC. *
+;**************************************
 
-*FFPPWR   IDNT      1,1                   ;FFP POWER
-*         OPT       PCS
-*         SECTION   9
-*         XDEF      FFPPWR                ;ENTRY POINT
-*         XREF      9:FFPLOG,9:FFPEXP     ;EXPONENT AND LOG FUNCTIONS
-*         XREF      9:FFPMUL              ;MULTIPLY FUNCTION
-*         XREF      FFPCPYRT              ;COPYRIGHT STUB
+;FFPPWR   IDNT      1,1                   ;FFP POWER
+;         OPT       PCS
+;         SECTION   9
+;         XDEF      FFPPWR                ;ENTRY POINT
+;         XREF      9:FFPLOG,9:FFPEXP     ;EXPONENT AND LOG FUNCTIONS
+;         XREF      9:FFPMUL              ;MULTIPLY FUNCTION
+;         XREF      FFPCPYRT              ;COPYRIGHT STUB
 
-*************************************************
-*                  FFPPWR                       *
-*       FAST FLOATING POINT POWER FUNCTION      *
-*                                               *
-*  INPUT:   D6 - FLOATING POINT EXPONENT VALUE  *
-*           D7 - FLOATING POINT ARGUMENT VALUE  *
-*                                               *
-*  OUTPUT:  D7 - RESULT OF THE VALUE TAKEN TO   *
-*                THE POWER SPECIFIED            *
-*                                               *
-*     ALL REGISTERS BUT D7 ARE TRANSPARENT      *
-*                                               *
-*  CODE SIZE:  36 BYTES   STACK WORK: 42 BYTES  *
-*                                               *
-* CALLS SUBROUTINES: FFPLOG, FFPEXP AND FFPMUL  *
-*                                               *
-*  CONDITION CODES:                             *
-*        Z - SET IF THE RESULT IS ZERO          *
-*        N - CLEARED                            *
-*        V - SET IF OVERFLOW OCCURRED OR BASE   *
-*            VALUE ARGUMENT WAS NEGATIVE        *
-*        C - UNDEFINED                          *
-*        X - UNDEFINED                          *
-*                                               *
-*  NOTES:                                       *
-*    1) A NEGATIVE BASE VALUE WILL FORCE THE USE*
-*       IF ITS ABSOLUTE VALUE.  THE "V" BIT WILL*
-*       BE SET UPON FUNCTION RETURN.            *
-*    2) IF THE RESULT OVERFLOWS THEN THE        *
-*       MAXIMUM SIZE VALUE IS RETURNED WITH THE *
-*       "V" BIT SET IN THE CONDITION CODE.      *
-*    3) SPOT CHECKS SHOW AT LEAST SIX DIGIT     *
-*       PRECISION FOR 80 PERCENT OF THE CASES.  *
-*                                               *
-*  TIME: (8MHZ NO WAIT STATES ASSUMED)          *
-*                                               *
-*        THE TIMING IS VERY DATA SENSITIVE WITH *
-*        TEST SAMPLES RANGING FROM 720 TO       *
-*        1206 MICROSECONDS                      *
-*                                               *
-*************************************************
-*         PAGE
+;************************************************
+;                  FFPPWR                       *
+;       FAST FLOATING POINT POWER FUNCTION      *
+;                                               *
+;  INPUT:   D6 - FLOATING POINT EXPONENT VALUE  *
+;           D7 - FLOATING POINT ARGUMENT VALUE  *
+;                                               *
+;  OUTPUT:  D7 - RESULT OF THE VALUE TAKEN TO   *
+;                THE POWER SPECIFIED            *
+;                                               *
+;     ALL REGISTERS BUT D7 ARE TRANSPARENT      *
+;                                               *
+;  CODE SIZE:  36 BYTES   STACK WORK: 42 BYTES  *
+;                                               *
+; CALLS SUBROUTINES: FFPLOG, FFPEXP AND FFPMUL  *
+;                                               *
+;  CONDITION CODES:                             *
+;        Z - SET IF THE RESULT IS ZERO          *
+;        N - CLEARED                            *
+;        V - SET IF OVERFLOW OCCURRED OR BASE   *
+;            VALUE ARGUMENT WAS NEGATIVE        *
+;        C - UNDEFINED                          *
+;        X - UNDEFINED                          *
+;                                               *
+;  NOTES:                                       *
+;    1) A NEGATIVE BASE VALUE WILL FORCE THE USE*
+;       IF ITS ABSOLUTE VALUE.  THE "V" BIT WILL*
+;       BE SET UPON FUNCTION RETURN.            *
+;    2) IF THE RESULT OVERFLOWS THEN THE        *
+;       MAXIMUM SIZE VALUE IS RETURNED WITH THE *
+;       "V" BIT SET IN THE CONDITION CODE.      *
+;    3) SPOT CHECKS SHOW AT LEAST SIX DIGIT     *
+;       PRECISION FOR 80 PERCENT OF THE CASES.  *
+;                                               *
+;  TIME: (8MHZ NO WAIT STATES ASSUMED)          *
+;                                               *
+;        THE TIMING IS VERY DATA SENSITIVE WITH *
+;        TEST SAMPLES RANGING FROM 720 TO       *
+;        1206 MICROSECONDS                      *
+;                                               *
+;************************************************
+;         PAGE
 
-*****************
-* POWER  ENTRY  *
-*****************
+;****************
+; POWER  ENTRY  *
+;****************
 
-* TAKE THE LOGORITHM OF THE BASE VALUE
+; TAKE THE LOGORITHM OF THE BASE VALUE
 FFPPWR    TST.B     D7                    ;? NEGATIVE BASE VALUE
           BPL.S     FPPPOS                ;BRANCH POSITIVE
           AND.B     #$7F,D7               ;TAKE ABSOLUTE VALUE
@@ -2287,83 +2287,83 @@ FPPPOS    BSR       FFPLOG                ;FIND LOG OF THE NUMBER TO BE USED
           MOVEM.L   D3-D5,-(SP)           ;SAVE MULTIPLY WORK REGISTERS
           BSR       FFPMUL                ;MULTIPLY BY THE EXPONENT
           MOVEM.L   (SP)+,D3-D5           ;RESTORE MULTIPLY WORK REGISTERS
-* IF OVERFLOWED, FFPEXP WILL SET "V" BIT AND RETURN DESIRED RESULT ANYWAY
+; IF OVERFLOWED, FFPEXP WILL SET "V" BIT AND RETURN DESIRED RESULT ANYWAY
           BRA       FFPEXP                ;RESULT IS EXPONENT
 
-*         END
-*         TTL       FFP SINE COSINE TANGENT (FFPSIN/FFPCOS/FFPTAN/FFPSINCS)
-***************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC. *
-***************************************
+;         END
+;         TTL       FFP SINE COSINE TANGENT (FFPSIN/FFPCOS/FFPTAN/FFPSINCS)
+;**************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC. *
+;**************************************
 
-*FFPSIN   IDNT      1,2                   ;FFP SINE COSINE TANGENT
-*         OPT       PCS
-*         SECTION   9
-*         XDEF      FFPSIN,FFPCOS,FFPTAN,FFPSINCS ;ENTRY POINTS
-*         XREF      9:FFPTHETA            ;INVERSE TANGENT TABLE
-*         XREF      9:FFPMUL,9:FFPDIV,9:FFPSUB ;MULTIPLY, DIVIDE AND SUBTRACT
-*         XREF      9:FFPTNORM            ;TRANSCENDENTAL NORMALIZE ROUTINE
-*         XREF      FFPCPYRT              ;COPYRIGHT STUB
+;FFPSIN   IDNT      1,2                   ;FFP SINE COSINE TANGENT
+;         OPT       PCS
+;         SECTION   9
+;         XDEF      FFPSIN,FFPCOS,FFPTAN,FFPSINCS ;ENTRY POINTS
+;         XREF      9:FFPTHETA            ;INVERSE TANGENT TABLE
+;         XREF      9:FFPMUL,9:FFPDIV,9:FFPSUB ;MULTIPLY, DIVIDE AND SUBTRACT
+;         XREF      9:FFPTNORM            ;TRANSCENDENTAL NORMALIZE ROUTINE
+;         XREF      FFPCPYRT              ;COPYRIGHT STUB
 
-*************************************************
-*        FFPSIN FFPCOS FFPTAN FFPSINCS          *
-*     FAST FLOATING POINT SINE/COSINE/TANGENT   *
-*                                               *
-*  INPUT:   D7 - INPUT ARGUMENT (RADIAN)        *
-*                                               *
-*  OUTPUT:  D7 - FUNCTION RESULT                *
-*           (FFPSINCS ALSO RETURNS D6)          *
-*                                               *
-*     ALL OTHER REGISTERS TOTALLY TRANSPARENT   *
-*                                               *
-*  CODE SIZE: 334 BYTES   STACK WORK: 38 BYTES  *
-*                                               *
-*  CONDITION CODES:                             *
-*        Z - SET IF RESULT IN D7 IS ZERO        *
-*        N - SET IF RESULT IN D7 IS NEGATIVE    *
-*        C - UNDEFINED                          *
-*        V - SET IF RESULT IS MEANINGLESS       *
-*            (INPUT MAGNITUDE TOO LARGE)        *
-*        X - UNDEFINED                          *
-*                                               *
-*  FUNCTIONS:                                   *
-*             FFPSIN   -  SINE RESULT           *
-*             FFPCOS   -  COSINE RESULT         *
-*             FFPTAN   -  TANGENT RESULT        *
-*             FFPSINCS -  BOTH SINE AND COSINE  *
-*                         D6 - SIN, D7 - COSINE *
-*                                               *
-*  NOTES:                                       *
-*    1) INPUT VALUES ARE IN RADIANS.            *
-*    2) FUNCTION FFPSINCS RETURNS BOTH SINE     *
-*       AND COSINE TWICE AS FAST AS CALCULATING *
-*       THE TWO FUNCTIONS INDEPENDENTLY FOR     *
-*       THE SAME VALUE.  THIS IS HANDY FOR      *
-*       GRAPHICS PROCESSING.                    *
-*    2) INPUT ARGUMENTS LARGER THAN TWO PI      *
-*       SUFFER REDUCED PRECISION.  THE LARGER   *
-*       THE ARGUMENT, THE SMALLER THE PRECISION.*
-*       EXCESSIVELY LARGE ARGUMENTS WHICH HAVE  *
-*       LESS THAN 5 BITS OF PRECISION ARE       *
-*       RETURNED UNCHANGED WITH THE "V" BIT SET.*
-*    3) FOR TANGENT ANGLES OF INFINITE VALUE    *
-*       THE LARGEST POSSIBLE POSITIVE NUMBER    *
-*       IS RETURNED ($FFFFFF7F). THIS STILL     *
-*       GIVES RESULTS WELL WITHIN SINGLE        *
-*       PRECISION CALCULATION.                  *
-*    4) SPOT CHECKS SHOW ERRORS BOUNDED BY      *
-*       4 X 10**-7 BUT FOR ARGUMENTS CLOSE TO   *
-*       PI/2 INTERVALS WHERE 10**-5 IS SEEN.    *
-*                                               *
-*  TIME: (8MHZ NO WAIT STATES AND ARGUMENT      *
-*         ASSUMED WITHIN +-PI)                  *
-*                                               *
-*           FFPSIN       413 MICROSECONDS       *
-*           FFPCOS       409 MICROSECONDS       *
-*           FFPTAN       501 MICROSECONDS       *
-*           FFPSINCS     420 MICROSECONDS       *
-*************************************************
-*         PAGE
+;************************************************
+;        FFPSIN FFPCOS FFPTAN FFPSINCS          *
+;     FAST FLOATING POINT SINE/COSINE/TANGENT   *
+;                                               *
+;  INPUT:   D7 - INPUT ARGUMENT (RADIAN)        *
+;                                               *
+;  OUTPUT:  D7 - FUNCTION RESULT                *
+;           (FFPSINCS ALSO RETURNS D6)          *
+;                                               *
+;     ALL OTHER REGISTERS TOTALLY TRANSPARENT   *
+;                                               *
+;  CODE SIZE: 334 BYTES   STACK WORK: 38 BYTES  *
+;                                               *
+;  CONDITION CODES:                             *
+;        Z - SET IF RESULT IN D7 IS ZERO        *
+;        N - SET IF RESULT IN D7 IS NEGATIVE    *
+;        C - UNDEFINED                          *
+;        V - SET IF RESULT IS MEANINGLESS       *
+;            (INPUT MAGNITUDE TOO LARGE)        *
+;        X - UNDEFINED                          *
+;                                               *
+;  FUNCTIONS:                                   *
+;             FFPSIN   -  SINE RESULT           *
+;             FFPCOS   -  COSINE RESULT         *
+;             FFPTAN   -  TANGENT RESULT        *
+;             FFPSINCS -  BOTH SINE AND COSINE  *
+;                         D6 - SIN, D7 - COSINE *
+;                                               *
+;  NOTES:                                       *
+;    1) INPUT VALUES ARE IN RADIANS.            *
+;    2) FUNCTION FFPSINCS RETURNS BOTH SINE     *
+;       AND COSINE TWICE AS FAST AS CALCULATING *
+;       THE TWO FUNCTIONS INDEPENDENTLY FOR     *
+;       THE SAME VALUE.  THIS IS HANDY FOR      *
+;       GRAPHICS PROCESSING.                    *
+;    2) INPUT ARGUMENTS LARGER THAN TWO PI      *
+;       SUFFER REDUCED PRECISION.  THE LARGER   *
+;       THE ARGUMENT, THE SMALLER THE PRECISION.*
+;       EXCESSIVELY LARGE ARGUMENTS WHICH HAVE  *
+;       LESS THAN 5 BITS OF PRECISION ARE       *
+;       RETURNED UNCHANGED WITH THE "V" BIT SET.*
+;    3) FOR TANGENT ANGLES OF INFINITE VALUE    *
+;       THE LARGEST POSSIBLE POSITIVE NUMBER    *
+;       IS RETURNED ($FFFFFF7F). THIS STILL     *
+;       GIVES RESULTS WELL WITHIN SINGLE        *
+;       PRECISION CALCULATION.                  *
+;    4) SPOT CHECKS SHOW ERRORS BOUNDED BY      *
+;       4 X 10**-7 BUT FOR ARGUMENTS CLOSE TO   *
+;       PI/2 INTERVALS WHERE 10**-5 IS SEEN.    *
+;                                               *
+;  TIME: (8MHZ NO WAIT STATES AND ARGUMENT      *
+;         ASSUMED WITHIN +-PI)                  *
+;                                               *
+;           FFPSIN       413 MICROSECONDS       *
+;           FFPCOS       409 MICROSECONDS       *
+;           FFPTAN       501 MICROSECONDS       *
+;           FFPSINCS     420 MICROSECONDS       *
+;************************************************
+;         PAGE
 
 PI        EQU       $C90FDB42             ;FLOATING CONSTANT PI
 FIXEDPI   EQU       $C90FDAA2             ;PI SKELETON TO 32 BITS PRECISION
@@ -2373,62 +2373,62 @@ INV2PI    EQU       $A2F9833E             ;INVERSE OF TWO-PI
 KINV      EQU       $9B74EE40             ;FLOATING K INVERSE
 NKFACT    EQU       $EC916240             ;NEGATIVE K INVERSE
 
-********************************************
-* ENTRY FOR RETURNING BOTH SINE AND COSINE *
-********************************************
+;*******************************************
+; ENTRY FOR RETURNING BOTH SINE AND COSINE *
+;*******************************************
 FFPSINCS  MOVE.W    #-2,-(SP)             ;FLAG BOTH SINE AND COSINE WANTED
           BRA.S     FPSCOM                ;ENTER COMMON CODE
 
-**********************
-* TANGENT ENTRY POINT*
-**********************
+;*********************
+; TANGENT ENTRY POINT*
+;*********************
 FFPTAN    MOVE.W    #-1,-(SP)             ;FLAG TANGENT WITH MINUS VALUE
           BRA.S     FPSCHL                ;CHECK VERY SMALL VALUES
 
-**************************
-* COSINE ONLY ENTRY POINT*
-**************************
+;*************************
+; COSINE ONLY ENTRY POINT*
+;*************************
 FFPCOS    MOVE.W    #1,-(SP)              ;FLAG COSINE WITH POSITIVE VALUE
           BRA.S     FPSCOM                ;ENTER COMMON CODE
 
-* NEGATIVE SINE/TANGENT SMALL VALUE CHECK
+; NEGATIVE SINE/TANGENT SMALL VALUE CHECK
 FPSCHM    CMP.B     #$80+$40-8,D7         ;? LESS OR SAME AS -2**-9
           BHI.S     FPSCOM                ;CONTINUE IF NOT TOO SMALL
-* RETURN ARGUMENT
+; RETURN ARGUMENT
 FPSRTI    ADDQ.L    #2,SP                 ;RID INTERNAL PARAMETER
           TST.B     D7                    ;SET CONDITION CODES
           RTS                             ;RETURN TO CALLER
 
-************************
-* SINE ONLY ENTRY POINT*
-************************
+;***********************
+; SINE ONLY ENTRY POINT*
+;***********************
 FFPSIN    CLR.W     -(SP)                 ;FLAG SINE WITH ZERO
-* SINE AND TANGENT VALUES < 2**-9 RETURN IDENTITIES
+; SINE AND TANGENT VALUES < 2**-9 RETURN IDENTITIES
 FPSCHL    TST.B     D7                    ;TEST SIGN
           BMI.S     FPSCHM                ;BRANCH MINUS
           CMP.B     #$40-8,D7             ;? LESS OR SAME THAN 2**-9
           BLS.S     FPSRTI                ;RETURN IDENTITY
 
-* SAVE REGISTERS AND INSURE INPUT WITHIN + OR - PI RANGE
+; SAVE REGISTERS AND INSURE INPUT WITHIN + OR - PI RANGE
 FPSCOM    MOVEM.L   D1-D6/A0,-(SP)        ;SAVE ALL WORK REGISTERS
           MOVE.L    D7,D2                 ;COPY INPUT OVER
           ADD.B     D7,D7                 ;RID SIGN BIT
           CMP.B     #(64+5)<<1,D7         ;? ABS(ARG) < 2**6 (32)
           BLS.S     FPSNLR                ;BRANCH YES, NOT TOO LARGE
-* ARGUMENT IS TOO LARGE TO SUBTRACT TO WITHIN RANGE
+; ARGUMENT IS TOO LARGE TO SUBTRACT TO WITHIN RANGE
           CMP.B     #(64+20)<<1,D7        ;? TEST EXCESSIVE SIZE (>2**20)
           BLS.S     FPSGPR                ;NO, GO AHEAD AND USE
-* ERROR - ARGUMENT SO LARGE RESULT HAS NO PRECISION
+; ERROR - ARGUMENT SO LARGE RESULT HAS NO PRECISION
           OR.B      #$02,CCR              ;FORCE V BIT ON
           MOVEM.L   (SP)+,D1-D6/A0        ;RESTORE REGISTERS
           ADDQ.L    #2,SP                 ;CLEAN INTERNAL ARGUMENT OFF STACK
           RTS                             ;RETURN TO CALLER
 
-* WE MUST FIND MOD(ARG,TWOPI) SINCE ARGUMENT IS TOO LARGE FOR SUBTRACTIONS
+; WE MUST FIND MOD(ARG,TWOPI) SINCE ARGUMENT IS TOO LARGE FOR SUBTRACTIONS
 FPSGPR    MOVE.L    #INV2PI,D6            ;LOAD UP 2*PI INVERSE CONSTANT
           MOVE.L    D2,D7                 ;COPY OVER INPUT ARGUMENT
           BSR       FFPMUL                ;DIVIDE BY TWOPI (VIA MULTIPLY INVERSE)
-* CONVERT QUOTIENT TO FLOAT INTEGER
+; CONVERT QUOTIENT TO FLOAT INTEGER
           MOVE.B    D7,D5                 ;COPY EXPONENT OVER
           AND.B     #$7F,D5               ;RID SIGN FROM EXPONENT
           SUB.B     #64+24,D5             ;FIND FRACTIONAL PRECISION
@@ -2445,7 +2445,7 @@ FPSGPR    MOVE.L    #INV2PI,D6            ;LOAD UP 2*PI INVERSE CONSTANT
           BSR       FFPSUB                ;FIND REMAINDER OF TWOPI DIVIDE
           MOVE.L    D7,D2                 ;USE IT AS NEW INPUT ARGUMENT
 
-* CONVERT ARGUMENT TO BINARY(31,26) PRECISION FOR REDUCTION WITHIN +-PI
+; CONVERT ARGUMENT TO BINARY(31,26) PRECISION FOR REDUCTION WITHIN +-PI
 FPSNLR    MOVE.L    #FIXEDPIs4,D4         ;LOAD PI    !elenc vasm does signed shift so force value
           MOVE.L    D2,D7                 ;COPY FLOAT ARGUMENT
           CLR.B     D7                    ;CLEAR SIGN AND EXPONENT
@@ -2457,7 +2457,7 @@ FPSNLR    MOVE.L    #FIXEDPIs4,D4         ;LOAD PI    !elenc vasm does signed sh
           BLS.S     FPSSH1                ;NO, GO AHEAD AND SHIFT
           MOVEQ     #0,D7                 ;FORCE TO ZERO
 FPSSH1    LSR.L     D2,D7                 ;CONVERT TO FIXED POINT
-* FORCE TO +PI OR BELOW
+; FORCE TO +PI OR BELOW
 FPSPCK    CMP.L     D4,D7                 ;? GREATER THAN PI
           BLE.S     FPSCKM                ;BRANCH NOT
           SUB.L     D4,D7                 ;SUBTRACT
@@ -2472,23 +2472,23 @@ FPSNMI    SUB.B     #$80+64+6,D2          ;RID SIGN AND GET SHIFT VALUE
 FPSSH2    LSR.L     D2,D7                 ;CONVERT TO FIXED POINT
           NEG.L     D7                    ;MAKE NEGATIVE
           NEG.L     D4                    ;MAKE -PI
-* FORCE TO -PI OR ABOVE
+; FORCE TO -PI OR ABOVE
 FPSNCK    CMP.L     D4,D7                 ;? LESS THAN -PI
           BGE.S     FPSCKM                ;BRANCH NOT
           SUB.L     D4,D7                 ;ADD
           SUB.L     D4,D7                 ;.  TWOPI
           BRA.S     FPSNCK                ;AND CHECK AGAIN
 
-*****************************************
-* CORDIC CALCULATION REGISTERS:         *
-* D1 - LOOP COUNT   A0 - TABLE POINTER  *
-* D2 - SHIFT COUNT                      *
-* D3 - X'   D5 - X                      *
-* D4 - Y'   D6 - Y                      *
-* D7 - TEST ARGUMENT                    *
-*****************************************
+;****************************************
+; CORDIC CALCULATION REGISTERS:         *
+; D1 - LOOP COUNT   A0 - TABLE POINTER  *
+; D2 - SHIFT COUNT                      *
+; D3 - X'   D5 - X                      *
+; D4 - Y'   D6 - Y                      *
+; D7 - TEST ARGUMENT                    *
+;****************************************
 
-* INPUT WITHIN RANGE, NOW START CORDIC SETUP
+; INPUT WITHIN RANGE, NOW START CORDIC SETUP
 FPSCKM    MOVEQ     #0,D5                 ;X=0
           MOVE.L    #NKFACT,D6            ;Y=NEGATIVE INVERSE K FACTOR SEED
           MOVE.L    #FIXEDPIs2,D4         ;SETUP FIXED PI/2 CONSTANT     !elenc vasm does signed shift so force value
@@ -2500,7 +2500,7 @@ FPSAP2    ADD.L     D4,D7                 ;ADD CONSTANT
           LEA       FFPTHETA,A0           ;LOAD ARCTANGENT TABLE
           MOVEQ     #23,D1                ;LOOP 24 TIMES
           MOVEQ     #-1,D2                ;PRIME SHIFT COUNTER
-* CORDIC LOOP
+; CORDIC LOOP
 FSINLP    ADD.W     #1,D2                 ;INCREMENT SHIFT COUNT
           MOVE.L    D5,D3                 ;COPY X
           MOVE.L    D6,D4                 ;COPY Y
@@ -2518,13 +2518,13 @@ FSBMI     ADD.L     D4,D5                 ;X=X+Y'
           ADD.L     (A0)+,D7              ;ARG=ARG+TABLE(N)
           DBRA      D1,FSINLP             ;LOOP UNTIL DONE
 
-* NOW SPLIT UP TANGENT AND FFPSINCS FROM SINE AND COSINE
+; NOW SPLIT UP TANGENT AND FFPSINCS FROM SINE AND COSINE
 FSCOM     MOVE.W    7*4(SP),D1            ;RELOAD INTERNAL PARAMETER
           BPL.S     FSSINCOS              ;BRANCH FOR SINE OR COSINE
 
           ADD.B     #1,D1                 ;SEE IF WAS -1 FOR TANGENT
           BNE.S     FSDUAL                ;NO, MUST BE BOTH SIN AND COSINE
-* TANGENT FINISH
+; TANGENT FINISH
           BSR.S     FSFLOAT               ;FLOAT Y (SIN)
           MOVE.L    D6,D7                 ;SETUP FOR DIVIDE INTO
           MOVE.L    D5,D6                 ;PREPARE X
@@ -2535,11 +2535,11 @@ FSINFRT   MOVEM.L   (SP)+,D1-D6/A0        ;RESTORE REGISTERS
           ADDQ.L    #2,SP                 ;DELETE INTERNAL PARAMETER
           RTS                             ;RETURN TO CALLER
 
-* TANGENT IS INFINITE. RETURN MAXIMUM POSITIVE NUMBER.
+; TANGENT IS INFINITE. RETURN MAXIMUM POSITIVE NUMBER.
 FSTINF    MOVE.L    #$FFFFFF7F,D7         ;LARGEST FFP NUMBER
           BRA.S     FSINFRT               ;AND CLEAN UP
 
-* SINE AND COSINE
+; SINE AND COSINE
 FSSINCOS  BEQ.S     FSSINE                ;BRANCH IF SINE
           MOVE.L    D5,D6                 ;USE X FOR COSINE
 FSSINE    BSR.S     FSFLOAT               ;CONVERT TO FLOAT
@@ -2549,14 +2549,14 @@ FSSINE    BSR.S     FSFLOAT               ;CONVERT TO FLOAT
           ADDQ.L    #2,SP                 ;DELETE INTERNAL PARAMETER
           RTS                             ;RETURN TO CALLER
 
-* BOTH SINE AND COSINE
+; BOTH SINE AND COSINE
 FSDUAL    MOVE.L    D5,-(SP)              ;SAVE COSINE DERIVITIVE
           BSR.S     FSFLOAT               ;CONVERT SINE DERIVITIVE TO FLOAT
           MOVE.L    D6,6*4(SP)            ;PLACE SINE INTO SAVED D6
           MOVE.L    (SP)+,D6              ;RESTORE COSINE DERIVITIVE
           BRA.S     FSSINE                ;AND CONTINUE RESTORING SINE ON THE SLY
 
-* FSFLOAT - FLOAT INTERNAL PRECISION BUT TRUNCATE TO ZERO IF < 2**-21
+; FSFLOAT - FLOAT INTERNAL PRECISION BUT TRUNCATE TO ZERO IF < 2**-21
 FSFLOAT   MOVE.L    D6,D4                 ;COPY INTERNAL PRECISION VALUE
           BMI.S     FSFNEG                ;BRANCH NEGATIVE
           CMP.L     #$000000FF,D6         ;? TEST MAGNITUDE
@@ -2569,66 +2569,66 @@ FSFNEG    ASR.L     #8,D4                 ;SEE IF ALL ONES BITS 8-31
           BNE       FFPTNORM              ;NORMALIZE IF NOT TOO SMALL
           BRA.S     FSFZRO                ;RETURN ZERO
 
-*         END
-*         TTL       FAST FLOATING POINT HYPERBOLICS (FFPSINH)
-***************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC. *
-***************************************
+;         END
+;         TTL       FAST FLOATING POINT HYPERBOLICS (FFPSINH)
+;**************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC. *
+;**************************************
 
-*FFPSINH  IDNT      1,2                   ;FFP SINH COSH TANH
-*         OPT       PCS
-*         SECTION   9
-*         XDEF      FFPSINH,FFPCOSH,FFPTANH  ;ENTRY POINTS
-*         XREF      9:FFPEXP,9:FFPDIV,9:FFPADD,9:FFPSUB  ;FUNCTIONS CALLED
-*         XREF      FFPCPYRT              ;COPYRIGHT STUB
+;FFPSINH  IDNT      1,2                   ;FFP SINH COSH TANH
+;         OPT       PCS
+;         SECTION   9
+;         XDEF      FFPSINH,FFPCOSH,FFPTANH  ;ENTRY POINTS
+;         XREF      9:FFPEXP,9:FFPDIV,9:FFPADD,9:FFPSUB  ;FUNCTIONS CALLED
+;         XREF      FFPCPYRT              ;COPYRIGHT STUB
 
-*************************************************
-*            FFPSINH/FFPCOSH/FFPTANH            *
-*       FAST FLOATING POINT HYPERBOLICS         *
-*                                               *
-*  INPUT:   D7 - FLOATING POINT ARGUMENT        *
-*                                               *
-*  OUTPUT:  D7 - HYPERBOLIC RESULT              *
-*                                               *
-*     ALL OTHER REGISTERS ARE TRANSPARENT       *
-*                                               *
-*  CODE SIZE:  36 BYTES   STACK WORK: 50 BYTES  *
-*                                               *
-*  CALLS: FFPEXP, FFPDIV, FFPADD AND FFPSUB     *
-*                                               *
-*  CONDITION CODES:                             *
-*        Z - SET IF THE RESULT IS ZERO          *
-*        N - SET IF THE RESULT IS NEGATIVE      *
-*        V - SET IF OVERFLOW OCCURRED           *
-*        C - UNDEFINED                          *
-*        X - UNDEFINED                          *
-*                                               *
-*  NOTES:                                       *
-*    1) AN OVERFLOW WILL PRODUCE THE MAXIMUM    *
-*       SIGNED VALUE WITH THE "V" BIT SET.      *
-*    2) SPOT CHECKS SHOW AT LEAST SEVEN DIGIT   *
-*       PRECISION.                              *
-*                                               *
-*  TIME: (8MHZ NO WAIT STATES ASSUMED)          *
-*                                               *
-*        SINH  623 MICROSECONDS                 *
-*        COSH  601 MICROSECONDS                 *
-*        TANH  623 MICROSECONDS                 *
-*                                               *
-*************************************************
-*         PAGE
+;************************************************
+;            FFPSINH/FFPCOSH/FFPTANH            *
+;       FAST FLOATING POINT HYPERBOLICS         *
+;                                               *
+;  INPUT:   D7 - FLOATING POINT ARGUMENT        *
+;                                               *
+;  OUTPUT:  D7 - HYPERBOLIC RESULT              *
+;                                               *
+;     ALL OTHER REGISTERS ARE TRANSPARENT       *
+;                                               *
+;  CODE SIZE:  36 BYTES   STACK WORK: 50 BYTES  *
+;                                               *
+;  CALLS: FFPEXP, FFPDIV, FFPADD AND FFPSUB     *
+;                                               *
+;  CONDITION CODES:                             *
+;        Z - SET IF THE RESULT IS ZERO          *
+;        N - SET IF THE RESULT IS NEGATIVE      *
+;        V - SET IF OVERFLOW OCCURRED           *
+;        C - UNDEFINED                          *
+;        X - UNDEFINED                          *
+;                                               *
+;  NOTES:                                       *
+;    1) AN OVERFLOW WILL PRODUCE THE MAXIMUM    *
+;       SIGNED VALUE WITH THE "V" BIT SET.      *
+;    2) SPOT CHECKS SHOW AT LEAST SEVEN DIGIT   *
+;       PRECISION.                              *
+;                                               *
+;  TIME: (8MHZ NO WAIT STATES ASSUMED)          *
+;                                               *
+;        SINH  623 MICROSECONDS                 *
+;        COSH  601 MICROSECONDS                 *
+;        TANH  623 MICROSECONDS                 *
+;                                               *
+;************************************************
+;         PAGE
 
 FPONES    EQU       $80000041             ;FLOATING ONE
 
-**********************************
-*            FFPCOSH             *
-*  THIS FUNCTION IS DEFINED AS   *
-*            X    -X             *
-*           E  + E               *
-*           --------             *
-*              2                 *
-* WE EVALUATE EXACTLY AS DEFINED *
-**********************************
+;*********************************
+;            FFPCOSH             *
+;  THIS FUNCTION IS DEFINED AS   *
+;            X    -X             *
+;           E  + E               *
+;           --------             *
+;              2                 *
+; WE EVALUATE EXACTLY AS DEFINED *
+;*********************************
 
 FFPCOSH   MOVE.L    D6,-(SP)              ;SAVE OUR ONE WORK REGISTER
           AND.B     #$7F,D7               ;FORCE POSITIVE (RESULTS SAME BUT EXP FASTER)
@@ -2646,24 +2646,24 @@ FFPCOSH   MOVE.L    D6,-(SP)              ;SAVE OUR ONE WORK REGISTER
           MOVEQ     #0,D7                 ;RETURN ZERO IF UNDERFLOW
 FHCRTN    MOVEM.L   (SP)+,D6              ;RESTORE OUR WORK REGISTER
           RTS                             ;RETURN TO CALLER WITH ANSWER
-*         PAGE
-**********************************
-*            FFPSINH             *
-*  THIS FUNCTION IS DEFINED AS   *
-*            X    -X             *
-*           E  - E               *
-*           --------             *
-*              2                 *
-* HOWEVER, WE EVALUATE IT VIA    *
-* THE COSH FORMULA SINCE ITS     *
-* ADDITION IN THE NUMERATOR      *
-* IS SAFER THAN OUR SUBTRACTION  *
-*                                *
-* THUS THE FUNCTION BECOMES:     *
-*            X                   *
-*    SINH = E  - COSH            *
-*                                *
-**********************************
+;         PAGE
+;*********************************
+;            FFPSINH             *
+;  THIS FUNCTION IS DEFINED AS   *
+;            X    -X             *
+;           E  - E               *
+;           --------             *
+;              2                 *
+; HOWEVER, WE EVALUATE IT VIA    *
+; THE COSH FORMULA SINCE ITS     *
+; ADDITION IN THE NUMERATOR      *
+; IS SAFER THAN OUR SUBTRACTION  *
+;                                *
+; THUS THE FUNCTION BECOMES:     *
+;            X                   *
+;    SINH = E  - COSH            *
+;                                *
+;*********************************
 
 FFPSINH   MOVE.L    D6,-(SP)              ;SAVE OUR ONE WORK REGISTER
           BSR       FFPEXP                ;EVALUATE E TO THE X
@@ -2683,19 +2683,19 @@ FHSZRO    MOVE.L    D7,D6                 ;MOVE FOR FINAL SUBTRACT
           BSR       FFPSUB                ;RESULT IS E TO X MINUS COSH
 FHSRTN    MOVEM.L   (SP)+,D6              ;RESTORE OUR WORK REGISTER
           RTS                             ;RETURN TO CALLER WITH ANSWER
-*         PAGE
-**********************************
-*            FFPTANH             *
-*  THIS FUNCTION IS DEFINED AS   *
-*  SINH/COSH WHICH REDUCES TO:   *
-*            2X                  *
-*           E  - 1               *
-*           ------               *
-*            2X                  *
-*           E  + 1               *
-*                                *
-* WHICH WE EVALUATE.             *
-**********************************
+;         PAGE
+;*********************************
+;            FFPTANH             *
+;  THIS FUNCTION IS DEFINED AS   *
+;  SINH/COSH WHICH REDUCES TO:   *
+;            2X                  *
+;           E  - 1               *
+;           ------               *
+;            2X                  *
+;           E  + 1               *
+;                                *
+; WHICH WE EVALUATE.             *
+;*********************************
 
 FFPTANH   MOVE.L    D6,-(SP)              ;SAVE OUR ONE WORK REGISTER
           TST.B     D7                    ;? ZERO
@@ -2723,63 +2723,63 @@ FFPTOVF   MOVE.L    #$80000082,D7         ;FLOAT ONE WITH EXPONENT OVER TO LEFT
 FFPTOVF2  MOVE.L    #FPONES,D7            ;RETURN +1 AS RESULT
           BRA.S     FFPTRTN
 
-*         END
-*         TTL       FAST FLOATING POINT SQUARE ROOT (FFPSQRT)
-*******************************************
-* (C)  COPYRIGHT 1981 BY MOTOROLA INC.    *
-*******************************************
+;         END
+;         TTL       FAST FLOATING POINT SQUARE ROOT (FFPSQRT)
+;******************************************
+; (C)  COPYRIGHT 1981 BY MOTOROLA INC.    *
+;******************************************
 
-*FFPSQRT  IDNT      1,4                   ;FFP SQUARE ROOT
-*         SECTION   9
-*         XDEF      FFPSQRT               ;ENTRY POINT
-*         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
+;FFPSQRT  IDNT      1,4                   ;FFP SQUARE ROOT
+;         SECTION   9
+;         XDEF      FFPSQRT               ;ENTRY POINT
+;         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
 
-********************************************
-*           FFPSQRT SUBROUTINE             *
-*                                          *
-* INPUT:                                   *
-*          D7 - FLOATING POINT ARGUMENT    *
-*                                          *
-* OUTPUT:                                  *
-*          D7 - FLOATING POINT SQUARE ROOT *
-*                                          *
-* CONDITION CODES:                         *
-*                                          *
-*          N - CLEARED                     *
-*          Z - SET IF RESULT IS ZERO       *
-*          V - SET IF ARGUMENT WAS NEGATIVE*
-*          C - CLEARED                     *
-*          X - UNDEFINED                   *
-*                                          *
-*    REGISTERS D3 THRU D6 ARE VOLATILE     *
-*                                          *
-* CODE: 194 BYTES    STACK WORK: 4 BYTES   *
-*                                          *
-* NOTES:                                   *
-*   1) NO OVERFLOWS OR UNDERFLOWS CAN      *
-*      OCCUR.                              *
-*   2) A NEGATIVE ARGUMENT CAUSES THE      *
-*      ABSOLUTE VALUE TO BE USED AND THE   *
-*      "V" BIT SET TO INDICATE THAT A      *
-*      NEGATIVE SQUARE ROOT WAS ATTEMPTED. *
-*                                          *
-* TIMES:                                   *
-* ARGUMENT ZERO         3.50 MICROSECONDS  *
-* MINIMUM TIME > 0    187.50 MICROSECONDS  *
-* AVERAGE TIME > 0    193.75 MICROSECONDS  *
-* MAXIMUM TIME > 0    200.00 MICROSECONDS  *
-********************************************
-*         PAGE
+;*******************************************
+;           FFPSQRT SUBROUTINE             *
+;                                          *
+; INPUT:                                   *
+;          D7 - FLOATING POINT ARGUMENT    *
+;                                          *
+; OUTPUT:                                  *
+;          D7 - FLOATING POINT SQUARE ROOT *
+;                                          *
+; CONDITION CODES:                         *
+;                                          *
+;          N - CLEARED                     *
+;          Z - SET IF RESULT IS ZERO       *
+;          V - SET IF ARGUMENT WAS NEGATIVE*
+;          C - CLEARED                     *
+;          X - UNDEFINED                   *
+;                                          *
+;    REGISTERS D3 THRU D6 ARE VOLATILE     *
+;                                          *
+; CODE: 194 BYTES    STACK WORK: 4 BYTES   *
+;                                          *
+; NOTES:                                   *
+;   1) NO OVERFLOWS OR UNDERFLOWS CAN      *
+;      OCCUR.                              *
+;   2) A NEGATIVE ARGUMENT CAUSES THE      *
+;      ABSOLUTE VALUE TO BE USED AND THE   *
+;      "V" BIT SET TO INDICATE THAT A      *
+;      NEGATIVE SQUARE ROOT WAS ATTEMPTED. *
+;                                          *
+; TIMES:                                   *
+; ARGUMENT ZERO         3.50 MICROSECONDS  *
+; MINIMUM TIME > 0    187.50 MICROSECONDS  *
+; AVERAGE TIME > 0    193.75 MICROSECONDS  *
+; MAXIMUM TIME > 0    200.00 MICROSECONDS  *
+;*******************************************
+;         PAGE
 
-* NEGATIVE ARGUMENT HANDLER
+; NEGATIVE ARGUMENT HANDLER
 FPSINV    AND.B     #$7F,D7               ;TAKE ABSOLUTE VALUE
           BSR.S     FFPSQRT               ;FIND SQRT(ABS(X))
           ORI.B     #$02,CCR              ;SET "V" BIT
           RTS                             ;RETURN TO CALLER
 
-*********************
-* SQUARE ROOT ENTRY *
-*********************
+;********************
+; SQUARE ROOT ENTRY *
+;********************
 FFPSQRT   MOVE.B    D7,D3                 ;COPY S+EXPONENT OVER
           BEQ.S     FPSRTN                ;RETURN ZERO IF ZERO ARGUMENT
           BMI.S     FPSINV                ;NEGATIVE, REJECT WITH SPECIAL CONDITION CODES
@@ -2800,14 +2800,14 @@ FPSEVEN   ADD.B     #$20,D3               ;RENORMALIZE EXPONENT
           SUB.L     #$01200000,D5         ;COMBINE FIRST LOOP CALCULATIONS
           BRA.S     FPSENT                ;GO ENTER LOOP CALCULATIONS
 
-*                   SQUARE ROOT CALCULATION
-* THIS IS AN OPTIMIZED SCHEME FOR THE RECURSIVE SQUARE ROOT ALGORITHM:
-*
-*  STEP N+1:
-*     TEST VALUE <= .0  0  0  R  R  R  0 1  THEN GENERATE A ONE IN RESULT R
-*                     N  2  1  N  2  1        ELSE A ZERO IN RESULT R      N+1
-*                                                                    N+1
-* PRECALCULATIONS ARE DONE SUCH THAT THE ENTRY IS MIDWAY INTO STEP 2
+;                   SQUARE ROOT CALCULATION
+; THIS IS AN OPTIMIZED SCHEME FOR THE RECURSIVE SQUARE ROOT ALGORITHM:
+;
+;  STEP N+1:
+;     TEST VALUE <= .0  0  0  R  R  R  0 1  THEN GENERATE A ONE IN RESULT R
+;                     N  2  1  N  2  1        ELSE A ZERO IN RESULT R      N+1
+;                                                                    N+1
+; PRECALCULATIONS ARE DONE SUCH THAT THE ENTRY IS MIDWAY INTO STEP 2
 
 FPSONE    BSET      D3,D7                 ;INSERT A ONE INTO THIS POSITION
           MOVE.L    D5,D4                 ;UPDATE NEW TEST VALUE
@@ -2818,7 +2818,7 @@ FPSZERO   ADD.L     D4,D4                 ;MULTIPLY TEST RESULT BY TWO
 FPSENT    DBMI      D3,FPSONE             ;BRANCH IF A ONE GENERATED IN THE RESULT
           DBPL      D3,FPSZERO            ;BRANCH IF A ZERO GENERATED
 
-* ALL 24 BITS CALCULATED. NOW TEST RESULT OF 25TH BIT
+; ALL 24 BITS CALCULATED. NOW TEST RESULT OF 25TH BIT
           BLS.S     FPSFIN                ;BRANCH NEXT BIT ZERO, NO ROUNDING
           CMP.L     #$00FFFFFF,D7         ;INSURE NO OVERFLOW    V1,4
           BEQ.S     FPSFIN                ;BR MANTISSA ALL ONES      V1,4
@@ -2829,32 +2829,32 @@ FPSFIN    LSL.L     #8,D7                 ;NORMALIZE RESULT
           MOVE.B    D3,D7                 ;MOVE IN FINAL SIGN+EXPONENT
 FPSRTN    RTS                             ;RETURN TO CALLER
 
-* TABLE TO FURNISH '01' SHIFTS DURING THE ALGORITHM LOOP
+; TABLE TO FURNISH '01' SHIFTS DURING THE ALGORITHM LOOP
 FPSTBL    DC.L      1<<20,1<<19,1<<18,1<<17,1<<16,1<<15
           DC.L      1<<14,1<<13,1<<12,1<<11,1<<10,1<<9,1<<8
           DC.L      1<<7,1<<6,1<<5,1<<4,1<<3,1<<2,1<<1,1<<0
           DC.L      0,0
 
-*         END
-*         TTL       ARCTANGENT CORDIC TABLE - FFPTHETA
-***************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC. *
-***************************************
+;         END
+;         TTL       ARCTANGENT CORDIC TABLE - FFPTHETA
+;**************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC. *
+;**************************************
 
-*FFPTHETA IDNT      1,1                   ;FFP ARCTANGENT TABLE
-*         SECTION   9
-*         XDEF      FFPTHETA              ;EXTERNAL DEFINITION
+;FFPTHETA IDNT      1,1                   ;FFP ARCTANGENT TABLE
+;         SECTION   9
+;         XDEF      FFPTHETA              ;EXTERNAL DEFINITION
 
-*********************************************************
-*             ARCTANGENT TABLE FOR CORDIC               *
-*                                                       *
-* THE FOLLOWING TABLE IS USED DURING CORDIC             *
-* TRANSCENDENTAL EVALUATIONS FOR SINE, COSINE, AND      *
-* TANGENT AND REPRESENTS ARCTANGENT VALUES 2**-N WHERE  *
-* N RANGES FROM 0 TO 24.  THE FORMAT IS BINARY(31,29)   *
-* PRECISION (I.E. THE BINARY POINT IS BETWEEN BITS      *
-* 28 AND 27 GIVING TWO LEADING NON-FRACTION BITS.)      *
-*********************************************************
+;********************************************************
+;             ARCTANGENT TABLE FOR CORDIC               *
+;                                                       *
+; THE FOLLOWING TABLE IS USED DURING CORDIC             *
+; TRANSCENDENTAL EVALUATIONS FOR SINE, COSINE, AND      *
+; TANGENT AND REPRESENTS ARCTANGENT VALUES 2**-N WHERE  *
+; N RANGES FROM 0 TO 24.  THE FORMAT IS BINARY(31,29)   *
+; PRECISION (I.E. THE BINARY POINT IS BETWEEN BITS      *
+; 28 AND 27 GIVING TWO LEADING NON-FRACTION BITS.)      *
+;********************************************************
 
 FFPTHETA  DC.L      $1921FB54             ;ARCTAN(2**0)  !elenc vasm does signed shift so force value
           DC.L      $76B19C15>>3          ;ARCTAN(2**-1)
@@ -2884,32 +2884,32 @@ FFPTHETA  DC.L      $1921FB54             ;ARCTAN(2**0)  !elenc vasm does signed
           DC.L      $0000007F>>3          ;ARCTAN(2**-25)
           DC.L      $0000003F>>3          ;ARCTAN(2**-26)
 
-*         END
-*         TTL       FFP TRANSCENDENTAL NORMALIZE INTERNAL ROUTINE (FFPTNORM)
-***************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC. *
-***************************************
+;         END
+;         TTL       FFP TRANSCENDENTAL NORMALIZE INTERNAL ROUTINE (FFPTNORM)
+;**************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC. *
+;**************************************
 
-*FFPTNORM IDNT      1,2                   ;FFP TRANSCENDENTAL INTERNAL NORMALIZE
-*         XDEF      FFPTNORM
-*         SECTION   9
+;FFPTNORM IDNT      1,2                   ;FFP TRANSCENDENTAL INTERNAL NORMALIZE
+;         XDEF      FFPTNORM
+;         SECTION   9
 
-******************************
-*        FFPTNORM            *
-* NORMALIZE BIN(29,31) VALUE *
-*   AND CONVERT TO FLOAT     *
-*                            *
-* INPUT: D6 - INTERNAL FIXED *
-* OUTPUT: D6 - FFP FLOAT     *
-*         CC - REFLECT VALUE *
-* NOTES:                     *
-*  1) D4 IS DESTROYED.       *
-*                            *
-* TIME: (8MHZ NO WAIT STATE) *
-*       ZERO  4.0 MICROSEC.  *
-*   AVG ELSE 17.0 MICROSEC.  *
-*                            *
-******************************
+;*****************************
+;        FFPTNORM            *
+; NORMALIZE BIN(29,31) VALUE *
+;   AND CONVERT TO FLOAT     *
+;                            *
+; INPUT: D6 - INTERNAL FIXED *
+; OUTPUT: D6 - FFP FLOAT     *
+;         CC - REFLECT VALUE *
+; NOTES:                     *
+;  1) D4 IS DESTROYED.       *
+;                            *
+; TIME: (8MHZ NO WAIT STATE) *
+;       ZERO  4.0 MICROSEC.  *
+;   AVG ELSE 17.0 MICROSEC.  *
+;                            *
+;*****************************
 
 FFPTNORM  MOVEQ     #$42,D4               ;SETUP INITIAL EXPONENT
           TST.L     D6                    ;TEST FOR NON-NEGATIVE
@@ -2932,4 +2932,4 @@ FSFCONT   ADD.L     D6,D6                 ;SHIFT ANOTHER BIT
 FSFNRM    MOVE.B    D4,D6                 ;INSERT SIGN+EXPONENT
 FSFRTN    RTS                             ;RETURN TO CALLER
 
-*         END
+;         END

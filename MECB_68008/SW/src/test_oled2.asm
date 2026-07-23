@@ -1,9 +1,11 @@
+               cpu      68008
+;
                org      $4000
 ;
-               include  'mecb.inc'
-               include  'tutor.inc'
-               include  'library_rom.inc'
-               include  'oled.inc'
+               include  "mecb.inc"
+               include  "tutor.inc"
+               include  "library_rom.inc"
+               include  "oled.inc"
 ;
 BUFFER_SIZE    equ      255
 ;

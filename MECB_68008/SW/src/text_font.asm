@@ -1,5 +1,5 @@
 text_font_def  equ     *
-* char 0x00
+; char 0x00
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
@@ -8,7 +8,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x01
+; char 0x01
                dc.b    %00000000
                dc.b    %00100000
                dc.b    %01110000
@@ -17,7 +17,7 @@ text_font_def  equ     *
                dc.b    %00100000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x02
+; char 0x02
                dc.b    %10101000
                dc.b    %01010100
                dc.b    %10101000
@@ -26,7 +26,7 @@ text_font_def  equ     *
                dc.b    %01010100
                dc.b    %10101000
                dc.b    %01010100
-* char 0x03
+; char 0x03
                dc.b    %00100000
                dc.b    %01110000
                dc.b    %10101000
@@ -35,7 +35,7 @@ text_font_def  equ     *
                dc.b    %00100000
                dc.b    %00100000
                dc.b    %00000000
-* char 0x04
+; char 0x04
                dc.b    %00100000
                dc.b    %00100000
                dc.b    %00100000
@@ -44,7 +44,7 @@ text_font_def  equ     *
                dc.b    %01110000
                dc.b    %00100000
                dc.b    %00000000
-* char 0x05
+; char 0x05
                dc.b    %00000000
                dc.b    %00100000
                dc.b    %01000000
@@ -53,7 +53,7 @@ text_font_def  equ     *
                dc.b    %00100000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x06
+; char 0x06
                dc.b    %00000000
                dc.b    %00100000
                dc.b    %00010000
@@ -62,7 +62,7 @@ text_font_def  equ     *
                dc.b    %00100000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x07
+; char 0x07
                dc.b    %01100000
                dc.b    %10010000
                dc.b    %10010000
@@ -71,7 +71,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x08
+; char 0x08
                dc.b    %00100000
                dc.b    %00100000
                dc.b    %11111000
@@ -80,7 +80,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %11111000
                dc.b    %00000000
-* char 0x09
+; char 0x09
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
@@ -89,7 +89,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %10101000
                dc.b    %00000000
-* char 0x0A
+; char 0x0A
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00001000
@@ -98,7 +98,7 @@ text_font_def  equ     *
                dc.b    %01000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x0B
+; char 0x0B
                dc.b    %00110000
                dc.b    %00110000
                dc.b    %00110000
@@ -107,7 +107,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x0C
+; char 0x0C
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
@@ -116,7 +116,7 @@ text_font_def  equ     *
                dc.b    %00110000
                dc.b    %00110000
                dc.b    %00110000
-* char 0x0D
+; char 0x0D
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
@@ -125,7 +125,7 @@ text_font_def  equ     *
                dc.b    %00110000
                dc.b    %00110000
                dc.b    %00110000
-* char 0x0E
+; char 0x0E
                dc.b    %00110000
                dc.b    %00110000
                dc.b    %00110000
@@ -134,7 +134,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x0F
+; char 0x0F
                dc.b    %00110000
                dc.b    %00110000
                dc.b    %00110000
@@ -143,7 +143,7 @@ text_font_def  equ     *
                dc.b    %00110000
                dc.b    %00110000
                dc.b    %00110000
-* char 0x10
+; char 0x10
                dc.b    %11111100
                dc.b    %11111100
                dc.b    %00000000
@@ -152,7 +152,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x11
+; char 0x11
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %11111100
@@ -161,7 +161,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x12
+; char 0x12
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
@@ -170,7 +170,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x13
+; char 0x13
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
@@ -179,7 +179,7 @@ text_font_def  equ     *
                dc.b    %11111100
                dc.b    %00000000
                dc.b    %00000000
-* char 0x14
+; char 0x14
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
@@ -188,7 +188,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %11111100
                dc.b    %11111100
-* char 0x15
+; char 0x15
                dc.b    %00110000
                dc.b    %00110000
                dc.b    %00110000
@@ -197,7 +197,7 @@ text_font_def  equ     *
                dc.b    %00110000
                dc.b    %00110000
                dc.b    %00110000
-* char 0x16
+; char 0x16
                dc.b    %00110000
                dc.b    %00110000
                dc.b    %00110000
@@ -206,7 +206,7 @@ text_font_def  equ     *
                dc.b    %00110000
                dc.b    %00110000
                dc.b    %00110000
-* char 0x17
+; char 0x17
                dc.b    %00110000
                dc.b    %00110000
                dc.b    %00110000
@@ -215,7 +215,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x18
+; char 0x18
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
@@ -224,7 +224,7 @@ text_font_def  equ     *
                dc.b    %00110000
                dc.b    %00110000
                dc.b    %00110000
-* char 0x19
+; char 0x19
                dc.b    %00110000
                dc.b    %00110000
                dc.b    %00110000
@@ -233,7 +233,7 @@ text_font_def  equ     *
                dc.b    %00110000
                dc.b    %00110000
                dc.b    %00110000
-* char 0x1A
+; char 0x1A
                dc.b    %00001000
                dc.b    %00110000
                dc.b    %11000000
@@ -242,7 +242,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %11111000
                dc.b    %00000000
-* char 0x1B
+; char 0x1B
                dc.b    %10000000
                dc.b    %01100000
                dc.b    %00011000
@@ -251,7 +251,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %11111000
                dc.b    %00000000
-* char 0x1C
+; char 0x1C
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %11111000
@@ -260,7 +260,7 @@ text_font_def  equ     *
                dc.b    %01010000
                dc.b    %10011000
                dc.b    %00000000
-* char 0x1D
+; char 0x1D
                dc.b    %00010000
                dc.b    %00010000
                dc.b    %11111000
@@ -269,7 +269,7 @@ text_font_def  equ     *
                dc.b    %01000000
                dc.b    %01000000
                dc.b    %00000000
-* char 0x1E
+; char 0x1E
                dc.b    %00110000
                dc.b    %01001000
                dc.b    %01000000
@@ -278,7 +278,7 @@ text_font_def  equ     *
                dc.b    %01001000
                dc.b    %10110000
                dc.b    %00000000
-* char 0x1F
+; char 0x1F
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
@@ -287,7 +287,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x20 " "
+; char 0x20 " "
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
@@ -296,7 +296,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x21 "!"
+; char 0x21 "!"
                dc.b    %00100000
                dc.b    %00100000
                dc.b    %00100000
@@ -305,7 +305,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00100000
                dc.b    %00000000
-* char 0x22 "\""
+; char 0x22 "\""
                dc.b    %01010000
                dc.b    %01010000
                dc.b    %01010000
@@ -314,7 +314,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x23 "#"
+; char 0x23 "#"
                dc.b    %01010000
                dc.b    %01010000
                dc.b    %11111000
@@ -323,7 +323,7 @@ text_font_def  equ     *
                dc.b    %01010000
                dc.b    %01010000
                dc.b    %00000000
-* char 0x24 "$"
+; char 0x24 "$"
                dc.b    %00100000
                dc.b    %01111000
                dc.b    %10100000
@@ -332,7 +332,7 @@ text_font_def  equ     *
                dc.b    %11110000
                dc.b    %00100000
                dc.b    %00000000
-* char 0x25 "%"
+; char 0x25 "%"
                dc.b    %11000000
                dc.b    %11001000
                dc.b    %00010000
@@ -341,7 +341,7 @@ text_font_def  equ     *
                dc.b    %10011000
                dc.b    %00011000
                dc.b    %00000000
-* char 0x26 "&"
+; char 0x26 "&"
                dc.b    %01000000
                dc.b    %10100000
                dc.b    %10100000
@@ -350,7 +350,7 @@ text_font_def  equ     *
                dc.b    %10010000
                dc.b    %01101000
                dc.b    %00000000
-* char 0x27 "'"
+; char 0x27 "'"
                dc.b    %00100000
                dc.b    %00100000
                dc.b    %00100000
@@ -359,7 +359,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x28 "("
+; char 0x28 "("
                dc.b    %00010000
                dc.b    %00100000
                dc.b    %01000000
@@ -368,7 +368,7 @@ text_font_def  equ     *
                dc.b    %00100000
                dc.b    %00010000
                dc.b    %00000000
-* char 0x29 ")"
+; char 0x29 ")"
                dc.b    %01000000
                dc.b    %00100000
                dc.b    %00010000
@@ -377,7 +377,7 @@ text_font_def  equ     *
                dc.b    %00100000
                dc.b    %01000000
                dc.b    %00000000
-* char 0x2A "*"
+; char 0x2A "*"
                dc.b    %00100000
                dc.b    %10101000
                dc.b    %01110000
@@ -386,7 +386,7 @@ text_font_def  equ     *
                dc.b    %10101000
                dc.b    %00100000
                dc.b    %00000000
-* char 0x2B "+"
+; char 0x2B "+"
                dc.b    %00000000
                dc.b    %00100000
                dc.b    %00100000
@@ -395,7 +395,7 @@ text_font_def  equ     *
                dc.b    %00100000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x2C ","
+; char 0x2C ","
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
@@ -404,7 +404,7 @@ text_font_def  equ     *
                dc.b    %00100000
                dc.b    %01000000
                dc.b    %00000000
-* char 0x2D "-"
+; char 0x2D "-"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
@@ -413,7 +413,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x2E "."
+; char 0x2E "."
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
@@ -422,7 +422,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00100000
                dc.b    %00000000
-* char 0x2F "/"
+; char 0x2F "/"
                dc.b    %00000000
                dc.b    %00001000
                dc.b    %00010000
@@ -431,7 +431,7 @@ text_font_def  equ     *
                dc.b    %10000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x30 "0"
+; char 0x30 "0"
                dc.b    %01110000
                dc.b    %10001000
                dc.b    %10011000
@@ -440,7 +440,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %01110000
                dc.b    %00000000
-* char 0x31 "1"
+; char 0x31 "1"
                dc.b    %00100000
                dc.b    %01100000
                dc.b    %00100000
@@ -449,7 +449,7 @@ text_font_def  equ     *
                dc.b    %00100000
                dc.b    %01110000
                dc.b    %00000000
-* char 0x32 "2"
+; char 0x32 "2"
                dc.b    %01110000
                dc.b    %10001000
                dc.b    %00001000
@@ -458,7 +458,7 @@ text_font_def  equ     *
                dc.b    %10000000
                dc.b    %11111000
                dc.b    %00000000
-* char 0x33 "3"
+; char 0x33 "3"
                dc.b    %11111000
                dc.b    %00001000
                dc.b    %00010000
@@ -467,7 +467,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %01110000
                dc.b    %00000000
-* char 0x34 "4"
+; char 0x34 "4"
                dc.b    %00010000
                dc.b    %00110000
                dc.b    %01010000
@@ -476,7 +476,7 @@ text_font_def  equ     *
                dc.b    %00010000
                dc.b    %00010000
                dc.b    %00000000
-* char 0x35 "5"
+; char 0x35 "5"
                dc.b    %11111000
                dc.b    %10000000
                dc.b    %11110000
@@ -485,7 +485,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %01110000
                dc.b    %00000000
-* char 0x36 "6"
+; char 0x36 "6"
                dc.b    %00111000
                dc.b    %01000000
                dc.b    %10000000
@@ -494,7 +494,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %01110000
                dc.b    %00000000
-* char 0x37 "7"
+; char 0x37 "7"
                dc.b    %11111000
                dc.b    %00001000
                dc.b    %00010000
@@ -503,7 +503,7 @@ text_font_def  equ     *
                dc.b    %01000000
                dc.b    %01000000
                dc.b    %00000000
-* char 0x38 "8"
+; char 0x38 "8"
                dc.b    %01110000
                dc.b    %10001000
                dc.b    %10001000
@@ -512,7 +512,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %01110000
                dc.b    %00000000
-* char 0x39 "9"
+; char 0x39 "9"
                dc.b    %01110000
                dc.b    %10001000
                dc.b    %10001000
@@ -521,7 +521,7 @@ text_font_def  equ     *
                dc.b    %00010000
                dc.b    %11100000
                dc.b    %00000000
-* char 0x3A ":"
+; char 0x3A ":"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00100000
@@ -530,7 +530,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x3B ";"
+; char 0x3B ";"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00100000
@@ -539,7 +539,7 @@ text_font_def  equ     *
                dc.b    %00100000
                dc.b    %01000000
                dc.b    %00000000
-* char 0x3C "<"
+; char 0x3C "<"
                dc.b    %00001000
                dc.b    %00010000
                dc.b    %00100000
@@ -548,7 +548,7 @@ text_font_def  equ     *
                dc.b    %00010000
                dc.b    %00001000
                dc.b    %00000000
-* char 0x3D "="
+; char 0x3D "="
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %11111000
@@ -557,7 +557,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x3E ">"
+; char 0x3E ">"
                dc.b    %10000000
                dc.b    %01000000
                dc.b    %00100000
@@ -566,7 +566,7 @@ text_font_def  equ     *
                dc.b    %01000000
                dc.b    %10000000
                dc.b    %00000000
-* char 0x3F "?"
+; char 0x3F "?"
                dc.b    %01110000
                dc.b    %10001000
                dc.b    %00001000
@@ -575,7 +575,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00100000
                dc.b    %00000000
-* char 0x40 "@"
+; char 0x40 "@"
                dc.b    %01110000
                dc.b    %10001000
                dc.b    %10101000
@@ -584,7 +584,7 @@ text_font_def  equ     *
                dc.b    %10000000
                dc.b    %01111000
                dc.b    %00000000
-* char 0x41 "A"
+; char 0x41 "A"
                dc.b    %01110000
                dc.b    %10001000
                dc.b    %10001000
@@ -593,7 +593,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %10001000
                dc.b    %00000000
-* char 0x42 "B"
+; char 0x42 "B"
                dc.b    %11110000
                dc.b    %10001000
                dc.b    %10001000
@@ -602,7 +602,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %11110000
                dc.b    %00000000
-* char 0x43 "C"
+; char 0x43 "C"
                dc.b    %01110000
                dc.b    %10001000
                dc.b    %10000000
@@ -611,7 +611,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %01110000
                dc.b    %00000000
-* char 0x44 "D"
+; char 0x44 "D"
                dc.b    %11100000
                dc.b    %10010000
                dc.b    %10001000
@@ -620,7 +620,7 @@ text_font_def  equ     *
                dc.b    %10010000
                dc.b    %11100000
                dc.b    %00000000
-* char 0x45 "E"
+; char 0x45 "E"
                dc.b    %11111000
                dc.b    %10000000
                dc.b    %10000000
@@ -629,7 +629,7 @@ text_font_def  equ     *
                dc.b    %10000000
                dc.b    %11111000
                dc.b    %00000000
-* char 0x46 "F"
+; char 0x46 "F"
                dc.b    %11111000
                dc.b    %10000000
                dc.b    %10000000
@@ -638,7 +638,7 @@ text_font_def  equ     *
                dc.b    %10000000
                dc.b    %10000000
                dc.b    %00000000
-* char 0x47 "G"
+; char 0x47 "G"
                dc.b    %01110000
                dc.b    %10001000
                dc.b    %10000000
@@ -647,7 +647,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %01111000
                dc.b    %00000000
-* char 0x48 "H"
+; char 0x48 "H"
                dc.b    %10001000
                dc.b    %10001000
                dc.b    %10001000
@@ -656,7 +656,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %10001000
                dc.b    %00000000
-* char 0x49 "I"
+; char 0x49 "I"
                dc.b    %01110000
                dc.b    %00100000
                dc.b    %00100000
@@ -665,7 +665,7 @@ text_font_def  equ     *
                dc.b    %00100000
                dc.b    %01110000
                dc.b    %00000000
-* char 0x4A "J"
+; char 0x4A "J"
                dc.b    %00001000
                dc.b    %00001000
                dc.b    %00001000
@@ -674,7 +674,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %01110000
                dc.b    %00000000
-* char 0x4B "K"
+; char 0x4B "K"
                dc.b    %10001000
                dc.b    %10010000
                dc.b    %10100000
@@ -683,7 +683,7 @@ text_font_def  equ     *
                dc.b    %10010000
                dc.b    %10001000
                dc.b    %00000000
-* char 0x4C "L"
+; char 0x4C "L"
                dc.b    %10000000
                dc.b    %10000000
                dc.b    %10000000
@@ -692,7 +692,7 @@ text_font_def  equ     *
                dc.b    %10000000
                dc.b    %11111000
                dc.b    %00000000
-* char 0x4D "M"
+; char 0x4D "M"
                dc.b    %10001000
                dc.b    %11011000
                dc.b    %10101000
@@ -701,7 +701,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %10001000
                dc.b    %00000000
-* char 0x4E "N"
+; char 0x4E "N"
                dc.b    %10001000
                dc.b    %10001000
                dc.b    %11001000
@@ -710,7 +710,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %10001000
                dc.b    %00000000
-* char 0x4F "O"
+; char 0x4F "O"
                dc.b    %01110000
                dc.b    %10001000
                dc.b    %10001000
@@ -719,7 +719,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %01110000
                dc.b    %00000000
-* char 0x50 "P"
+; char 0x50 "P"
                dc.b    %11110000
                dc.b    %10001000
                dc.b    %10001000
@@ -728,7 +728,7 @@ text_font_def  equ     *
                dc.b    %10000000
                dc.b    %10000000
                dc.b    %00000000
-* char 0x51 "Q"
+; char 0x51 "Q"
                dc.b    %01110000
                dc.b    %10001000
                dc.b    %10001000
@@ -737,7 +737,7 @@ text_font_def  equ     *
                dc.b    %10010000
                dc.b    %01101000
                dc.b    %00000000
-* char 0x52 "R"
+; char 0x52 "R"
                dc.b    %11110000
                dc.b    %10001000
                dc.b    %10001000
@@ -746,7 +746,7 @@ text_font_def  equ     *
                dc.b    %10010000
                dc.b    %10001000
                dc.b    %00000000
-* char 0x53 "S"
+; char 0x53 "S"
                dc.b    %01111000
                dc.b    %10000000
                dc.b    %10000000
@@ -755,7 +755,7 @@ text_font_def  equ     *
                dc.b    %00001000
                dc.b    %11110000
                dc.b    %00000000
-* char 0x54 "T"
+; char 0x54 "T"
                dc.b    %11111000
                dc.b    %00100000
                dc.b    %00100000
@@ -764,7 +764,7 @@ text_font_def  equ     *
                dc.b    %00100000
                dc.b    %00100000
                dc.b    %00000000
-* char 0x55 "U"
+; char 0x55 "U"
                dc.b    %10001000
                dc.b    %10001000
                dc.b    %10001000
@@ -773,7 +773,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %01110000
                dc.b    %00000000
-* char 0x56 "V"
+; char 0x56 "V"
                dc.b    %10001000
                dc.b    %10001000
                dc.b    %10001000
@@ -782,7 +782,7 @@ text_font_def  equ     *
                dc.b    %01010000
                dc.b    %00100000
                dc.b    %00000000
-* char 0x57 "W"
+; char 0x57 "W"
                dc.b    %10001000
                dc.b    %10001000
                dc.b    %10001000
@@ -791,7 +791,7 @@ text_font_def  equ     *
                dc.b    %11011000
                dc.b    %10001000
                dc.b    %00000000
-* char 0x58 "X"
+; char 0x58 "X"
                dc.b    %10001000
                dc.b    %10001000
                dc.b    %01010000
@@ -800,7 +800,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %10001000
                dc.b    %00000000
-* char 0x59 "Y"
+; char 0x59 "Y"
                dc.b    %10001000
                dc.b    %10001000
                dc.b    %10001000
@@ -809,7 +809,7 @@ text_font_def  equ     *
                dc.b    %00100000
                dc.b    %00100000
                dc.b    %00000000
-* char 0x5A "Z"
+; char 0x5A "Z"
                dc.b    %11111000
                dc.b    %00001000
                dc.b    %00010000
@@ -818,7 +818,7 @@ text_font_def  equ     *
                dc.b    %10000000
                dc.b    %11111000
                dc.b    %00000000
-* char 0x5B "["
+; char 0x5B "["
                dc.b    %01110000
                dc.b    %01000000
                dc.b    %01000000
@@ -827,7 +827,7 @@ text_font_def  equ     *
                dc.b    %01000000
                dc.b    %01110000
                dc.b    %00000000
-* char 0x5C "\"
+; char 0x5C "\"
                dc.b    %00000000
                dc.b    %10000000
                dc.b    %01000000
@@ -836,7 +836,7 @@ text_font_def  equ     *
                dc.b    %00001000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x5D "]"
+; char 0x5D "]"
                dc.b    %01110000
                dc.b    %00010000
                dc.b    %00010000
@@ -845,7 +845,7 @@ text_font_def  equ     *
                dc.b    %00010000
                dc.b    %01110000
                dc.b    %00000000
-* char 0x5E "^"
+; char 0x5E "^"
                dc.b    %00100000
                dc.b    %01010000
                dc.b    %10001000
@@ -854,7 +854,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x5F "_"
+; char 0x5F "_"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
@@ -863,7 +863,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %11111000
                dc.b    %00000000
-* char 0x60 "`"
+; char 0x60 "`"
                dc.b    %01000000
                dc.b    %00100000
                dc.b    %00010000
@@ -872,7 +872,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x61 "a"
+; char 0x61 "a"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %01110000
@@ -881,7 +881,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %01111000
                dc.b    %00000000
-* char 0x62 "b"
+; char 0x62 "b"
                dc.b    %10000000
                dc.b    %10000000
                dc.b    %11110000
@@ -890,7 +890,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %11110000
                dc.b    %00000000
-* char 0x63 "c"
+; char 0x63 "c"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %01111000
@@ -899,7 +899,7 @@ text_font_def  equ     *
                dc.b    %10000000
                dc.b    %01111000
                dc.b    %00000000
-* char 0x64 "d"
+; char 0x64 "d"
                dc.b    %00001000
                dc.b    %00001000
                dc.b    %01111000
@@ -908,7 +908,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %01111000
                dc.b    %00000000
-* char 0x65 "e"
+; char 0x65 "e"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %01110000
@@ -917,7 +917,7 @@ text_font_def  equ     *
                dc.b    %10000000
                dc.b    %01111000
                dc.b    %00000000
-* char 0x66 "f"
+; char 0x66 "f"
                dc.b    %00110000
                dc.b    %01001000
                dc.b    %01000000
@@ -926,7 +926,7 @@ text_font_def  equ     *
                dc.b    %01000000
                dc.b    %01000000
                dc.b    %00000000
-* char 0x67 "g"
+; char 0x67 "g"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %01111000
@@ -935,7 +935,7 @@ text_font_def  equ     *
                dc.b    %01111000
                dc.b    %00001000
                dc.b    %11110000
-* char 0x68 "h"
+; char 0x68 "h"
                dc.b    %10000000
                dc.b    %10000000
                dc.b    %11110000
@@ -944,7 +944,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %10001000
                dc.b    %00000000
-* char 0x69 "i"
+; char 0x69 "i"
                dc.b    %00000000
                dc.b    %00100000
                dc.b    %00000000
@@ -953,7 +953,7 @@ text_font_def  equ     *
                dc.b    %00100000
                dc.b    %01110000
                dc.b    %00000000
-* char 0x6A "j"
+; char 0x6A "j"
                dc.b    %00000000
                dc.b    %00010000
                dc.b    %00000000
@@ -962,7 +962,7 @@ text_font_def  equ     *
                dc.b    %00010000
                dc.b    %10010000
                dc.b    %01100000
-* char 0x6B "k"
+; char 0x6B "k"
                dc.b    %10000000
                dc.b    %10000000
                dc.b    %10010000
@@ -971,7 +971,7 @@ text_font_def  equ     *
                dc.b    %10100000
                dc.b    %10010000
                dc.b    %00000000
-* char 0x6C "l"
+; char 0x6C "l"
                dc.b    %01100000
                dc.b    %00100000
                dc.b    %00100000
@@ -980,7 +980,7 @@ text_font_def  equ     *
                dc.b    %00100000
                dc.b    %01110000
                dc.b    %00000000
-* char 0x6D "m"
+; char 0x6D "m"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %11010000
@@ -989,7 +989,7 @@ text_font_def  equ     *
                dc.b    %10101000
                dc.b    %10101000
                dc.b    %00000000
-* char 0x6E "n"
+; char 0x6E "n"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %11110000
@@ -998,7 +998,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %10001000
                dc.b    %00000000
-* char 0x6F "o"
+; char 0x6F "o"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %01110000
@@ -1007,7 +1007,7 @@ text_font_def  equ     *
                dc.b    %10001000
                dc.b    %01110000
                dc.b    %00000000
-* char 0x70 "p"
+; char 0x70 "p"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %11110000
@@ -1016,7 +1016,7 @@ text_font_def  equ     *
                dc.b    %11110000
                dc.b    %10000000
                dc.b    %10000000
-* char 0x71 "q"
+; char 0x71 "q"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %01111000
@@ -1025,7 +1025,7 @@ text_font_def  equ     *
                dc.b    %01111000
                dc.b    %00001000
                dc.b    %00001000
-* char 0x72 "r"
+; char 0x72 "r"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %10111000
@@ -1034,7 +1034,7 @@ text_font_def  equ     *
                dc.b    %10000000
                dc.b    %10000000
                dc.b    %00000000
-* char 0x73 "s"
+; char 0x73 "s"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %01111000
@@ -1043,7 +1043,7 @@ text_font_def  equ     *
                dc.b    %00001000
                dc.b    %11110000
                dc.b    %00000000
-* char 0x74 "t"
+; char 0x74 "t"
                dc.b    %01000000
                dc.b    %01000000
                dc.b    %11110000
@@ -1052,7 +1052,7 @@ text_font_def  equ     *
                dc.b    %01001000
                dc.b    %00110000
                dc.b    %00000000
-* char 0x75 "u"
+; char 0x75 "u"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %10001000
@@ -1061,7 +1061,7 @@ text_font_def  equ     *
                dc.b    %10011000
                dc.b    %01101000
                dc.b    %00000000
-* char 0x76 "v"
+; char 0x76 "v"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %10001000
@@ -1070,7 +1070,7 @@ text_font_def  equ     *
                dc.b    %01010000
                dc.b    %00100000
                dc.b    %00000000
-* char 0x77 "w"
+; char 0x77 "w"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %10001000
@@ -1079,7 +1079,7 @@ text_font_def  equ     *
                dc.b    %10101000
                dc.b    %01010000
                dc.b    %00000000
-* char 0x78 "x"
+; char 0x78 "x"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %10001000
@@ -1088,7 +1088,7 @@ text_font_def  equ     *
                dc.b    %01010000
                dc.b    %10001000
                dc.b    %00000000
-* char 0x79 "y"
+; char 0x79 "y"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %10001000
@@ -1097,7 +1097,7 @@ text_font_def  equ     *
                dc.b    %01111000
                dc.b    %00001000
                dc.b    %11110000
-* char 0x7A "z"
+; char 0x7A "z"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %11111000
@@ -1106,7 +1106,7 @@ text_font_def  equ     *
                dc.b    %01000000
                dc.b    %11111000
                dc.b    %00000000
-* char 0x7B "{"
+; char 0x7B "{"
                dc.b    %00011000
                dc.b    %00100000
                dc.b    %00100000
@@ -1115,7 +1115,7 @@ text_font_def  equ     *
                dc.b    %00100000
                dc.b    %00011000
                dc.b    %00000000
-* char 0x7C "|"
+; char 0x7C "|"
                dc.b    %00100000
                dc.b    %00100000
                dc.b    %00100000
@@ -1124,7 +1124,7 @@ text_font_def  equ     *
                dc.b    %00100000
                dc.b    %00100000
                dc.b    %00000000
-* char 0x7D "}"
+; char 0x7D "}"
                dc.b    %11000000
                dc.b    %00100000
                dc.b    %00100000
@@ -1133,7 +1133,7 @@ text_font_def  equ     *
                dc.b    %00100000
                dc.b    %11000000
                dc.b    %00000000
-* char 0x7E "~"
+; char 0x7E "~"
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %01000000
@@ -1142,7 +1142,7 @@ text_font_def  equ     *
                dc.b    %00000000
                dc.b    %00000000
                dc.b    %00000000
-* char 0x7F "DEL"
+; char 0x7F "DEL"
                dc.b    %11111000
                dc.b    %11111000
                dc.b    %11111000

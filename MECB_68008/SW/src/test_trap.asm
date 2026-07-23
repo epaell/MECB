@@ -1,10 +1,12 @@
+               cpu      68008
+;
 ; Tutor TRAP 14 Functions
 PORTIN1N equ      224
 GETNUMD  equ      225
 GETNUMA  equ      226
 OUT1CR   equ      227
 TUTOR    equ      228
-START    equ      229
+RESTART  equ      229
 PNT8HX   equ      230
 PNT6HX   equ      231
 PNT4HX   equ      232

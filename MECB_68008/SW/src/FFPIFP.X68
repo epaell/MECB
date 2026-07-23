@@ -1,41 +1,41 @@
-*         TTL       FAST FLOATING POINT INTEGER TO FLOAT (FFPIFP)
-************************************
-* (C) COPYRIGHT 1980 MOTORLA INC.  *
-************************************
+;         TTL       FAST FLOATING POINT INTEGER TO FLOAT (FFPIFP)
+;***********************************
+; (C) COPYRIGHT 1980 MOTORLA INC.  *
+;***********************************
 
-*         XDEF      FFPIFP                ;EXTERNAL NAME
-*         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
-*FFPIFP   IDNT      1,1                   ;FFP INTEGER TO FLOAT
-*         SECTION   9
+;         XDEF      FFPIFP                ;EXTERNAL NAME
+;         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
+;FFPIFP   IDNT      1,1                   ;FFP INTEGER TO FLOAT
+;         SECTION   9
 
-***********************************************************
-*               INTEGER TO FLOATING POINT                 *
-*                                                         *
-*      INPUT: D7 = FIXED POINT INTEGER (2'S COMPLEMENT)   *
-*      OUTPUT: D7 = FAST FLOATING POINT EQUIVALENT        *
-*                                                         *
-*      CONDITION CODES:                                   *
-*                N - SET IF RESULT IS NEGATIVE            *
-*                Z - SET IF RESULT IS ZERO                *
-*                V - CLEARED                              *
-*                C - UNDEFINED                            *
-*                X - UNDEFINED                            *
-*                                                         *
-*      D5 IS DESTROYED                                    *
-*                                                         *
-*      INTEGERS OF GREATER THAN 24 BITS WILL BE ROUNDED   *
-*      AND IMPRECISE.                                     *
-*                                                         *
-*      CODE SIZE: 56 BYTES      STACK WORK AREA: 0 BYTES  *
-*                                                         *
-*      TIMINGS: (8MHZ NO WAIT STATES ASSUMED)             *
-*         COMPOSITE AVERATE 31.75 MICROSECONDS            *
-*            ARG = 0   4.25          MICROSECONDS         *
-*            ARG > 0   13.75 - 47.50 MICROSECONDS         *
-*            ARG < 0   15.50 - 50.25 MICROSECONDS         *
-*                                                         *
-***********************************************************
-*         PAGE
+;**********************************************************
+;               INTEGER TO FLOATING POINT                 *
+;                                                         *
+;      INPUT: D7 = FIXED POINT INTEGER (2'S COMPLEMENT)   *
+;      OUTPUT: D7 = FAST FLOATING POINT EQUIVALENT        *
+;                                                         *
+;      CONDITION CODES:                                   *
+;                N - SET IF RESULT IS NEGATIVE            *
+;                Z - SET IF RESULT IS ZERO                *
+;                V - CLEARED                              *
+;                C - UNDEFINED                            *
+;                X - UNDEFINED                            *
+;                                                         *
+;      D5 IS DESTROYED                                    *
+;                                                         *
+;      INTEGERS OF GREATER THAN 24 BITS WILL BE ROUNDED   *
+;      AND IMPRECISE.                                     *
+;                                                         *
+;      CODE SIZE: 56 BYTES      STACK WORK AREA: 0 BYTES  *
+;                                                         *
+;      TIMINGS: (8MHZ NO WAIT STATES ASSUMED)             *
+;         COMPOSITE AVERATE 31.75 MICROSECONDS            *
+;            ARG = 0   4.25          MICROSECONDS         *
+;            ARG > 0   13.75 - 47.50 MICROSECONDS         *
+;            ARG < 0   15.50 - 50.25 MICROSECONDS         *
+;                                                         *
+;**********************************************************
+;         PAGE
 
 FFPIFP    MOVEQ     #64+31,D5             ;SETUP HIGH END EXPONENT
           TST.L     D7                    ;? INTEGER A ZERO
@@ -60,4 +60,4 @@ ITOLP     ADD.L     D7,D7                 ;SHIFT MANTISSA UP
 ITORTI    MOVE.B    D5,D7                 ;INSERT SIGN/EXPONENT
 ITORTN    RTS                             ;RETURN TO CALLER
 
-*         END
+;         END

@@ -1,29 +1,29 @@
-*         TTL       FAST FLOATING POINT POWER OF TEN TABLE (FFP10TBL)
-************************************
-* (C) COPYRIGHT 1980 MOTORLA INC.  *
-************************************
+;         TTL       FAST FLOATING POINT POWER OF TEN TABLE (FFP10TBL)
+;***********************************
+; (C) COPYRIGHT 1980 MOTORLA INC.  *
+;***********************************
 
-*FFP10TBL IDNT      1,1                   ;FFP POWER OF TEN TABLE
-*         XDEF      FFP10TBL              ;ENTRY POINT
-*         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
-*         SECTION   9
+;FFP10TBL IDNT      1,1                   ;FFP POWER OF TEN TABLE
+;         XDEF      FFP10TBL              ;ENTRY POINT
+;         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
+;         SECTION   9
 
-*****************************************
-*         POWER OF TEN TABLE            *
-*                                       *
-*  EACH ENTRY CORRESPONDS TO A FLOATING *
-*  POINT POWER OF TEN WITH A 16 BIT     *
-*  EXPONENT AND 32 BIT MANTISSA.        *
-*  THIS TABLE IS USED TO INSURE         *
-*  PRECISE CONVERSIONS TO AND FROM      *
-*  FLOATING POINT AND EXTERNAL FORMATS. *
-*  THS IS USED IN ROUTINES "FFPDBF" AND *
-*  "FFPFASC".                           *
-*                                       *
-*          CODE SIZE: 288 BYTES         *
-*                                       *
-*****************************************
-*         PAGE
+;****************************************
+;         POWER OF TEN TABLE            *
+;                                       *
+;  EACH ENTRY CORRESPONDS TO A FLOATING *
+;  POINT POWER OF TEN WITH A 16 BIT     *
+;  EXPONENT AND 32 BIT MANTISSA.        *
+;  THIS TABLE IS USED TO INSURE         *
+;  PRECISE CONVERSIONS TO AND FROM      *
+;  FLOATING POINT AND EXTERNAL FORMATS. *
+;  THS IS USED IN ROUTINES "FFPDBF" AND *
+;  "FFPFASC".                           *
+;                                       *
+;          CODE SIZE: 288 BYTES         *
+;                                       *
+;****************************************
+;         PAGE
 
           DC.W      64                    ;10**19
           DC.L      $8AC72305
@@ -122,4 +122,4 @@ FFP10TBL  DC.W      1                     ;10**0
           DC.W      -93                   ;10**-28
           DC.L      $FD87B5F3
 
-*         END
+;         END

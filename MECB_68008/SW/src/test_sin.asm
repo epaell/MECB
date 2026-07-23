@@ -1,9 +1,11 @@
-            include  'mecb.inc'
-            include  'tutor.inc'
-            include  'library_rom.inc
-***************************************************
-* THIS IS A DEMO OF THE 68343 FAST FLOATING POINT *
-***************************************************
+            cpu      68008
+;
+            include  "mecb.inc"
+            include  "tutor.inc"
+            include  "library_rom.inc"
+;**************************************************
+; THIS IS A DEMO OF THE 68343 FAST FLOATING POINT *
+;**************************************************
             org      $1000
           
 ffp_demo    lea.l    stack,a7              ;LOAD STACK
@@ -57,10 +59,10 @@ input       movem.l  d7/a2,-(a7)
             movem.l  (a7)+,d7/a2
             rts                             ;RETURN TO CALLER
 
-*   *
-*   * PUT SUBROUTINE
-*   *  INPUT: A0->TEXT START, A1->TEXT END
-*   *
+;   *
+;   * PUT SUBROUTINE
+;   *  INPUT: A0->TEXT START, A1->TEXT END
+;   *
 
 PUT       movem.l    D0/D7/A0/A5/A6,-(a7)           ;SAVE REGS
           move.l     a0,a5
@@ -70,7 +72,7 @@ PUT       movem.l    D0/D7/A0/A5/A6,-(a7)           ;SAVE REGS
           movem.l    (a7)+,D0/D7/A0/A5/A6           ;RELOAD REGISTERS
           rts                             ;RETURN TO CALLER
 
-* CONSTANTS
+; CONSTANTS
 ASCIIPI   DC.B      '+3.1415926535897 '
 ASCIIN    DC.B      '+0.06 '
 ASCII0    DC.B      '+0.0 '
@@ -78,11 +80,11 @@ ASCII0    DC.B      '+0.0 '
           align 2
 buffer    ds.l       10
 
-* PROGRAM STACK
+; PROGRAM STACK
           ds.w     100,0                 ;STACK AREA
 stack     EQU       *
 
-* DISPLAY CHARACTER IN D0
+; DISPLAY CHARACTER IN D0
 
 CHAROUT  MOVEM.L   A0/D7,-(A7)
          MOVE.B   #OUTCH,D7
@@ -90,7 +92,7 @@ CHAROUT  MOVEM.L   A0/D7,-(A7)
          MOVEM.L   (A7)+,A0/D7
          RTS
 
-* HALT - RETURN TO TUTOR
+; HALT - RETURN TO TUTOR
 
 HALT      MOVE.W    #228,D7
           TRAP      #14

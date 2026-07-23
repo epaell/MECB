@@ -1,60 +1,60 @@
-*         TTL       FAST FLOATING POINT MULTIPLY (FFPMUL)
-*******************************************
-* (C)  COPYRIGHT 1980 BY MOTOROLA INC.    *
-*******************************************
+;         TTL       FAST FLOATING POINT MULTIPLY (FFPMUL)
+;******************************************
+; (C)  COPYRIGHT 1980 BY MOTOROLA INC.    *
+;******************************************
 
-*FFPMUL   IDNT      1,1                   ;FFP MULTIPLY
-*         XDEF      FFPMUL                ;ENTRY POINT
-*         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
-*         SECTION   9
+;FFPMUL   IDNT      1,1                   ;FFP MULTIPLY
+;         XDEF      FFPMUL                ;ENTRY POINT
+;         XREF      FFPCPYRT              ;COPYRIGHT NOTICE
+;         SECTION   9
 
-********************************************
-*          FFPMUL  SUBROUTINE              *
-*                                          *
-* INPUT:                                   *
-*          D6 - FLOATING POINT MULTIPLIER  *
-*          D7 - FLOATING POINT MULTIPLICAN *
-*                                          *
-* OUTPUT:                                  *
-*          D7 - FLOATING POINT RESULT      *
-*                                          *
-*                                          *
-* CONDITION CODES:                         *
-*          N - SET IF RESULT NEGATIVE      *
-*          Z - SET IF RESULT IS ZERO       *
-*          V - SET IF OVERFLOW OCCURRED    *
-*          C - UNDEFINED                   *
-*          X - UNDEFINED                   *
-*                                          *
-* REGISTERS D3 THRU D5 ARE VOLATILE        *
-*                                          *
-* SIZE: 122 BYTES    STACK WORK: 0 BYTES   *
-*                                          *
-* NOTES:                                   *
-*   1) MULTIPIER UNALTERED (D6).           *
-*   2) UNDERFLOWS RETURN ZERO WITH NO      *
-*      INDICATOR SET.                      *
-*   3) OVERFLOWS WILL RETURN THE MAXIMUM   *
-*      VALUE WITH THE PROPER SIGN AND THE  *
-*      'V' BIT SET IN THE CCR.             *
-*   4) THIS VERSION OF THE MULTIPLY HAS A  *
-*      SLIGHT ERROR DUE TO TRUNCATION      *
-*      OF .00390625 IN THE LEAST SIGNIFIC- *
-*      ANT BIT.  THIS AMOUNTS TO AN AVERAGE*
-*      OF 1 INCORRECT LEAST  SIGNIFICANT   *
-*      BIT RESULT FOR EVERY 512 MULTIPLIES.*
-*                                          *
-*  TIMES: (8MHZ NO WAIT STATES ASSUMED)    *
-* ARG1 ZERO            5.750 MICROSECONDS  *
-* ARG2 ZERO            3.750 MICROSECONDS  *
-* MINIMUM TIME OTHERS 38.000 MICROSECONDS  *
-* MAXIMUM TIME OTHERS 51.750 MICROSECONDS  *
-* AVERAGE OTHERS      44.125 MICROSECONDS  *
-*                                          *
-********************************************
-*         PAGE
+;*******************************************
+;          FFPMUL  SUBROUTINE              *
+;                                          *
+; INPUT:                                   *
+;          D6 - FLOATING POINT MULTIPLIER  *
+;          D7 - FLOATING POINT MULTIPLICAN *
+;                                          *
+; OUTPUT:                                  *
+;          D7 - FLOATING POINT RESULT      *
+;                                          *
+;                                          *
+; CONDITION CODES:                         *
+;          N - SET IF RESULT NEGATIVE      *
+;          Z - SET IF RESULT IS ZERO       *
+;          V - SET IF OVERFLOW OCCURRED    *
+;          C - UNDEFINED                   *
+;          X - UNDEFINED                   *
+;                                          *
+; REGISTERS D3 THRU D5 ARE VOLATILE        *
+;                                          *
+; SIZE: 122 BYTES    STACK WORK: 0 BYTES   *
+;                                          *
+; NOTES:                                   *
+;   1) MULTIPIER UNALTERED (D6).           *
+;   2) UNDERFLOWS RETURN ZERO WITH NO      *
+;      INDICATOR SET.                      *
+;   3) OVERFLOWS WILL RETURN THE MAXIMUM   *
+;      VALUE WITH THE PROPER SIGN AND THE  *
+;      'V' BIT SET IN THE CCR.             *
+;   4) THIS VERSION OF THE MULTIPLY HAS A  *
+;      SLIGHT ERROR DUE TO TRUNCATION      *
+;      OF .00390625 IN THE LEAST SIGNIFIC- *
+;      ANT BIT.  THIS AMOUNTS TO AN AVERAGE*
+;      OF 1 INCORRECT LEAST  SIGNIFICANT   *
+;      BIT RESULT FOR EVERY 512 MULTIPLIES.*
+;                                          *
+;  TIMES: (8MHZ NO WAIT STATES ASSUMED)    *
+; ARG1 ZERO            5.750 MICROSECONDS  *
+; ARG2 ZERO            3.750 MICROSECONDS  *
+; MINIMUM TIME OTHERS 38.000 MICROSECONDS  *
+; MAXIMUM TIME OTHERS 51.750 MICROSECONDS  *
+; AVERAGE OTHERS      44.125 MICROSECONDS  *
+;                                          *
+;*******************************************
+;         PAGE
 
-* FFPMUL SUBROUTINE ENTRY POINT
+; FFPMUL SUBROUTINE ENTRY POINT
 FFPMUL    MOVE.B    D7,D5                 ;PREPARE SIGN/EXPONENT WORK       4
           BEQ.S     FFMRTN                ;RETURN IF RESULT ALREADY ZERO    8/10
           MOVE.B    D6,D4                 ;COPY ARG1 SIGN/EXPONENT          4
@@ -92,7 +92,7 @@ FFMCON    ADD.L     #$80,D7               ;ROUND UP (CANNOT OVERFLOW)       16
           BEQ.S     FFMRT0                ;RETURN ZERO IF ZERO EXPONENT     8/10
 FFMRTN    RTS                             ;RETURN TO CALLER                 16
 
-* MUST NORMALIZE RESULT
+; MUST NORMALIZE RESULT
 FFMNOR    SUB.B     #1,D5                 ;BUMP EXPONENT DOWN BY ONE        4
           BVS.S     FFMRT0                ;RETURN ZERO IF UNDERFLOW         8/10
           BCS.S     FFMRT0                ;RETURN ZERO IF SIGN INVERTED     8/10
@@ -106,11 +106,11 @@ FFMCLN    MOVE.B    D5,D7                 ;INSERT SIGN AND EXPONENT         4
           BEQ.S     FFMRT0                ;RETURN ZERO IF EXPONENT ZERO     8/10
           RTS                             ;RETURN TO CALLER                 16
 
-* ARG1 ZERO
+; ARG1 ZERO
 FFMRT0    MOVEQ     #0,D7                 ;RETURN ZERO                      4
           RTS                             ;RETURN TO CALLER                 16
 
-* OVERFLOW OR UNDERFLOW EXPONENT
+; OVERFLOW OR UNDERFLOW EXPONENT
 FFMOUF    BPL.S     FFMRT0                ;BRANCH IF UNDERFLOW TO GIVE ZERO 8/10
           EOR.B     D6,D7                 ;CALCULATE PROPER SIGN            4
           OR.L      #$FFFFFF7F,D7         ;FORCE HIGHEST VALUE POSSIBLE     16
@@ -118,4 +118,4 @@ FFMOUF    BPL.S     FFMRT0                ;BRANCH IF UNDERFLOW TO GIVE ZERO 8/10
           ORI.B     #$02,CCR              ;SET OVERFLOW BIT                 20
           RTS                             ;RETURN TO CALLER                 16
 
-*         END
+;         END

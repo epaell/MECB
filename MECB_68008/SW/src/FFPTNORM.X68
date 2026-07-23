@@ -1,28 +1,28 @@
-*         TTL       FFP TRANSCENDENTAL NORMALIZE INTERNAL ROUTINE (FFPTNORM)
-***************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC. *
-***************************************
+;         TTL       FFP TRANSCENDENTAL NORMALIZE INTERNAL ROUTINE (FFPTNORM)
+;**************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC. *
+;**************************************
 
-*FFPTNORM IDNT      1,2                   ;FFP TRANSCENDENTAL INTERNAL NORMALIZE
-*         XDEF      FFPTNORM
-*         SECTION   9
+;FFPTNORM IDNT      1,2                   ;FFP TRANSCENDENTAL INTERNAL NORMALIZE
+;         XDEF      FFPTNORM
+;         SECTION   9
 
-******************************
-*        FFPTNORM            *
-* NORMALIZE BIN(29,31) VALUE *
-*   AND CONVERT TO FLOAT     *
-*                            *
-* INPUT: D6 - INTERNAL FIXED *
-* OUTPUT: D6 - FFP FLOAT     *
-*         CC - REFLECT VALUE *
-* NOTES:                     *
-*  1) D4 IS DESTROYED.       *
-*                            *
-* TIME: (8MHZ NO WAIT STATE) *
-*       ZERO  4.0 MICROSEC.  *
-*   AVG ELSE 17.0 MICROSEC.  *
-*                            *
-******************************
+;*****************************
+;        FFPTNORM            *
+; NORMALIZE BIN(29,31) VALUE *
+;   AND CONVERT TO FLOAT     *
+;                            *
+; INPUT: D6 - INTERNAL FIXED *
+; OUTPUT: D6 - FFP FLOAT     *
+;         CC - REFLECT VALUE *
+; NOTES:                     *
+;  1) D4 IS DESTROYED.       *
+;                            *
+; TIME: (8MHZ NO WAIT STATE) *
+;       ZERO  4.0 MICROSEC.  *
+;   AVG ELSE 17.0 MICROSEC.  *
+;                            *
+;*****************************
 
 FFPTNORM  MOVEQ     #$42,D4               ;SETUP INITIAL EXPONENT
           TST.L     D6                    ;TEST FOR NON-NEGATIVE
@@ -45,4 +45,4 @@ FSFCONT   ADD.L     D6,D6                 ;SHIFT ANOTHER BIT
 FSFNRM    MOVE.B    D4,D6                 ;INSERT SIGN+EXPONENT
 FSFRTN    RTS                             ;RETURN TO CALLER
 
-*         END
+;         END

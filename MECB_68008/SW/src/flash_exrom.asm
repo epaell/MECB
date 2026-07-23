@@ -1,5 +1,7 @@
-               include  'mecb.inc'
-               include  'tutor.inc'
+               cpu      68008
+;
+               include  "mecb.inc"
+               include  "tutor.inc"
 ;
                org      $4000
 ;
@@ -226,4 +228,4 @@ text_buffer    ds.b     128
 buffer_len     equ      $4800
 buffer         equ      $4802
 ;
-               include  'flash.asm'
+               include  "flash.asm"

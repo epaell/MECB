@@ -1,76 +1,76 @@
-*         TTL       FAST FLOATING POINT FLOAT TO ASCII (FFPFPA)
-***************************************
-* (C) COPYRIGHT 1980 BY MOTOROLA INC. *
-***************************************
+;         TTL       FAST FLOATING POINT FLOAT TO ASCII (FFPFPA)
+;**************************************
+; (C) COPYRIGHT 1980 BY MOTOROLA INC. *
+;**************************************
 
-*FFPFPA   IDNT      1,1                   ;FFP FLOAT TO ASCII
-*         OPT       PCS,P=68010
-*         SECTION   9
-*         XDEF      FFPFPA                ;ENTRY POINT
-*         XREF      9:FFP10TBL,FFPCPYRT   ;POWER OF TEN TABLE
+;FFPFPA   IDNT      1,1                   ;FFP FLOAT TO ASCII
+;         OPT       PCS,P=68010
+;         SECTION   9
+;         XDEF      FFPFPA                ;ENTRY POINT
+;         XREF      9:FFP10TBL,FFPCPYRT   ;POWER OF TEN TABLE
 
-*******************************************************
-*                     FFPFPA                          *
-*                 FLOAT TO ASCII                      *
-*                                                     *
-*    INPUT:  D7 - FLOATING POINT NUMBER               *
-*                                                     *
-*    OUTPUT: D7 - THE BASE TEN EXPONENT IN BINARY     *
-*                 FOR THE RETURNED FORMAT             *
-*            SP - DECREMENTED BY 14 AND               *
-*                 POINTING TO THE CONVERTED           *
-*                 NUMBER IN ASCII FORMAT              *
-*                                                     *
-*            ALL OTHER REGISTERS UNAFFECTED           *
-*                                                     *
-*    CONDITION CODES:                                 *
-*            N - SET IF THE RESULT IS NEGATIVE        *
-*            Z - SET IF THE RESULT IS ZERO            *
-*            V - CLEARED                              *
-*            C - CLEARED                              *
-*            X - UNDEFINED                            *
-*                                                     *
-*   CODE SIZE: 192 BYTES   STACK WORK AREA: 42 BYTES  *
-*                                                     *
-*                                                     *
-*            {S}{'.'}{DDDDDDDD}{'E'}{S}{DD}           *
-*            <     FRACTION   >< EXPONENT >           *
-*                                                     *
-*        WHERE  S - SIGN OF MANTISSA OR EXPONENT      *
-*                   ('+' OR '-')                      *
-*               D - DECIMAL DIGIT                     *
-*                                                     *
-*        STACK OFFSET OF RESULT  S.DDDDDDDDESDD       *
-*        AFTER RETURN            00000000001111       *
-*                                01234567890123       *
-*                                                     *
-*                                                     *
-*        EXAMPLES   +.12000000E+03  120               *
-*                   +.31415927E+01  PI                *
-*                   +.10000000E-01  ONE-HUNDREDTH     *
-*                   -.12000000E+03  MINUS 120         *
-*                                                     *
-*     NOTES:                                          *
-*       1) THE BINARY BASE 10 EXPONENT IS RETURNED    *
-*          IN D7 TO FACILITATE CONVERSIONS TO         *
-*          OTHER FORMATS.                             *
-*       2) EVEN THOUGH EIGHT DIGITS ARE RETURNED, THE *
-*          PRECISION AVAILABLE IS ONLY 7.167 DIGITS.  *
-*          ROUNDING SHOULD BE PERFORMED WHEN LESS     *
-*          THAN EIGHT DIGITS ARE ACTUALLY UTILIZED    *
-*          IN THE MANTISSA.                           *
-*       3) THE STACK IS LOWERED BY 14 BYTES BY THIS   *
-*          ROUTINE.  THE RETURN ADDRESS TO THE CALLER *
-*          IS REPLACED BY A PORTION OF THE RESULTS.   *
-*                                                     *
-*  TIME: (8MHZ NO WAIT STATES ASSUMED)                *
-*        330 MICROSECONDS CONVERTING THE SAMPLE FLOAT *
-*        VALUE OF 55.55 TO ASCII.                     *
-*                                                     *
-*******************************************************
-*         PAGE
+;******************************************************
+;                     FFPFPA                          *
+;                 FLOAT TO ASCII                      *
+;                                                     *
+;    INPUT:  D7 - FLOATING POINT NUMBER               *
+;                                                     *
+;    OUTPUT: D7 - THE BASE TEN EXPONENT IN BINARY     *
+;                 FOR THE RETURNED FORMAT             *
+;            SP - DECREMENTED BY 14 AND               *
+;                 POINTING TO THE CONVERTED           *
+;                 NUMBER IN ASCII FORMAT              *
+;                                                     *
+;            ALL OTHER REGISTERS UNAFFECTED           *
+;                                                     *
+;    CONDITION CODES:                                 *
+;            N - SET IF THE RESULT IS NEGATIVE        *
+;            Z - SET IF THE RESULT IS ZERO            *
+;            V - CLEARED                              *
+;            C - CLEARED                              *
+;            X - UNDEFINED                            *
+;                                                     *
+;   CODE SIZE: 192 BYTES   STACK WORK AREA: 42 BYTES  *
+;                                                     *
+;                                                     *
+;            {S}{'.'}{DDDDDDDD}{'E'}{S}{DD}           *
+;            <     FRACTION   >< EXPONENT >           *
+;                                                     *
+;        WHERE  S - SIGN OF MANTISSA OR EXPONENT      *
+;                   ('+' OR '-')                      *
+;               D - DECIMAL DIGIT                     *
+;                                                     *
+;        STACK OFFSET OF RESULT  S.DDDDDDDDESDD       *
+;        AFTER RETURN            00000000001111       *
+;                                01234567890123       *
+;                                                     *
+;                                                     *
+;        EXAMPLES   +.12000000E+03  120               *
+;                   +.31415927E+01  PI                *
+;                   +.10000000E-01  ONE-HUNDREDTH     *
+;                   -.12000000E+03  MINUS 120         *
+;                                                     *
+;     NOTES:                                          *
+;       1) THE BINARY BASE 10 EXPONENT IS RETURNED    *
+;          IN D7 TO FACILITATE CONVERSIONS TO         *
+;          OTHER FORMATS.                             *
+;       2) EVEN THOUGH EIGHT DIGITS ARE RETURNED, THE *
+;          PRECISION AVAILABLE IS ONLY 7.167 DIGITS.  *
+;          ROUNDING SHOULD BE PERFORMED WHEN LESS     *
+;          THAN EIGHT DIGITS ARE ACTUALLY UTILIZED    *
+;          IN THE MANTISSA.                           *
+;       3) THE STACK IS LOWERED BY 14 BYTES BY THIS   *
+;          ROUTINE.  THE RETURN ADDRESS TO THE CALLER *
+;          IS REPLACED BY A PORTION OF THE RESULTS.   *
+;                                                     *
+;  TIME: (8MHZ NO WAIT STATES ASSUMED)                *
+;        330 MICROSECONDS CONVERTING THE SAMPLE FLOAT *
+;        VALUE OF 55.55 TO ASCII.                     *
+;                                                     *
+;******************************************************
+;         PAGE
 
-* STACK DEFINITION
+; STACK DEFINITION
 STKOLD    EQU       48                    ;PREVIOUS CALLERS STACK POINTER
 STKEXP    EQU       46                    ;EXPONENT
 STKEXPS   EQU       45                    ;EXPONENTS SIGN
@@ -89,17 +89,17 @@ FFPFPA    LEA       -10(SP),SP            ;SET STACK TO NEW LOCATION
           MOVE.W    SR,-(SP)              ;SAVE FOR RETURN CODE
           MOVEM.L   D2-D6/A0/A1,-(SP)     ;SAVE WORK ADDRESS REGISTER
 
-* ADJUST FOR ZERO VALUE
+; ADJUST FOR ZERO VALUE
           BNE.S     FPFNOT0               ;BRANCH NO ZERO INPUT
           MOVEQ     #$41,D7               ;SETUP PSUEDO INTEGER EXPONENT
 
-* SETUP MANTISSA'S SIGN
+; SETUP MANTISSA'S SIGN
 FPFNOT0   MOVE.W    #'+.',STKMANS(SP)     ;INSERT PLUS AND DECIMAL
           MOVE.B    D7,D6                 ;COPY SIGN+EXPONENT
           BPL.S     FPFPLS                ;BRANCH IF PLUS
           ADD.B     #2,STKMANS(SP)        ;CHANGE PLUS TO MINUS
 
-* START SEARCH FOR MAGNITUDE IN BASE 10 POWER TABLE
+; START SEARCH FOR MAGNITUDE IN BASE 10 POWER TABLE
 FPFPLS    ADD.B     D6,D6                 ;SIGN OUT OF PICTURE
           MOVE.B    #$80,D7               ;SET ROUDING FACTOR FOR SEARCH
           EOR.B     D7,D6                 ;CONVERT EXPONENT TO BINARY
@@ -116,7 +116,7 @@ FPFBCK    ADD.W     #6,A0                 ;TO NEXT LOWER ENTRY IN TABLE
           SUB.W     #1,D3                 ;DECREMENT BASE 10 EXPONENT
           BRA.S     FPFFND                ;BRANCH POWER OF TEN FOUND
 
-* EXPONENT IS HIGHER THAN TABLE
+; EXPONENT IS HIGHER THAN TABLE
 FPFPLU    LEA       -6(A0),A0             ;TO NEXT HIGHER ENTRY
           ADD.W     #1,D3                 ;INCREMENT POWER OF TEN
           CMP.W     (A0),D6               ;TEST NEW MAGNITUDE
@@ -124,14 +124,14 @@ FPFPLU    LEA       -6(A0),A0             ;TO NEXT HIGHER ENTRY
           BEQ.S     FPFEQE                ;BRANCH EQUAL EXPONENT
           BRA.S     FPFBCK                ;BACK TO LOWER AND FOUND
 
-* EXPONENT IS LOWER THAN TABLE
+; EXPONENT IS LOWER THAN TABLE
 FPFMIN    LEA       6(A0),A0              ;TO NEXT LOWER ENTRY
           SUB.W     #1,D3                 ;DECREMENT POWER OF TEN BY ONE
           CMP.W     (A0),D6               ;TEST NEW MAGNITUDE
           BLT.S     FPFMIN                ;LOOP IF STILL LESS THAN
           BEQ.S     FPFEQE                ;BRANCH EQUAL EXPONENT
 
-* CONVERT THE EXPONENT TO ASCII
+; CONVERT THE EXPONENT TO ASCII
 FPFFND    MOVE.L    #'E+00',STKLTRE(SP)   ;SETUP EXPONENT PATTERN
           MOVE.W    D3,D2                 ;? EXPONENT POSITIVE
           BPL.S     FPFPEX                ;BRANCH IF SO
@@ -143,10 +143,10 @@ FPFPEX    CMP.W     #10,D2                ;? TEN OR GREATER
           SUB.W     #10,D2                ;ADJUST TO DECIMAL
 FPFGEN    OR.B      D2,STKEXP+1(SP)       ;FILL IN LOW DIGIT
 
-* GENERATE THE MANTISSA IN ASCII A0->TABLE  D7=BINARY MANTISSA
-* D5 - MANTISSA FROM TABLE       D6.W = BINARY EXPONENT
-* D4 - SHIFT AND DIGIT BUILDER   D2 = DBRA MANTISSA DIGIT COUNT
-* A1->MANTISSA STACK POSITION
+; GENERATE THE MANTISSA IN ASCII A0->TABLE  D7=BINARY MANTISSA
+; D5 - MANTISSA FROM TABLE       D6.W = BINARY EXPONENT
+; D4 - SHIFT AND DIGIT BUILDER   D2 = DBRA MANTISSA DIGIT COUNT
+; A1->MANTISSA STACK POSITION
           MOVEQ     #7,D2                 ;COUNT FOR EIGHT DIGITS
           LEA       STKMANT(SP),A1        ;POINT TO MANTISSA START
           TST.L     D7                    ;? ZERO TO CONVERT
@@ -170,10 +170,10 @@ FPFNIM    ADD.L     D5,D7                 ;MAKE UP FOR OVER SUBTRACTION
           MOVE.B    D4,(A1)+              ;INSERT INTO ASCII MANTISSA PATTERN
           DBRA      D2,FPFNXI             ;BRANCH IF MORE DIGITS TO GO
 
-* RETURN WITH BASE TEN EXPONENT BINARY IN D7
+; RETURN WITH BASE TEN EXPONENT BINARY IN D7
           MOVE.W    D3,D7                 ;TO D7
           EXT.L     D7                    ;TO FULL WORD
           MOVEM.L   (SP)+,D2-D6/A0/A1     ;RESTORE WORK REGISTERS
           RTR                             ;RETURN WITH PROPER CONDITION CODE
 
-*         END
+;         END

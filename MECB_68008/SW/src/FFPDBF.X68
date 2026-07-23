@@ -1,81 +1,81 @@
-*         TTL       FAST FLOATING POINT DUAL-BINARY FLOAT (FFPDBF)
-************************************
-* (C) COPYRIGHT 1980 MOTORLA INC.  *
-************************************
+;         TTL       FAST FLOATING POINT DUAL-BINARY FLOAT (FFPDBF)
+;***********************************
+; (C) COPYRIGHT 1980 MOTORLA INC.  *
+;***********************************
 
-*FFPDBF   IDNT      1,1                   ;FFP DUAL-BINARY TO FLOAT
-*         OPT       PCS
-*         XDEF      FFPDBF                ;ENTRY POINT
-*         XREF      9:FFP10TBL            ;POWER OF TEN TABLE
-*         SECTION   9
+;FFPDBF   IDNT      1,1                   ;FFP DUAL-BINARY TO FLOAT
+;         OPT       PCS
+;         XDEF      FFPDBF                ;ENTRY POINT
+;         XREF      9:FFP10TBL            ;POWER OF TEN TABLE
+;         SECTION   9
 
-***********************************************************
-*                                                         *
-*          FAST FLOATING POINT DUAL-BINARY TO FLOAT       *
-*                                                         *
-*      INPUT:  D6 BIT #16 - REPRESENTS SIGN (0=POSITIVE)  *
-*                                           (1=NEGATIVE)  *
-*              D6.W - REPRESENTS BASE TEN EXPONENT        *
-*                     CONSIDERING D7 A BINARY INTEGER     *
-*              D7 -   BINARY INTEGER MANTISSA             *
-*                                                         *
-*      OUTPUT: D7 - FAST FLOATING POINT EQUIVALENT        *
-*                                                         *
-*      CONDITION CODES:                                   *
-*                N - SET IF RESULT IS NEGATIVE            *
-*                Z - SET IF RESULT IS ZERO                *
-*                V - SET IF RESULT OVERFLOWED             *
-*                C - CLEARED                              *
-*                X - UNDEFINED                            *
-*                                                         *
-*      REGISTERS D3 THRU D6 DESTROYED                     *
-*                                                         *
-*      CODE SIZE: 164 BYTES     STACK WORK AREA: 4 BYTES  *
-*                                                         *
-*                                                         *
-*      FLOATING POINT RANGE:                              *
-*                                                         *
-*          FAST FLOATING POINT SUPPORTS THE VALUE ZERO    *
-*          AND NON-ZERO VALUES WITHIN THE FOLLOWING       *
-*          BOUNDS -                                       *
-*                                                         *
-* BASE 10                                                 *
-*                  18                             -20     *
-*   9.22337177 X 10   > +NUMBER >  5.42101070 X 10        *
-*                                                         *
-*                  18                             -20     *
-*  -9.22337177 X 10   > -NUMBER > -2.71050535 X 10        *
-*                                                         *
-* BASE 2                                                  *
-*                   63                            -63     *
-*      .FFFFFF  X  2   > +NUMBER >  .FFFFFF  X  2         *
-*                                                         *
-*                   63                            -64     *
-*     -.FFFFFF  X  2   > -NUMBER > -.FFFFFF  X  2         *
-*                                                         *
-*      PRECISION:                                         *
-*                                                         *
-*          THIS CONVERSION RESULTS IN A 24 BIT PRECISION  *
-*          WITH GUARANTEED ERROR LESS THAN OR EQUAL TO    *
-*          ONE-HALF LEAST SIGNIFICANT BIT.                *
-*                                                         *
-*                                                         *
-*      NOTES:                                             *
-*          1) THE INPUT FORMATS HAVE BEEN DESIGNED FOR    *
-*             EASE OF PARSING TEXT FOR CONVERSION TO      *
-*             FLOATING POINT.  SEE FFPASF FOR COMMENTS    *
-*             DESCRIBING THE METHOD FOR SETUP TO THIS     *
-*             ROUTINE.                                    *
-*          2) UNDERFLOWS RETURN A ZERO WITHOUT ANY        *
-*             INDICATORS SET.                             *
-*          3) OVERFLOWS WILL RETURN THE MAXIMUM VALUE     *
-*             POSSIBLE WITH PROPER SIGN AND THE 'V' BIT   *
-*             SET IN THE CCR REGISTER.                    *
-*                                                         *
-***********************************************************
-*         PAGE
+;**********************************************************
+;                                                         *
+;          FAST FLOATING POINT DUAL-BINARY TO FLOAT       *
+;                                                         *
+;      INPUT:  D6 BIT #16 - REPRESENTS SIGN (0=POSITIVE)  *
+;                                           (1=NEGATIVE)  *
+;              D6.W - REPRESENTS BASE TEN EXPONENT        *
+;                     CONSIDERING D7 A BINARY INTEGER     *
+;              D7 -   BINARY INTEGER MANTISSA             *
+;                                                         *
+;      OUTPUT: D7 - FAST FLOATING POINT EQUIVALENT        *
+;                                                         *
+;      CONDITION CODES:                                   *
+;                N - SET IF RESULT IS NEGATIVE            *
+;                Z - SET IF RESULT IS ZERO                *
+;                V - SET IF RESULT OVERFLOWED             *
+;                C - CLEARED                              *
+;                X - UNDEFINED                            *
+;                                                         *
+;      REGISTERS D3 THRU D6 DESTROYED                     *
+;                                                         *
+;      CODE SIZE: 164 BYTES     STACK WORK AREA: 4 BYTES  *
+;                                                         *
+;                                                         *
+;      FLOATING POINT RANGE:                              *
+;                                                         *
+;          FAST FLOATING POINT SUPPORTS THE VALUE ZERO    *
+;          AND NON-ZERO VALUES WITHIN THE FOLLOWING       *
+;          BOUNDS -                                       *
+;                                                         *
+; BASE 10                                                 *
+;                  18                             -20     *
+;   9.22337177 X 10   > +NUMBER >  5.42101070 X 10        *
+;                                                         *
+;                  18                             -20     *
+;  -9.22337177 X 10   > -NUMBER > -2.71050535 X 10        *
+;                                                         *
+; BASE 2                                                  *
+;                   63                            -63     *
+;      .FFFFFF  X  2   > +NUMBER >  .FFFFFF  X  2         *
+;                                                         *
+;                   63                            -64     *
+;     -.FFFFFF  X  2   > -NUMBER > -.FFFFFF  X  2         *
+;                                                         *
+;      PRECISION:                                         *
+;                                                         *
+;          THIS CONVERSION RESULTS IN A 24 BIT PRECISION  *
+;          WITH GUARANTEED ERROR LESS THAN OR EQUAL TO    *
+;          ONE-HALF LEAST SIGNIFICANT BIT.                *
+;                                                         *
+;                                                         *
+;      NOTES:                                             *
+;          1) THE INPUT FORMATS HAVE BEEN DESIGNED FOR    *
+;             EASE OF PARSING TEXT FOR CONVERSION TO      *
+;             FLOATING POINT.  SEE FFPASF FOR COMMENTS    *
+;             DESCRIBING THE METHOD FOR SETUP TO THIS     *
+;             ROUTINE.                                    *
+;          2) UNDERFLOWS RETURN A ZERO WITHOUT ANY        *
+;             INDICATORS SET.                             *
+;          3) OVERFLOWS WILL RETURN THE MAXIMUM VALUE     *
+;             POSSIBLE WITH PROPER SIGN AND THE 'V' BIT   *
+;             SET IN THE CCR REGISTER.                    *
+;                                                         *
+;**********************************************************
+;         PAGE
 
-* NORMALIZE THE INPUT BINARY MANTISSA
+; NORMALIZE THE INPUT BINARY MANTISSA
 FFPDBF    MOVEQ     #32,D5                ;SETUP BASE 2 EXPONENT MAX
           TST.L     D7                    ;? TEST FOR ZERO
           BEQ       FPDRTN1               ;RETURN, NO CONVERSION NEEDED
@@ -84,9 +84,9 @@ FFPDBF    MOVEQ     #32,D5                ;SETUP BASE 2 EXPONENT MAX
 FPDNMI    ADD.L     D7,D7                 ;SHIFT UP BY ONE
           DBMI      D5,FPDNMI             ;DECREMENT AND LOOP IF NOT YET
 
-* INSURE INPUT 10 POWER INDEX NOT WAY OFF BASE
+; INSURE INPUT 10 POWER INDEX NOT WAY OFF BASE
 FPDINM    CMP.W     #18,D6                ;? WAY TOO LARGE
-          BGT.S     FPDOVF1               ;BRANCH OVERFLOW
+          BGT       FPDOVF1               ;BRANCH OVERFLOW
           CMP.W     #-28,D6               ;? WAY TOO SMALL
           BLT.S     FPDRT0                ;RETURN ZERO IF UNDERFLOW
           MOVE.W    D6,D4                 ;COPY 10 POWER INDEX
@@ -97,7 +97,7 @@ FPDINM    CMP.W     #18,D6                ;? WAY TOO LARGE
           ADD.W     0(A0,D4.W),D5         ;ADD EXPONENTS FOR MULTIPLY
           MOVE.W    D5,D6                 ;SAVE RESULT EXPONENT IN D6.W
 
-* NOW PERFORM 32 BIT MULTIPLY OF INPUT WITH POWER OF TEN TABLE
+; NOW PERFORM 32 BIT MULTIPLY OF INPUT WITH POWER OF TEN TABLE
           MOVE.L    2(A0,D4.W),D3         ;LOAD TABLE MANTISSA VALUE
           MOVE.L    (SP),A0               ;RESTORE WORK REGISTER
           MOVE.L    D3,(SP)               ;NOW SAVE TABLE MANTISSA ON STACK
@@ -138,11 +138,11 @@ FPDROK    MOVEQ     #9,D3                 ;PREPARE TO FINALIZE EXPONENT TO 7 BIT
           BEQ.S     FPDRT0                ;RETURN ZERO IF EXPONENT ZERO
 FPDRTN1   RTS                             ;RETURN TO CALLER
 
-* RETURN ZERO FOR UNDERFLOW
+; RETURN ZERO FOR UNDERFLOW
 FPDRT0    MOVEQ     #0,D7                 ;RETURN ZERO
           RTS                             ;RETURN TO CALLER
 
-* EXPONENT OVERFLOW/UNDERFLOW
+; EXPONENT OVERFLOW/UNDERFLOW
 FPDXOV    TST.W     D4                    ;TEST ORIGINAL SIGN
           BMI.S     FPDRT0                ;BRANCH UNDERFLOW TO RETURN ZERO
 FPDOVF1   MOVEQ     #-1,D7                ;CREATE ALL ONES
@@ -153,4 +153,4 @@ FPDOVF1   MOVEQ     #-1,D7                ;CREATE ALL ONES
           ORI.B     #$02,CCR              ;SET OVERFLOW BIT
           RTS                             ;RETURN TO CALLER WITH OVERFLOW
 
-*         END
+;         END

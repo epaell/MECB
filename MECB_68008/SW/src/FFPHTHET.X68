@@ -1,22 +1,22 @@
-*         TTL       FAST FLOATING POINT CORDIC HYPERBOLIC TABLE (FFPHTHET)
-***************************************
-* (C) COPYRIGHT 1981 BY MOTOROLA INC. *
-***************************************
+;         TTL       FAST FLOATING POINT CORDIC HYPERBOLIC TABLE (FFPHTHET)
+;**************************************
+; (C) COPYRIGHT 1981 BY MOTOROLA INC. *
+;**************************************
 
-*FFPHTHET IDNT      1,1                   ;FFP INVERSE HYPERBOLIC TABLE
-*         SECTION   9
-*         XDEF      FFPHTHET              ;EXTERNAL DEFINITION
+;FFPHTHET IDNT      1,1                   ;FFP INVERSE HYPERBOLIC TABLE
+;         SECTION   9
+;         XDEF      FFPHTHET              ;EXTERNAL DEFINITION
 
-*********************************************************
-*     INVERSE HYPERBOLIC TANGENT TABLE FOR CORDIC       *
-*                                                       *
-* THE FOLLOWING TABLE IS USED DURING CORDIC             *
-* TRANSCENDENTAL EVALUATIONS FOR LOG AND EXP. IT HAS    *
-* INVERSE HYPERBOLIC TANGENT FOR 2**-N WHERE N RANGES   *
-* FROM 1 TO 24.  THE FORMAT IS BINARY(31,29)            *
-* PRECISION (I.E. THE BINARY POINT IS ASSUMED BETWEEN   *
-* BITS 27 AND 28 WITH THREE LEADING NON-FRACTION BITS.) *
-*********************************************************
+;********************************************************
+;     INVERSE HYPERBOLIC TANGENT TABLE FOR CORDIC       *
+;                                                       *
+; THE FOLLOWING TABLE IS USED DURING CORDIC             *
+; TRANSCENDENTAL EVALUATIONS FOR LOG AND EXP. IT HAS    *
+; INVERSE HYPERBOLIC TANGENT FOR 2**-N WHERE N RANGES   *
+; FROM 1 TO 24.  THE FORMAT IS BINARY(31,29)            *
+; PRECISION (I.E. THE BINARY POINT IS ASSUMED BETWEEN   *
+; BITS 27 AND 28 WITH THREE LEADING NON-FRACTION BITS.) *
+;********************************************************
 
 FFPHTHET  DC.L      $1193EA7A             ;HARCTAN(2**-1)   .549306144
           DC.L      $4162BBE8>>3          ;HARCTAN(2**-2)   .255412812
@@ -43,4 +43,4 @@ FFPHTHET  DC.L      $1193EA7A             ;HARCTAN(2**-1)   .549306144
           DC.L      $00000200>>3          ;HARCTAN(2**-23)
           DC.L      $00000100>>3          ;HARCTAN(2**-24)
 
-*         END
+;         END

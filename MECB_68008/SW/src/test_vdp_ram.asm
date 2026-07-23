@@ -1,3 +1,5 @@
+               cpu      68008
+;
                include  "mecb.inc"
                include  "tutor.inc"
                include  "library_rom.inc"
@@ -18,8 +20,8 @@ start          move.b   #OUTPUT,d7
                move.b   #VDP_IE0+VDP_SI+VDP_BL,VDP_STATE(a1)
                move.w   #$00000,VDP_PNT(a1)        ; Pattern Name Table = $00000
                move.w   #$0F000,VDP_SGT(a1)        ; Sprite Generator Table = $0F000
-               move.w   #$0F800,VDP_SGT(a1)        ; Sprite Color Table = $0F800
-               move.w   #$0FA00,VDP_SGT(a1)        ; Sprite Attribute Table = $0FA00
+               move.w   #$0F800,VDP_SCT(a1)        ; Sprite Color Table = $0F800
+               move.w   #$0FA00,VDP_SAT(a1)        ; Sprite Attribute Table = $0FA00
                jsr      vdp_set_mode               ; Set the graphics mode
 ;
 ; Fill VRAM with random values
