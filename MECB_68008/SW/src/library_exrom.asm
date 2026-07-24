@@ -238,8 +238,8 @@ vector_tbl:
 ;
 ; CPM routines
 ;
-               bra      mv_cpm400                        ; move CPM0400 to location pointed to by a1.l
-               bra      mv_cpm15000                      ; move CPM15000 to location pointed to by a1.l
+               bra      mv_cpm400bin                     ; move CPM0400 to location pointed to by a1.l
+               bra      mv_cpm15000bin                   ; move CPM15000 to location pointed to by a1.l
 ;
 ;
 ; Test routines
@@ -292,8 +292,11 @@ vector_tbl:
                align    2
                include  "xmas.asm"
                align    2
-               include  "CPM400.asm"
-               align    2
-               include  "CPM15000.asm"
+               include  "CPM400_v1.1.asm"
+               include  "CPM400_v1.2.asm"
+               include  "CPM400_v1.3.asm"
+               include  "CPM15000_v1.1.asm"
+               include  "CPM15000_v1.2.asm"
+               include  "CPM15000_v1.3.asm"
 ;
                end

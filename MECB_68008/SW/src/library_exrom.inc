@@ -136,104 +136,104 @@ PSG_TONE                 equ $102A86  ; Set channel tone
 ;
 ; low-level serial function
 ;
-OUTCH1                   equ $10305C  ; output a character in d0.b through ACIA1
-OUT2H                    equ $103024  ; output 2 hex digits in d0.b
-OUT4H                    equ $103018  ; output 4 hex digits in d0.w
+OUTCH1                   equ $103066  ; output a character in d0.b through ACIA1
+OUT2H                    equ $10302E  ; output 2 hex digits in d0.b
+OUT4H                    equ $103022  ; output 4 hex digits in d0.w
 OUT8H                    equ $10300E  ; output 8 hex digits in d0.l
-PRINT                    equ $10304A  ; print text pointed to by a0.l through ACIA1
-PCRLF                    equ $10306E  ; print a CR and LF through ACIA1
-HEX2DEC2                 equ $103080  ; convert hex value in d0.b to a decimal string with trailing zeros and store in buffer pointed to by a1.l
-CHEX2DEC                 equ $103092  ; convert hex value in d0.b to a signed decimal string and store in buffer pointed to by a1.l
-STRCPY                   equ $1030EE  ; copy a string pointed to by a0.l to the buffer in a1.l
-STRCPYNT                 equ $1030FE  ; copy a string not including the EOT
+PRINT                    equ $103054  ; print text pointed to by a0.l through ACIA1
+PCRLF                    equ $103078  ; print a CR and LF through ACIA1
+HEX2DEC2                 equ $10308A  ; convert hex value in d0.b to a decimal string with trailing zeros and store in buffer pointed to by a1.l
+CHEX2DEC                 equ $10309C  ; convert hex value in d0.b to a signed decimal string and store in buffer pointed to by a1.l
+STRCPY                   equ $1030F8  ; copy a string pointed to by a0.l to the buffer in a1.l
+STRCPYNT                 equ $103120  ; copy a string not including the EOT
 ;
 ;
 ; Fujinet routines
 ;
-FUJINET_DCB_EXEC         equ $103236  ; low-level fujinet command execution
-FUJINET_MOUNT_ALL        equ $103386  ; mount all devices
-FUJINET_MOUNT_HOST       equ $1033A0  ; mount host
-FUJINET_RESET            equ $1033C2  ; reset fujinet device
-FUJINET_READ_HOST_SLOTS   equ $1033DC  ; read host slots
-FUJINET_READ_DEVICE_SLOTS   equ $1033FA  ; read device slots
-FUJINET_RANDOM_NUMBER    equ $103418  ; get a random 32-bit number
-FUJINET_GET_TIME         equ $103436  ; get the current time
-FUJINET_OPEN_DIRECTORY   equ $103454  ; open a directory
-FUJINET_READ_DIR_ENTRY   equ $103456  ; read a directory entry
-FUJINET_CLOSE_DIRECTORY   equ $103458  ; close the directory
-FUJINET_SET_DIRECTORY_POSITION   equ $10345A  ; set the current directory position
-FUJINET_GET_DIRECTORY_POSITION   equ $10345C  ; get the current directory position
-FUJINET_SCAN_FOR_NETWORKS   equ $10345E  ; scan for Wi-Fi networks
-FUJINET_GET_SCAN_RESULT   equ $103460  ; get the Wi-Fi scan result
-FUJINET_GET_SSID         equ $103462  ; get the Wi-Fi SSID
-FUJINET_GET_WIFI_STATUS   equ $103464  ; get the Wi-Fi status
-FUJINET_SET_SSID         equ $103466  ; set the Wi-Fi SSID
-FUJINET_GET_WIFI_ENABLED   equ $103468  ; get the Wi-Fi enabled status
-FUJINET_FILE_OPEN        equ $10346A  ; open a file
-FUJINET_FILE_READ        equ $10346C  ; read from a file
-FUJINET_FILE_STATUS      equ $10346E  ; get the file status
-FUJINET_FILE_WRITE       equ $103470  ; write to a file
-FUJINET_FILE_CLOSE       equ $103472  ; close a file
-FUJINET_MOUNT_IMAGE      equ $103474  ; mount a disk image
-FUJINET_DISK_READ        equ $103494  ; read a sector from the disk image
-FUJINET_UNMOUNT_IMAGE    equ $1034C8  ; unmount a disk image
-FUJINET_DISK_GET_SECTOR_SIZE   equ $1034F6  ; get the disk image sector size
-FUJINET_DISK_WRITE       equ $1034F8  ; write a sector to the disk image
-FUJINET_MODEM_READ       equ $10352C  ; read from a MODEM device
-FUJINET_MODEM_STATUS     equ $10352E  ; get the MODEM device status
-FUJINET_MODEM_STREAM     equ $103530  ; MOEDM device stream
-FUJINET_MODEM_WRITE      equ $103532  ; write to a MODEM device
-FUJINET_NETWORK_OPEN     equ $103534  ; open a network channel
-FUJINET_NETWORK_READ     equ $103568  ; read from a network channel
-FUJINET_NETWORK_STATUS   equ $10359A  ; get the network channel read status
-FUJINET_NETWORK_WRITE    equ $1035CA  ; write to a network channel
-FUJINET_NETWORK_CLOSE    equ $1035FC  ; close a network channel
-FUJINET_NETWORK_CHANNEL_MODE   equ $103628  ; get the network channel mode
-FUJINET_NETWORK_JSON_PARSE   equ $10362A  ; parse a json string
-FUJINET_NETWORK_JSON_QUERY   equ $10362C  ; perform a json query
-FUJINET_NETWORK_LOGIN    equ $10362E  ; network login
-FUJINET_PRINTER_STREAM   equ $103630  ; stream to printer device
-FUJINET_PRINTER_WRITE    equ $103632  ; write to printer device
-FUJINET_OPEN_APPKEY      equ $103638  ; open an appkey
-FUJINET_WRITE_APPKEY     equ $103634  ; write an appkey
-FUJINET_READ_APPKEY      equ $103636  ; read an appkey
-FUJINET_CLOSE_APPKEY     equ $10363A  ; close appkey
-FUJINET_DEVICE_CREATE_NEW   equ $10363C  ; create a new device
-FUJINET_DEVICE_DISABLE_DEVICE   equ $10363E  ; disable a device
-FUJINET_DEVICE_ENABLE_DEVICE   equ $103640  ; enable a device
-FUJINET_DEVICE_GET_ADAPTER_CONFIG   equ $103642  ; get the adapter config
-FUJINET_DEVICE_GET_DEVICE_ENABLED_STATUS   equ $103644  ; get device status
-FUJINET_DEVICE_GET_DEVICE_FILENAME   equ $103646  ; get device filename
-FUJINET_WRITE_DEVICE_SLOTS   equ $103648  ; write device slots
-FUJINET_WRITE_HOST_SLOTS   equ $10364A  ; write host slots
-FUJINET_DEVICE_SET_BOOT_CONFIG   equ $10364C  ; set the boot config
-FUJINET_DEVICE_SET_DEVICE_FILENAME   equ $10364E  ; set device filename
-FUJINET_LOGICAL_DEVICE_TYPE   equ $103650  ; get logical device type
-FUJINET_LOGICAL_DEVICE_UNIT   equ $103652  ; get logical device unit
-FUJINET_LOGICAL_DEVICE_URL   equ $103654  ; get logical device url
-FUJINET_NEW_DISK         equ $103656  ; new disk
-FUJINET_SET_HOST_PREFIX   equ $103658  ; set host prefix
-FUJINET_GET_HOST_PREFIX   equ $10365A  ; get host prefix
-FUJINET_COPY_FILE        equ $10365C  ; copy a file
-FUJINET_SET_BOOT_MODE    equ $10365E  ; set boot mode
-FUJINET_STATUS           equ $103660  ; get status
-FUJINET_GET_ADAPTERCONFIG_EXTENDED   equ $103662  ; get extended adapter config
-FUJINET_GENERATE_GUID    equ $103664  ; generate GUID
-FUJINET_SET_STATUS       equ $103666  ; set status
-FUJINET_UNMOUNT_HOST     equ $103668  ; unmount host
+FUJINET_DCB_EXEC         equ $103258  ; low-level fujinet command execution
+FUJINET_MOUNT_ALL        equ $1033A8  ; mount all devices
+FUJINET_MOUNT_HOST       equ $1033C2  ; mount host
+FUJINET_RESET            equ $1033E4  ; reset fujinet device
+FUJINET_READ_HOST_SLOTS   equ $1033FE  ; read host slots
+FUJINET_READ_DEVICE_SLOTS   equ $10341C  ; read device slots
+FUJINET_RANDOM_NUMBER    equ $10343A  ; get a random 32-bit number
+FUJINET_GET_TIME         equ $103458  ; get the current time
+FUJINET_OPEN_DIRECTORY   equ $103476  ; open a directory
+FUJINET_READ_DIR_ENTRY   equ $103478  ; read a directory entry
+FUJINET_CLOSE_DIRECTORY   equ $10347A  ; close the directory
+FUJINET_SET_DIRECTORY_POSITION   equ $10347C  ; set the current directory position
+FUJINET_GET_DIRECTORY_POSITION   equ $10347E  ; get the current directory position
+FUJINET_SCAN_FOR_NETWORKS   equ $103480  ; scan for Wi-Fi networks
+FUJINET_GET_SCAN_RESULT   equ $103482  ; get the Wi-Fi scan result
+FUJINET_GET_SSID         equ $103484  ; get the Wi-Fi SSID
+FUJINET_GET_WIFI_STATUS   equ $103486  ; get the Wi-Fi status
+FUJINET_SET_SSID         equ $103488  ; set the Wi-Fi SSID
+FUJINET_GET_WIFI_ENABLED   equ $10348A  ; get the Wi-Fi enabled status
+FUJINET_FILE_OPEN        equ $10348C  ; open a file
+FUJINET_FILE_READ        equ $10348E  ; read from a file
+FUJINET_FILE_STATUS      equ $103490  ; get the file status
+FUJINET_FILE_WRITE       equ $103492  ; write to a file
+FUJINET_FILE_CLOSE       equ $103494  ; close a file
+FUJINET_MOUNT_IMAGE      equ $103496  ; mount a disk image
+FUJINET_DISK_READ        equ $1034B6  ; read a sector from the disk image
+FUJINET_UNMOUNT_IMAGE    equ $1034EA  ; unmount a disk image
+FUJINET_DISK_GET_SECTOR_SIZE   equ $103518  ; get the disk image sector size
+FUJINET_DISK_WRITE       equ $10351A  ; write a sector to the disk image
+FUJINET_MODEM_READ       equ $10354E  ; read from a MODEM device
+FUJINET_MODEM_STATUS     equ $103550  ; get the MODEM device status
+FUJINET_MODEM_STREAM     equ $103552  ; MOEDM device stream
+FUJINET_MODEM_WRITE      equ $103554  ; write to a MODEM device
+FUJINET_NETWORK_OPEN     equ $103556  ; open a network channel
+FUJINET_NETWORK_READ     equ $10358A  ; read from a network channel
+FUJINET_NETWORK_STATUS   equ $1035BC  ; get the network channel read status
+FUJINET_NETWORK_WRITE    equ $1035EC  ; write to a network channel
+FUJINET_NETWORK_CLOSE    equ $10361E  ; close a network channel
+FUJINET_NETWORK_CHANNEL_MODE   equ $10364A  ; get the network channel mode
+FUJINET_NETWORK_JSON_PARSE   equ $10364C  ; parse a json string
+FUJINET_NETWORK_JSON_QUERY   equ $10364E  ; perform a json query
+FUJINET_NETWORK_LOGIN    equ $103650  ; network login
+FUJINET_PRINTER_STREAM   equ $103652  ; stream to printer device
+FUJINET_PRINTER_WRITE    equ $103654  ; write to printer device
+FUJINET_OPEN_APPKEY      equ $10365A  ; open an appkey
+FUJINET_WRITE_APPKEY     equ $103656  ; write an appkey
+FUJINET_READ_APPKEY      equ $103658  ; read an appkey
+FUJINET_CLOSE_APPKEY     equ $10365C  ; close appkey
+FUJINET_DEVICE_CREATE_NEW   equ $10365E  ; create a new device
+FUJINET_DEVICE_DISABLE_DEVICE   equ $103660  ; disable a device
+FUJINET_DEVICE_ENABLE_DEVICE   equ $103662  ; enable a device
+FUJINET_DEVICE_GET_ADAPTER_CONFIG   equ $103664  ; get the adapter config
+FUJINET_DEVICE_GET_DEVICE_ENABLED_STATUS   equ $103666  ; get device status
+FUJINET_DEVICE_GET_DEVICE_FILENAME   equ $103668  ; get device filename
+FUJINET_WRITE_DEVICE_SLOTS   equ $10366A  ; write device slots
+FUJINET_WRITE_HOST_SLOTS   equ $10366C  ; write host slots
+FUJINET_DEVICE_SET_BOOT_CONFIG   equ $10366E  ; set the boot config
+FUJINET_DEVICE_SET_DEVICE_FILENAME   equ $103670  ; set device filename
+FUJINET_LOGICAL_DEVICE_TYPE   equ $103672  ; get logical device type
+FUJINET_LOGICAL_DEVICE_UNIT   equ $103674  ; get logical device unit
+FUJINET_LOGICAL_DEVICE_URL   equ $103676  ; get logical device url
+FUJINET_NEW_DISK         equ $103678  ; new disk
+FUJINET_SET_HOST_PREFIX   equ $10367A  ; set host prefix
+FUJINET_GET_HOST_PREFIX   equ $10367C  ; get host prefix
+FUJINET_COPY_FILE        equ $10367E  ; copy a file
+FUJINET_SET_BOOT_MODE    equ $103680  ; set boot mode
+FUJINET_STATUS           equ $103682  ; get status
+FUJINET_GET_ADAPTERCONFIG_EXTENDED   equ $103684  ; get extended adapter config
+FUJINET_GENERATE_GUID    equ $103686  ; generate GUID
+FUJINET_SET_STATUS       equ $103688  ; set status
+FUJINET_UNMOUNT_HOST     equ $10368A  ; unmount host
 ;
 ;
 ; CPM routines
 ;
-MV_CPM400                equ $10368A  ; move CPM0400 to location pointed to by a1.l
-MV_CPM15000              equ $10369C  ; move CPM15000 to location pointed to by a1.l
+MV_CPM400BIN             equ $1036AC  ; move CPM0400 to location pointed to by a1.l
+MV_CPM15000BIN           equ $1036EA  ; move CPM15000 to location pointed to by a1.l
 ;
 ;
 ; Test routines
 ;
 ;
 FFPCALC                  equ $102AC2  ; Fast floating point calculator
-XMAS                     equ $1036AE  ; Fast floating point calculator
+XMAS                     equ $103728  ; Fast floating point calculator
 ;
 ;
 ;

@@ -52,7 +52,7 @@ VEC_IRQ7       equ      $1F*4 ; 21
 VEC_TRAP0      equ      $20*4 ; 22
 VEC_TRAP1      equ      $21*4 ; 23
 VEC_TRAP2      equ      $22*4 ; 24
-VEC_TRAP3      equ      $23*4 ; 25
+VEC_TRAP3      equ      $23*4 ; 25     Used by CPM
 VEC_TRAP4      equ      $24*4 ; 26
 VEC_TRAP5      equ      $25*4 ; 27
 VEC_TRAP6      equ      $26*4 ; 28
@@ -63,6 +63,6 @@ VEC_TRAP10     equ      $2A*4 ; 32
 VEC_TRAP11     equ      $2B*4 ; 33
 VEC_TRAP12     equ      $2C*4 ; 34
 VEC_TRAP13     equ      $2D*4 ; 35
-VEC_TRAP14     equ      $2E*4 ; 36
+VEC_TRAP14     equ      $2E*4 ; 36     Used by Tutor
 VEC_TRAP15     equ      $2F*4 ; 37
 ;

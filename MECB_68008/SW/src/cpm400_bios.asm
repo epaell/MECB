@@ -7,7 +7,7 @@
 cpm_cold    equ      $000400
 _ccp        equ      $0004BC
 ;
-DISK_COUNT  equ      4
+DISK_COUNT  equ      8
 DPH_LEN     equ      26
 ;
 ;-----------------------------------------------------------------------------
@@ -15,6 +15,7 @@ DPH_LEN     equ      26
             org      $006200
 ;
 _init       move.w   #$2700,sr
+;            jsr      print_libversion
             move.l   #strInit,a0          ; Write a message to indicate start-up.
             jsr      print
 ;
@@ -31,9 +32,10 @@ _init2
 ;
             org      $006240
 ;
-            move.l   #$6000,a7            ; set up the stack pointer outside of the CPM area
+            move.l   #$80000,a7           ; set up the stack pointer outside of the CPM area
             move.l   #$0400,a1
-            jsr      mv_cpm400            ; copy CPM binary to right location
+            move.l   #3,d0                ; CPM v1.3
+            jsr      mv_cpm400bin         ; copy CPM binary to right location
             move.b   #$62,$0460           ; patch to start BIOS at $6200
             jmp      cpm_cold             ; start up CPM
 
@@ -293,7 +295,7 @@ fujinet_dcb ds.b     DCB_SIZE
 ;
 memTable    dc.w     1           ; 1 Memory region - TPA only
 tpaStart    dc.l     $00009000   ; Default: Start of the Transient Program Area
-tpaSize     dc.l     $000F0000   ; Default: Size of the Transient Program Area
+tpaSize     dc.l     $00075000   ; Default: Size of the Transient Program Area
 
 ;-----------------------------------------------------------------------------------------------------
 ; disk parameter headers
@@ -336,6 +338,42 @@ dpHdr3      dc.l     0           ; No translation
             dc.l     0           ; ptr to check vector
             dc.l     allocV3     ; ptr to allocation vector
 ;
+dpHdr4      dc.l     0           ; No translation
+            dc.w     0           ; scratchpad 1
+            dc.w     0           ; scratchpad 2
+            dc.w     0           ; scratchpad 3
+            dc.l     dirBuffer   ; ptr to directory buffer
+            dc.l     dpb0        ; ptr to disk parameter block
+            dc.l     0           ; ptr to check vector
+            dc.l     allocV4     ; ptr to allocation vector
+;
+dpHdr5      dc.l     0           ; No translation
+            dc.w     0           ; scratchpad 1
+            dc.w     0           ; scratchpad 2
+            dc.w     0           ; scratchpad 3
+            dc.l     dirBuffer   ; ptr to directory buffer
+            dc.l     dpb0        ; ptr to disk parameter block
+            dc.l     0           ; ptr to check vector
+            dc.l     allocV5     ; ptr to allocation vector
+;
+dpHdr6      dc.l     0           ; No translation
+            dc.w     0           ; scratchpad 1
+            dc.w     0           ; scratchpad 2
+            dc.w     0           ; scratchpad 3
+            dc.l     dirBuffer   ; ptr to directory buffer
+            dc.l     dpb0        ; ptr to disk parameter block
+            dc.l     0           ; ptr to check vector
+            dc.l     allocV6     ; ptr to allocation vector
+;
+dpHdr7      dc.l     0           ; No translation
+            dc.w     0           ; scratchpad 1
+            dc.w     0           ; scratchpad 2
+            dc.w     0           ; scratchpad 3
+            dc.l     dirBuffer   ; ptr to directory buffer
+            dc.l     dpb0        ; ptr to disk parameter block
+            dc.l     0           ; ptr to check vector
+            dc.l     allocV7     ; ptr to allocation vector
+;
 dpb0        dc.w     32          ; sectors per track
             dc.b     $04         ; block shift
             dc.b     $0F         ; block mask
@@ -353,8 +391,12 @@ allocV0     ds.b     2048        ; allocation vector
 allocV1     ds.b     2048        ; allocation vector
 allocV2     ds.b     2048        ; allocation vector
 allocV3     ds.b     2048        ; allocation vector
+allocV4     ds.b     2048        ; allocation vector
+allocV5     ds.b     2048        ; allocation vector
+allocV6     ds.b     2048        ; allocation vector
+allocV7     ds.b     2048        ; allocation vector
 ;
-strInit:    dc.b    "CP/M-68K MECB BIOS V0.1",CR,LF,0
+strInit:    dc.b    "CP/M-68K Digicool MECB 68008 BIOS V0.1",CR,LF,0
 strMountFail: dc.b   "Mount failed",CR,LF,0
 ;
 ;str_func0:  dc.b     "BIOS init",CR,LF,EOT

@@ -9,6 +9,16 @@ out8h    swap  d0
          rts
 
 ;
+; output 6 hex digits in d0
+;
+out6h    swap  d0
+         bsr   out2h          ; write out lower byte of upper word
+         swap  d0
+         bsr   out4h          ; Write out lower word
+         rts
+
+;
+;
 ; output 4 hex digits in d0.w
 ;
 out4h    move.l   d0,-(a7)
@@ -139,6 +149,29 @@ strcpy2:
          move.b   (a0)+,d0          ; Load character from source, increment X
          move.b   d0,(a1)+          ; Store character in destination, increment Y
          bne      strcpy2           ; If the character was not $00, loop again
+         movem.l  (a7)+,d0/a0
+         rts
+
+;
+; Copy d0 bytes starting from a0 to a1.
+; Entry
+;  a0.l points to source
+;  a1.l points to destination
+;  d0.l number of bytes to transfer
+; Return:
+;  a1 points to byte after end of data copied
+; Destroyed:
+;  -
+;
+strncpy:
+         movem.l  d0/a0,-(a7)
+strncpy2:
+         tst.l    d0                ; check if anything to transfer
+         beq      strncpyexit
+         move.b   (a0)+,(a1)+       ; Load character from source, increment X
+         sub.l    #1,d0             ; decrement counter
+         bra      strncpy2          ; loop until done
+strncpyexit:
          movem.l  (a7)+,d0/a0
          rts
 ;

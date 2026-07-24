@@ -21,11 +21,11 @@ flash_wbytes1 move.b  (a1)+,d1         ; Read a byte
               bne     flash_wbytes1    ; More to do, loop back
 ;
               movem.l  (a7)+,d0-d2     ; Restore registers
-              ori.w    #$04,sr         ; set zero flag
+              ori.b    #$04,ccr        ; set zero flag
               rts
 ;
 flash_wbytes3 movem.l  (a7)+,d0-d2     ; Restore registers
-              andi.w   #$FB,sr         ; Clear zero flag
+              andi.b   #$FB,ccr        ; Clear zero flag
               rts                      ; Done
 
 ;
@@ -73,13 +73,13 @@ flash_chip_erase1
             sub.l    #1,d1
             bne      flash_chip_erase1
             movem.l  (a7)+,d1/a0       ; restore registers
-            ori.w    #$04,sr           ; Set zero flag
+            ori.b    #$04,ccr          ; Set zero flag
             rts
 ;
 flash_chip_erase2
             lea      -1(a1),a1         ; Restore X to point to failed location
             movem.l  (a7)+,d1/a0       ; restore registers
-            andi.w   #$FB,sr           ; Clear zero flag
+            andi.b   #$FB,ccr          ; Clear zero flag
             rts
 ;
 ; Erase a 4KB sector in ROM
@@ -105,13 +105,13 @@ flash_erase1
             sub.l    #1,d1
             bne      flash_erase1
             movem.l  (a7)+,d1/a0    ; restore registers
-            ori.w    #$04,sr        ; Set zero flag
+            ori.b    #$04,ccr       ; Set zero flag to indicate success
             rts
 ;
 flash_erase2
             lea      -1(a1),a1      ; Restore X to point to failed location
             movem.l  (a7)+,d1/a0    ; restore registers
-            andi.w   #$FB,sr        ; Clear zero flag
+            andi.b   #$FB,ccr       ; Clear zero flag to indicate failure
             rts
 
 ;
