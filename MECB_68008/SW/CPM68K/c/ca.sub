@@ -1,0 +1,10 @@
+cp68 -i 0: asciiart.c asciiart.i
+c068 asciiart.i asciiart.1 asciiart.2 asciiart.3 -f
+era  asciiart.i
+c168 asciiart.1 asciiart.2 asciiart.s
+era  asciiart.1
+era asciiart.2
+as68 -l -u -s 0: asciiart.s
+era  asciiart.s
+lo68 -r -o asciiart.68k 0:s.o asciiart.o libf.a 0:clib
+

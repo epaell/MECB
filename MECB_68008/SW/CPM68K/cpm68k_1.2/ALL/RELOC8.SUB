@@ -1,0 +1,3 @@
+$2reloc $1term.rel $2term.68k
+$2reloc $1xfer86.rel $2xfer86.rel
+$2reloc $1sd.rel $2sd.68k

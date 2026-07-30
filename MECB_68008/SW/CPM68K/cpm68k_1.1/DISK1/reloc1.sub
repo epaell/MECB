@@ -1,0 +1,9 @@
+reloc.rel reloc.rel reloc.68k
+reloc pip.rel pip.68k
+reloc copy.rel copy.68k
+reloc format.rel format.68k
+reloc init.rel init.68k
+reloc ed.rel ed.68k
+reloc stat.rel stat.68k
+reloc dump.rel dump.68k
+

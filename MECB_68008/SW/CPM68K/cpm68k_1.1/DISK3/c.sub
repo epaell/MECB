@@ -1,0 +1,9 @@
+CP68 $1.C $1.I
+C068 $1.I $1.IC $1.ST
+ERA $1.I
+ERA $1.ST
+C168 $1.IC $1.S -L
+era $1.ic
+AS68 -L -U $1.S
+era $1.s
+

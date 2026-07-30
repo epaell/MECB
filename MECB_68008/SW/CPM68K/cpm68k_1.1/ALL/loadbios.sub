@@ -1,0 +1,10 @@
+pip biostype.h=loadbios.h
+cp68 bios.c bios.i
+c068 bios.i bios.ic bios.st
+era bios.i
+era bios.st
+c168 bios.ic bios.s -l
+as68 -u -l bios.s
+as68 -u -l ldbiosa.s
+pip ldbios.o=bios.o
+

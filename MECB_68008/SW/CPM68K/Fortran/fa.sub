@@ -1,0 +1,7 @@
+fortran asciiart.for
+code asciiart.i
+ulinker -l asciiart.o asciiart.obj ftnlib.obj paslib.obj
+era asciiart.obj
+lo68 -r -o asciiart.68k s.o asciiart.o clib
+era asciiart.o
+

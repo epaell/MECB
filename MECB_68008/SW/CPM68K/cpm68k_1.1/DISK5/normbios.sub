@@ -1,0 +1,9 @@
+pip biostype.h=normbios.h
+cp68 bios.c bios.i
+c068 bios.i bios.ic bios.st
+era bios.i
+era bios.st
+c168 bios.ic bios.s -l
+as68 -u -l bios.s
+as68 -u -l biosa.s
+
