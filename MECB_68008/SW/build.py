@@ -3,9 +3,17 @@ import numpy as np
 import sys
 import os
 
+# OK marks those files that have been updated to work with updated library ROM which now uses TRAP #8 calls
+
 build_list = [
-    "cpm_bios",
-    "cpm400_bios",
+#    "trap",                    # OK
+#    "test_lib",                # OK
+#    "fntime",                  # OK
+#    "asciiart",                # OK
+#    "test_aciaio",             # OK
+#    "firmware_update",         # OK
+    "cpm400_bios",             # OK
+    "cpm15k_bios",             # OK
 #    "test_fn",
 #    "test_delay",
 #    "test_sid",
@@ -40,6 +48,3 @@ for source in build_list:
     os.system(f"rm {source}.lst {source}.hex")
     os.system(f"asl  -L -olist ./{source}.lst -cpu 68008 -o ./{source}.p src/{source}.asm")
     os.system(f"p2hex {source}.p -l 32 -F Moto")
-
-#    os.system(f"vasmm68k_mot -Fsrec -s19 -L {source}.lst src/{source}.asm")
-#    os.system(f"mv a.out {source}.s19")
