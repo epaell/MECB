@@ -2,7 +2,7 @@
 ;
 ; Known issues:
 ;
-; fujinet_reset - WiFi stops working after calling, requires hardware reset on ESP32 to re-initiate.
+; FNRESET - WiFi stops working after calling, requires hardware reset on ESP32 to re-initiate.
 ; fujinet_get_scan_result - firmare returns one less byte than it should (changed firmware to fix).
 ; fujinet_scan_for_networks - ESP32 log reports different number of networks compared to what is returned.
 ; fujinet_network_open - only seems to work for device 0
@@ -15,13 +15,14 @@
          include  "mecb.inc"
          include  "tutor.inc"
          include  "libfujinet.inc"
+         include  "library.inc"
 ;
          org      USERPROG_ORG
 ;
 main:
          move.l   #RAM_END+1,a7           ; Set up stack
          move.l   #ststart,a0
-         bsr      print
+         library  PRINT
 ;
          move.l   #fujinet_dcb,a0         ; Initialise the receive and transmit buffer in the DCB
          move.l   #rxdata,DCB_RX_BUFFER(a0)
@@ -33,8 +34,9 @@ main:
 ;         bsr      wifi_tests              ; Check WiFi commands
 ;         bsr      dir_tests               ; Check directory access
 ;         bsr      file_tests              ; Check file access
-         bsr      image_tests             ; Check image access
+;         bsr      image_tests             ; Check image access
 ;         bsr      net_tests               ; Check network access
+         bsr      printer_tests             ; Check printer access
 exit     move.b   #TUTOR,d7
          trap     #14
 
@@ -42,8 +44,9 @@ exit     move.b   #TUTOR,d7
 ;         include "test_fn_wifi.asm"
 ;         include "test_fn_dir.asm"
 ;         include "test_fn_file.asm"
-         include "test_fn_image.asm"
+;         include "test_fn_image.asm"
 ;         include "test_fn_net.asm"
+         include "test_fn_printer.asm"
 ;
 error       bsr    fn_perror      ; Print the error string
             move.b #TUTOR,d7
@@ -74,9 +77,6 @@ fujinet_dcb:
 ;
             align 4
 ;
-            include  "aciaio.asm"
             include  "libfujierr.asm"
-            include  "libfujinet.asm"
-            include  "libfujicmd.asm"
 ;
             end

@@ -3,22 +3,22 @@
 ;
 net_tests:
          move.l   #stnet,a0               ; Write test message
-         bsr      print
+         library  PRINT
 ;
          move.l   #stnopen,a0             ; Test network open
-         bsr      print
+         library  PRINT
 ;
 ; test fujinet_network_open
 ;
          move.l   #url,a0
          move.l   #txdata,a1
-         bsr      strcpy                  ; copy the URL to the transmit buffer
+         library  STRCPY                  ; copy the URL to the transmit buffer
          move.l   #fujinet_dcb,a0         ; Initialise the receive and transmit buffer in the DCB
          move.l   #rxdata,DCB_RX_BUFFER(a0)        ; Set up receive and transmit buffers
          move.l   #txdata,DCB_TX_BUFFER(a0)
          move.b   #0,d1                   ; Network handle
          move.b   #NET_TRANS_NONE,d0
-         bsr      fujinet_network_open    ; Mount the host slot
+         library  FNOPNET                 ; Open network channel
          cmp.b    #FUJINET_RC_OK,d0       ; Check if OK
          bne      error                   ; if not, report error
 ;
@@ -27,7 +27,7 @@ net_tests:
 gloop:   
          move.l   #fujinet_dcb,a0         ; Initialise the receive and transmit buffer in the DCB
          move.b   #0,d1                   ; Network handle
-         bsr      fujinet_network_status  ; get the status
+         library  FNSTNET                 ; get the status
          cmp.b    #FUJINET_RC_OK,d0       ; Check if OK
          bne      error                   ; if not, report error
          move.l   #rxdata,a1              ; point to status structure
@@ -55,18 +55,18 @@ do_nread:
 nread:
          move.l   #fujinet_dcb,a0         ; Initialise the receive and transmit buffer in the DCB
          move.b   #0,d1                   ; Network handle
-         bsr      fujinet_network_read    ; read the data
+         library  FNRDNET                 ; read the data
          cmp.b    #FUJINET_RC_OK,d0       ; Check if OK
          bne      error                   ; if not, report error
          move.l   #fujinet_dcb,a0         ; Initialise the receive and transmit buffer in the DCB
          move.w   DCB_RX_BUFFER_LEN(a0),d1
          move.l   #rxdata,a1
 ploop:   move.b   (a1)+,d0
-         bsr      outch1
+         library  OUTCH1
          cmp.b    #LF,d0
          bne      ploop2
          move.b   #CR,d0
-         bsr      outch1
+         library  OUTCH1
 ploop2:
          sub.w    #1,d1
          bne      ploop
@@ -74,10 +74,10 @@ ploop2:
 ;
 done:
          move.l   #stnclose,a0
-         bsr      print
+         library  PRINT
          move.l   #fujinet_dcb,a0         ; Initialise the receive and transmit buffer in the DCB
          move.b   #0,d1
-         bsr      fujinet_network_close   ; close the network channel
+         library  FNCLNET                 ; close the network channel
          cmp.b    #FUJINET_RC_OK,d0       ; Check if OK
          bne      error                   ; if not, report error
 ;

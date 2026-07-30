@@ -17,7 +17,7 @@ fujinet_get_directory_position            equ   FUJINET_LIB_BASE+$27
 fujinet_write_appkey                      equ   FUJINET_LIB_BASE+$2A
 fujinet_read_appkey                       equ   FUJINET_LIB_BASE+$2D
 fujinet_open_appkey                       equ   FUJINET_LIB_BASE+$30
-fujinet_Cclose_appkey                       equ   FUJINET_LIB_BASE+$33
+fujinet_close_appkey                      equ   FUJINET_LIB_BASE+$33
 
 fujinet_device_create_new                 equ   FUJINET_LIB_BASE+$36
 fujinet_device_disable_device             equ   FUJINET_LIB_BASE+$39

@@ -162,11 +162,11 @@ vector_tbl:
 ;
 ; Fujinet routines
 ;
-               bra      fujinet_dcb_exec                 ; low-level fujinet command execution
-               bra      fujinet_mount_all                ; mount all devices
-               bra      fujinet_mount_host               ; mount host
-               bra      fujinet_reset                    ; reset fujinet device
-               bra      fujinet_read_host_slots          ; read host slots
+               bra      FNEXEC               ; low-level fujinet command execution
+               bra      FNMNTALL             ; mount all devices
+               bra      FNMNTHST             ; mount host
+               bra      FNRESET              ; reset fujinet device
+               bra      FNRDHSLT             ; read host slots
                bra      fujinet_read_device_slots        ; read device slots
                bra      fujinet_random_number            ; get a random 32-bit number
                bra      fujinet_get_time                 ; get the current time

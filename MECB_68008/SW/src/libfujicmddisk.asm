@@ -56,9 +56,6 @@ fujinet_unmount_image:
          move.l   (a7)+,d1
          rts
 
-fujinet_disk_get_sector_size:
-         rts
-
 ;
 ; fujinet_disk_write - write a disk
 ; Entry: a0 - points to DCB area

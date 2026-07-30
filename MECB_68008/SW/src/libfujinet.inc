@@ -4,8 +4,12 @@
 RC2014_DEVICEID_DISK                equ   $31
 RC2014_DEVICEID_DISK_LAST           equ   $3F
 
-RC2014_DEVICEID_PRINTER             equ   $41
-RC2014_DEVICEID_PRINTER_LAST        equ   $44
+RC2014_DEVICEID_PRINTER             equ   $40
+RC2014_DEVICEID_PRINTER_LAST        equ   $43
+
+RC2014_DEVICEID_MODEM               equ   $50 ; ** check 50-53?
+
+RC2014_DEVICEID_CPM                 equ   $5A
 
 RC2014_DEVICEID_FILE                equ   $61
 RC2014_DEVICEID_FILE_LAST           equ   $68
@@ -14,9 +18,6 @@ RC2014_DEVICEID_FUJINET             equ   $70
 RC2014_DEVICEID_NETWORK             equ   $71
 RC2014_DEVICEID_NETWORK_LAST        equ   $78
 
-RC2014_DEVICEID_MODEM               equ   $50
-
-RC2014_DEVICEID_CPM                 equ   $5A
 
 ;
 ; Device commands

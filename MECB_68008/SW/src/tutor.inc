@@ -39,30 +39,30 @@ VEC_PRIV       equ      $08*4 ; 8
 VEC_TRACE      equ      $09*4 ; 9
 VEC_1010       equ      $0A*4 ; 10
 VEC_1111       equ      $0B*4 ; 11
-VEC_FORMAT     equ      $0E*4 ; 12
-VEC_BADINT     equ      $0F*4 ; 13
-VEC_IRQ0       equ      $18*4 ; 14
-VEC_IRQ1       equ      $19*4 ; 15
-VEC_IRQ2       equ      $1A*4 ; 16
-VEC_IRQ3       equ      $1B*4 ; 17
-VEC_IRQ4       equ      $1C*4 ; 18
-VEC_IRQ5       equ      $1D*4 ; 19
-VEC_IRQ6       equ      $1E*4 ; 20
-VEC_IRQ7       equ      $1F*4 ; 21
-VEC_TRAP0      equ      $20*4 ; 22
-VEC_TRAP1      equ      $21*4 ; 23
-VEC_TRAP2      equ      $22*4 ; 24
-VEC_TRAP3      equ      $23*4 ; 25     Used by CPM
-VEC_TRAP4      equ      $24*4 ; 26
-VEC_TRAP5      equ      $25*4 ; 27
-VEC_TRAP6      equ      $26*4 ; 28
-VEC_TRAP7      equ      $27*4 ; 29
-VEC_TRAP8      equ      $28*4 ; 30
-VEC_TRAP9      equ      $29*4 ; 31
-VEC_TRAP10     equ      $2A*4 ; 32
-VEC_TRAP11     equ      $2B*4 ; 33
-VEC_TRAP12     equ      $2C*4 ; 34
-VEC_TRAP13     equ      $2D*4 ; 35
-VEC_TRAP14     equ      $2E*4 ; 36     Used by Tutor
-VEC_TRAP15     equ      $2F*4 ; 37
+VEC_FORMAT     equ      $0E*4 ; 14
+VEC_BADINT     equ      $0F*4 ; 15
+VEC_IRQ0       equ      $18*4 ; 24
+VEC_IRQ1       equ      $19*4 ; 25
+VEC_IRQ2       equ      $1A*4 ; 26
+VEC_IRQ3       equ      $1B*4 ; 27
+VEC_IRQ4       equ      $1C*4 ; 28
+VEC_IRQ5       equ      $1D*4 ; 29
+VEC_IRQ6       equ      $1E*4 ; 30
+VEC_IRQ7       equ      $1F*4 ; 31
+VEC_TRAP0      equ      $20*4 ; 32
+VEC_TRAP1      equ      $21*4 ; 33
+VEC_TRAP2      equ      $22*4 ; 34
+VEC_TRAP3      equ      $23*4 ; 35     Used by CPM
+VEC_TRAP4      equ      $24*4 ; 36
+VEC_TRAP5      equ      $25*4 ; 37
+VEC_TRAP6      equ      $26*4 ; 38
+VEC_TRAP7      equ      $27*4 ; 39
+VEC_TRAP8      equ      $28*4 ; 40     Used by library ROM
+VEC_TRAP9      equ      $29*4 ; 41
+VEC_TRAP10     equ      $2A*4 ; 42
+VEC_TRAP11     equ      $2B*4 ; 43
+VEC_TRAP12     equ      $2C*4 ; 44
+VEC_TRAP13     equ      $2D*4 ; 45
+VEC_TRAP14     equ      $2E*4 ; 46     Used by Tutor
+VEC_TRAP15     equ      $2F*4 ; 47
 ;

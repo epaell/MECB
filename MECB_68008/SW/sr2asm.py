@@ -5,7 +5,7 @@ import numpy as np
 max_buff = 65536*2
 fin = sys.argv[1]
 fbase = fin.split(".")[0]
-fout = f"{fbase}.asm"
+fout = f"{fbase}_bin.asm"
 buff = bytearray(np.full((max_buff), 0xff, np.ubyte))
 
 first = max_buff

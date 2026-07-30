@@ -134,6 +134,71 @@ units:   add.b    #'0',d0     ; add the units digit
          rts
 
 ;
+; Entry: d0.l - signed value to string
+;        a1.l - pointer to buffer
+; Exit   a1.l - points to just after last digit added
+
+shex2dec movem.l  d1-d4/d6-d7,-(a7)    ; save registers
+         move.l   d0,d7                ; save it here
+         bpl      hx2dc
+         neg.l    d7                   ; change to positive
+         bmi      hx2dc57              ; special case (-0)
+         move.b   #'-',(a1)+           ; add negative sign
+hx2dc    clr.w    d4                   ; for zero suppress
+         move.l   #10,d6               ; counter
+hx2dc0   move.l   #1,d2                ; value to sub
+         move.l   d6,d1                ; counter
+         sub.l    #1,d1                ; adjust - form power of ten
+         beq      hx2dc2               ; if power is zero
+hx2dc1   move.w   d2,d3                ; d3=lower word
+         mulu     #10,d3
+         swap     d2                   ; d2=upper word
+         mulu     #10,d2
+         swap     d3                   ; add upper to upper
+         add.w    d3,d2
+         swap     d2                   ; put upper in upper
+         swap     d3                   ; put lower in lower
+         move.w   d3,d2                ; d2=upper & lower
+         sub.l    #1,d1
+         BNE      hx2dc1
+hx2dc2   clr.l    d0                   ; holds sub amount
+hx2dc22  cmp.l    d2,d7
+         blt      hx2dc3               ; if no more sub possible
+         add.l    #1,d0                ; bump subs
+         sub.l    d2,d7                ; count down by powers of ten
+         bra      hx2dc22              ; do more
+hx2dc3   tst.b    d0                   ; any value?
+         bne      hx2dc4
+         tst.w    d4                   ; zero suppress
+         beq      hx2dc5
+hx2dc4   add.b    #$30,d0              ; binary to ASCII
+         move.b   d0,(a1)+             ; put in buffer
+         move.b   d0,d4                ; mark as non-zero suppress
+hx2dc5   sub.l    #1,d6                ; next power
+         bne      hx2dc0
+         tst.w    d4                   ; see if anything printed
+         bne      hx2dc6
+hx2dc57  move.b   #'0',(a1)+           ; print at least a zero
+hx2dc6   movem.l  (a7)+,d1-d4/d6-d7    ; restore registers
+         rts                           ; end of routine
+
+;--------------------------------------------------------
+; outdec - output binary value in d0 converted to decimal
+;
+; d0.l = binary value
+;
+outdec   movem.l  a0-a1,-(a7)          ; save registers
+         sub.l    #16,a7               ; make space on stack for string
+         move.l   a7,a1
+         bsr      shex2dec
+         move.b   #EOT,(a1)+           ; add the terminator character
+         move.l   a7,a0                ; print the final result
+         bsr      print
+         add.l    #16,a7               ; restore stack
+         movem.l  (a7)+,a0-a1          ; restore registers
+         rts                           ; end of routine
+
+;
 ; Copy zero terminated string at a0 to a1.
 ; Entry
 ;  a0 points to zero-terminated string to copy
@@ -150,6 +215,28 @@ strcpy2:
          move.b   d0,(a1)+          ; Store character in destination, increment Y
          bne      strcpy2           ; If the character was not $00, loop again
          movem.l  (a7)+,d0/a0
+         rts
+
+;
+; Return length of null terminated string pointed to by a0.L
+;
+; Entry
+;  a0 points to zero-terminated string
+; Return:
+;  d0.l points to byte after end of string
+; Destroyed:
+;  None
+;
+strlen:
+         movem.l  a0,-(a7)
+         move.l   #0,d0
+strlen2:
+         tst.b    (a0)+             ; check for NULL
+         beq      strlen3
+         add.l    #1,d0
+         bra      strlen2
+strlen3
+         movem.l  (a7)+,a0
          rts
 
 ;

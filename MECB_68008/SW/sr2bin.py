@@ -4,7 +4,8 @@ import numpy as np
 
 max_buff = 65536*2
 fin = sys.argv[1]
-fout = fin.replace('.SR', ".bin")
+fbase = fin.split(".")[0]
+fout = f"{fbase}.bin"
 buff = bytearray(np.full((max_buff), 0xff, np.ubyte))
 
 first = max_buff

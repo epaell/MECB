@@ -4,7 +4,7 @@
                include  "tutor.inc"
                include  "libfujinet.inc"
 ;
-               org      $4000
+               org      USERPROG_ORG
 ;
 ; *** BUFFER_LEN must be an integer multiple of 4096 (the smallest FLASH ROM section that can be erased) ***
 ; *** To ensure this, BUFFER_SECTORS must be some multiple of 32 (32 * SECTOR_SIZE = 4096)
@@ -30,6 +30,20 @@ start          move.l   #RAM_END+1,a7        ; Set up stack
                cmp.l    #0,a0
                beq      main_end             ; No, exit
 ;
+               move.l   #0,d1                ; Get the current path for slot 0
+               move.l   #fujinet_dcb,a0      ; Point to the DCB
+               move.l   #original_path,DCB_RX_BUFFER(a0)
+               jsr      fujinet_get_device_fullpath
+               cmp.b    #FUJINET_RC_OK,d0    ; Check if OK
+               bne      path_fail            ; if not, report error
+               
+               move.l   #0,d1                ; Set the first slot to point at the firmware file
+               move.l   #fujinet_dcb,a0      ; Point to the DCB
+               move.l   #FIRMWARE_PATH,DCB_TX_BUFFER(a0)
+               jsr      fujinet_set_device_fullpath
+               cmp.b    #FUJINET_RC_OK,d0    ; Check if OK
+               bne      path_fail            ; if not, report error
+
                move.l   #fujinet_dcb,a0
                jsr      fujinet_mount_all    ; Mount the host slot
                cmp.b    #FUJINET_RC_OK,d0    ; Check if OK
@@ -38,8 +52,8 @@ start          move.l   #RAM_END+1,a7        ; Set up stack
                move.l   #0,d1                ; d0 - contains current buffer chunk to read/erase/write
                move.l   #ROM_BASE,a0         ; Start at the beginning of the ROM
 ; ********* COMMENT THESE TWO LINES IF AN UPDATE OF TUTOR/ENHANCED BASIC IS REQUIRED ********
-               add.l    #1,d1                ; Avoid over-writing Tutor
-               add.l    #BUFFER_LEN,a0       ; Shift the ROM position accordingly
+;               add.l    #1,d1                ; Avoid over-writing Tutor
+;               add.l    #BUFFER_LEN,a0       ; Shift the ROM position accordingly
 ; ******* COMMENT THE ABOVE TWO LINES IF AN UPDATE OF TUTOR/ENHANCED BASIC IS REQUIRED ******
 ; WARNING : If the tutor section of ROM fails to updated correctly then the system will become unusable
 ;           and a manual reprogramming of the ROM will be needed.
@@ -54,16 +68,30 @@ write_loop:
                cmp.w    #BUFFERS_PER_ROM,d1  ; have all chunks been processed?
                blo      write_loop           ; if not, loop until done
 ;
-main_end       move.b   #TUTOR,d7
-               trap     #14
+main_end
+               move.l   #0,d1                ; Update the first slot
+               move.l   #fujinet_dcb,a0      ; Point to the DCB
+               move.l   #original_path,DCB_TX_BUFFER(a0)
+               jsr      fujinet_set_device_fullpath
+               cmp.b    #FUJINET_RC_OK,d0    ; Check if OK
+               bne      path_fail            ; if not, report error
+;
+main_exit:
+               move.l   $200000,a7
+               move.l   $200004,a0
+               jmp      (a0)                 ; cold start tutor
 ;
 read_error:    move.l   #MSG_READ_ERROR,a0   ; Report that a read error occurred
                jsr      print
-               bra      main_end             ; exit
+               bra      main_exit             ; exit
 ;
 mount_fail:    move.l   #MSG_MOUNT_FAIL,a0   ; Report that mount failed
                jsr      print
-               bra      main_end
+               bra      main_exit
+;
+path_fail:     move.l   #MSG_PATH_FAIL,a0    ; Report that attempt to change path failed
+               jsr      print
+               bra      main_exit
 ;
 ; read_buffer
 ; d1 is the current buffer chunk to read - with 128 byte sectors = 512 reads, start LSN = d0*512
@@ -247,6 +275,7 @@ MSG_DEVICE     dc.b     'Device: ',EOT
 MSG_CAPACITY   dc.b     'Capacity (bytes): $',EOT
 MSG_READ_ERROR dc.b     'Error reading FIRMWARE.ROM',CR,LF,EOT
 MSG_MOUNT_FAIL dc.b     'Failed to mount disks',CR,LF,EOT
+MSG_PATH_FAIL  dc.b     'Failed to modify image path',CR,LF,EOT
 ;
 MSG_READ       dc.b     'Reading part of FIRMWARE.ROM into buffer',CR,LF,EOT
 MSG_SEC_ERASE  dc.b     'Erasing FLASH ROM sectors',CR,LF,EOT
@@ -256,6 +285,8 @@ MSG_WRITE      dc.b     'Writing to FLASH ROM',CR,LF,EOT
 MSG_WRITE_OK   dc.b     'Writing to FLASH ROM succeeded',CR,LF,EOT
 MSG_WRITE_NOK  dc.b     'Writing to FLASH ROM failed',CR,LF,EOT
 MSG_WR_ADDR    dc.b     'Writing to address: $',EOT
+FIRMWARE_PATH: dc.b     '/CPM68K/FIRMWARE.ROM',EOT
+
 ;
 ; Storage for FLASH information
 ;
@@ -266,6 +297,7 @@ flash_mfr_id   ds.w     1
 ;
 ; Text buffer for formatting outputs
 text_buffer    ds.b     128
+original_path  ds.b     MAX_PATH_LEN
 ;
 ; location where ROM update is stored
 ;
