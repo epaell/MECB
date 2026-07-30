@@ -1,40 +1,51 @@
          include  "mecb.inc"
          include  "tutor.inc"
          include  "libfujinet.inc"
-         include  "library_rom.inc"
+         include  "library.inc"
 
 ;
-cpm_cold    equ      $015000
-_ccp        equ      $0150BC
+cpm_cold    equ      $0015000
+_ccp        equ      $00150BC
 ;
-DISK_COUNT  equ      4
+DISK_COUNT  equ      8
 DPH_LEN     equ      26
 ;
 ;-----------------------------------------------------------------------------
 
-            org      $01B000
+            org      $001B000
 ;
 _init       move.w   #$2700,sr
+            library  OUTLVER
             move.l   #strInit,a0          ; Write a message to indicate start-up.
-            jsr      print
+            library  PRINT
 ;
+            move.l   #0,d1                ; Set the first slot to point at the CPM boot disk
+            move.l   #fujinet_dcb,a0      ; Point to the DCB
+            move.l   #boot_path,DCB_TX_BUFFER(a0)
+            library  FNSETDF
+            cmp.b    #FUJINET_RC_OK,d0    ; Check if OK
+            beq      _init1               ; If so, attempt mount
+            move.l   #strPathFail,a0
+            library  PRINT
+            bra      _init2
+_init1
             move.l   #fujinet_dcb,a0
-            jsr      fujinet_mount_all    ; Mount the host slot
+            library  FNMNALL              ; Mount the host slot
             cmp.b    #FUJINET_RC_OK,d0    ; Check if OK
             beq      _init2               ; if not, report error
             move.l   #strMountFail,a0
-            jsr      print
+            library  PRINT
 _init2
             move.l   #traphndl,VEC_TRAP3  ; Set TRAP #3 handler
             clr.l    d0                   ; Log on disk A, user 0
             rts
 ;
-            org      $01B040
+            org      $001B080
 ;
             move.l   #$80000,a7           ; set up the stack pointer outside of the CPM area
-            move.l   #$15000,a1
-            move.l   #1,d0                ; CPM v1.1
-            jsr      mv_cpm15000bin       ; copy CPM binary to right location
+            move.l   #cpm_cold,a1
+            move.l   #3,d0                ; CPM v1.3
+            library  CPM15KMV             ; copy CPM binary to right location
             jmp      cpm_cold             ; start up CPM
 
 traphndl    cmp.w    #23,d0
@@ -44,7 +55,7 @@ traphndl    cmp.w    #23,d0
             jsr      (a0) 
 trapng      rte
 ;
-            align    4
+;            align    4
 ;
 biosbase    dc.l     _init          ; _init        ; Function 0
             dc.l     warmBoot       ; warmBoot     ; Function 1
@@ -69,7 +80,7 @@ biosbase    dc.l     _init          ; _init        ; Function 0
             dc.l     setIOByte      ; setIOByte    ; Function 20
             dc.l     flush          ; flush        ; Function 21
             dc.l     setHandlers    ; setHandlers  ; Function 22
-
+;
 ;--------------------------------------------------------------------------------
 ; Function 1: Warm boot.
 ;--------------------------------------------------------------------------------
@@ -110,7 +121,7 @@ conOut      btst.b   #1,ACIA1             ; Check if transmit register empty
 ;--------------------------------------------------------------------------------
 listOut     move.l   a0,-(a7)
             move.l   #str_func5,a0
-            jsr      print
+            library  PRINT
             move.l   (a7),a0
             rts
 
@@ -119,7 +130,7 @@ listOut     move.l   a0,-(a7)
 ;--------------------------------------------------------------------------------
 auxOut      move.l   a0,-(a7)
             move.l   #str_func6,a0
-            jsr      print
+            library  PRINT
             move.l   (a7),a0
             rts
 
@@ -128,7 +139,7 @@ auxOut      move.l   a0,-(a7)
 ;--------------------------------------------------------------------------------
 auxIn       move.l   a0,-(a7)
             move.l   #str_func7,a0
-            jsr      print
+            library  PRINT
             move.l   (a7),a0
             rts
 
@@ -183,7 +194,7 @@ read        movem.l  d1/a0,-(a7)     ; save registers
             move.b   selDrive,d1     ; Set up the drive
             move.l   dma,DCB_RX_BUFFER(a0)   ; set up where to store the sector
             move.l   dma,DCB_TX_BUFFER(a0)  ; Set up receive and transmit buffers
-            jsr      fujinet_disk_read          ; Read the disk
+            library  FNRDIMG         ; Read the disk
             and.l    #$ff,d0         ; Mask off any garbage
             movem.l  (a7)+,d1/a0     ; restore registers
             rts
@@ -205,7 +216,7 @@ write       movem.l  d1/a0,-(a7)
             move.b   selDrive,d1     ; Set up the drive
             move.l   dma,DCB_RX_BUFFER(a0)   ; set up where to store the sector
             move.l   dma,DCB_TX_BUFFER(a0)  ; Set up receive and transmit buffers
-            jsr      fujinet_disk_write          ; Write to the disk
+            library  FNWRIMG         ; Write to the disk
             and.l    #$ff,d0         ; Mask off any garbage
             movem.l  (a7)+,d1/a0
             rts
@@ -215,7 +226,7 @@ write       movem.l  d1/a0,-(a7)
 ;--------------------------------------------------------------------------------
 listStatus  movem.l  a0,-(a7)
             move.l   #str_func15,a0
-            jsr      print
+            library  PRINT
             movem.l  (a7)+,a0
             move.b   #255,d0 
             rts
@@ -233,7 +244,7 @@ secTranslate:
 ;--------------------------------------------------------------------------------
 undefined   movem.l  a0,-(a7)
             move.l   #str_func17,a0
-            jsr      print
+            library  PRINT
             movem.l  (a7)+,a0
             rts
 
@@ -248,7 +259,7 @@ getMemTable move.l   #memTable,d0
 ;--------------------------------------------------------------------------------
 getIOByte   movem.l  a0,-(a7)
             move.l   #str_func19,a0
-            jsr      print
+            library  PRINT
             movem.l  (a7)+,a0
             rts
 
@@ -257,7 +268,7 @@ getIOByte   movem.l  a0,-(a7)
 ;--------------------------------------------------------------------------------
 setIOByte   movem.l  a0,-(a7)
             move.l   #str_func20,a0
-            jsr      print
+            library  PRINT
             movem.l  (a7)+,a0
             rts
 
@@ -271,13 +282,26 @@ flush       clr.l    d0
 ; Function 22: Set exception handlers
 ;--------------------------------------------------------------------------------
 setHandlers and.l    #$FF,d1        ; do only for exceptions 0 - 255
-            cmp.w    #30,d1         ; trap #8 used by library ROM
+            cmp.w    #40,d1         ; trap #8 used by library ROM
             beq      noset          ; don't overwrite it
             lsl.w    #2,d1          ; multiply exception number by 4
             move.l   d1,a0 
             move.l   (a0),d0 
             move.l   d2,(a0) 
 noset       rts
+;
+strInit:    dc.b    "CP/M-68K Digicool MECB 68008 BIOS V0.1",CR,LF,0
+strMountFail: dc.b   "Mount failed",CR,LF,0
+strPathFail: dc.b    "Failed to set path to boot disk",CR,LF,0
+;
+str_func5:  dc.b     "List character output",CR,LF,EOT
+str_func6:  dc.b     "Auxiliary output",CR,LF,EOT
+str_func7:  dc.b     "Auxiliary input",CR,LF,EOT
+str_func15: dc.b     "Return list status",CR,LF,EOT
+str_func17: dc.b     "Undefined",CR,LF,EOT
+str_func19: dc.b     "Get I/O byte",CR,LF,EOT
+str_func20: dc.b     "Set I/O byte",CR,LF,EOT
+boot_path:  dc.b     "/CPM68K/CPM13.CPM",EOT
 ;
             align    4
 ;
@@ -294,8 +318,8 @@ fujinet_dcb ds.b     DCB_SIZE
             align    4
 ;
 memTable    dc.w     1           ; 1 Memory region - TPA only
-tpaStart    dc.l     $00020000   ; Default: Start of the Transient Program Area
-tpaSize     dc.l     $00060000   ; Default: Size of the Transient Program Area
+tpaStart    dc.l     $00000400   ; Default: Start of the Transient Program Area
+tpaSize     dc.l     $00014c00   ; Default: Size of the Transient Program Area
 
 ;-----------------------------------------------------------------------------------------------------
 ; disk parameter headers
@@ -380,10 +404,10 @@ dpb0        dc.w     32          ; sectors per track
             dc.b     0           ; extent mask
             dc.b     0           ; dummy fill
             dc.w     2047        ; disk size
-            dc.w     $00FF       ; directory entires
+            dc.w     $00FF       ; directory entries
             dc.w     0           ; directory mask
             dc.w     0           ; directory check size
-            dc.w     0           ; track offset
+            dc.w     0           ; track offset - where directory begins (>0 to reserve space for boot loader)
 
 dirBuffer   ds.b     128         ; directory buffer
 
@@ -395,32 +419,5 @@ allocV4     ds.b     2048        ; allocation vector
 allocV5     ds.b     2048        ; allocation vector
 allocV6     ds.b     2048        ; allocation vector
 allocV7     ds.b     2048        ; allocation vector
-;
-strInit:    dc.b    "CP/M-68K Digicool MECB 68008 BIOS V0.1",CR,LF,0
-strMountFail: dc.b   "Mount failed",CR,LF,0
-;
-;str_func0:  dc.b     "BIOS init",CR,LF,EOT
-;str_func1:  dc.b     "BIOS warm boot",CR,LF,EOT
-;str_func2:  dc.b     "Console status",CR,LF,EOT
-;str_func3:  dc.b     "Read console character",CR,LF,EOT
-;str_func4:  dc.b     "Write console character",CR,LF,EOT
-str_func5:  dc.b     "List character output",CR,LF,EOT
-str_func6:  dc.b     "Auxiliary output",CR,LF,EOT
-str_func7:  dc.b     "Auxiliary input",CR,LF,EOT
-;str_func8:  dc.b     "Home",CR,LF,EOT
-;str_func9:  dc.b     "Select disk drive=$",EOT
-;str_func10: dc.b     "Set track number=$",EOT
-;str_func11: dc.b     "Set sector number=$",EOT
-;str_func12: dc.b     "Set DMA address=$",EOT
-;str_func13: dc.b     "Read sector",CR,LF,EOT
-;str_func14: dc.b     "Write sector",CR,LF,EOT
-str_func15: dc.b     "Return list status",CR,LF,EOT
-;str_func16: dc.b     "Sector translate",CR,LF,EOT
-str_func17: dc.b     "Undefined",CR,LF,EOT
-;str_func18: dc.b     "Get region table address",CR,LF,EOT
-str_func19: dc.b     "Get I/O byte",CR,LF,EOT
-str_func20: dc.b     "Set I/O byte",CR,LF,EOT
-;str_func21: dc.b     "Flush buffers",CR,LF,EOT
-;str_func22: dc.b     "Set exception handler address for $",EOT
 ;
             end

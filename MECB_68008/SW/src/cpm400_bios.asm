@@ -318,9 +318,11 @@ fujinet_dcb ds.b     DCB_SIZE
 ;
             align    4
 ;
+TPA_START   equ      $6700
+ALLOC_SIZE  equ      $5000
 memTable    dc.w     1           ; 1 Memory region - TPA only
-tpaStart    dc.l     $00009000   ; Default: Start of the Transient Program Area
-tpaSize     dc.l     $00075000   ; Default: Size of the Transient Program Area
+tpaStart    dc.l     TPA_START   ; Default: Start of the Transient Program Area (just after BIOS)
+tpaSize     dc.l     RAM_END+1-ALLOC_SIZE-TPA_START   ; Default: Size of the Transient Program Area (starts after BIOS and ends before alloc tables)
 
 ;-----------------------------------------------------------------------------------------------------
 ; disk parameter headers
@@ -410,6 +412,8 @@ dpb0        dc.w     32          ; sectors per track
             dc.w     0           ; directory check size
             dc.w     0           ; track offset - where directory begins (>0 to reserve space for boot loader)
 
+            org      RAM_END+1-ALLOC_SIZE     ; place at the top of memory so there is more space in lower memory after bios for TPA
+            
 dirBuffer   ds.b     128         ; directory buffer
 
 allocV0     ds.b     2048        ; allocation vector
