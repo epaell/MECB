@@ -1,0 +1,500 @@
+                      (          opts.as):00001         ************************************************
+                      (          opts.as):00002         * Path option routines for SCF
+                      (          opts.as):00003         
+                      (          opts.as):00004                             use       scf.d
+                      (            scf.d):00001                             IFNE      SCF.D-1
+                      (            scf.d):00002         
+     0001             (            scf.d):00003         SCF.D               SET       1
+                      (            scf.d):00004         
+                      (            scf.d):00005         ********************************************************************
+                      (            scf.d):00006         * scf.d - Sequential Character File Manager Definitions
+                      (            scf.d):00007         *
+                      (            scf.d):00008         * SCF stands for 'Sequential Character Filemanager' and is a package of subroutines
+                      (            scf.d):00009         * that define the logical structure of a serial device.
+                      (            scf.d):00010         *
+                      (            scf.d):00011         * The data structures in this file give SCF its 'personality' and are used
+                      (            scf.d):00012         * by SCF itself, as well as applications that will require disk I/O.
+                      (            scf.d):00013         *
+                      (            scf.d):00014         * Edt/Rev  YYYY/MM/DD  Modified by
+                      (            scf.d):00015         * Comment
+                      (            scf.d):00016         * ------------------------------------------------------------------
+                      (            scf.d):00017         *          1984/01/11  YO
+                      (            scf.d):00018         * Added V.KANJI, V.KBUF, V.MODADR for new kanji input process.
+                      (            scf.d):00019         *
+                      (            scf.d):00020         *          1985/04/20  Mark G. Hawkins
+                      (            scf.d):00021         * Added V.PDLHd Path Descriptor List Head.
+                      (            scf.d):00022         *
+                      (            scf.d):00023         *          1985/04/21  Mark G. Hawkins
+                      (            scf.d):00024         * Added PD.PLP and PD.PST for modem handling.
+                      (            scf.d):00025         *
+                      (            scf.d):00026         *          1987/06/23  Kevin K. Darling
+                      (            scf.d):00027         * Updated with Dev Desc info.
+                      (            scf.d):00028         *
+                      (            scf.d):00029         *          1998/10/03  Boisy G. Pitre
+                      (            scf.d):00030         * Consolidated L1/L2 scfdefs.
+                      (            scf.d):00031         *
+                      (            scf.d):00032         *          2003/01/21  Boisy G. Pitre
+                      (            scf.d):00033         * Added symbolics for enhanced SCF line editing.
+                      (            scf.d):00034         *
+                      (            scf.d):00035         *          2003/06/02  Boisy G. Pitre
+                      (            scf.d):00036         * Updated comments for clarity.
+                      (            scf.d):00037         *
+                      (            scf.d):00038         *          2004/05/17  Boisy G. Pitre
+                      (            scf.d):00039         * Added higher baud rates.
+                      (            scf.d):00040         
+                      (            scf.d):00041                             NAM       scf.d
+                      (            scf.d):00042                             TTL       Sequential          File Manager Definitions
+                      (            scf.d):00043         
+                      (            scf.d):00044                             PAG
+                      (            scf.d):00045         *******************************
+                      (            scf.d):00046         * SCF Device Descriptor Offsets
+                      (            scf.d):00047         *
+                      (            scf.d):00048         * These definitions are for SCF device descriptors.
+                      (            scf.d):00049         
+                      (            scf.d):00050                             ORG       M$DTyp
+FFFF                  (            scf.d):00051         IT.DVC              RMB       1                   Device type (DT.SCF)
+FFFF                  (            scf.d):00052         IT.UPC              RMB       1                   Uppercase flag
+FFFF                  (            scf.d):00053         IT.BSO              RMB       1                   Backspace behavior
+FFFF                  (            scf.d):00054         IT.DLO              RMB       1                   Delete behavior
+FFFF                  (            scf.d):00055         IT.EKO              RMB       1                   Echo flag
+FFFF                  (            scf.d):00056         IT.ALF              RMB       1                   Auto linefeed flag
+FFFF                  (            scf.d):00057         IT.NUL              RMB       1                   End-of-line null count
+FFFF                  (            scf.d):00058         IT.PAU              RMB       1                   Page pause flag
+FFFF                  (            scf.d):00059         IT.PAG              RMB       1                   Number of lines per page
+FFFF                  (            scf.d):00060         IT.BSP              RMB       1                   Backspace character
+FFFF                  (            scf.d):00061         IT.DEL              RMB       1                   Delete-line character
+FFFF                  (            scf.d):00062         IT.EOR              RMB       1                   End-of-record character
+FFFF                  (            scf.d):00063         IT.EOF              RMB       1                   End-of-file character
+FFFF                  (            scf.d):00064         IT.RPR              RMB       1                   Reprint-line character
+FFFF                  (            scf.d):00065         IT.DUP              RMB       1                   Duplicate-last-line character
+FFFF                  (            scf.d):00066         IT.PSC              RMB       1                   Pause character
+FFFF                  (            scf.d):00067         IT.INT              RMB       1                   Interrupt character
+FFFF                  (            scf.d):00068         IT.QUT              RMB       1                   Quit character
+FFFF                  (            scf.d):00069         IT.BSE              RMB       1                   Backspace echo character
+FFFF                  (            scf.d):00070         IT.OVF              RMB       1                   Bell character
+FFFF                  (            scf.d):00071         IT.PAR              RMB       1                   Parity
+FFFF                  (            scf.d):00072         IT.BAU              RMB       1                   Baud rate
+FFFF                  (            scf.d):00073         IT.D2P              RMB       2                   Attached device name string offset
+FFFF                  (            scf.d):00074         IT.XON              RMB       1                   X-ON character
+FFFF                  (            scf.d):00075         IT.XOFF             RMB       1                   X-OFF character
+FFFF                  (            scf.d):00076         IT.COL              RMB       1                   Number of columns for display
+FFFF                  (            scf.d):00077         IT.ROW              RMB       1                   Number of rows for display
+FFFF                  (            scf.d):00078         IT.XTYP             RMB       1                   Extended type (added by BRI)
+                      (            scf.d):00079         
+                      (            scf.d):00080                             IFGT      Level-1
+                      (            scf.d):00081         * Window Descriptor Additions
+                      (            scf.d):00082         * For CoCo window, where IT.PAR = $80
+                      (            scf.d):00083                             ORG       IT.ROW+1
+FFFF                  (            scf.d):00084         IT.WND              RMB       1                   Window number (matches device name) ($2E)
+FFFF                  (            scf.d):00085         IT.VAL              RMB       1                   Use defaults on Init (0=no, 1=yes)
+FFFF                  (            scf.d):00086         IT.STY              RMB       1                   Screen type default
+FFFF                  (            scf.d):00087         IT.CPX              RMB       1                   Column start default
+FFFF                  (            scf.d):00088         IT.CPY              RMB       1                   Row start default
+FFFF                  (            scf.d):00089         IT.FGC              RMB       1                   Foreground color default
+FFFF                  (            scf.d):00090         IT.BGC              RMB       1                   Background color default
+FFFF                  (            scf.d):00091         IT.BDC              RMB       1                   Border color default
+                      (            scf.d):00092                             ENDC
+                      (            scf.d):00093         
+                      (            scf.d):00094         
+                      (            scf.d):00095                             PAG
+                      (            scf.d):00096         ********************
+                      (            scf.d):00097         * SCF Static Storage
+                      (            scf.d):00098         *
+                      (            scf.d):00099         * SCF devices must reserve this space for SCF
+                      (            scf.d):00100         *
+                      (            scf.d):00101                             ORG       V.USER
+FFFF                  (            scf.d):00102         V.TYPE              RMB       1                   Device type or parity
+FFFF                  (            scf.d):00103         V.LINE              RMB       1                   Lines left until end of page
+FFFF                  (            scf.d):00104         V.PAUS              RMB       1                   Immediate Pause request
+FFFF                  (            scf.d):00105         V.DEV2              RMB       2                   Attached device's static
+FFFF                  (            scf.d):00106         V.INTR              RMB       1                   Interrupt char
+FFFF                  (            scf.d):00107         V.QUIT              RMB       1                   Quit char
+FFFF                  (            scf.d):00108         V.PCHR              RMB       1                   Pause char
+FFFF                  (            scf.d):00109         V.ERR               RMB       1                   Accumulated errors
+FFFF                  (            scf.d):00110         V.XON               RMB       1                   X-On char
+FFFF                  (            scf.d):00111         V.XOFF              RMB       1                   X-Off char
+FFFF                  (            scf.d):00112         V.KANJI             RMB       1                   Kanji mode flag
+FFFF                  (            scf.d):00113         V.KBUF              RMB       2                   Kana - Kanji convert routine work address
+FFFF                  (            scf.d):00114         V.MODADR            RMB       2                   Kana - Kanji convert module address
+FFFF                  (            scf.d):00115         V.PDLHd             RMB       2                   Open path descriptor list head pointer
+FFFF                  (            scf.d):00116         V.RSV               RMB       5                   Reserve bytes for future expansion
+     ????             (            scf.d):00117         V.SCF               EQU       .                   Total SCF manager static overhead
+                      (            scf.d):00118         
+                      (            scf.d):00119         
+                      (            scf.d):00120                             PAG
+                      (            scf.d):00121         ***********************
+                      (            scf.d):00122         * Character Definitions
+                      (            scf.d):00123         *
+     0000             (            scf.d):00124         C$NULL              SET       0                   Null char
+     0001             (            scf.d):00125         C$RPET              SET       $01                 (CTRL-A - SOH) Repeat last input line
+     0003             (            scf.d):00126         C$INTR              SET       $03                 (CTRL-C - ETX) Keyboard interrupt
+     0004             (            scf.d):00127         C$RPRT              SET       $04                 (CTRL-D - EOT) Reprint current input line
+     0005             (            scf.d):00128         C$QUIT              SET       $05                 (CTRL-E - ENQ) Keyboard Abort
+     0007             (            scf.d):00129         C$BELL              SET       $07                 (CTRL-G - BEL) Line overflow warning
+     0008             (            scf.d):00130         C$BSP               SET       $08                 (CTRL-H - BS ) Back space
+     0009             (            scf.d):00131         C$RARR              SET       $09                 Right Arrow
+     0005             (            scf.d):00132         C$EL                SET       $05                 Erase Line
+     000A             (            scf.d):00133         C$LF                SET       $0A                 Line feed
+     000B             (            scf.d):00134         C$HOME              SET       $0B                 Home position Code
+     0015             (            scf.d):00135         C$Clsgr             SET       $15                 Graphic screen clear (use FM-11)
+     0016             (            scf.d):00136         C$Clsall            SET       $16                 Graphic & character clear (use FM-11)
+     000D             (            scf.d):00137         C$CR                SET       $0D                 Carriage return
+     000C             (            scf.d):00138         C$FORM              SET       $0C                 (CTRL-L - FF ) Form Feed ... screen clear
+     000F             (            scf.d):00139         C$SI                SET       $0F                 Shift IN Code
+     000E             (            scf.d):00140         C$SO                SET       $0E                 Shift OUT Code
+     0010             (            scf.d):00141         C$DELETE            SET       $10                 Delete char (for SCF enhanced line editing)
+     0011             (            scf.d):00142         C$XON               SET       $11                 (CTRL-Q - DC1) Transmit Enable
+     0011             (            scf.d):00143         C$INSERT            SET       C$XON               Insert char (for SCF enhanced line editing)
+     0013             (            scf.d):00144         C$XOFF              SET       $13                 (CTRL-S - DC3) Transmit Disable
+     0013             (            scf.d):00145         C$PLINE             SET       C$XOFF              Print remaining line (for SCF enhanced line editing)
+     0017             (            scf.d):00146         C$PAUS              SET       $17                 (CTRL-W - ETB) Pause character
+     0018             (            scf.d):00147         C$DEL               SET       $18                 (CTRL-X - CAN) Delete line
+     0019             (            scf.d):00148         C$SHRARR            SET       $19                 Shift Right-Arrow
+     001B             (            scf.d):00149         C$EOF               SET       $1B                 (CTRL-[ - ESC) END of file
+     001C             (            scf.d):00150         C$RGT               SET       $1C                 Cursor right
+     001D             (            scf.d):00151         C$LFT               SET       $1D                 Cursor left
+     001E             (            scf.d):00152         C$UP                SET       $1E                 Cursor up
+     001F             (            scf.d):00153         C$DWN               SET       $1F                 Cursor down
+     0020             (            scf.d):00154         C$SPAC              SET       $20                 Space
+     002E             (            scf.d):00155         C$PERD              SET       '.
+     002C             (            scf.d):00156         C$COMA              SET       ',
+                      (            scf.d):00157         
+                      (            scf.d):00158         
+                      (            scf.d):00159                             PAG
+                      (            scf.d):00160         *********************************************
+                      (            scf.d):00161         * Sequential Character Path Descriptor Format
+                      (            scf.d):00162         *
+                      (            scf.d):00163         * A path descriptor is created for every new path that is open
+                      (            scf.d):00164         * via the I$Open system call (processed by IOMan).  Process
+                      (            scf.d):00165         * descriptors track state information of a path.
+                      (            scf.d):00166         *
+                      (            scf.d):00167                             ORG       PD.FST
+FFFF                  (            scf.d):00168         PD.DV2              RMB       2                   Output device table pointer
+FFFF                  (            scf.d):00169         PD.RAW              RMB       1                   Read/Write or ReadLn/WritLn mode
+FFFF                  (            scf.d):00170         PD.MAX              RMB       2                   ReadLn high byte count
+FFFF                  (            scf.d):00171         PD.MIN              RMB       1                   Devices are "mine" if clear
+FFFF                  (            scf.d):00172         PD.STS              RMB       2                   Status routine module addr
+FFFF                  (            scf.d):00173         PD.STM              RMB       2                   Reserved for status routine
+                      (            scf.d):00174                             ORG       PD.OPT
+FFFF                  (            scf.d):00175                             RMB       1                   Device type
+FFFF                  (            scf.d):00176         PD.UPC              RMB       1                   Case (0=both, 1=upper only)
+FFFF                  (            scf.d):00177         PD.BSO              RMB       1                   Backspace (0=BSE, 1=BSE,SP,BSE)
+FFFF                  (            scf.d):00178         PD.DLO              RMB       1                   Delete (0=BSE over line, 1=CRLF)
+FFFF                  (            scf.d):00179         PD.EKO              RMB       1                   Echo (0=No Echo)
+FFFF                  (            scf.d):00180         PD.ALF              RMB       1                   Auto linefeed (0=No auto LF)
+FFFF                  (            scf.d):00181         PD.NUL              RMB       1                   End of Line null count
+FFFF                  (            scf.d):00182         PD.PAU              RMB       1                   Page pause (0=No end of page pause)
+FFFF                  (            scf.d):00183         PD.PAG              RMB       1                   Lines per page
+FFFF                  (            scf.d):00184         PD.BSP              RMB       1                   Backspace character
+FFFF                  (            scf.d):00185         PD.DEL              RMB       1                   Delete Line character
+FFFF                  (            scf.d):00186         PD.EOR              RMB       1                   End of Record character (read only)
+FFFF                  (            scf.d):00187         PD.EOF              RMB       1                   End of File character
+FFFF                  (            scf.d):00188         PD.RPR              RMB       1                   Repront Line character
+FFFF                  (            scf.d):00189         PD.DUP              RMB       1                   Dup Last Line character
+FFFF                  (            scf.d):00190         PD.PSC              RMB       1                   Pause character
+FFFF                  (            scf.d):00191         PD.INT              RMB       1                   Keyboard interrupt character (CTRL-C)
+FFFF                  (            scf.d):00192         PD.QUT              RMB       1                   Keyboard quit character (CTRL-E)
+FFFF                  (            scf.d):00193         PD.BSE              RMB       1                   Backspace echo character
+FFFF                  (            scf.d):00194         PD.OVF              RMB       1                   Line overflow character (BELL)
+FFFF                  (            scf.d):00195         PD.PAR              RMB       1                   Parity code
+FFFF                  (            scf.d):00196         PD.BAU              RMB       1                   ACIA baud rate (Color Computer)
+FFFF                  (            scf.d):00197         PD.D2P              RMB       2                   Offset of DEV2 name
+FFFF                  (            scf.d):00198         PD.XON              RMB       1                   ACIA X-ON character
+FFFF                  (            scf.d):00199         PD.XOFF             RMB       1                   ACIA X-OFF character
+     001A             (            scf.d):00200         OPTCNT              EQU       .-PD.OPT            Total user settable options
+FFFF                  (            scf.d):00201         PD.ERR              RMB       1                   Most recent I/O error status
+FFFF                  (            scf.d):00202         PD.TBL              RMB       2                   Device table addr (copy)
+FFFF                  (            scf.d):00203         PD.PLP              RMB       2                   Path Descriptor List Pointer
+FFFF                  (            scf.d):00204         PD.PST              RMB       1                   Current path status
+                      (            scf.d):00205         
+                      (            scf.d):00206         
+                      (            scf.d):00207         * PD.PST values Path Descriptor Status byte
+                      (            scf.d):00208         *
+     0001             (            scf.d):00209         PST.DCD             EQU       %00000001           Set if DCD is lost on Serial port
+                      (            scf.d):00210         
+                      (            scf.d):00211         
+                      (            scf.d):00212         * PD.PAR definitions
+                      (            scf.d):00213         *
+                      (            scf.d):00214         * Parity
+     0000             (            scf.d):00215         PARNONE             EQU       %00000000
+     0020             (            scf.d):00216         PARODD              EQU       %00100000
+     0060             (            scf.d):00217         PAREVEN             EQU       %01100000
+     00A0             (            scf.d):00218         PARMARK             EQU       %10100000
+     00E0             (            scf.d):00219         PARSPACE            EQU       %11100000
+     00E0             (            scf.d):00220         PARMASK             EQU       %11100000
+                      (            scf.d):00221         
+                      (            scf.d):00222         * PD.BAU definitions
+                      (            scf.d):00223         *
+                      (            scf.d):00224         * Baud rate
+     0000             (            scf.d):00225         B110                EQU       %00000000
+     0001             (            scf.d):00226         B300                EQU       %00000001
+     0002             (            scf.d):00227         B600                EQU       %00000010
+     0003             (            scf.d):00228         B1200               EQU       %00000011
+     0004             (            scf.d):00229         B2400               EQU       %00000100
+     0005             (            scf.d):00230         B4800               EQU       %00000101
+     0006             (            scf.d):00231         B9600               EQU       %00000110
+     0007             (            scf.d):00232         B19200              EQU       %00000111
+     0008             (            scf.d):00233         B38400              EQU       %00001000
+     0009             (            scf.d):00234         B57600              EQU       %00001001
+     000A             (            scf.d):00235         B115200             EQU       %00001010
+                      (            scf.d):00236         * Word size
+     0000             (            scf.d):00237         WORD8               EQU       %00000000
+     0020             (            scf.d):00238         WORD7               EQU       %00100000
+                      (            scf.d):00239         * Stop bits
+     0000             (            scf.d):00240         STOP1               EQU       %00000000
+     0010             (            scf.d):00241         STOP2               EQU       %00010000
+                      (            scf.d):00242         
+                      (            scf.d):00243                             ENDC
+                      (          opts.as):00005         
+                      (          opts.as):00006                             section   .bss
+0000                  (          opts.as):00007         orgopts             rmb       OPTCNT
+001A                  (          opts.as):00008         modopts             rmb       OPTCNT
+                      (          opts.as):00009                             endsect
+                      (          opts.as):00010         
+                      (          opts.as):00011                             section   .text
+                      (          opts.as):00012         
+0000 30C90000         (          opts.as):00013         getopts             leax      modopts,u
+0004 C600             (          opts.as):00014         getnonmodopts       ldb       #SS.Opt
+0006 103F00           (          opts.as):00015                             os9       I$GetStt
+0009 39               (          opts.as):00016                             rts
+                      (          opts.as):00017         
+000A 30C90000         (          opts.as):00018         setopts             leax      modopts,u
+000E C600             (          opts.as):00019         setnonmodopts       ldb       #SS.Opt
+0010 103F00           (          opts.as):00020                             os9       I$SetStt
+0013 39               (          opts.as):00021                             rts
+                      (          opts.as):00022         
+                      (          opts.as):00023         ;;; SAVEOPTS
+                      (          opts.as):00024         ;;;
+                      (          opts.as):00025         ;;; Save path options.
+                      (          opts.as):00026         ;;;
+                      (          opts.as):00027         ;;; Entry:  A = The path to save the options for.
+                      (          opts.as):00028         ;;;
+                      (          opts.as):00029         ;;; Exit:   None.
+                      (          opts.as):00030         
+0014 3416             (          opts.as):00031         SAVEOPTS            pshs      d,x
+0016 30C90000         (          opts.as):00032                             leax      orgopts,u           point to original options buffer
+001A 8DE8             (          opts.as):00033                             bsr       getnonmodopts
+001C 2502             (          opts.as):00034                             bcs       ex@                 branch if error
+001E 8DE0             (          opts.as):00035                             bsr       getopts
+0020 3596             (          opts.as):00036         ex@                 puls      d,x,pc
+                      (          opts.as):00037         
+                      (          opts.as):00038         ;;; RESTOREOPTS
+                      (          opts.as):00039         ;;;
+                      (          opts.as):00040         ;;; Save path options.
+                      (          opts.as):00041         ;;;
+                      (          opts.as):00042         ;;; Entry:  A = The path to restore the options for.
+                      (          opts.as):00043         ;;;
+                      (          opts.as):00044         ;;; Exit:   None.
+                      (          opts.as):00045         
+0022 3416             (          opts.as):00046         RESTOREOPTS         pshs      d,x
+0024 30C90000         (          opts.as):00047                             leax      orgopts,u           point to original options buffer
+0028 8DE4             (          opts.as):00048                             bsr       setnonmodopts
+002A 3596             (          opts.as):00049         ex@                 puls      d,x,pc
+                      (          opts.as):00050         
+                      (          opts.as):00051         
+                      (          opts.as):00052         ;;; MAKERAW
+                      (          opts.as):00053         ;;;
+                      (          opts.as):00054         ;;; Put the path in a raw state.
+                      (          opts.as):00055         ;;;
+                      (          opts.as):00056         ;;; Entry:  A = The path to set the raw state for.
+                      (          opts.as):00057         ;;;
+                      (          opts.as):00058         ;;; Exit:   None.
+                      (          opts.as):00059         
+002C 3416             (          opts.as):00060         MAKERAW             pshs      d,x
+002E 30C90000         (          opts.as):00061                             leax      modopts,u
+0032 3001             (          opts.as):00062                             leax      PD.UPC-PD.OPT,x
+0034 C610             (          opts.as):00063                             ldb       #PD.QUT-PD.UPC
+0036 6F80             (          opts.as):00064         l@                  clr       ,x+
+0038 5A               (          opts.as):00065                             decb
+0039 2AFB             (          opts.as):00066                             bpl       l@
+003B 8DCD             (          opts.as):00067                             bsr       setopts
+003D 3596             (          opts.as):00068         ex@                 puls      d,x,pc
+                      (          opts.as):00069         
+                      (          opts.as):00070         ;;; SETQUITCHAR
+                      (          opts.as):00071         ;;;
+                      (          opts.as):00072         ;;; Set the Quit character.
+                      (          opts.as):00073         ;;;
+                      (          opts.as):00074         ;;; Entry:  A = The path to set the character.
+                      (          opts.as):00075         ;;;         B = The quit character to set.
+                      (          opts.as):00076         ;;;
+                      (          opts.as):00077         ;;; Exit:   None.
+                      (          opts.as):00078         
+003F 3416             (          opts.as):00079         SETQUITCHAR         pshs      d,x
+0041 30C90000         (          opts.as):00080                             leax      modopts,u
+0045 E78811           (          opts.as):00081                             stb       PD.QUT-PD.OPT,x
+0048 8DC0             (          opts.as):00082                             bsr       setopts
+004A 3596             (          opts.as):00083         ex@                 puls      d,x,pc
+                      (          opts.as):00084         
+                      (          opts.as):00085         ;;; SETECHO
+                      (          opts.as):00086         ;;;
+                      (          opts.as):00087         ;;; Set the echo for the path.
+                      (          opts.as):00088         ;;;
+                      (          opts.as):00089         ;;; Entry:  A = The path to set the echo for.
+                      (          opts.as):00090         ;;;         B = The echo flag (1 = echo, 0 = don't echo).
+                      (          opts.as):00091         ;;;
+                      (          opts.as):00092         ;;; Exit:   None.
+                      (          opts.as):00093         
+004C 3416             (          opts.as):00094         SETECHO             pshs      d,x
+004E 30C90000         (          opts.as):00095                             leax      modopts,u
+0052 E704             (          opts.as):00096                             stb       PD.EKO-PD.OPT,x
+0054 8DB4             (          opts.as):00097                             bsr       setopts
+0056 3596             (          opts.as):00098         ex@                 puls      d,x,pc
+                      (          opts.as):00099         
+                      (          opts.as):00100                             endsect
+
+Symbol Table:
+[ cG] B110                             0000
+[ cG] B115200                          000A
+[ cG] B1200                            0003
+[ cG] B19200                           0007
+[ cG] B2400                            0004
+[ cG] B300                             0001
+[ cG] B38400                           0008
+[ cG] B4800                            0005
+[ cG] B57600                           0009
+[ cG] B600                             0002
+[ cG] B9600                            0006
+[ScG] C$BELL                           0007
+[ScG] C$BSP                            0008
+[ScG] C$Clsall                         0016
+[ScG] C$Clsgr                          0015
+[ScG] C$COMA                           002C
+[ScG] C$CR                             000D
+[ScG] C$DEL                            0018
+[ScG] C$DELETE                         0010
+[ScG] C$DWN                            001F
+[ScG] C$EL                             0005
+[ScG] C$EOF                            001B
+[ScG] C$FORM                           000C
+[ScG] C$HOME                           000B
+[ScG] C$INSERT                         0011
+[ScG] C$INTR                           0003
+[ScG] C$LF                             000A
+[ScG] C$LFT                            001D
+[ScG] C$NULL                           0000
+[ScG] C$PAUS                           0017
+[ScG] C$PERD                           002E
+[ScG] C$PLINE                          0013
+[ScG] C$QUIT                           0005
+[ScG] C$RARR                           0009
+[ScG] C$RGT                            001C
+[ScG] C$RPET                           0001
+[ScG] C$RPRT                           0004
+[ScG] C$SHRARR                         0019
+[ScG] C$SI                             000F
+[ScG] C$SO                             000E
+[ScG] C$SPAC                           0020
+[ScG] C$UP                             001E
+[ScG] C$XOFF                           0013
+[ScG] C$XON                            0011
+[ sL] ex@                              0020 (.text)
+[ sL] ex@                              002A (.text)
+[ sL] ex@                              003D (.text)
+[ sL] ex@                              004A (.text)
+[ sL] ex@                              0056 (.text)
+[ sG] getnonmodopts                    0004 (.text)
+[ sG] getopts                          0000 (.text)
+[ sG] IT.ALF                           <<incomplete>>
+[ sG] IT.BAU                           <<incomplete>>
+[ sG] IT.BSE                           <<incomplete>>
+[ sG] IT.BSO                           <<incomplete>>
+[ sG] IT.BSP                           <<incomplete>>
+[ sG] IT.COL                           <<incomplete>>
+[ sG] IT.D2P                           <<incomplete>>
+[ sG] IT.DEL                           <<incomplete>>
+[ sG] IT.DLO                           <<incomplete>>
+[ sG] IT.DUP                           <<incomplete>>
+[ sG] IT.DVC                           <<incomplete>>
+[ sG] IT.EKO                           <<incomplete>>
+[ sG] IT.EOF                           <<incomplete>>
+[ sG] IT.EOR                           <<incomplete>>
+[ sG] IT.INT                           <<incomplete>>
+[ sG] IT.NUL                           <<incomplete>>
+[ sG] IT.OVF                           <<incomplete>>
+[ sG] IT.PAG                           <<incomplete>>
+[ sG] IT.PAR                           <<incomplete>>
+[ sG] IT.PAU                           <<incomplete>>
+[ sG] IT.PSC                           <<incomplete>>
+[ sG] IT.QUT                           <<incomplete>>
+[ sG] IT.ROW                           <<incomplete>>
+[ sG] IT.RPR                           <<incomplete>>
+[ sG] IT.UPC                           <<incomplete>>
+[ sG] IT.XOFF                          <<incomplete>>
+[ sG] IT.XON                           <<incomplete>>
+[ sG] IT.XTYP                          <<incomplete>>
+[ sL] l@                               0036 (.text)
+[ sG] MAKERAW                          002C (.text)
+[ sG] modopts                          001A (.bss)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000
+[ cG] OPTCNT                           001A
+[ sG] orgopts                          0000 (.bss)
+[ cG] PAREVEN                          0060
+[ cG] PARMARK                          00A0
+[ cG] PARMASK                          00E0
+[ cG] PARNONE                          0000
+[ cG] PARODD                           0020
+[ cG] PARSPACE                         00E0
+[ sG] PD.ALF                           <<incomplete>>
+[ sG] PD.BAU                           <<incomplete>>
+[ sG] PD.BSE                           <<incomplete>>
+[ sG] PD.BSO                           <<incomplete>>
+[ sG] PD.BSP                           <<incomplete>>
+[ sG] PD.D2P                           <<incomplete>>
+[ sG] PD.DEL                           <<incomplete>>
+[ sG] PD.DLO                           <<incomplete>>
+[ sG] PD.DUP                           <<incomplete>>
+[ sG] PD.DV2                           <<incomplete>>
+[ sG] PD.EKO                           <<incomplete>>
+[ sG] PD.EOF                           <<incomplete>>
+[ sG] PD.EOR                           <<incomplete>>
+[ sG] PD.ERR                           <<incomplete>>
+[ sG] PD.INT                           <<incomplete>>
+[ sG] PD.MAX                           <<incomplete>>
+[ sG] PD.MIN                           <<incomplete>>
+[ sG] PD.NUL                           <<incomplete>>
+[ sG] PD.OVF                           <<incomplete>>
+[ sG] PD.PAG                           <<incomplete>>
+[ sG] PD.PAR                           <<incomplete>>
+[ sG] PD.PAU                           <<incomplete>>
+[ sG] PD.PLP                           <<incomplete>>
+[ sG] PD.PSC                           <<incomplete>>
+[ sG] PD.PST                           <<incomplete>>
+[ sG] PD.QUT                           <<incomplete>>
+[ sG] PD.RAW                           <<incomplete>>
+[ sG] PD.RPR                           <<incomplete>>
+[ sG] PD.STM                           <<incomplete>>
+[ sG] PD.STS                           <<incomplete>>
+[ sG] PD.TBL                           <<incomplete>>
+[ sG] PD.UPC                           <<incomplete>>
+[ sG] PD.XOFF                          <<incomplete>>
+[ sG] PD.XON                           <<incomplete>>
+[ cG] PST.DCD                          0001
+[ sG] RESTOREOPTS                      0022 (.text)
+[ sG] SAVEOPTS                         0014 (.text)
+[ScG] SCF.D                            0001
+[ sG] SETECHO                          004C (.text)
+[ sG] setnonmodopts                    000E (.text)
+[ sG] setopts                          000A (.text)
+[ sG] SETQUITCHAR                      003F (.text)
+[ cG] STOP1                            0000
+[ cG] STOP2                            0010
+[ sG] V.DEV2                           <<incomplete>>
+[ sG] V.ERR                            <<incomplete>>
+[ sG] V.INTR                           <<incomplete>>
+[ sG] V.KANJI                          <<incomplete>>
+[ sG] V.KBUF                           <<incomplete>>
+[ sG] V.LINE                           <<incomplete>>
+[ sG] V.MODADR                         <<incomplete>>
+[ sG] V.PAUS                           <<incomplete>>
+[ sG] V.PCHR                           <<incomplete>>
+[ sG] V.PDLHd                          <<incomplete>>
+[ sG] V.QUIT                           <<incomplete>>
+[ sG] V.RSV                            <<incomplete>>
+[ sG] V.SCF                            <<incomplete>>
+[ sG] V.TYPE                           <<incomplete>>
+[ sG] V.XOFF                           <<incomplete>>
+[ sG] V.XON                            <<incomplete>>
+[ cG] WORD7                            0020
+[ cG] WORD8                            0000

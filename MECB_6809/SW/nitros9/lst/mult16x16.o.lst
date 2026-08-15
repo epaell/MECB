@@ -1,0 +1,47 @@
+                      (     mult16x16.as):00001         ;;; MULT16
+                      (     mult16x16.as):00002         ;;;
+                      (     mult16x16.as):00003         ;;; 16x16 multiplication.
+                      (     mult16x16.as):00004         ;;;
+                      (     mult16x16.as):00005         ;;; Entry:  D = The multiplier.
+                      (     mult16x16.as):00006         ;;;         X = The multiplicand.
+                      (     mult16x16.as):00007         ;;;
+                      (     mult16x16.as):00008         ;;; Exit:   Y = Bits 31-16 of the product.
+                      (     mult16x16.as):00009         ;;;         U = Bits 15-0 of the product.
+                      (     mult16x16.as):00010         ;;;
+                      (     mult16x16.as):00011         ;;; Registers D & X are preserved.
+                      (     mult16x16.as):00012         
+                      (     mult16x16.as):00013                             section   .text
+                      (     mult16x16.as):00014         
+0000 3476             (     mult16x16.as):00015         MULT16:             pshs      D,X,Y,U             save #s and make stack room
+0002 6F64             (     mult16x16.as):00016                             clr       4,S                 reset overflow flag
+0004 A663             (     mult16x16.as):00017                             lda       3,S                 get byte
+0006 3D               (     mult16x16.as):00018                             mul
+0007 ED66             (     mult16x16.as):00019                             std       6,S                 save B x Xl
+0009 EC61             (     mult16x16.as):00020                             ldd       1,S
+000B 3D               (     mult16x16.as):00021                             mul                           B x Xh
+000C EB66             (     mult16x16.as):00022                             addb      6,S
+000E 8900             (     mult16x16.as):00023                             adca      #0
+0010 ED65             (     mult16x16.as):00024                             std       5,S                 add 1st 2 mult.
+0012 E660             (     mult16x16.as):00025                             ldb       0,S
+0014 A663             (     mult16x16.as):00026                             lda       3,S
+0016 3D               (     mult16x16.as):00027                             mul                           A x Xl
+0017 E365             (     mult16x16.as):00028                             addd      5,S
+0019 ED65             (     mult16x16.as):00029                             std       5,S                 add result to previous
+001B 2402             (     mult16x16.as):00030                             bcc       no.ov               branch if no overflow
+001D 6C64             (     mult16x16.as):00031                             inc       4,S                 set overflow flag
+                      (     mult16x16.as):00032         
+001F A660             (     mult16x16.as):00033         no.ov:              lda       0,S
+0021 E662             (     mult16x16.as):00034                             ldb       2,S
+0023 3D               (     mult16x16.as):00035                             mul                           A x Xh
+0024 E364             (     mult16x16.as):00036                             addd      4,S
+0026 ED64             (     mult16x16.as):00037                             std       4,S
+0028 35F6             (     mult16x16.as):00038                             puls      D,X,Y,U,PC          return
+                      (     mult16x16.as):00039         
+                      (     mult16x16.as):00040                             endsect
+
+Symbol Table:
+[ sG] MULT16                           0000 (.text)
+[ sG] no.ov                            001F (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000

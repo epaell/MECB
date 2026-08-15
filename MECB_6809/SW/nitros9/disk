@@ -1,0 +1,5 @@
+make clean
+make
+make dsk
+cp level1/mecb/NOS9_6809_L1_DEV_mecb.dsk /Volumes/FUJINET/NITROS9/FNOS9.DSK
+diskutil eject /Volumes/FUJINET

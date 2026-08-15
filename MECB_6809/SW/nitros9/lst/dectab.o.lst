@@ -1,0 +1,17 @@
+                      (        dectab.as):00001         ;;; DECTAB$
+                      (        dectab.as):00002         ;;;
+                      (        dectab.as):00003         ;;; The table of numbers that binary/decimal conversion routines use.
+                      (        dectab.as):00004         
+                      (        dectab.as):00005                             section   .text
+                      (        dectab.as):00006         
+0000 271003E80064000A (        dectab.as):00007         DECTAB$:            fdb       10000,1000,100,10,1,0
+     00010000
+                      (        dectab.as):00008         
+                      (        dectab.as):00009                             endsect
+                      (        dectab.as):00010         
+
+Symbol Table:
+[ sG] DECTAB$                          0000 (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000

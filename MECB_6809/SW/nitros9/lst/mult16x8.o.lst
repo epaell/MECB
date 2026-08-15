@@ -1,0 +1,34 @@
+                      (      mult16x8.as):00001         ;;; MULT168
+                      (      mult16x8.as):00002         ;;;
+                      (      mult16x8.as):00003         ;;; 16x8 multiplication.
+                      (      mult16x8.as):00004         ;;;
+                      (      mult16x8.as):00005         ;;; Entry:  A = The multiplier.
+                      (      mult16x8.as):00006         ;;;         X = The multiplicand.
+                      (      mult16x8.as):00007         ;;;
+                      (      mult16x8.as):00008         ;;; Exit:   A = Bits 23-16 of the product.
+                      (      mult16x8.as):00009         ;;;         X = Bits 15-0 of the product.
+                      (      mult16x8.as):00010         
+                      (      mult16x8.as):00011                             section   .text
+                      (      mult16x8.as):00012         
+0000 3412             (      mult16x8.as):00013         MULT168:            pshs      A,X                 save numbers
+0002 327D             (      mult16x8.as):00014                             leas      -3,S                room for product
+0004 E665             (      mult16x8.as):00015                             ldb       5,S                 get lsb of multiplicand
+0006 3D               (      mult16x8.as):00016                             mul
+0007 ED61             (      mult16x8.as):00017                             std       1,S                 save partial product
+0009 EC63             (      mult16x8.as):00018                             ldd       3,S                 get mupltiplier & msb of multp.
+000B 3D               (      mult16x8.as):00019                             mul
+000C EB61             (      mult16x8.as):00020                             addb      1,S                 add lsb to msb
+000E 8900             (      mult16x8.as):00021                             adca      #0                  add carry
+0010 ED60             (      mult16x8.as):00022                             std       0,S                 save sum of partial products
+0012 AE61             (      mult16x8.as):00023                             ldx       1,S                 get 2 lsb's
+0014 3266             (      mult16x8.as):00024                             leas      6,S                 clean stack
+0016 39               (      mult16x8.as):00025                             rts
+                      (      mult16x8.as):00026         
+                      (      mult16x8.as):00027                             endsect
+                      (      mult16x8.as):00028         
+
+Symbol Table:
+[ sG] MULT168                          0000 (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000

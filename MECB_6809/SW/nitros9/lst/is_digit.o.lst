@@ -1,0 +1,28 @@
+                      (      is_digit.as):00001         ;;; IS_DIGIT
+                      (      is_digit.as):00002         ;;;
+                      (      is_digit.as):00003         ;;; Test if a character is a digit from 0-9.
+                      (      is_digit.as):00004         ;;;
+                      (      is_digit.as):00005         ;;; Entry:  B = The character to test.
+                      (      is_digit.as):00006         ;;;
+                      (      is_digit.as):00007         ;;; Exit:  CC = Zero is 1 if the character is a digit; otherwise, 0.
+                      (      is_digit.as):00008         ;;;
+                      (      is_digit.as):00009         
+                      (      is_digit.as):00010                             section   .text
+                      (      is_digit.as):00011         
+0000 C130             (      is_digit.as):00012         IS_DIGIT:           cmpb      #'0
+0002 2506             (      is_digit.as):00013                             blo       no                  not digit, zero cleared
+0004 C139             (      is_digit.as):00014                             cmpb      #'9                 if equal, zero set
+0006 2202             (      is_digit.as):00015                             bhi       no                  not digit, zero cleared
+0008 1A04             (      is_digit.as):00016                             orcc      #%00000100          set zero
+                      (      is_digit.as):00017         
+000A 39               (      is_digit.as):00018         no                  rts
+                      (      is_digit.as):00019         
+                      (      is_digit.as):00020                             endsect
+                      (      is_digit.as):00021         
+
+Symbol Table:
+[ sG] IS_DIGIT                         0000 (.text)
+[ sG] no                               000A (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000

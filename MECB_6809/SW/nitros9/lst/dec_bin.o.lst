@@ -1,0 +1,108 @@
+                      (       dec_bin.as):00001         ;;; DEC_BIN
+                      (       dec_bin.as):00002         ;;;
+                      (       dec_bin.as):00003         ;;; Decimal to binary conversion routine.
+                      (       dec_bin.as):00004         ;;;
+                      (       dec_bin.as):00005         ;;; Other modules needed: BIN_ASC
+                      (       dec_bin.as):00006         ;;;
+                      (       dec_bin.as):00007         ;;; Entry:  X = The ASCII decimal string terminated with a space, comma, carriage return, or null.
+                      (       dec_bin.as):00008         ;;;
+                      (       dec_bin.as):00009         ;;; Exit:   D = The binary value.
+                      (       dec_bin.as):00010         ;;;         Y = The address of the terminator or error character.
+                      (       dec_bin.as):00011         ;;;        CC = Carry set an error occurred (too large, or not numeric.)
+                      (       dec_bin.as):00012         ;;;
+                      (       dec_bin.as):00013         
+                      (       dec_bin.as):00014                             section   .bss
+0000                  (       dec_bin.as):00015         nega                rmb       1
+                      (       dec_bin.as):00016                             endsect
+                      (       dec_bin.as):00017         
+                      (       dec_bin.as):00018                             section   .text
+                      (       dec_bin.as):00019         
+0000 4F               (       dec_bin.as):00020         DEC_BIN:            clra                          set result to 0
+0001 5F               (       dec_bin.as):00021                             clrb
+0002 3416             (       dec_bin.as):00022                             pshs      a,b,x
+0004 327F             (       dec_bin.as):00023                             leas      -1,s                temp variable
+                      (       dec_bin.as):00024         
+0006 6FC90000         (       dec_bin.as):00025                             clr       nega,u
+000A E680             (       dec_bin.as):00026                             ldb       ,x+
+000C C12D             (       dec_bin.as):00027                             cmpb      #'-
+000E 2606             (       dec_bin.as):00028                             bne       decbn15
+0010 E7C90000         (       dec_bin.as):00029                             stb       nega,u
+0014 E680             (       dec_bin.as):00030         decbn1              ldb       ,X+                 get a digit
+0016 170000           (       dec_bin.as):00031         decbn15             lbsr      IS_DIGIT
+0019 2603             (       dec_bin.as):00032                             bne       decbn3              end of string...
+001B 4C               (       dec_bin.as):00033                             inca                          bump string len
+001C 20F6             (       dec_bin.as):00034                             bra       decbn1              loop for whole string
+                      (       dec_bin.as):00035         
+001E 170000           (       dec_bin.as):00036         decbn3              lbsr      IS_TERMIN           valid terminator?
+0021 263C             (       dec_bin.as):00037                             bne       error
+                      (       dec_bin.as):00038         
+0023 4D               (       dec_bin.as):00039         ok                  tsta                          length = 0?
+0024 2739             (       dec_bin.as):00040                             beq       error               yes, error
+0026 8106             (       dec_bin.as):00041                             cmpa      #6                  more than 6 chars?
+0028 2235             (       dec_bin.as):00042                             bhi       error               yes, error
+                      (       dec_bin.as):00043         
+002A AE63             (       dec_bin.as):00044                             ldx       3,s                 get start of string again
+                      (       dec_bin.as):00045         
+002C 3402             (       dec_bin.as):00046                             pshs      A
+002E A684             (       dec_bin.as):00047                             lda       ,x
+0030 812D             (       dec_bin.as):00048                             cmpa      #'-
+0032 2602             (       dec_bin.as):00049                             bne       decbn35
+0034 3001             (       dec_bin.as):00050                             leax      1,x
+0036 8605             (       dec_bin.as):00051         decbn35             lda       #5                  max length
+0038 A0E0             (       dec_bin.as):00052                             suba      ,S+                 adjust for offset
+003A 48               (       dec_bin.as):00053                             asla                          2 bytes per table entry
+003B 318D0000         (       dec_bin.as):00054                             leay      DECTAB$,PCR         addr of conversion table
+003F 31A6             (       dec_bin.as):00055                             leay      A,Y                 add in offset for actual len
+                      (       dec_bin.as):00056         
+0041 A680             (       dec_bin.as):00057         decbn4              lda       ,X+                 get a digit
+0043 8030             (       dec_bin.as):00058                             suba      #$30                strip off ASCII
+0045 270E             (       dec_bin.as):00059                             beq       decbn6              zero, skip
+0047 A7E4             (       dec_bin.as):00060                             sta       ,s                  save digit=# of adds
+0049 EC61             (       dec_bin.as):00061                             ldd       1,S                 get binary data
+                      (       dec_bin.as):00062         
+004B E3A4             (       dec_bin.as):00063         decbn5              addd      ,Y                  add in table value
+004D 2510             (       dec_bin.as):00064                             bcs       error               past 0, too big
+004F 6AE4             (       dec_bin.as):00065                             dec       ,S                  count down digit size
+0051 26F8             (       dec_bin.as):00066                             bne       decbn5              loop til 0
+0053 ED61             (       dec_bin.as):00067                             std       1,S                 save binary data
+                      (       dec_bin.as):00068         
+0055 3122             (       dec_bin.as):00069         decbn6              leay      2,Y                 next entry
+0057 6D21             (       dec_bin.as):00070                             tst       1,y                 end of table?
+0059 26E6             (       dec_bin.as):00071                             bne       decbn4              loop til done
+005B 6FE0             (       dec_bin.as):00072                             clr       ,s+                 clean up and clear carry
+005D 2006             (       dec_bin.as):00073                             bra       exit
+                      (       dec_bin.as):00074         
+005F 6F60             (       dec_bin.as):00075         error               clr       0,s                 force data = 0
+0061 6F61             (       dec_bin.as):00076                             clr       1,s
+0063 63E0             (       dec_bin.as):00077                             com       ,s+                 clean up and set carry
+                      (       dec_bin.as):00078         
+0065 1F12             (       dec_bin.as):00079         exit                tfr       x,y                 end of string/error char
+0067 3516             (       dec_bin.as):00080                             puls      a,b,x
+0069 250D             (       dec_bin.as):00081                             bcs       leave
+006B 6DC90000         (       dec_bin.as):00082                             tst       nega,u
+006F 2707             (       dec_bin.as):00083                             beq       leave
+0071 830001           (       dec_bin.as):00084                             subd      #$0001
+0074 43               (       dec_bin.as):00085                             coma
+0075 53               (       dec_bin.as):00086                             comb
+0076 1CFE             (       dec_bin.as):00087                             andcc     #$FE
+0078 39               (       dec_bin.as):00088         leave               rts
+                      (       dec_bin.as):00089         
+                      (       dec_bin.as):00090                             endsect
+
+Symbol Table:
+[ sG] DEC_BIN                          0000 (.text)
+[ sG] decbn1                           0014 (.text)
+[ sG] decbn15                          0016 (.text)
+[ sG] decbn3                           001E (.text)
+[ sG] decbn35                          0036 (.text)
+[ sG] decbn4                           0041 (.text)
+[ sG] decbn5                           004B (.text)
+[ sG] decbn6                           0055 (.text)
+[ sG] error                            005F (.text)
+[ sG] exit                             0065 (.text)
+[ sG] leave                            0078 (.text)
+[ sG] nega                             0000 (.bss)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000
+[ sG] ok                               0023 (.text)

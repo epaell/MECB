@@ -1,0 +1,113 @@
+                      (      sho_regs.as):00001         ;;; SHO_REGS
+                      (      sho_regs.as):00002         ;;;
+                      (      sho_regs.as):00003         ;;; Display the 6809 registers to the standard error.
+                      (      sho_regs.as):00004         ;;;
+                      (      sho_regs.as):00005         ;;; Other modules needed: BIN2HEX, BIN_HEX, PUTS
+                      (      sho_regs.as):00006         ;;;
+                      (      sho_regs.as):00007         ;;; Entry:  None.
+                      (      sho_regs.as):00008         ;;;
+                      (      sho_regs.as):00009         ;;; Exit:   None.
+                      (      sho_regs.as):00010         ;;;
+                      (      sho_regs.as):00011         ;;; The value used for PC is that of the calling routine S is assumed to be 2 greater
+                      (      sho_regs.as):00012         ;;; than actual to compensate for the subroutine call.
+                      (      sho_regs.as):00013         
+                      (      sho_regs.as):00014         
+                      (      sho_regs.as):00015                             section   .data
+                      (      sho_regs.as):00016         
+0000                  (      sho_regs.as):00017         count               rmb       1                   counter for 9 regs.
+0001                  (      sho_regs.as):00018         buffer              rmb       8                   buffer for ascii strings
+0009                  (      sho_regs.as):00019         cc.r                rmb       1                   offsets to access values
+000A                  (      sho_regs.as):00020         a.r                 rmb       1
+000B                  (      sho_regs.as):00021         b.r                 rmb       1
+000C                  (      sho_regs.as):00022         dp.r                rmb       1
+000D                  (      sho_regs.as):00023         x.r                 rmb       2
+000F                  (      sho_regs.as):00024         y.r                 rmb       2
+0011                  (      sho_regs.as):00025         u.r                 rmb       2
+0013                  (      sho_regs.as):00026         s.r                 rmb       2
+0015                  (      sho_regs.as):00027         pc.r                rmb       2
+                      (      sho_regs.as):00028         
+                      (      sho_regs.as):00029                             endsect
+                      (      sho_regs.as):00030         
+                      (      sho_regs.as):00031                             section   .text
+                      (      sho_regs.as):00032         
+0000 327E             (      sho_regs.as):00033         SHO_REGS:           leas      -2,s                room for copy of <S>
+0002 347F             (      sho_regs.as):00034                             pshs      cc,a,b,dp,x,y,u     save rest
+0004 32E90000         (      sho_regs.as):00035                             leas      -cc.r,s             room for ascii strings
+0008 1F41             (      sho_regs.as):00036                             tfr       s,x
+000A 30890000         (      sho_regs.as):00037                             leax      pc.r,x              get old <S>
+000E AFE90000         (      sho_regs.as):00038                             stx       s.r,s               stick on stack
+0012 31E90000         (      sho_regs.as):00039                             leay      cc.r,s              point to regs
+0016 338D0050         (      sho_regs.as):00040                             leau      text,pcr            register names
+001A 6FE90000         (      sho_regs.as):00041                             clr       count,s             int. counter
+                      (      sho_regs.as):00042         
+                      (      sho_regs.as):00043         * now we loop and display all the registers
+                      (      sho_regs.as):00044         
+001E 30E90000         (      sho_regs.as):00045         loop1               leax      buffer,s            point to ascii buffer
+0022 ECC1             (      sho_regs.as):00046                             ldd       ,u++                get reg. name
+0024 ED81             (      sho_regs.as):00047                             std       ,x++
+0026 863D             (      sho_regs.as):00048                             lda       #'=                 add a "="
+0028 A780             (      sho_regs.as):00049                             sta       ,x+
+002A A6E90000         (      sho_regs.as):00050                             lda       count,s             1st 4 are 1 byte
+002E 8104             (      sho_regs.as):00051                             cmpa      #4
+0030 240B             (      sho_regs.as):00052                             bhs       loop2               no, do a 2byte
+0032 E6A0             (      sho_regs.as):00053                             ldb       ,y+                 get single value
+0034 170000           (      sho_regs.as):00054                             lbsr      BIN2HEX
+0037 ED84             (      sho_regs.as):00055                             std       ,x                  save ascii number
+0039 6F02             (      sho_regs.as):00056                             clr       2,x
+003B 2009             (      sho_regs.as):00057                             bra       report              go report
+003D 8109             (      sho_regs.as):00058         loop2               cmpa      #9                  done all?
+003F 2419             (      sho_regs.as):00059                             bhs       exit                yes, go home
+0041 ECA1             (      sho_regs.as):00060                             ldd       ,y++                get reg value
+0043 170000           (      sho_regs.as):00061                             lbsr      BIN_HEX             convert it
+                      (      sho_regs.as):00062         
+                      (      sho_regs.as):00063         * report reg. value
+                      (      sho_regs.as):00064         
+0046 30E90000         (      sho_regs.as):00065         report              leax      buffer,s            start of buffer
+004A 8602             (      sho_regs.as):00066                             lda       #2                  std err
+004C 170000           (      sho_regs.as):00067                             lbsr      FPUTS               print it
+004F C620             (      sho_regs.as):00068                             ldb       #$20                space
+0051 170000           (      sho_regs.as):00069                             lbsr      FPUTC
+0054 6CE90000         (      sho_regs.as):00070                             inc       count,s             do next reg
+0058 20C4             (      sho_regs.as):00071                             bra       loop1
+                      (      sho_regs.as):00072         
+005A C60D             (      sho_regs.as):00073         exit                ldb       #$0d
+005C 8602             (      sho_regs.as):00074                             lda       #2
+005E 170000           (      sho_regs.as):00075                             lbsr      FPUTC               start new line
+0061 32E90000         (      sho_regs.as):00076                             leas      cc.r,s              clear up stack
+0065 357F             (      sho_regs.as):00077                             puls      cc,a,b,dp,x,y,u
+0067 3262             (      sho_regs.as):00078                             leas      2,s
+0069 39               (      sho_regs.as):00079                             rts                           go home
+                      (      sho_regs.as):00080         
+006A 6363             (      sho_regs.as):00081         text                fcc       /cc/
+006C 2061             (      sho_regs.as):00082                             fcc       / a/
+006E 2062             (      sho_regs.as):00083                             fcc       / b/
+0070 6470             (      sho_regs.as):00084                             fcc       /dp/
+0072 2078             (      sho_regs.as):00085                             fcc       / x/
+0074 2079             (      sho_regs.as):00086                             fcc       / y/
+0076 2075             (      sho_regs.as):00087                             fcc       / u/
+0078 2073             (      sho_regs.as):00088                             fcc       / s/
+007A 7063             (      sho_regs.as):00089                             fcc       /pc/
+                      (      sho_regs.as):00090         
+                      (      sho_regs.as):00091                             endsect
+
+Symbol Table:
+[ sG] a.r                              000A (.data)
+[ sG] b.r                              000B (.data)
+[ sG] buffer                           0001 (.data)
+[ sG] cc.r                             0009 (.data)
+[ sG] count                            0000 (.data)
+[ sG] dp.r                             000C (.data)
+[ sG] exit                             005A (.text)
+[ sG] loop1                            001E (.text)
+[ sG] loop2                            003D (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000
+[ sG] pc.r                             0015 (.data)
+[ sG] report                           0046 (.text)
+[ sG] s.r                              0013 (.data)
+[ sG] SHO_REGS                         0000 (.text)
+[ sG] text                             006A (.text)
+[ sG] u.r                              0011 (.data)
+[ sG] x.r                              000D (.data)
+[ sG] y.r                              000F (.data)

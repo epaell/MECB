@@ -1,0 +1,6 @@
+PROCEDURE mesg1
+   BASE 0
+   DIM i:INTEGER
+   FOR i:=0 TO 1000
+      PRINT DATE$; " Hello from user 1: ";i
+   NEXT i

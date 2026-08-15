@@ -1,0 +1,163 @@
+                      (sys/stdpats_4.asm):00001         ********************************************************************
+                      (sys/stdpats_4.asm):00002         * StdPats_4 - Standard Patterns for 4 colors
+                      (sys/stdpats_4.asm):00003         *
+                      (sys/stdpats_4.asm):00004         * Edt/Rev  YYYY/MM/DD  Modified by
+                      (sys/stdpats_4.asm):00005         * Comment
+                      (sys/stdpats_4.asm):00006         * ------------------------------------------------------------------
+                      (sys/stdpats_4.asm):00007         *          2003/11/26  Boisy G. Pitre
+                      (sys/stdpats_4.asm):00008         * Made into source form.
+                      (sys/stdpats_4.asm):00009         
+                      (sys/stdpats_4.asm):00010                             nam       StdPats_4
+                      (sys/stdpats_4.asm):00011                             ttl       Standard Patterns for 4 colors
+                      (sys/stdpats_4.asm):00012         
+                      (sys/stdpats_4.asm):00013         
+                      (sys/stdpats_4.asm):00014                             org       0
+                      (sys/stdpats_4.asm):00015         
+0000 1B2B             (sys/stdpats_4.asm):00016         dots                fcb       $1B,$2B
+0002 CC               (sys/stdpats_4.asm):00017                             fcb       $CC                 group #
+0003 01               (sys/stdpats_4.asm):00018                             fcb       $01                 buffer #
+0004 05               (sys/stdpats_4.asm):00019                             fcb       $05                 style 640x192x2
+0005 0020             (sys/stdpats_4.asm):00020                             fdb       $0020               xsize
+0007 0008             (sys/stdpats_4.asm):00021                             fdb       $0008               ysize
+0009 0040             (sys/stdpats_4.asm):00022                             fdb       $0040               bytes
+                      (sys/stdpats_4.asm):00023         
+000B CCCCCCCCCCCCCCCC (sys/stdpats_4.asm):00024                             fcb       $CC,$CC,$CC,$CC,$CC,$CC,$CC,$CC
+0013 3333333333333333 (sys/stdpats_4.asm):00025                             fcb       $33,$33,$33,$33,$33,$33,$33,$33
+001B CCCCCCCCCCCCCCCC (sys/stdpats_4.asm):00026                             fcb       $CC,$CC,$CC,$CC,$CC,$CC,$CC,$CC
+0023 3333333333333333 (sys/stdpats_4.asm):00027                             fcb       $33,$33,$33,$33,$33,$33,$33,$33
+002B CCCCCCCCCCCCCCCC (sys/stdpats_4.asm):00028                             fcb       $CC,$CC,$CC,$CC,$CC,$CC,$CC,$CC
+0033 3333333333333333 (sys/stdpats_4.asm):00029                             fcb       $33,$33,$33,$33,$33,$33,$33,$33
+003B CCCCCCCCCCCCCCCC (sys/stdpats_4.asm):00030                             fcb       $CC,$CC,$CC,$CC,$CC,$CC,$CC,$CC
+0043 3333333333333333 (sys/stdpats_4.asm):00031                             fcb       $33,$33,$33,$33,$33,$33,$33,$33
+                      (sys/stdpats_4.asm):00032         
+004B 1B2B             (sys/stdpats_4.asm):00033         vrtline             fcb       $1B,$2B
+004D CC               (sys/stdpats_4.asm):00034                             fcb       $CC                 group #
+004E 02               (sys/stdpats_4.asm):00035                             fcb       $02                 buffer #
+004F 05               (sys/stdpats_4.asm):00036                             fcb       $05                 style 640x192x2
+0050 0020             (sys/stdpats_4.asm):00037                             fdb       $0020               xsize
+0052 0008             (sys/stdpats_4.asm):00038                             fdb       $0008               ysize
+0054 0040             (sys/stdpats_4.asm):00039                             fdb       $0040               bytes
+                      (sys/stdpats_4.asm):00040         
+0056 CCCCCCCCCCCCCCCC (sys/stdpats_4.asm):00041                             fcb       $CC,$CC,$CC,$CC,$CC,$CC,$CC,$CC
+005E CCCCCCCCCCCCCCCC (sys/stdpats_4.asm):00042                             fcb       $CC,$CC,$CC,$CC,$CC,$CC,$CC,$CC
+0066 CCCCCCCCCCCCCCCC (sys/stdpats_4.asm):00043                             fcb       $CC,$CC,$CC,$CC,$CC,$CC,$CC,$CC
+006E CCCCCCCCCCCCCCCC (sys/stdpats_4.asm):00044                             fcb       $CC,$CC,$CC,$CC,$CC,$CC,$CC,$CC
+0076 CCCCCCCCCCCCCCCC (sys/stdpats_4.asm):00045                             fcb       $CC,$CC,$CC,$CC,$CC,$CC,$CC,$CC
+007E CCCCCCCCCCCCCCCC (sys/stdpats_4.asm):00046                             fcb       $CC,$CC,$CC,$CC,$CC,$CC,$CC,$CC
+0086 CCCCCCCCCCCCCCCC (sys/stdpats_4.asm):00047                             fcb       $CC,$CC,$CC,$CC,$CC,$CC,$CC,$CC
+008E CCCCCCCCCCCCCCCC (sys/stdpats_4.asm):00048                             fcb       $CC,$CC,$CC,$CC,$CC,$CC,$CC,$CC
+                      (sys/stdpats_4.asm):00049         
+0096 1B2B             (sys/stdpats_4.asm):00050         hrzline             fcb       $1B,$2B
+0098 CC               (sys/stdpats_4.asm):00051                             fcb       $CC                 group #
+0099 03               (sys/stdpats_4.asm):00052                             fcb       $03                 buffer #
+009A 05               (sys/stdpats_4.asm):00053                             fcb       $05                 style 640x192x2
+009B 0020             (sys/stdpats_4.asm):00054                             fdb       $0020               xsize
+009D 0008             (sys/stdpats_4.asm):00055                             fdb       $0008               ysize
+009F 0040             (sys/stdpats_4.asm):00056                             fdb       $0040               bytes
+                      (sys/stdpats_4.asm):00057         
+00A1 FFFFFFFFFFFFFFFF (sys/stdpats_4.asm):00058                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+00A9 0000000000000000 (sys/stdpats_4.asm):00059                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+00B1 FFFFFFFFFFFFFFFF (sys/stdpats_4.asm):00060                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+00B9 0000000000000000 (sys/stdpats_4.asm):00061                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+00C1 FFFFFFFFFFFFFFFF (sys/stdpats_4.asm):00062                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+00C9 0000000000000000 (sys/stdpats_4.asm):00063                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+00D1 FFFFFFFFFFFFFFFF (sys/stdpats_4.asm):00064                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+00D9 0000000000000000 (sys/stdpats_4.asm):00065                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+                      (sys/stdpats_4.asm):00066         
+00E1 1B2B             (sys/stdpats_4.asm):00067         xhatch              fcb       $1B,$2B
+00E3 CC               (sys/stdpats_4.asm):00068                             fcb       $CC                 group #
+00E4 04               (sys/stdpats_4.asm):00069                             fcb       $04                 buffer #
+00E5 05               (sys/stdpats_4.asm):00070                             fcb       $05                 style 640x192x2
+00E6 0020             (sys/stdpats_4.asm):00071                             fdb       $0020               xsize
+00E8 0008             (sys/stdpats_4.asm):00072                             fdb       $0008               ysize
+00EA 0040             (sys/stdpats_4.asm):00073                             fdb       $0040               bytes
+                      (sys/stdpats_4.asm):00074         
+00EC FFFFFFFFFFFFFFFF (sys/stdpats_4.asm):00075                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+00F4 CCCCCCCCCCCCCCCC (sys/stdpats_4.asm):00076                             fcb       $CC,$CC,$CC,$CC,$CC,$CC,$CC,$CC
+00FC FFFFFFFFFFFFFFFF (sys/stdpats_4.asm):00077                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+0104 CCCCCCCCCCCCCCCC (sys/stdpats_4.asm):00078                             fcb       $CC,$CC,$CC,$CC,$CC,$CC,$CC,$CC
+010C FFFFFFFFFFFFFFFF (sys/stdpats_4.asm):00079                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+0114 CCCCCCCCCCCCCCCC (sys/stdpats_4.asm):00080                             fcb       $CC,$CC,$CC,$CC,$CC,$CC,$CC,$CC
+011C FFFFFFFFFFFFFFFF (sys/stdpats_4.asm):00081                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+0124 CCCCCCCCCCCCCCCC (sys/stdpats_4.asm):00082                             fcb       $CC,$CC,$CC,$CC,$CC,$CC,$CC,$CC
+                      (sys/stdpats_4.asm):00083         
+012C 1B2B             (sys/stdpats_4.asm):00084         leftslnt            fcb       $1B,$2B
+012E CC               (sys/stdpats_4.asm):00085                             fcb       $CC                 group #
+012F 05               (sys/stdpats_4.asm):00086                             fcb       $05                 buffer #
+0130 05               (sys/stdpats_4.asm):00087                             fcb       $05                 style 640x192x2
+0131 0020             (sys/stdpats_4.asm):00088                             fdb       $0020               xsize
+0133 0008             (sys/stdpats_4.asm):00089                             fdb       $0008               ysize
+0135 0040             (sys/stdpats_4.asm):00090                             fdb       $0040               bytes
+                      (sys/stdpats_4.asm):00091         
+0137 3030303030303030 (sys/stdpats_4.asm):00092                             fcb       $30,$30,$30,$30,$30,$30,$30,$30
+013F C0C0C0C0C0C0C0C0 (sys/stdpats_4.asm):00093                             fcb       $C0,$C0,$C0,$C0,$C0,$C0,$C0,$C0
+0147 0303030303030303 (sys/stdpats_4.asm):00094                             fcb       $03,$03,$03,$03,$03,$03,$03,$03
+014F 0C0C0C0C0C0C0C0C (sys/stdpats_4.asm):00095                             fcb       $0C,$0C,$0C,$0C,$0C,$0C,$0C,$0C
+0157 3030303030303030 (sys/stdpats_4.asm):00096                             fcb       $30,$30,$30,$30,$30,$30,$30,$30
+015F C0C0C0C0C0C0C0C0 (sys/stdpats_4.asm):00097                             fcb       $C0,$C0,$C0,$C0,$C0,$C0,$C0,$C0
+0167 0303030303030303 (sys/stdpats_4.asm):00098                             fcb       $03,$03,$03,$03,$03,$03,$03,$03
+016F 0C0C0C0C0C0C0C0C (sys/stdpats_4.asm):00099                             fcb       $0C,$0C,$0C,$0C,$0C,$0C,$0C,$0C
+                      (sys/stdpats_4.asm):00100         
+0177 1B2B             (sys/stdpats_4.asm):00101         rghtslnt            fcb       $1B,$2B
+0179 CC               (sys/stdpats_4.asm):00102                             fcb       $CC                 group #
+017A 06               (sys/stdpats_4.asm):00103                             fcb       $06                 buffer #
+017B 05               (sys/stdpats_4.asm):00104                             fcb       $05                 style 640x192x2
+017C 0020             (sys/stdpats_4.asm):00105                             fdb       $0020               xsize
+017E 0008             (sys/stdpats_4.asm):00106                             fdb       $0008               ysize
+0180 0040             (sys/stdpats_4.asm):00107                             fdb       $0040               bytes
+                      (sys/stdpats_4.asm):00108         
+0182 0C0C0C0C0C0C0C0C (sys/stdpats_4.asm):00109                             fcb       $0C,$0C,$0C,$0C,$0C,$0C,$0C,$0C
+018A 0303030303030303 (sys/stdpats_4.asm):00110                             fcb       $03,$03,$03,$03,$03,$03,$03,$03
+0192 C0C0C0C0C0C0C0C0 (sys/stdpats_4.asm):00111                             fcb       $C0,$C0,$C0,$C0,$C0,$C0,$C0,$C0
+019A 3030303030303030 (sys/stdpats_4.asm):00112                             fcb       $30,$30,$30,$30,$30,$30,$30,$30
+01A2 0C0C0C0C0C0C0C0C (sys/stdpats_4.asm):00113                             fcb       $0C,$0C,$0C,$0C,$0C,$0C,$0C,$0C
+01AA 0303030303030303 (sys/stdpats_4.asm):00114                             fcb       $03,$03,$03,$03,$03,$03,$03,$03
+01B2 C0C0C0C0C0C0C0C0 (sys/stdpats_4.asm):00115                             fcb       $C0,$C0,$C0,$C0,$C0,$C0,$C0,$C0
+01BA 3030303030303030 (sys/stdpats_4.asm):00116                             fcb       $30,$30,$30,$30,$30,$30,$30,$30
+                      (sys/stdpats_4.asm):00117         
+01C2 1B2B             (sys/stdpats_4.asm):00118         smalldot            fcb       $1B,$2B
+01C4 CC               (sys/stdpats_4.asm):00119                             fcb       $CC                 group #
+01C5 07               (sys/stdpats_4.asm):00120                             fcb       $07                 buffer #
+01C6 05               (sys/stdpats_4.asm):00121                             fcb       $05                 style 640x192x2
+01C7 0020             (sys/stdpats_4.asm):00122                             fdb       $0020               xsize
+01C9 0008             (sys/stdpats_4.asm):00123                             fdb       $0008               ysize
+01CB 0040             (sys/stdpats_4.asm):00124                             fdb       $0040               bytes
+                      (sys/stdpats_4.asm):00125         
+01CD C0C0C0C0C0C0C0C0 (sys/stdpats_4.asm):00126                             fcb       $C0,$C0,$C0,$C0,$C0,$C0,$C0,$C0
+01D5 0000000000000000 (sys/stdpats_4.asm):00127                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+01DD 0C0C0C0C0C0C0C0C (sys/stdpats_4.asm):00128                             fcb       $0C,$0C,$0C,$0C,$0C,$0C,$0C,$0C
+01E5 0000000000000000 (sys/stdpats_4.asm):00129                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+01ED C0C0C0C0C0C0C0C0 (sys/stdpats_4.asm):00130                             fcb       $C0,$C0,$C0,$C0,$C0,$C0,$C0,$C0
+01F5 0000000000000000 (sys/stdpats_4.asm):00131                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+01FD 0C0C0C0C0C0C0C0C (sys/stdpats_4.asm):00132                             fcb       $0C,$0C,$0C,$0C,$0C,$0C,$0C,$0C
+0205 0000000000000000 (sys/stdpats_4.asm):00133                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+                      (sys/stdpats_4.asm):00134         
+020D 1B2B             (sys/stdpats_4.asm):00135         largedot            fcb       $1B,$2B
+020F CC               (sys/stdpats_4.asm):00136                             fcb       $CC                 group #
+0210 08               (sys/stdpats_4.asm):00137                             fcb       $08                 buffer #
+0211 05               (sys/stdpats_4.asm):00138                             fcb       $05                 style 640x192x2
+0212 0020             (sys/stdpats_4.asm):00139                             fdb       $0020               xsize
+0214 0008             (sys/stdpats_4.asm):00140                             fdb       $0008               ysize
+0216 0040             (sys/stdpats_4.asm):00141                             fdb       $0040               bytes
+                      (sys/stdpats_4.asm):00142         
+0218 3C3C3C3C3C3C3C3C (sys/stdpats_4.asm):00143                             fcb       $3C,$3C,$3C,$3C,$3C,$3C,$3C,$3C
+0220 C3C3C3C3C3C3C3C3 (sys/stdpats_4.asm):00144                             fcb       $C3,$C3,$C3,$C3,$C3,$C3,$C3,$C3
+0228 C3C3C3C3C3C3C3C3 (sys/stdpats_4.asm):00145                             fcb       $C3,$C3,$C3,$C3,$C3,$C3,$C3,$C3
+0230 3C3C3C3C3C3C3C3C (sys/stdpats_4.asm):00146                             fcb       $3C,$3C,$3C,$3C,$3C,$3C,$3C,$3C
+0238 3C3C3C3C3C3C3C3C (sys/stdpats_4.asm):00147                             fcb       $3C,$3C,$3C,$3C,$3C,$3C,$3C,$3C
+0240 C3C3C3C3C3C3C3C3 (sys/stdpats_4.asm):00148                             fcb       $C3,$C3,$C3,$C3,$C3,$C3,$C3,$C3
+0248 C3C3C3C3C3C3C3C3 (sys/stdpats_4.asm):00149                             fcb       $C3,$C3,$C3,$C3,$C3,$C3,$C3,$C3
+0250 3C3C3C3C3C3C3C3C (sys/stdpats_4.asm):00150                             fcb       $3C,$3C,$3C,$3C,$3C,$3C,$3C,$3C
+
+Symbol Table:
+[ G] dots                             0000
+[ G] hrzline                          0096
+[ G] largedot                         020D
+[ G] leftslnt                         012C
+[SG] NOS9MAJ                          0003
+[SG] NOS9MIN                          0000
+[SG] NOS9VER                          0003
+[ G] rghtslnt                         0177
+[ G] smalldot                         01C2
+[ G] vrtline                          004B
+[ G] xhatch                           00E1

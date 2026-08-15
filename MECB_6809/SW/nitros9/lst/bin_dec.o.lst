@@ -1,0 +1,127 @@
+                      (       bin_dec.as):00001         * BGP - 04/11/2009 - Fixed issue where BIN_DEC was printing negative
+                      (       bin_dec.as):00002         * sign in certain cases.  Cleared nega flag to fix issue.
+                      (       bin_dec.as):00003         
+                      (       bin_dec.as):00004         
+                      (       bin_dec.as):00005                             section   .bss
+0000                  (       bin_dec.as):00006         nega                rmb       1
+                      (       bin_dec.as):00007                             endsect
+                      (       bin_dec.as):00008         
+                      (       bin_dec.as):00009                             section   .text
+                      (       bin_dec.as):00010         
+                      (       bin_dec.as):00011         ;;; BIN_SDEC
+                      (       bin_dec.as):00012         ;;;
+                      (       bin_dec.as):00013         ;;; Binary to signed decimal string conversion.
+                      (       bin_dec.as):00014         ;;;
+                      (       bin_dec.as):00015         ;;; OTHER MODULES NEEDED: DECTAB$
+                      (       bin_dec.as):00016         ;;;
+                      (       bin_dec.as):00017         ;;; Entry:  D = The binary value to convert.
+                      (       bin_dec.as):00018         ;;;         X = The address of the buffer that holds the ASCII string.
+                      (       bin_dec.as):00019         ;;;
+                      (       bin_dec.as):00020         ;;; Exit:  None.
+                      (       bin_dec.as):00021         ;;;
+                      (       bin_dec.as):00022         ;;; All registers (except CC) are preserved.
+                      (       bin_dec.as):00023         
+0000                  (       bin_dec.as):00024         BIN_SDEC:
+0000 6FC90000         (       bin_dec.as):00025                             clr       nega,u
+0004 4D               (       bin_dec.as):00026                             tsta
+0005 2A0B             (       bin_dec.as):00027                             bpl       BIN_DEC
+0007 A7C90000         (       bin_dec.as):00028                             sta       nega,u
+000B 53               (       bin_dec.as):00029                             comb
+000C 43               (       bin_dec.as):00030                             coma
+000D C30001           (       bin_dec.as):00031                             addd      #$0001
+0010 2004             (       bin_dec.as):00032                             bra       BIN_DEC_COMMON      +++ added BGP
+                      (       bin_dec.as):00033         
+                      (       bin_dec.as):00034         ;;; BIN_DEC
+                      (       bin_dec.as):00035         ;;;
+                      (       bin_dec.as):00036         ;;; Binary to unsigned decimal string conversion.
+                      (       bin_dec.as):00037         ;;;
+                      (       bin_dec.as):00038         ;;; OTHER MODULES NEEDED: DECTAB$
+                      (       bin_dec.as):00039         ;;;
+                      (       bin_dec.as):00040         ;;; Entry:  D = The binary value to convert.
+                      (       bin_dec.as):00041         ;;;         X = The address of the buffer that holds the ASCII string.
+                      (       bin_dec.as):00042         ;;;
+                      (       bin_dec.as):00043         ;;; Exit:  None.
+                      (       bin_dec.as):00044         ;;;
+                      (       bin_dec.as):00045         ;;; All registers (except CC) are preserved.
+                      (       bin_dec.as):00046         
+0012                  (       bin_dec.as):00047         BIN_DEC:
+0012 6FC90000         (       bin_dec.as):00048                             clr       nega,u              +++ added BGP
+0016                  (       bin_dec.as):00049         BIN_DEC_COMMON
+0016 3436             (       bin_dec.as):00050                             pshs      a,b,x,y
+0018 8607             (       bin_dec.as):00051                             lda       #7                  clear out 7 bytes in buffer
+                      (       bin_dec.as):00052         
+001A                  (       bin_dec.as):00053         bindc1
+001A 6F80             (       bin_dec.as):00054                             clr       ,x+
+001C 4A               (       bin_dec.as):00055                             deca
+001D 26FB             (       bin_dec.as):00056                             bne       bindc1
+001F AE62             (       bin_dec.as):00057                             ldx       2,s                 restore buffer start address
+0021 ECE4             (       bin_dec.as):00058                             ldd       ,s                  get data
+0023 2606             (       bin_dec.as):00059                             bne       bindc2              not 0, do convert
+0025 8630             (       bin_dec.as):00060                             lda       #'0
+0027 A784             (       bin_dec.as):00061                             sta       ,x
+0029 203C             (       bin_dec.as):00062                             bra       bindc8              exit
+                      (       bin_dec.as):00063         
+002B                  (       bin_dec.as):00064         bindc2
+002B 6DC90000         (       bin_dec.as):00065                             tst       nega,u
+002F 2708             (       bin_dec.as):00066                             beq       bindc25
+0031 3402             (       bin_dec.as):00067                             pshs      a
+0033 862D             (       bin_dec.as):00068                             lda       #'-
+0035 A780             (       bin_dec.as):00069                             sta       ,x+
+0037 3502             (       bin_dec.as):00070                             puls      a
+0039                  (       bin_dec.as):00071         bindc25
+0039 318D0000         (       bin_dec.as):00072                             leay      DECTAB$,pcr         point to conversion table
+003D 6FE3             (       bin_dec.as):00073                             clr       ,--s                temps, flag 1st dgt not placed
+                      (       bin_dec.as):00074         
+003F                  (       bin_dec.as):00075         bindc3
+003F 6F61             (       bin_dec.as):00076                             clr       1,s                 current digit=0
+                      (       bin_dec.as):00077         
+0041                  (       bin_dec.as):00078         bindc4
+0041 A3A4             (       bin_dec.as):00079                             subd      ,y                  sub table element
+0043 2504             (       bin_dec.as):00080                             bcs       bindc5              too far, correct
+0045 6C61             (       bin_dec.as):00081                             inc       1,s                 bump digit
+0047 20F8             (       bin_dec.as):00082                             bra       bindc4              loop til done
+                      (       bin_dec.as):00083         
+0049                  (       bin_dec.as):00084         bindc5
+0049 E3A4             (       bin_dec.as):00085                             addd      ,y                  restore, 1 too many subtracts
+004B 3406             (       bin_dec.as):00086                             pshs      a,b                 save rest of number
+004D A663             (       bin_dec.as):00087                             lda       3,s                 get the digit
+004F 8B30             (       bin_dec.as):00088                             adda      #$30                make it ascii
+0051 8130             (       bin_dec.as):00089                             cmpa      #'0                 is it zero?
+0053 2604             (       bin_dec.as):00090                             bne       bindc6              no, skip
+0055 6D62             (       bin_dec.as):00091                             tst       2,s                 is it 1st digit in string?
+0057 2704             (       bin_dec.as):00092                             beq       bindc7              yes, don't do leading 0s
+                      (       bin_dec.as):00093         
+0059                  (       bin_dec.as):00094         bindc6
+0059 6C62             (       bin_dec.as):00095                             inc       2,s                 indicate at least 1 digit
+005B A780             (       bin_dec.as):00096                             sta       ,x+                 save in buffer
+                      (       bin_dec.as):00097         
+005D                  (       bin_dec.as):00098         bindc7
+005D 3122             (       bin_dec.as):00099                             leay      2,y                 next table entry
+005F 6D21             (       bin_dec.as):00100                             tst       1,y                 end of table
+0061 3506             (       bin_dec.as):00101                             puls      a,b                 restore data
+0063 26DA             (       bin_dec.as):00102                             bne       bindc3              no..loop
+0065 3262             (       bin_dec.as):00103                             leas      2,s
+                      (       bin_dec.as):00104         
+0067                  (       bin_dec.as):00105         bindc8
+0067 35B6             (       bin_dec.as):00106                             puls      a,b,x,y,pc          restore and return
+                      (       bin_dec.as):00107         
+                      (       bin_dec.as):00108                             endsect
+                      (       bin_dec.as):00109         
+
+Symbol Table:
+[ sG] BIN_DEC                          0012 (.text)
+[ sG] BIN_DEC_COMMON                   0016 (.text)
+[ sG] BIN_SDEC                         0000 (.text)
+[ sG] bindc1                           001A (.text)
+[ sG] bindc2                           002B (.text)
+[ sG] bindc25                          0039 (.text)
+[ sG] bindc3                           003F (.text)
+[ sG] bindc4                           0041 (.text)
+[ sG] bindc5                           0049 (.text)
+[ sG] bindc6                           0059 (.text)
+[ sG] bindc7                           005D (.text)
+[ sG] bindc8                           0067 (.text)
+[ sG] nega                             0000 (.bss)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000

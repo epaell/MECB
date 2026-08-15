@@ -1,0 +1,1 @@
+echo 'pi.c'-xecho c.prep:C.PREP pi.c >ctmp.6.mxecho c.pass1:C.PASS1 ctmp.6.m -o=ctmp.6.idel ctmp.6.mecho c.pass2:C.PASS2 ctmp.6.i -o=ctmp.6.adel ctmp.6.iecho c.opt:C.OPT ctmp.6.a ctmp.6.odel ctmp.6.aecho c.asm:C.ASM ctmp.6.o -o=ctmp.6.rdel ctmp.6.oecho c.link:C.LINK /dd/lib/cstart.r ctmp.6.r -o=pi -l=/dd/lib/clib.l del ctmp.6.r

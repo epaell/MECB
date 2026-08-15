@@ -1,0 +1,86 @@
+                      (           rnd.as):00001         ;;; RND
+                      (           rnd.as):00002         ;;;
+                      (           rnd.as):00003         ;;; Generate a random number.
+                      (           rnd.as):00004         ;;;
+                      (           rnd.as):00005         ;;; Entry:  D = The maximum value of the random number.
+                      (           rnd.as):00006         ;;;
+                      (           rnd.as):00007         ;;; Exit:   D = The random number.
+                      (           rnd.as):00008         
+                      (           rnd.as):00009         * Subroutine to calc. a random number
+                      (           rnd.as):00010         * Based on routine by L.A. Middaugh
+                      (           rnd.as):00011         *                     The Rainbow Jan/85 p. 277
+                      (           rnd.as):00012         * Value truncated so that it is =>0 and <=passed value in D.
+                      (           rnd.as):00013         
+                      (           rnd.as):00014                             section   .bss
+                      (           rnd.as):00015         
+0000                  (           rnd.as):00016         SEED                rmb       4
+                      (           rnd.as):00017         
+                      (           rnd.as):00018                             endsect
+                      (           rnd.as):00019         
+                      (           rnd.as):00020                             section   .text
+                      (           rnd.as):00021         
+0000 3456             (           rnd.as):00022         RND:                pshs      d,x,u
+                      (           rnd.as):00023         
+0002 8E0000           (           rnd.as):00024         rnd0                ldx       #SEED               point to seed
+0005 C608             (           rnd.as):00025                             ldb       #8                  number of shifts
+0007 A603             (           rnd.as):00026         loop                lda       3,x                 exclusive or bit 28 with 31
+0009 46               (           rnd.as):00027                             rora
+000A 46               (           rnd.as):00028                             rora
+000B 46               (           rnd.as):00029                             rora
+000C A803             (           rnd.as):00030                             eora      3,x
+000E 46               (           rnd.as):00031                             rora                          result in carry
+000F 46               (           rnd.as):00032                             rora
+0010 6600             (           rnd.as):00033                             ror       0,x                 rotate carry into bit0
+0012 6601             (           rnd.as):00034                             ror       1,x
+0014 6602             (           rnd.as):00035                             ror       2,x
+0016 6603             (           rnd.as):00036                             ror       3,x
+0018 5A               (           rnd.as):00037                             decb                          do 8 times
+0019 26EC             (           rnd.as):00038                             bne       loop
+001B EC01             (           rnd.as):00039                             ldd       1,x                 get rnd value
+001D 2606             (           rnd.as):00040                             bne       trunc               ensure we never return a 0
+001F 6C01             (           rnd.as):00041                             inc       1,x                 fudge it so we get a non-zero
+0021 6C03             (           rnd.as):00042                             inc       3,x
+0023 20DD             (           rnd.as):00043                             bra       rnd0
+                      (           rnd.as):00044         
+0025 10A3E4           (           rnd.as):00045         trunc               cmpd      ,s                  in range specified?
+0028 2304             (           rnd.as):00046                             bls       exit                yes
+002A A3E4             (           rnd.as):00047                             subd      ,s
+002C 20F7             (           rnd.as):00048                             bra       trunc
+                      (           rnd.as):00049         
+002E 3262             (           rnd.as):00050         exit                leas      2,s                 forget original D
+0030 35D0             (           rnd.as):00051                             puls      x,u,pc
+                      (           rnd.as):00052         
+                      (           rnd.as):00053         
+                      (           rnd.as):00054         ;;; SEEDRND
+                      (           rnd.as):00055         ;;;
+                      (           rnd.as):00056         ;;; Seed the random number generator.
+                      (           rnd.as):00057         ;;;
+                      (           rnd.as):00058         ;;; Entry:  None.
+                      (           rnd.as):00059         ;;;
+                      (           rnd.as):00060         ;;; Exit:   None.
+                      (           rnd.as):00061         
+0032 3416             (           rnd.as):00062         SEEDRND:            pshs      d,x
+0034 327A             (           rnd.as):00063                             leas      -6,s                make room for date
+0036 1F41             (           rnd.as):00064                             tfr       s,x                 point X to buffer
+0038 103F00           (           rnd.as):00065                             os9       F$Time
+003B E304             (           rnd.as):00066                             addd      4,x                 add min/secs to value in D
+003D D300             (           rnd.as):00067                             addd      <SEED               add to orig value
+003F DD00             (           rnd.as):00068                             std       <SEED               set msb of seed
+0041 D300             (           rnd.as):00069                             addd      <SEED+2             add lsb of seed to new msb
+0043 DD00             (           rnd.as):00070                             std       <SEED+2
+0045 3266             (           rnd.as):00071                             leas      6,s
+0047 3596             (           rnd.as):00072                             puls      d,x,pc
+                      (           rnd.as):00073         
+                      (           rnd.as):00074                             endsect
+
+Symbol Table:
+[ sG] exit                             002E (.text)
+[ sG] loop                             0007 (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000
+[ sG] RND                              0000 (.text)
+[ sG] rnd0                             0002 (.text)
+[ sG] SEED                             0000 (.bss)
+[ sG] SEEDRND                          0032 (.text)
+[ sG] trunc                            0025 (.text)

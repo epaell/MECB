@@ -1,0 +1,31 @@
+                      (      is_cntrl.as):00001         ;;; IS_ALPHA
+                      (      is_cntrl.as):00002         ;;;
+                      (      is_cntrl.as):00003         ;;; Test if a character is a control character from $00-$1F or $7F-$FF
+                      (      is_cntrl.as):00004         ;;;
+                      (      is_cntrl.as):00005         ;;; Entry:  B = The character to test.
+                      (      is_cntrl.as):00006         ;;;
+                      (      is_cntrl.as):00007         ;;; Exit:  CC = Zero is 1 if the character is a control character; otherwise, 0.
+                      (      is_cntrl.as):00008         ;;;
+                      (      is_cntrl.as):00009         
+                      (      is_cntrl.as):00010                             section   .text
+                      (      is_cntrl.as):00011         
+                      (      is_cntrl.as):00012         
+0000 C17F             (      is_cntrl.as):00013         IS_CNTRL:           cmpb      #$7f
+0002 2404             (      is_cntrl.as):00014                             bhs       yes
+0004 C11F             (      is_cntrl.as):00015                             cmpb      #$1f
+0006 2202             (      is_cntrl.as):00016                             bhi       exit                not control, zero cleared
+                      (      is_cntrl.as):00017         
+0008 1A04             (      is_cntrl.as):00018         yes                 orcc      #%00000100          set zero
+                      (      is_cntrl.as):00019         
+000A 39               (      is_cntrl.as):00020         exit                rts
+                      (      is_cntrl.as):00021         
+                      (      is_cntrl.as):00022                             endsect
+                      (      is_cntrl.as):00023         
+
+Symbol Table:
+[ sG] exit                             000A (.text)
+[ sG] IS_CNTRL                         0000 (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000
+[ sG] yes                              0008 (.text)

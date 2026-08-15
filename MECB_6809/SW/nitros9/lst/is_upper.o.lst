@@ -1,0 +1,27 @@
+                      (      is_upper.as):00001         ;;; IS_UPPER
+                      (      is_upper.as):00002         ;;;
+                      (      is_upper.as):00003         ;;; Test if a character is an uppercase letter from A-Z.
+                      (      is_upper.as):00004         ;;;
+                      (      is_upper.as):00005         ;;; Entry:  B = The character to test.
+                      (      is_upper.as):00006         ;;;
+                      (      is_upper.as):00007         ;;; Exit:  CC = Zero is 1 if the character is an uppercase letter; otherwise, 0.
+                      (      is_upper.as):00008         ;;;
+                      (      is_upper.as):00009                             section   .text
+                      (      is_upper.as):00010         
+0000 C141             (      is_upper.as):00011         IS_UPPER:           cmpb      #'A
+0002 2506             (      is_upper.as):00012                             blo       no                  not uppercase, zero cleared
+0004 C15A             (      is_upper.as):00013                             cmpb      #'Z                 if equal, zero set
+0006 2202             (      is_upper.as):00014                             bhi       no                  not upperc, zero cleared
+0008 1A04             (      is_upper.as):00015                             orcc      #%00000100          set zero
+                      (      is_upper.as):00016         
+000A 39               (      is_upper.as):00017         no                  rts
+                      (      is_upper.as):00018         
+                      (      is_upper.as):00019                             endsect
+                      (      is_upper.as):00020         
+
+Symbol Table:
+[ sG] IS_UPPER                         0000 (.text)
+[ sG] no                               000A (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000

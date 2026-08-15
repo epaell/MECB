@@ -1,0 +1,27 @@
+PROCEDURE Fractal
+  DIM X, Y, I: INTEGER
+    FOR Y=-12 TO 12
+      FOR X=-39 TO 39
+        CA=X*0.0458
+        CB=Y*0.08333
+        A=CA
+        B=CB
+        FOR I=0 TO 15
+          T=A*A-B*B+CA
+          B=2*A*B+CB
+          A=T
+          IF(A*A+B*B)>4 THEN
+            GOTO 200
+          ENDIF
+        NEXT I
+        PRINT" ";
+        GOTO 210
+200     IF I>9 THEN
+          I=I+7
+        ENDIF
+        PRINT CHR$(48+I);
+210   NEXT X
+      PRINT
+    NEXT Y
+END
+

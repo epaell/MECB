@@ -1,0 +1,157 @@
+                      (       windefs.as):00001         ************************************
+                      (       windefs.as):00002         *
+                      (       windefs.as):00003         * This file contains the names for the various window
+                      (       windefs.as):00004         * commands available for OS-9 Level 2 on the CoCo 3.
+                      (       windefs.as):00005         
+                      (       windefs.as):00006         * History: File created 88/04/24 - Bob van der Poel
+                      (       windefs.as):00007         
+                      (       windefs.as):00008         * Note that all these constants begin with a "W"
+                      (       windefs.as):00009         
+                      (       windefs.as):00010                             section   .text
+                      (       windefs.as):00011         
+     1B33             (       windefs.as):00012         WBColor             equ       $1b33               background color
+     1B3D             (       windefs.as):00013         WBoldSw             equ       $1b3d               bold switch
+     1B34             (       windefs.as):00014         WBorder             equ       $1b34               border color
+     1B25             (       windefs.as):00015         WCWArea             equ       $1b25               change working area
+     1B30             (       windefs.as):00016         WDefColr            equ       $1b30               set default color
+     1B28             (       windefs.as):00017         WDfnGPBuf           equ       $1b28               define get/put buffer
+     1B24             (       windefs.as):00018         WDWEnd              equ       $1b24               device window end
+     1B36             (       windefs.as):00019         WDWProtSw           equ       $1b36               device window protect
+     1B20             (       windefs.as):00020         WDWSet              equ       $1b20               device window set
+     1B32             (       windefs.as):00021         WFColor             equ       $1b32               foreground color
+     1B3A             (       windefs.as):00022         WFont               equ       $1b3a               select font
+     1B39             (       windefs.as):00023         WGCSet              equ       $1b39               graphics cursor set
+     1B2C             (       windefs.as):00024         WGetBlk             equ       $1b2c               get block
+     1B2B             (       windefs.as):00025         WGPLoad             equ       $1b2b               get/put buffer load
+     1B2A             (       windefs.as):00026         WKilBuf             equ       $1b2a               kill get/put buffer
+     1B2F             (       windefs.as):00027         WLSet               equ       $1b2f               logic set
+     1B23             (       windefs.as):00028         WOWEnd              equ       $1b23               overlay window end
+     1B22             (       windefs.as):00029         WOWSet              equ       $1b22               overlay window set
+     1B31             (       windefs.as):00030         WPalette            equ       $1b31               change palette
+     1B3F             (       windefs.as):00031         WPropSw             equ       $1b3f               proportional switch
+     1B2E             (       windefs.as):00032         WPSet               equ       $1b2e               Pattern set
+     1B2D             (       windefs.as):00033         WPutBlk             equ       $1b2d               put block
+     1B35             (       windefs.as):00034         WScaleSw            equ       $1b35               scale switch
+     1B21             (       windefs.as):00035         WSelect             equ       $1b21               select window
+     1B3C             (       windefs.as):00036         WTCharSw            equ       $1b3c               transparent char switch
+                      (       windefs.as):00037         
+                      (       windefs.as):00038         * drawing commands
+                      (       windefs.as):00039         
+     1B52             (       windefs.as):00040         WArc3P              equ       $1b52               draw arc
+     1B4A             (       windefs.as):00041         WBar                equ       $1b4a               draw bar
+     1B4B             (       windefs.as):00042         WRBar               equ       $1b4b               draw bar relative
+     1B48             (       windefs.as):00043         WBox                equ       $1b48               draw box
+     1B49             (       windefs.as):00044         WRBox               equ       $1b49               draw box relative
+     1B50             (       windefs.as):00045         WCircle             equ       $1b50               draw circle
+     1B51             (       windefs.as):00046         WEllipse            equ       $1b51               draw ellipse
+     1B4F             (       windefs.as):00047         WFFill              equ       $1b4f               flood fill
+     1B44             (       windefs.as):00048         WLine               equ       $1b44               draw line
+     1B45             (       windefs.as):00049         WRLine              equ       $1b45               draw line relative
+     1B46             (       windefs.as):00050         WLineM              equ       $1b46               draw line and move
+     1B47             (       windefs.as):00051         WRLineM             equ       $1b47               draw line relative and move
+     1B42             (       windefs.as):00052         WPoint              equ       $1b42               set point
+     1B43             (       windefs.as):00053         WRPoint             equ       $1b43               set point relative
+     1B4E             (       windefs.as):00054         WPutGC              equ       $1b4e               put graphics cursor
+     1B40             (       windefs.as):00055         WSetDPtr            equ       $1b40               set draw pointer
+     1B41             (       windefs.as):00056         WRSetDPtr           equ       $1b41               set draw pointer relative
+                      (       windefs.as):00057         
+                      (       windefs.as):00058         * Text commands
+                      (       windefs.as):00059         
+                      (       windefs.as):00060         * these are one byte codes...
+                      (       windefs.as):00061         
+     0001             (       windefs.as):00062         WHomeCur            equ       $01                 home cursor
+     0002             (       windefs.as):00063         WPosCur             equ       $02                 position cursor
+     0003             (       windefs.as):00064         WErasLn             equ       $03                 erase line
+     0004             (       windefs.as):00065         WErasEOL            equ       $04                 erase to end of line
+     000B             (       windefs.as):00066         WErasEOS            equ       $0b                 erase to end of screen
+     000C             (       windefs.as):00067         WErase              equ       $0c                 erase screen and home cursor
+     0006             (       windefs.as):00068         WCurR               equ       $06                 move cursor right one pos
+     0008             (       windefs.as):00069         WCurL               equ       $08                 move cursor left one pos
+     0009             (       windefs.as):00070         WCurUp              equ       $09                 move cursor up one line
+     000A             (       windefs.as):00071         WCurDn              equ       $0a                 move cursor down one line
+     0007             (       windefs.as):00072         WBell               equ       $07                 rings terminal bell
+     000D             (       windefs.as):00073         WCr                 equ       $0d                 sends a carriage return
+                      (       windefs.as):00074         
+                      (       windefs.as):00075         * two byte codes...
+                      (       windefs.as):00076         
+     0520             (       windefs.as):00077         WCurOff             equ       $0520               turn off cursor
+     0521             (       windefs.as):00078         WCurOn              equ       $0521               turn  on cursor
+     1F20             (       windefs.as):00079         WRvOn               equ       $1f20               reverse video on
+     1F21             (       windefs.as):00080         WRvOff              equ       $1f21               reverse video off
+     1F22             (       windefs.as):00081         WUlOn               equ       $1f22               underlining on
+     1F23             (       windefs.as):00082         WUlOff              equ       $1f23               underlineing off
+     1F24             (       windefs.as):00083         WBlnkOn             equ       $1f24               blinking on
+     1F25             (       windefs.as):00084         WBlnkOff            equ       $1f25               blinking off
+     1F30             (       windefs.as):00085         WInsLn              equ       $1f30               insert line at cursor
+     1F31             (       windefs.as):00086         WDelLn              equ       $1f31               delete current line
+                      (       windefs.as):00087         
+                      (       windefs.as):00088                             endsect
+
+Symbol Table:
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000
+[ cG] WArc3P                           1B52
+[ cG] WBar                             1B4A
+[ cG] WBColor                          1B33
+[ cG] WBell                            0007
+[ cG] WBlnkOff                         1F25
+[ cG] WBlnkOn                          1F24
+[ cG] WBoldSw                          1B3D
+[ cG] WBorder                          1B34
+[ cG] WBox                             1B48
+[ cG] WCircle                          1B50
+[ cG] WCr                              000D
+[ cG] WCurDn                           000A
+[ cG] WCurL                            0008
+[ cG] WCurOff                          0520
+[ cG] WCurOn                           0521
+[ cG] WCurR                            0006
+[ cG] WCurUp                           0009
+[ cG] WCWArea                          1B25
+[ cG] WDefColr                         1B30
+[ cG] WDelLn                           1F31
+[ cG] WDfnGPBuf                        1B28
+[ cG] WDWEnd                           1B24
+[ cG] WDWProtSw                        1B36
+[ cG] WDWSet                           1B20
+[ cG] WEllipse                         1B51
+[ cG] WErase                           000C
+[ cG] WErasEOL                         0004
+[ cG] WErasEOS                         000B
+[ cG] WErasLn                          0003
+[ cG] WFColor                          1B32
+[ cG] WFFill                           1B4F
+[ cG] WFont                            1B3A
+[ cG] WGCSet                           1B39
+[ cG] WGetBlk                          1B2C
+[ cG] WGPLoad                          1B2B
+[ cG] WHomeCur                         0001
+[ cG] WInsLn                           1F30
+[ cG] WKilBuf                          1B2A
+[ cG] WLine                            1B44
+[ cG] WLineM                           1B46
+[ cG] WLSet                            1B2F
+[ cG] WOWEnd                           1B23
+[ cG] WOWSet                           1B22
+[ cG] WPalette                         1B31
+[ cG] WPoint                           1B42
+[ cG] WPosCur                          0002
+[ cG] WPropSw                          1B3F
+[ cG] WPSet                            1B2E
+[ cG] WPutBlk                          1B2D
+[ cG] WPutGC                           1B4E
+[ cG] WRBar                            1B4B
+[ cG] WRBox                            1B49
+[ cG] WRLine                           1B45
+[ cG] WRLineM                          1B47
+[ cG] WRPoint                          1B43
+[ cG] WRSetDPtr                        1B41
+[ cG] WRvOff                           1F21
+[ cG] WRvOn                            1F20
+[ cG] WScaleSw                         1B35
+[ cG] WSelect                          1B21
+[ cG] WSetDPtr                         1B40
+[ cG] WTCharSw                         1B3C
+[ cG] WUlOff                           1F23
+[ cG] WUlOn                            1F22

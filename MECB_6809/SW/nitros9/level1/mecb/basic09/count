@@ -1,0 +1,12 @@
+PROCEDURE count
+   DIM i:INTEGER
+
+   REM Initialise PIA Control, select DDRA
+   POKE $EF31,$00
+   REM Select Port A as all outputs
+   POKE $EF30,$FF
+   REM Select Port A register
+   POKE $EF31,$04
+   FOR i:=0 TO 255
+      POKE $EF30,i
+   NEXT i

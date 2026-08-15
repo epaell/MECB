@@ -1,0 +1,601 @@
+                      (       score90.as):00001         
+                      (       score90.as):00002                             nam       Score
+                      (       score90.as):00003                             ttl       Routines to handle high score recording
+                      (       score90.as):00004         
+                      (       score90.as):00005         *     Program segment to be compiled using Level II RMA
+                      (       score90.as):00006         *          This is not a mainline program segment
+                      (       score90.as):00007         *                 Written by Larry Olson
+                      (       score90.as):00008         
+                      (       score90.as):00009                             ifp1
+                      (       score90.as):00010         *         use   /dd/defs/os9defs.a
+                      (       score90.as):00011                             endc
+                      (       score90.as):00012         
+     0064             (       score90.as):00013         STACK               equ       100
+                      (       score90.as):00014         
+                      (       score90.as):00015                             section   bss
+                      (       score90.as):00016         
+                      (       score90.as):00017         *     Local Variables
+                      (       score90.as):00018         
+0000                  (       score90.as):00019         FPATH               rmb       1                   File path number
+0001                  (       score90.as):00020         FSCORE              rmb       126                 Names & scores put here
+007F                  (       score90.as):00021         PNAME               rmb       15                  Players name
+008E                  (       score90.as):00022         NAMLGH              rmb       2                   Number of characters in name
+0090                  (       score90.as):00023         ENTCNT              rmb       1                   Entry counter
+0091                  (       score90.as):00024         ENTPNT              rmb       2                   Pointer to start of entry
+0093                  (       score90.as):00025         COUNT               rmb       1
+0094                  (       score90.as):00026         SAVEX               rmb       2
+0096                  (       score90.as):00027         CURPOS              rmb       3
+                      (       score90.as):00028         
+0099                  (       score90.as):00029                             rmb       STACK
+                      (       score90.as):00030         
+                      (       score90.as):00031                             endsect
+                      (       score90.as):00032         
+                      (       score90.as):00033                             section   code
+                      (       score90.as):00034         
+0000 2F64642F7379732F (       score90.as):00035         FILLST              fcc       '/dd/sys/pac_scores'
+     7061635F73636F72
+     6573
+                      (       score90.as):00036         
+0012 0225215772697474 (       score90.as):00037         WRTNBY              fcb       2,37,33,87,114,105,116,116
+001A 656E2042791B3201 (       score90.as):00038                             fcb       101,110,32,66,121,$1b,$32,1,2
+     02
+0023 23244C6172727920 (       score90.as):00039                             fcb       35,36,76,97,114,114,121,32
+002B 452E204F6C736F6E (       score90.as):00040                             fcb       69,46,32,79,108,115,111,110
+                      (       score90.as):00041         
+0033 0221224C6F616469 (       score90.as):00042         LDGSCR              fcb       2,33,34,76,111,97,100,105,110
+     6E
+003C 6720486967682053 (       score90.as):00043                             fcb       103,32,72,105,103,104,32,83
+0044 636F726573       (       score90.as):00044                             fcb       99,111,114,101,115
+                      (       score90.as):00045         
+0049 1B32011B33000C02 (       score90.as):00046         ENTNAM              fcb       $1b,$32,1,$1b,$33,0,$0c,2,33,33
+     2121
+0053 504C4541534520   (       score90.as):00047                             fcb       80,76,69,65,83,69,32
+005A 454E54455220594F (       score90.as):00048                             fcb       69,78,84,69,82,32,89,79
+0062 5552204E414D4520 (       score90.as):00049                             fcb       85,82,32,78,65,77,69,32
+                      (       score90.as):00050         
+006A 1B32020222232D2D (       score90.as):00051         ARROW               fcb       $1b,$32,2,2,34,35,45,45,62
+     3E
+0073 201B32035F022623 (       score90.as):00052                             fcb       32,$1b,$32,3,95,2,38,35
+                      (       score90.as):00053         
+007B 1B32090220232049 (       score90.as):00054         QUESTN              fcb       $1b,$32,9,2,32,35,32,73,115,32
+     7320
+0085 4E616D6520436F72 (       score90.as):00055                             fcb       78,97,109,101,32,67,111,114,114
+     72
+008E 6563742028592F4E (       score90.as):00056                             fcb       101,99,116,32,40,89,47,78,41,32,63
+     29203F
+0099 023723           (       score90.as):00057                             fcb       2,55,35
+                      (       score90.as):00058         
+009C 0225211B3202434F (       score90.as):00059         CONGRT              fcb       2,37,33,$1b,$32,2,67,79,78
+     4E
+00A5 47524154554C4154 (       score90.as):00060                             fcb       71,82,65,84,85,76,65,84,73
+     49
+00AE 4F4E531B32040226 (       score90.as):00061                             fcb       79,78,83,$1b,$32,4,2,38,35
+     23
+                      (       score90.as):00062         
+00B7 0C1B320402252053 (       score90.as):00063         NOTFND              fcb       $0c,$1b,$32,4,2,37,32,83,99,111
+     636F
+00C1 72652046696C651B (       score90.as):00064                             fcb       114,101,32,70,105,108,101,$1b,$32
+     32
+00CA 020222222F64642F (       score90.as):00065                             fcb       2,2,34,34,47,100,100,47,115,121
+     7379
+00D4 732F7061635F7363 (       score90.as):00066                             fcb       115,47,112,97,99,95,115,99,111
+     6F
+00DD 7265731B32040226 (       score90.as):00067                             fcb       114,101,115,$1b,$32,4,2,38,36
+     24
+00E6 4E4F5420464F554E (       score90.as):00068                             fcb       78,79,84,32,70,79,85,78,68
+     44
+                      (       score90.as):00069         
+00EF 0226242020202020 (       score90.as):00070         CREATE              fcb       2,38,36,32,32,32,32,32,32,32,32
+     202020
+00FA 2002252443726561 (       score90.as):00071                             fcb       32,2,37,36,67,114,101,97,116
+     74
+0103 696E67204974     (       score90.as):00072                             fcb       105,110,103,32,73,116
+                      (       score90.as):00073         
+0109 1B2500002818     (       score90.as):00074         CHGWK1              fcb       $1b,$25,0,0,40,24
+010F 1B3307           (       score90.as):00075                             fcb       $1b,$33,7
+                      (       score90.as):00076         
+0112 1B25080916070220 (       score90.as):00077         CHGWK2              fcb       $1b,$25,8,9,22,7,2,32,32
+     20
+                      (       score90.as):00078         
+011B 0D0A             (       score90.as):00079         CRLF                fcb       $0d,$0a
+                      (       score90.as):00080         
+011D 0C               (       score90.as):00081         CLRSCN              fcb       $0c
+                      (       score90.as):00082         
+011E 022020           (       score90.as):00083         CURXY1              fcb       2,32,32
+                      (       score90.as):00084         
+0121 0C0226211B3204   (       score90.as):00085         CURXY2              fcb       $0c,2,38,33,$1b,$32,4
+                      (       score90.as):00086         
+0128 1B32021B3300     (       score90.as):00087         CLNORM              fcb       $1b,$32,2,$1b,$33,0
+                      (       score90.as):00088         
+012E 1B32041B3300     (       score90.as):00089         CLINVT              fcb       $1b,$32,4,$1b,$33,0
+                      (       score90.as):00090         
+0134 1B32021B3300     (       score90.as):00091         CLNRM2              fcb       $1b,$32,2,$1b,$33,0
+                      (       score90.as):00092         
+                      (       score90.as):00093         
+013A 308D0000         (       score90.as):00094         SBEGIN              leax      SCRBOX,pcr
+013E 108E0027         (       score90.as):00095                             ldy       #39
+0142 170000           (       score90.as):00096                             lbsr      OUTST2
+0145 308DFEC9         (       score90.as):00097                             leax      WRTNBY,pcr
+0149 108E0021         (       score90.as):00098                             ldy       #33
+014D 170000           (       score90.as):00099                             lbsr      OUTST2
+0150 8E00C8           (       score90.as):00100                             ldx       #200
+0153 170000           (       score90.as):00101                             lbsr      WAIT
+0156 308CC4           (       score90.as):00102                             leax      CLRSCN,pcr
+0159 108E0001         (       score90.as):00103                             ldy       #1
+015D 170000           (       score90.as):00104                             lbsr      OUTST2
+0160 308DFECF         (       score90.as):00105                             leax      LDGSCR,pcr
+0164 108E0016         (       score90.as):00106                             ldy       #22
+0168 170000           (       score90.as):00107                             lbsr      OUTST2
+016B 8E004B           (       score90.as):00108                             ldx       #75
+016E 170000           (       score90.as):00109                             lbsr      WAIT
+                      (       score90.as):00110         
+0171 8601             (       score90.as):00111         OPENFL              lda       #1                  Set for read
+0173 308DFE89         (       score90.as):00112                             leax      FILLST,pcr          Point to pathlist
+0177 103F00           (       score90.as):00113                             os9       I$Open              Open file
+017A 10250308         (       score90.as):00114                             lbcs      OPNERR              Go handle any errors
+017E A7C90000         (       score90.as):00115                             sta       FPATH,U
+0182 30C90000         (       score90.as):00116         READFL              leax      FSCORE,U            Point to data storage area
+0186 108E007E         (       score90.as):00117                             ldy       #126                Read entire file (126 bytes)
+018A 103F00           (       score90.as):00118                             os9       I$Read              Go do read
+018D 10250384         (       score90.as):00119                             lbcs      REDERR              Go handle any errors
+                      (       score90.as):00120         *    Close file
+0191 A6C90000         (       score90.as):00121                             lda       FPATH,U
+0195 103F00           (       score90.as):00122                             os9       I$Close
+0198 10250000         (       score90.as):00123                             lbcs      ERR1
+                      (       score90.as):00124         
+019C 308DFF7D         (       score90.as):00125                             leax      CLRSCN,pcr
+01A0 108E0001         (       score90.as):00126                             ldy       #1
+01A4 170000           (       score90.as):00127                             lbsr      OUTST2
+                      (       score90.as):00128         
+01A7 17005B           (       score90.as):00129                             lbsr      PRFIL2              Print score data
+01AA 308DFF5B         (       score90.as):00130                             leax      CHGWK1,pcr          Reset screen 0,0,40,24
+01AE 108E0009         (       score90.as):00131                             ldy       #9
+01B2 170000           (       score90.as):00132                             lbsr      OUTST2
+01B5 39               (       score90.as):00133                             rts
+                      (       score90.as):00134         
+01B6 8600             (       score90.as):00135         SCEND               lda       #0
+01B8 A7C90000         (       score90.as):00136                             sta       ENTCNT,U
+01BC 8602             (       score90.as):00137                             lda       #2
+01BE A7C90000         (       score90.as):00138                             sta       CURPOS,U
+01C2 8620             (       score90.as):00139                             lda       #32
+01C4 A7C90000         (       score90.as):00140                             sta       CURPOS+1,U
+                      (       score90.as):00141         
+01C8 17007A           (       score90.as):00142                             lbsr      SCRCMP              Compare players score
+01CB A6C90000         (       score90.as):00143                             lda       ENTCNT,U
+01CF 81FF             (       score90.as):00144                             cmpa      #-1
+01D1 2731             (       score90.as):00145                             beq       SCRTN
+                      (       score90.as):00146         
+01D3 8602             (       score90.as):00147         OPNFL2              lda       #2                  Set to write
+01D5 308DFE27         (       score90.as):00148                             leax      FILLST,pcr
+01D9 103F00           (       score90.as):00149                             os9       I$Open
+01DC 10250000         (       score90.as):00150                             lbcs      ERR1
+01E0 A7C90000         (       score90.as):00151                             sta       FPATH,U
+01E4 30C90000         (       score90.as):00152         WRITFL              leax      FSCORE,U
+01E8 108E007E         (       score90.as):00153                             ldy       #126
+01EC 103F00           (       score90.as):00154                             os9       I$Write
+01EF 10250000         (       score90.as):00155                             lbcs      ERR1
+01F3 A6C90000         (       score90.as):00156                             lda       FPATH,U
+01F7 103F00           (       score90.as):00157                             os9       I$Close
+01FA 10250000         (       score90.as):00158                             lbcs      ERR1
+                      (       score90.as):00159         
+01FE 8E0064           (       score90.as):00160                             ldx       #100
+0201 170000           (       score90.as):00161                             lbsr      WAIT
+0204 39               (       score90.as):00162         SCRTN               rts
+                      (       score90.as):00163         
+                      (       score90.as):00164         *   File data has been put in memory
+                      (       score90.as):00165         *   now print it on screen
+                      (       score90.as):00166         *   This is used for path2
+0205 308DFF2B         (       score90.as):00167         PRFIL2              leax      CLNRM2,pcr
+0209 108E0006         (       score90.as):00168                             ldy       #6
+020D 170000           (       score90.as):00169                             lbsr      OUTST2
+0210 308DFF0A         (       score90.as):00170                             leax      CURXY1,pcr
+0214 108E0003         (       score90.as):00171                             ldy       #3
+0218 170000           (       score90.as):00172                             lbsr      OUTST2
+021B 30C90000         (       score90.as):00173                             leax      FSCORE,U
+021F 3088EB           (       score90.as):00174                             leax      -21,X
+0222 C607             (       score90.as):00175                             ldb       #7
+0224 3414             (       score90.as):00176                             pshs      B,X
+0226 3514             (       score90.as):00177         PLOOP2              puls      B,X
+0228 5A               (       score90.as):00178                             decb
+0229 2719             (       score90.as):00179                             beq       PDONE2
+022B 308815           (       score90.as):00180                             leax      21,X
+022E 3414             (       score90.as):00181                             pshs      B,X
+0230 108E0015         (       score90.as):00182                             ldy       #21
+0234 170000           (       score90.as):00183                             lbsr      OUTST2
+0237 308DFEE0         (       score90.as):00184                             leax      CRLF,pcr
+023B 108E0002         (       score90.as):00185                             ldy       #2
+023F 170000           (       score90.as):00186                             lbsr      OUTST2
+0242 20E2             (       score90.as):00187                             bra       PLOOP2
+                      (       score90.as):00188         
+0244 39               (       score90.as):00189         PDONE2              rts
+                      (       score90.as):00190         
+0245 8600             (       score90.as):00191         SCRCMP              lda       #0                  Set entry count to zero
+0247 C600             (       score90.as):00192                             ldb       #0
+0249 A7C90000         (       score90.as):00193                             sta       ENTCNT,U            Save it
+024D EDC90000         (       score90.as):00194                             std       ENTPNT,U            Set entry pointer
+0251 31C90000         (       score90.as):00195                             leay      FSCORE,U            Point to start of data
+0255 312F             (       score90.as):00196         SCLOOP              leay      15,Y                Move to first score
+0257 30C90000         (       score90.as):00197                             leax      SCRASC-1,U          Point to players score -1
+025B C607             (       score90.as):00198                             ldb       #7                  Set byte counter
+025D 5A               (       score90.as):00199         SCLOP2              decb                          Decrement counter
+025E 270A             (       score90.as):00200                             beq       NEXTCK              If =, go get next score
+0260 A6A0             (       score90.as):00201                             lda       ,Y+                 Get hi-score byte
+0262 3001             (       score90.as):00202                             leax      1,X                 Bump player score pointer
+0264 A184             (       score90.as):00203                             cmpa      ,X                  Compare them
+0266 27F5             (       score90.as):00204                             beq       SCLOP2              If =, go check next byte
+0268 2524             (       score90.as):00205                             blo       MOVE                If <, insert players name
+                      (       score90.as):00206         
+026A A6C90000         (       score90.as):00207         NEXTCK              lda       ENTCNT,U            Get entry counter
+026E 4C               (       score90.as):00208                             inca                          Bump it
+026F 8106             (       score90.as):00209                             cmpa      #6                  Done 6 yet ?
+0271 2608             (       score90.as):00210                             bne       NEXT                Score not higher, Print old data
+0273 86FF             (       score90.as):00211                             lda       #-1
+0275 A7C90000         (       score90.as):00212                             sta       ENTCNT,U
+0279 2055             (       score90.as):00213                             bra       PRFILE
+                      (       score90.as):00214         
+027B A7C90000         (       score90.as):00215         NEXT                sta       ENTCNT,U            Save count
+027F 31C90000         (       score90.as):00216                             leay      FSCORE,U
+0283 C615             (       score90.as):00217                             ldb       #21
+0285 3D               (       score90.as):00218                             mul
+0286 31AB             (       score90.as):00219                             leay      D,Y
+0288 EDC90000         (       score90.as):00220                             std       ENTPNT,U
+028C 20C7             (       score90.as):00221                             bra       SCLOOP
+                      (       score90.as):00222         
+                      (       score90.as):00223         *        This routine is used to insert the
+                      (       score90.as):00224         *        player's score into the hi-scores
+                      (       score90.as):00225         *   Move name & score data down to allow player's
+                      (       score90.as):00226         *   name & score to be inserted. This will remove
+                      (       score90.as):00227         *   the last item from the list
+                      (       score90.as):00228         
+028E 8605             (       score90.as):00229         MOVE                lda       #5                  Set constant
+0290 A0C90000         (       score90.as):00230                             suba      ENTCNT,U            Subtract entry counter
+0294 C615             (       score90.as):00231                             ldb       #21                 Set multiplier
+0296 3D               (       score90.as):00232                             mul                           B reg. holds loop counter
+0297 30C90000         (       score90.as):00233                             leax      FSCORE,U            Point to start of data
+029B 30887E           (       score90.as):00234                             leax      126,X               Move to last byte entry 6 +1
+029E 31C90000         (       score90.as):00235                             leay      FSCORE,U
+02A2 31A869           (       score90.as):00236                             leay      105,Y               Move to last byte entry 5 +1
+02A5 10830000         (       score90.as):00237                             cmpd      #0                  If on bottom, then don't
+02A9 2707             (       score90.as):00238                             beq       PUTIT               move any down
+02AB A6A2             (       score90.as):00239         INLOOP              lda       ,-Y                 Get a byte
+02AD A782             (       score90.as):00240                             sta       ,-X                 Move it
+02AF 5A               (       score90.as):00241                             decb                          Decrement counter
+02B0 26F9             (       score90.as):00242                             bne       INLOOP
+                      (       score90.as):00243         
+                      (       score90.as):00244         *   Now zero(underline) out previous entry at this location
+                      (       score90.as):00245         
+02B2 C60F             (       score90.as):00246         PUTIT               ldb       #15                 Set byte counter
+02B4 865F             (       score90.as):00247                             lda       #95                 ASCII underline chacarter
+02B6 5A               (       score90.as):00248         PUTLOP              decb                          Decrement counter
+02B7 2704             (       score90.as):00249                             beq       PUTSCR
+02B9 A7A0             (       score90.as):00250                             sta       ,Y+                 Store a '_' character
+02BB 20F9             (       score90.as):00251                             bra       PUTLOP              Loop till 15 are done
+                      (       score90.as):00252         *   Now transfer players score
+02BD 8620             (       score90.as):00253         PUTSCR              lda       #32                 Space character
+02BF A7A0             (       score90.as):00254                             sta       ,Y+
+02C1 C607             (       score90.as):00255                             ldb       #7                  Set transfer byte counter
+02C3 30C90000         (       score90.as):00256                             leax      SCRASC,U            Point to players ascii score
+02C7 5A               (       score90.as):00257         PLOOP               decb                          Decrement counter
+02C8 2706             (       score90.as):00258                             beq       PRFILE              If 0, then exit
+02CA A680             (       score90.as):00259                             lda       ,X+                 Get byte & increment X
+02CC A7A0             (       score90.as):00260                             sta       ,Y+                 Put byte & increment Y
+02CE 20F7             (       score90.as):00261                             bra       PLOOP
+                      (       score90.as):00262         *   File data has been put in memory
+                      (       score90.as):00263         *   now print it on screen
+                      (       score90.as):00264         *   This is used for path
+02D0 308DFE54         (       score90.as):00265         PRFILE              leax      CLNORM,pcr
+02D4 108E0006         (       score90.as):00266                             ldy       #6
+02D8 170000           (       score90.as):00267                             lbsr      OUTST2
+02DB 308DFE33         (       score90.as):00268                             leax      CHGWK2,pcr
+02DF 108E0009         (       score90.as):00269                             ldy       #9
+02E3 170000           (       score90.as):00270                             lbsr      OUTST2
+02E6 30C90000         (       score90.as):00271                             leax      FSCORE,U
+02EA 3088EB           (       score90.as):00272                             leax      -21,X
+02ED 86FF             (       score90.as):00273                             lda       #-1
+02EF C607             (       score90.as):00274                             ldb       #7
+02F1 3416             (       score90.as):00275                             pshs      D,X
+02F3 3516             (       score90.as):00276         PRLOOP              puls      D,X
+02F5 5A               (       score90.as):00277                             decb
+02F6 2752             (       score90.as):00278                             beq       PRDONE
+02F8 308815           (       score90.as):00279                             leax      21,X                Point to line to print
+02FB 4C               (       score90.as):00280                             inca                          Increment compare count
+02FC 3416             (       score90.as):00281                             pshs      D,X
+02FE A1C90000         (       score90.as):00282                             cmpa      ENTCNT,U            Are we on the new line ?
+0302 2632             (       score90.as):00283                             bne       NORMPR
+0304 AFC90000         (       score90.as):00284                             stx       SAVEX,U             Save X register
+0308 308DFE22         (       score90.as):00285                             leax      CLINVT,pcr          Invert screen colors
+030C 108E0006         (       score90.as):00286                             ldy       #6
+0310 170000           (       score90.as):00287                             lbsr      OUTST2
+0313 AEC90000         (       score90.as):00288                             ldx       SAVEX,U             Get X register value
+0317 108E0015         (       score90.as):00289                             ldy       #21                 Output 21 bytes
+031B 170000           (       score90.as):00290                             lbsr      OUTST2
+031E 308DFDF9         (       score90.as):00291                             leax      CRLF,pcr            Do a carriage return
+0322 108E0002         (       score90.as):00292                             ldy       #2                  and a line feed
+0326 170000           (       score90.as):00293                             lbsr      OUTST2
+0329 308DFDFB         (       score90.as):00294                             leax      CLNORM,pcr          Reset screen colors
+032D 108E0006         (       score90.as):00295                             ldy       #6
+0331 170000           (       score90.as):00296                             lbsr      OUTST2
+0334 20BD             (       score90.as):00297                             bra       PRLOOP
+                      (       score90.as):00298         
+0336 108E0015         (       score90.as):00299         NORMPR              ldy       #21
+033A 170000           (       score90.as):00300                             lbsr      OUTST2
+033D 308DFDDA         (       score90.as):00301                             leax      CRLF,pcr
+0341 108E0002         (       score90.as):00302                             ldy       #2
+0345 170000           (       score90.as):00303                             lbsr      OUTST2
+0348 20A9             (       score90.as):00304                             bra       PRLOOP
+                      (       score90.as):00305         
+034A A6C90000         (       score90.as):00306         PRDONE              lda       ENTCNT,U
+034E 81FF             (       score90.as):00307                             cmpa      #-1
+0350 1027010D         (       score90.as):00308                             lbeq      RDDONE
+                      (       score90.as):00309         
+0354 8E0064           (       score90.as):00310         OPNBOT              ldx       #100
+0357 170000           (       score90.as):00311                             lbsr      WAIT
+035A 308D0000         (       score90.as):00312                             leax      BOTWIN,pcr
+035E 108E002F         (       score90.as):00313                             ldy       #47
+0362 170000           (       score90.as):00314                             lbsr      OUTST2
+                      (       score90.as):00315         
+0365 308DFCE0         (       score90.as):00316         PNAMLP              leax      ENTNAM,pcr          Print 'Please enter your name'
+0369 108E0021         (       score90.as):00317                             ldy       #33                 Output 34 bytes
+036D 170000           (       score90.as):00318                             lbsr      OUTST2
+                      (       score90.as):00319         
+0370 308DFCF6         (       score90.as):00320                             leax      ARROW,pcr           Print '-->_'
+0374 108E0011         (       score90.as):00321                             ldy       #17
+0378 170000           (       score90.as):00322                             lbsr      OUTST2
+                      (       score90.as):00323         
+                      (       score90.as):00324         *   Now get players name
+                      (       score90.as):00325         
+037B 30C90000         (       score90.as):00326         GETNAM              leax      PNAME,U             Fill name storage
+037F 8620             (       score90.as):00327                             lda       #32                 with spaces
+0381 C60F             (       score90.as):00328                             ldb       #15
+0383 A780             (       score90.as):00329         PNLOOP              sta       ,X+
+0385 5A               (       score90.as):00330                             decb
+0386 26FB             (       score90.as):00331                             bne       PNLOOP
+                      (       score90.as):00332         
+0388 30C90000         (       score90.as):00333         RDNAME              leax      PNAME,U             Get name from player
+038C 108E000F         (       score90.as):00334                             ldy       #15                 14 + CR
+0390 A6C90000         (       score90.as):00335                             lda       PATH2,U
+0394 103F00           (       score90.as):00336                             os9       I$ReadLn
+0397 10250000         (       score90.as):00337                             lbcs      ERR1
+039B 1F20             (       score90.as):00338                             tfr       Y,D
+                      (       score90.as):00339         
+039D 30C90000         (       score90.as):00340                             leax      PNAME,U
+03A1 830001           (       score90.as):00341                             subd      #1
+03A4 308B             (       score90.as):00342                             leax      D,X
+03A6 EDC90000         (       score90.as):00343                             std       NAMLGH,U
+03AA 8620             (       score90.as):00344                             lda       #32
+03AC A784             (       score90.as):00345                             sta       ,X                  Remove CR
+                      (       score90.as):00346         
+03AE ECC90000         (       score90.as):00347         NAMEOK              ldd       NAMLGH,U
+03B2 10830000         (       score90.as):00348                             cmpd      #0
+03B6 2717             (       score90.as):00349                             beq       NAMASK
+                      (       score90.as):00350         
+03B8 308DFD65         (       score90.as):00351                             leax      CURXY2,pcr          Clear screen, Move to XY
+03BC 108E0007         (       score90.as):00352                             ldy       #7                  location 6,0
+03C0 170000           (       score90.as):00353                             lbsr      OUTST2              and set color
+                      (       score90.as):00354         
+03C3 30C90000         (       score90.as):00355                             leax      PNAME,U
+03C7 10AEC90000       (       score90.as):00356                             ldy       NAMLGH,U
+03CC 170000           (       score90.as):00357                             lbsr      OUTST2
+                      (       score90.as):00358         
+03CF 308DFCA8         (       score90.as):00359         NAMASK              leax      QUESTN,pcr
+03D3 108E0021         (       score90.as):00360                             ldy       #33
+03D7 170000           (       score90.as):00361                             lbsr      OUTST2
+                      (       score90.as):00362         
+03DA 170000           (       score90.as):00363                             lbsr      READ2
+03DD A6C90000         (       score90.as):00364                             lda       RESPON,U
+03E1 8159             (       score90.as):00365                             cmpa      #89
+03E3 2712             (       score90.as):00366                             beq       PUTNAM
+03E5 8179             (       score90.as):00367                             cmpa      #121
+03E7 270E             (       score90.as):00368                             beq       PUTNAM
+03E9 308DFD30         (       score90.as):00369                             leax      CLRSCN,pcr
+03ED 108E0001         (       score90.as):00370                             ldy       #1
+03F1 170000           (       score90.as):00371                             lbsr      OUTST2
+                      (       score90.as):00372         
+03F4 16FF6E           (       score90.as):00373                             lbra      PNAMLP
+                      (       score90.as):00374         
+03F7 308D0000         (       score90.as):00375         PUTNAM              leax      BOTEND,pcr
+03FB 108E000F         (       score90.as):00376                             ldy       #15
+03FF 170000           (       score90.as):00377                             lbsr      OUTST2
+                      (       score90.as):00378         
+0402 30C90000         (       score90.as):00379                             leax      PNAME,U
+0406 31C90000         (       score90.as):00380                             leay      FSCORE,U
+040A ECC90000         (       score90.as):00381                             ldd       ENTPNT,U
+040E 31AB             (       score90.as):00382                             leay      D,Y
+0410 C60E             (       score90.as):00383                             ldb       #14
+0412 A680             (       score90.as):00384         PUTNML              lda       ,X+
+0414 A7A0             (       score90.as):00385                             sta       ,Y+
+0416 5A               (       score90.as):00386                             decb
+0417 26F9             (       score90.as):00387                             bne       PUTNML
+                      (       score90.as):00388         
+0419 A6C90000         (       score90.as):00389                             lda       ENTCNT,U
+041D 8B20             (       score90.as):00390                             adda      #32
+041F A7C90000         (       score90.as):00391                             sta       CURPOS+2,U
+                      (       score90.as):00392         
+0423 30C90000         (       score90.as):00393                             leax      CURPOS,U
+0427 108E0003         (       score90.as):00394                             ldy       #3
+042B 170000           (       score90.as):00395                             lbsr      OUTST2
+                      (       score90.as):00396         
+042E 30C90000         (       score90.as):00397                             leax      FSCORE,U
+0432 ECC90000         (       score90.as):00398                             ldd       ENTPNT,U
+0436 308B             (       score90.as):00399                             leax      D,X
+0438 108E0015         (       score90.as):00400                             ldy       #21
+043C 170000           (       score90.as):00401                             lbsr      OUTST2
+                      (       score90.as):00402         
+043F 308D0000         (       score90.as):00403                             leax      BOTWIN,pcr
+0443 108E002F         (       score90.as):00404                             ldy       #47
+0447 170000           (       score90.as):00405                             lbsr      OUTST2
+                      (       score90.as):00406         
+044A 308DFC4E         (       score90.as):00407                             leax      CONGRT,pcr
+044E 108E001B         (       score90.as):00408                             ldy       #27
+0452 170000           (       score90.as):00409                             lbsr      OUTST2
+                      (       score90.as):00410         
+0455 30C90000         (       score90.as):00411                             leax      PNAME,U
+0459 10AEC90000       (       score90.as):00412                             ldy       NAMLGH,U
+045E 170000           (       score90.as):00413                             lbsr      OUTST2
+                      (       score90.as):00414         
+0461 8E00C8           (       score90.as):00415         RDDONE              ldx       #200
+0464 A6C90000         (       score90.as):00416                             lda       ENTCNT,U
+0468 81FF             (       score90.as):00417                             cmpa      #-1
+046A 2703             (       score90.as):00418                             beq       RDWAIT
+046C 8E0096           (       score90.as):00419                             ldx       #150
+046F 170000           (       score90.as):00420         RDWAIT              lbsr      WAIT                Sleep for 150 or 200 ticks
+0472 A6C90000         (       score90.as):00421                             lda       ENTCNT,U
+0476 81FF             (       score90.as):00422                             cmpa      #-1
+0478 270B             (       score90.as):00423                             beq       RDEXIT
+                      (       score90.as):00424         
+047A 308D0000         (       score90.as):00425                             leax      BOTEND,pcr
+047E 108E000F         (       score90.as):00426                             ldy       #15
+0482 170000           (       score90.as):00427                             lbsr      OUTST2
+0485 39               (       score90.as):00428         RDEXIT              rts
+                      (       score90.as):00429         
+                      (       score90.as):00430         *   Handle file errors here
+                      (       score90.as):00431         *   214- no permission
+                      (       score90.as):00432         *   216- path name not found
+                      (       score90.as):00433         *
+                      (       score90.as):00434         
+0486 C1D8             (       score90.as):00435         OPNERR              cmpb      #216                Is it PATH NAME NOT FOUND ?
+0488 10260000         (       score90.as):00436                             lbne      ERR1
+                      (       score90.as):00437         *   Print Creating score file
+048C 308DFC27         (       score90.as):00438                             leax      NOTFND,pcr
+0490 108E0038         (       score90.as):00439                             ldy       #56
+0494 170000           (       score90.as):00440                             lbsr      OUTST2
+0497 8E004B           (       score90.as):00441                             ldx       #75
+049A 170000           (       score90.as):00442                             lbsr      WAIT
+049D 30C90000         (       score90.as):00443         FILLSC              leax      FSCORE,U            Point to data area
+04A1 C607             (       score90.as):00444                             ldb       #7                  Set counter
+04A3 E7C90000         (       score90.as):00445                             stb       COUNT,U
+04A7 A6C90000         (       score90.as):00446         DMLOOP              lda       COUNT,U
+04AB 4A               (       score90.as):00447                             deca
+04AC 2724             (       score90.as):00448                             beq       CRFILE
+04AE A7C90000         (       score90.as):00449                             sta       COUNT,U             Save new count
+04B2 C60F             (       score90.as):00450                             ldb       #15
+04B4 862E             (       score90.as):00451                             lda       #46                 '.'
+04B6 5A               (       score90.as):00452         DLOOP2              decb
+04B7 2704             (       score90.as):00453                             beq       SPACE
+04B9 A780             (       score90.as):00454                             sta       ,X+                 Put 14 '.' in data area
+04BB 20F9             (       score90.as):00455                             bra       DLOOP2
+04BD 8620             (       score90.as):00456         SPACE               lda       #32                 ' '
+04BF A780             (       score90.as):00457                             sta       ,X+                 Put a space in data area
+04C1 8620             (       score90.as):00458                             lda       #32                 Space
+04C3 C606             (       score90.as):00459                             ldb       #6
+04C5 5A               (       score90.as):00460         DLOOP3              decb
+04C6 2704             (       score90.as):00461                             beq       DZERO
+04C8 A780             (       score90.as):00462                             sta       ,X+                 Put 5 spaces in data area
+04CA 20F9             (       score90.as):00463                             bra       DLOOP3
+04CC 8630             (       score90.as):00464         DZERO               lda       #48                 '0'
+04CE A780             (       score90.as):00465                             sta       ,X+
+04D0 20D5             (       score90.as):00466                             bra       DMLOOP
+                      (       score90.as):00467         
+                      (       score90.as):00468         *   File doesn't exist, so create it
+                      (       score90.as):00469         
+04D2 308DFC19         (       score90.as):00470         CRFILE              leax      CREATE,pcr
+04D6 108E001A         (       score90.as):00471                             ldy       #26
+04DA 170000           (       score90.as):00472                             lbsr      OUTST2
+04DD 308DFB1F         (       score90.as):00473                             leax      FILLST,pcr          Point to path list
+04E1 8602             (       score90.as):00474                             lda       #2                  Access mode (2=write)
+04E3 C62F             (       score90.as):00475                             ldb       #47                 Attributes (00101111)
+04E5 103F00           (       score90.as):00476                             os9       I$Create            Go create file
+04E8 10250000         (       score90.as):00477                             lbcs      ERR1
+04EC A7C90000         (       score90.as):00478                             sta       FPATH,U             Save path #
+                      (       score90.as):00479         *   Write data to file
+04F0 30C90000         (       score90.as):00480         WRTFIL              leax      FSCORE,U            Point to data
+04F4 108E007E         (       score90.as):00481                             ldy       #126                Write 126 bytes
+04F8 A6C90000         (       score90.as):00482                             lda       FPATH,U             Set path #
+04FC 103F00           (       score90.as):00483                             os9       I$Write             Do write
+04FF 10250000         (       score90.as):00484                             lbcs      ERR1
+                      (       score90.as):00485         *   Now close file
+0503 A6C90000         (       score90.as):00486         CLSFIL              lda       FPATH,U
+0507 103F00           (       score90.as):00487                             os9       I$Close
+050A 10250000         (       score90.as):00488                             lbcs      ERR1
+050E 8E004B           (       score90.as):00489                             ldx       #75
+0511 170000           (       score90.as):00490                             lbsr      WAIT
+                      (       score90.as):00491         
+0514 39               (       score90.as):00492                             rts
+                      (       score90.as):00493         
+0515 160000           (       score90.as):00494         REDERR              lbra      ERR1
+                      (       score90.as):00495         
+                      (       score90.as):00496         
+                      (       score90.as):00497                             endsect
+                      (       score90.as):00498         
+                      (       score90.as):00499         
+
+Symbol Table:
+[ sG] ARROW                            006A (code)
+[ sG] CHGWK1                           0109 (code)
+[ sG] CHGWK2                           0112 (code)
+[ sG] CLINVT                           012E (code)
+[ sG] CLNORM                           0128 (code)
+[ sG] CLNRM2                           0134 (code)
+[ sG] CLRSCN                           011D (code)
+[ sG] CLSFIL                           0503 (code)
+[ sG] CONGRT                           009C (code)
+[ sG] COUNT                            0093 (bss)
+[ sG] CREATE                           00EF (code)
+[ sG] CRFILE                           04D2 (code)
+[ sG] CRLF                             011B (code)
+[ sG] CURPOS                           0096 (bss)
+[ sG] CURXY1                           011E (code)
+[ sG] CURXY2                           0121 (code)
+[ sG] DLOOP2                           04B6 (code)
+[ sG] DLOOP3                           04C5 (code)
+[ sG] DMLOOP                           04A7 (code)
+[ sG] DZERO                            04CC (code)
+[ sG] ENTCNT                           0090 (bss)
+[ sG] ENTNAM                           0049 (code)
+[ sG] ENTPNT                           0091 (bss)
+[ sG] FILLSC                           049D (code)
+[ sG] FILLST                           0000 (code)
+[ sG] FPATH                            0000 (bss)
+[ sG] FSCORE                           0001 (bss)
+[ sG] GETNAM                           037B (code)
+[ sG] INLOOP                           02AB (code)
+[ sG] LDGSCR                           0033 (code)
+[ sG] MOVE                             028E (code)
+[ sG] NAMASK                           03CF (code)
+[ sG] NAMEOK                           03AE (code)
+[ sG] NAMLGH                           008E (bss)
+[ sG] NEXT                             027B (code)
+[ sG] NEXTCK                           026A (code)
+[ sG] NORMPR                           0336 (code)
+[ScG] NOS9MAJ                          0003
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0003
+[ sG] NOTFND                           00B7 (code)
+[ sG] OPENFL                           0171 (code)
+[ sG] OPNBOT                           0354 (code)
+[ sG] OPNERR                           0486 (code)
+[ sG] OPNFL2                           01D3 (code)
+[ sG] PDONE2                           0244 (code)
+[ sG] PLOOP                            02C7 (code)
+[ sG] PLOOP2                           0226 (code)
+[ sG] PNAME                            007F (bss)
+[ sG] PNAMLP                           0365 (code)
+[ sG] PNLOOP                           0383 (code)
+[ sG] PRDONE                           034A (code)
+[ sG] PRFIL2                           0205 (code)
+[ sG] PRFILE                           02D0 (code)
+[ sG] PRLOOP                           02F3 (code)
+[ sG] PUTIT                            02B2 (code)
+[ sG] PUTLOP                           02B6 (code)
+[ sG] PUTNAM                           03F7 (code)
+[ sG] PUTNML                           0412 (code)
+[ sG] PUTSCR                           02BD (code)
+[ sG] QUESTN                           007B (code)
+[ sG] RDDONE                           0461 (code)
+[ sG] RDEXIT                           0485 (code)
+[ sG] RDNAME                           0388 (code)
+[ sG] RDWAIT                           046F (code)
+[ sG] READFL                           0182 (code)
+[ sG] REDERR                           0515 (code)
+[ sG] SAVEX                            0094 (bss)
+[ sG] SBEGIN                           013A (code)
+[ sG] SCEND                            01B6 (code)
+[ sG] SCLOOP                           0255 (code)
+[ sG] SCLOP2                           025D (code)
+[ sG] SCRCMP                           0245 (code)
+[ sG] SCRTN                            0204 (code)
+[ sG] SPACE                            04BD (code)
+[ cG] STACK                            0064
+[ sG] WRITFL                           01E4 (code)
+[ sG] WRTFIL                           04F0 (code)
+[ sG] WRTNBY                           0012 (code)

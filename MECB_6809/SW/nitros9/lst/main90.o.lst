@@ -1,0 +1,1507 @@
+                      (        main90.as):00001         
+                      (        main90.as):00002                             nam       MAIN
+                      (        main90.as):00003                             ttl       Main pacman routine
+                      (        main90.as):00004         
+                      (        main90.as):00005         *     Program segment to be compiled using Level II RMA
+                      (        main90.as):00006         *           This is the mainline program segment
+                      (        main90.as):00007         *                 Written by Larry Olson
+                      (        main90.as):00008         
+                      (        main90.as):00009                             ifp1
+                      (        main90.as):00010         *         use    /dd/defs/os9defs.a
+                      (        main90.as):00011                             endc
+                      (        main90.as):00012         
+                      (        main90.as):00013                             section   __os9
+     0011             (        main90.as):00014         TYPE                equ       $11                 Prgrm($10)+Objct($01)
+     0080             (        main90.as):00015         ATTR                equ       $80                 REEntrent
+     0001             (        main90.as):00016         REV                 equ       $01                 Revision level
+     0002             (        main90.as):00017         EDITION             equ       2                   EDITION #2
+                      (        main90.as):00018                             endsect
+                      (        main90.as):00019         
+     01F4             (        main90.as):00020         STACK               equ       500
+     0003             (        main90.as):00021         UPDAT               equ       3
+                      (        main90.as):00022         
+                      (        main90.as):00023                             section   bss
+                      (        main90.as):00024         
+                      (        main90.as):00025         *    Local and global variables
+                      (        main90.as):00026         
+                      (        main90.as):00027         ARRAY               export
+                      (        main90.as):00028         ARREND              export
+                      (        main90.as):00029         BONBUF              export
+                      (        main90.as):00030         BONCNT              export
+                      (        main90.as):00031         BONFLG              export
+                      (        main90.as):00032         BONTAB              export
+                      (        main90.as):00033         BONTIM              export
+                      (        main90.as):00034         BONTMP              export
+                      (        main90.as):00035         BONUSX              export
+                      (        main90.as):00036         BONUSY              export
+                      (        main90.as):00037         BRDNUM              export
+                      (        main90.as):00038         BRDTMP              export
+                      (        main90.as):00039         BTEMP               export
+                      (        main90.as):00040         BUFF                export
+                      (        main90.as):00041         BUTTON              export
+                      (        main90.as):00042         CYCLE               export
+                      (        main90.as):00043         DOTTMP              export
+                      (        main90.as):00044         DOTTOT              export
+                      (        main90.as):00045         EXTPAC              export
+                      (        main90.as):00046         EXTPC2              export
+                      (        main90.as):00047         G1OFST              export
+                      (        main90.as):00048         G2OFST              export
+                      (        main90.as):00049         G3OFST              export
+                      (        main90.as):00050         G4OFST              export
+                      (        main90.as):00051         GCOUNT              export
+                      (        main90.as):00052         GHTABL              export
+                      (        main90.as):00053         GHTHIT              export
+                      (        main90.as):00054         HITFLG              export
+                      (        main90.as):00055         HSCASC              export
+                      (        main90.as):00056         JOYSTX              export
+                      (        main90.as):00057         JOYSTY              export
+                      (        main90.as):00058         MOVFLG              export
+                      (        main90.as):00059         PACMAN              export
+                      (        main90.as):00060         PACMN1              export
+                      (        main90.as):00061         PACMN2              export
+                      (        main90.as):00062         PALBT1              export
+                      (        main90.as):00063         PATH2               export
+                      (        main90.as):00064         PATH                export
+                      (        main90.as):00065         PBFN                export
+                      (        main90.as):00066         PCBFN               export
+                      (        main90.as):00067         PCXLOC              export
+                      (        main90.as):00068         PCYLOC              export
+                      (        main90.as):00069         PDBFN               export
+                      (        main90.as):00070         PDXLOC              export
+                      (        main90.as):00071         PDYLOC              export
+                      (        main90.as):00072         PGBFN               export
+                      (        main90.as):00073         PGXLOC              export
+                      (        main90.as):00074         PGYLOC              export
+                      (        main90.as):00075         PLAYRS              export
+                      (        main90.as):00076         PLCRNT              export
+                      (        main90.as):00077         POFSET              export
+                      (        main90.as):00078         POINTS              export
+                      (        main90.as):00079         PORT                export
+                      (        main90.as):00080         POWFLG              export
+                      (        main90.as):00081         PROCID              export
+                      (        main90.as):00082         PUTGHS              export
+                      (        main90.as):00083         PUTPACM             export
+                      (        main90.as):00084         PXLOC               export
+                      (        main90.as):00085         PXNEW               export
+                      (        main90.as):00086         PYLOC               export
+                      (        main90.as):00087         PYNEW               export
+                      (        main90.as):00088         RESPON              export
+                      (        main90.as):00089         SCNFLG              export
+                      (        main90.as):00090         SCNNUM              export
+                      (        main90.as):00091         SCNTOT              export
+                      (        main90.as):00092         SCRASC              export
+                      (        main90.as):00093         SCRBCD              export
+                      (        main90.as):00094         SCRPO2              export
+                      (        main90.as):00095         SCRPOS              export
+                      (        main90.as):00096         SHCNT               export
+                      (        main90.as):00097         SNDPR1              export
+                      (        main90.as):00098         SNDPR2              export
+                      (        main90.as):00099         STRING              export
+                      (        main90.as):00100         STRLGH              export
+                      (        main90.as):00101         TABLE1              export
+                      (        main90.as):00102         TABLE2              export
+                      (        main90.as):00103         
+0000                  (        main90.as):00104         SIGCODE             rmb       1                   Intercept signal RMB
+0001                  (        main90.as):00105         PATH                rmb       1                   Screen path number
+0002                  (        main90.as):00106         PATH2               rmb       1                   Second screen path number
+0003                  (        main90.as):00107         WINDOW              rmb       1                   Holds 0 or 2 to keep track
+                      (        main90.as):00108         *                          of which window is being used
+0004                  (        main90.as):00109         PROCID              rmb       1                   Holds process id
+0005                  (        main90.as):00110         RESPON              rmb       2                   Holds response bytes
+                      (        main90.as):00111         
+                      (        main90.as):00112         
+0007                  (        main90.as):00113         PORT                rmb       2                   Joystick port (0=right,1=left)
+0009                  (        main90.as):00114         BUTTON              rmb       1                   Joystick button status
+000A                  (        main90.as):00115         JOYSTX              rmb       2                   Joystick X value
+000C                  (        main90.as):00116         JOYSTY              rmb       2                   Joystick Y value
+                      (        main90.as):00117         
+000E                  (        main90.as):00118         PLAYRS              rmb       1                   Holds 0 or 1 (for 1 or 2 players)
+                      (        main90.as):00119         
+000F                  (        main90.as):00120         PACMN1              rmb       1                   Holds number of pacmen left(player1)
+0010                  (        main90.as):00121         PACMN2              rmb       1                   Holds number of pacmen left(player2)
+0011                  (        main90.as):00122         PLCRNT              rmb       1                   Holds current player number(1 or 2)
+0012                  (        main90.as):00123         PACMAN              rmb       1                   Holds current number of men left
+                      (        main90.as):00124         *                         this will be either PACMN1 or PACMN2
+                      (        main90.as):00125         
+0013                  (        main90.as):00126         PXNEW               rmb       2                   New pacman X position
+0015                  (        main90.as):00127         PYNEW               rmb       2                   New pacman Y position
+0017                  (        main90.as):00128         POFSET              rmb       2                   Pacman offset from start of array
+0019                  (        main90.as):00129         BUFF                rmb       1                   Holds current pacman buffer #
+                      (        main90.as):00130         
+001A                  (        main90.as):00131         CYCLE               rmb       1                   Used to cycle between buffers
+                      (        main90.as):00132         
+001B                  (        main90.as):00133         HITFLG              rmb       1                   A 1 here = pacman caught
+001C                  (        main90.as):00134         GHTHIT              rmb       1                   Ghost hit flag
+001D                  (        main90.as):00135         POWFLG              rmb       1                   When pacman eats a power pill then
+                      (        main90.as):00136         *                         this location holds a timer value
+                      (        main90.as):00137         
+001E                  (        main90.as):00138         BONFLG              rmb       1                   Bonus on screen flag
+001F                  (        main90.as):00139         BONTIM              rmb       1                   Bonus timer
+0020                  (        main90.as):00140         BONBUF              rmb       1                   Current bonus buffer
+0021                  (        main90.as):00141         BONUSX              rmb       2                   Bonus X location at bottom of scrn
+0023                  (        main90.as):00142         BONUSY              rmb       2                   Bonus Y location at bottom of scrn
+0025                  (        main90.as):00143         BONCNT              rmb       1                   Bonus counter
+0026                  (        main90.as):00144         BONTAB              rmb       10                  Bonus item table
+                      (        main90.as):00145         
+0030                  (        main90.as):00146         BONTMP              rmb       2                   Temporary storage
+0032                  (        main90.as):00147         BTEMP               rmb       15                  Used to hold BONUSX,BONUSY,BONCNT
+                      (        main90.as):00148         *                          and BONTAB  for 2 player mode
+0041                  (        main90.as):00149         SNDPR1              rmb       2
+0043                  (        main90.as):00150         SNDPR2              rmb       2
+                      (        main90.as):00151         
+                      (        main90.as):00152         *     Ghost tables, One 20 byte table for each ghost
+                      (        main90.as):00153         
+0045                  (        main90.as):00154         G1OFST              rmb       2                   Ghost position offset from start of array
+0047                  (        main90.as):00155         G1XNEW              rmb       2                   Screen X location of ghost
+0049                  (        main90.as):00156         G1YNEW              rmb       2                   Screen Y location of ghost
+004B                  (        main90.as):00157         G1XOLD              rmb       2                   Pseudo scrn X location of ghost
+004D                  (        main90.as):00158         G1YOLD              rmb       2                   Pseudo scrn Y location of ghost
+004F                  (        main90.as):00159         G1STAT              rmb       1                   Status flag for ghost
+                      (        main90.as):00160         *                          -2 = Eyes are caged,timer not run out
+                      (        main90.as):00161         *                          -1 = Ghost caged,timer not run out
+                      (        main90.as):00162         *                           0 = Ghost still in cage but moving out
+                      (        main90.as):00163         *                           1 = Ghost is free of cage,can move around
+                      (        main90.as):00164         *                           2 = Ghost has been turned into eyes
+0050                  (        main90.as):00165         G1BUFF              rmb       1                   Holds current buffer # for ghost
+0051                  (        main90.as):00166         G1TIME              rmb       1                   Ghost time out counter
+0052                  (        main90.as):00167         TIMVAL              rmb       1                   Ghost initial time out value
+0053                  (        main90.as):00168         G1DIR               rmb       1                   Ghost dir. (0=up,1=lf,2=rt,3=dn)
+0054                  (        main90.as):00169         DIROFF              rmb       1                   Direction offset (-69,-1,1,69)
+0055                  (        main90.as):00170         G1UPDT              rmb       1                   Holds update value to be count down
+0056                  (        main90.as):00171         UPDATE              rmb       1                   Initial update value
+0057                  (        main90.as):00172                             rmb       2                   Extra bytes
+                      (        main90.as):00173         
+0059                  (        main90.as):00174         G2OFST              rmb       20                  Table for ghost #2
+                      (        main90.as):00175         
+006D                  (        main90.as):00176         G3OFST              rmb       20                  Table for ghost #3
+                      (        main90.as):00177         
+0081                  (        main90.as):00178         G4OFST              rmb       20                  Table for ghost #4
+                      (        main90.as):00179         
+0095                  (        main90.as):00180         GCOUNT              rmb       1                   Holds num (0,20,40,60) of current ghost
+                      (        main90.as):00181         
+0096                  (        main90.as):00182         SCRPOS              rmb       3                   Player 1 score xy print position
+0099                  (        main90.as):00183         SCRASC              rmb       6                   Score ascii characters put here
+009F                  (        main90.as):00184         SCRBCD              rmb       3                   Contains score in BCD
+00A2                  (        main90.as):00185         POINTS              rmb       3                   Points that will be added to score
+00A5                  (        main90.as):00186         SHCNT               rmb       1                   Temporary loop counter
+                      (        main90.as):00187         
+                      (        main90.as):00188         ***********  These are used in 2 player mode  ***********
+                      (        main90.as):00189         
+00A6                  (        main90.as):00190         SCRPO2              rmb       3                   Player 2 score xy print position
+00A9                  (        main90.as):00191         SCRAS2              rmb       6                   Score ascii characters put here
+00AF                  (        main90.as):00192         SCRBC2              rmb       3                   Contains score in BCD
+                      (        main90.as):00193         
+00B2                  (        main90.as):00194         DOTTOT              rmb       2                   Dot eaten total, used to show when
+                      (        main90.as):00195         *                          screen has been cleared
+00B4                  (        main90.as):00196         SCNTOT              rmb       2                   Total number of dots for
+                      (        main90.as):00197         *                           The current screen
+00B6                  (        main90.as):00198         BRDNUM              rmb       1                   Holds # of current board(starts at 1)
+00B7                  (        main90.as):00199         SCNFLG              rmb       1                   Screen flag, starts at 2, is decremented
+                      (        main90.as):00200         *                          when a scrn is cleared. When 0 a new
+00B8                  (        main90.as):00201         DOTTMP              rmb       2                   Holds dot eaten total in 2 player mode
+00BA                  (        main90.as):00202         SCTOT2              rmb       2                   Holds scrn dot total in 2 player mode
+                      (        main90.as):00203         *                          screen is issued.
+00BC                  (        main90.as):00204         BRDTMP              rmb       1                   Holds board # in 2 player mode
+00BD                  (        main90.as):00205         SCFTMP              rmb       1                   Holds screen flag in 2 player mode
+                      (        main90.as):00206         
+00BE                  (        main90.as):00207         DOTCNT              rmb       2                   Dot counter in transfer routine
+                      (        main90.as):00208         
+00C0                  (        main90.as):00209         RANNUM              rmb       1                   Random number variable
+00C1                  (        main90.as):00210         ADDEND              rmb       1                   Used in random number generator
+00C2                  (        main90.as):00211         SAVEX               rmb       2                   Save X reg. in random routine
+                      (        main90.as):00212         
+00C4                  (        main90.as):00213         RSFLAG              rmb       1                   Restart game flag
+                      (        main90.as):00214         
+00C5                  (        main90.as):00215         PUTPACM             rmb       2                   $1b,$2d will be put here
+00C7                  (        main90.as):00216         PCGBN               rmb       1                   Group buff#, Process ID put here
+00C8                  (        main90.as):00217         PCBFN               rmb       1                   Buffer number
+00C9                  (        main90.as):00218         PCXLOC              rmb       2                   Putpacm X location
+00CB                  (        main90.as):00219         PCYLOC              rmb       2                   Putpacm Y location
+                      (        main90.as):00220         
+00CD                  (        main90.as):00221         PUTCODE             rmb       2                   $1b,$2d will be put here
+00CF                  (        main90.as):00222         PGBN                rmb       1                   Group buff#, Process ID put here
+00D0                  (        main90.as):00223         PBFN                rmb       1                   Buffer number
+00D1                  (        main90.as):00224         PXLOC               rmb       2                   Putblk X location
+00D3                  (        main90.as):00225         PYLOC               rmb       2                   Putblk Y location
+                      (        main90.as):00226         
+00D5                  (        main90.as):00227         PUTGHS              rmb       2                   $1b,$2d will be put here
+00D7                  (        main90.as):00228         PGGBN               rmb       1                   Group buff#, Process ID +1 put here
+00D8                  (        main90.as):00229         PGBFN               rmb       1                   Buffer number
+00D9                  (        main90.as):00230         PGXLOC              rmb       2                   PUTGHS X location
+00DB                  (        main90.as):00231         PGYLOC              rmb       2                   PUTGHS Y location
+                      (        main90.as):00232         
+00DD                  (        main90.as):00233         DOTCODE             rmb       2                   $1b,$2d will be put here
+00DF                  (        main90.as):00234         PDGBN               rmb       1                   Group buff#, Process ID put here
+00E0                  (        main90.as):00235         PDBFN               rmb       1                   Buffer number
+00E1                  (        main90.as):00236         PDXLOC              rmb       2                   Putdot X location
+00E3                  (        main90.as):00237         PDYLOC              rmb       2                   Putdot Y location
+                      (        main90.as):00238         
+00E5                  (        main90.as):00239         XSAVE               rmb       2                   Temp. storage for X reg.
+                      (        main90.as):00240         
+00E7                  (        main90.as):00241         STRLGH              rmb       1                   Length of palette set string to send
+00E8                  (        main90.as):00242         STRING              rmb       16                  Build palette set string here
+                      (        main90.as):00243         
+00F8                  (        main90.as):00244         PALBT1              rmb       4
+00FC                  (        main90.as):00245         PALBT2              rmb       4
+                      (        main90.as):00246         
+0100                  (        main90.as):00247         HISPOS              rmb       3                   High score screen print position
+0103                  (        main90.as):00248         HSCASC              rmb       6                   High score ascii characters
+                      (        main90.as):00249         
+0109                  (        main90.as):00250         KILBUF              rmb       4                   $1b,$2a,procid,0 will be put here
+010D                  (        main90.as):00251         KILBF2              rmb       4                   $1b,$2a,procid +1,0 will be put here
+                      (        main90.as):00252         
+0111                  (        main90.as):00253         MOVFLG              rmb       1                   Delay flag used in movpac
+                      (        main90.as):00254         
+0112                  (        main90.as):00255         EXTPAC              rmb       1                   Extra pacman match number
+                      (        main90.as):00256         
+0113                  (        main90.as):00257         EXTPC2              rmb       1                   Holds match number in 2 player mode
+                      (        main90.as):00258         
+                      (        main90.as):00259         *   32 byte area for SS.Mouse packet
+                      (        main90.as):00260         *   only used for Pt.Valid info
+0114                  (        main90.as):00261         MOUSE               rmb       1                   Pt. Valid
+0115                  (        main90.as):00262                             rmb       31                  not used
+                      (        main90.as):00263         
+0134                  (        main90.as):00264         GHTABL              rmb       80                  Duplicate ghost data table
+                      (        main90.as):00265         
+0184                  (        main90.as):00266         TABLE1              rmb       612                 Used to save screen info for
+                      (        main90.as):00267         *                          player 1 in 2 player mode
+03E8                  (        main90.as):00268         TABLE2              rmb       612                 Used to save screen info for
+                      (        main90.as):00269         *                          player 2 in 2 player mode.
+064C                  (        main90.as):00270         SCNNUM              rmb       12                  Screen number
+                      (        main90.as):00271         
+                      (        main90.as):00272         
+0658                  (        main90.as):00273                             rmb       150
+                      (        main90.as):00274         
+06EE                  (        main90.as):00275         ARRAY               rmb       3726
+157C                  (        main90.as):00276         ARREND              rmb       4
+1580                  (        main90.as):00277                             rmb       150
+                      (        main90.as):00278         
+1616                  (        main90.as):00279                             rmb       STACK
+                      (        main90.as):00280         
+                      (        main90.as):00281                             endsect
+                      (        main90.as):00282         
+                      (        main90.as):00283                             section   code
+                      (        main90.as):00284         
+0000 2FD7             (        main90.as):00285         PTHLST              fcs       "/W"
+0002 1B20080000281801 (        main90.as):00286         DWSET               fcb       $1B,$20,08,00,00,40,24,01,02,02
+     0202
+000C 1B24             (        main90.as):00287         DWEND               fcb       $1B,$24
+000E 1B21             (        main90.as):00288         SELECT              fcb       $1b,$21
+0010 0C               (        main90.as):00289         CLEAR               fcb       $0C
+0011 0B               (        main90.as):00290         CLREND              fcb       $0b
+0012 0520             (        main90.as):00291         CUROFF              fcb       $05,$20
+0014 1B3D01           (        main90.as):00292         BOLDSW              fcb       $1b,$3d,1
+0017 07               (        main90.as):00293         BELCOD              fcb       $07
+0018 1B3107071B33071B (        main90.as):00294         PLLST1              fcb       $1b,$31,7,7,$1b,$33,7,$1b,$34,7
+     3407
+0022 1B3106191B310E19 (        main90.as):00295         PLLST2              fcb       $1b,$31,6,25,$1b,$31,14,25
+002A 1B2500002818     (        main90.as):00296         SCNRST              fcb       $1b,$25,0,0,40,24
+0030 071B25070818091B (        main90.as):00297         POPWIN              fcb       $07,$1b,$25,7,8,24,9,$1b,$22
+     22
+0039 010000160702000C (        main90.as):00298                             fcb       1,0,0,22,7,2,0,$0c
+                      (        main90.as):00299         
+0041 071B231B25080916 (        main90.as):00300         POPEND              fcb       $07,$1b,$23,$1b,$25,8,9,22,7
+     07
+004A 1B32011B3300     (        main90.as):00301                             fcb       $1b,$32,1,$1b,$33,0
+                      (        main90.as):00302         
+0050 1B250000281807   (        main90.as):00303         BOTWIN              fcb       $1b,$25,0,0,40,24,$07
+0057 1B2201050F1C0800 (        main90.as):00304                             fcb       $1b,$22,1,5,15,28,8,0,2,$0c
+     020C
+0061 1B2501011B071B33 (        main90.as):00305                             fcb       $1b,$25,1,1,27,7,$1b,$33,2,$0c
+     020C
+006B 1B2500001B071B33 (        main90.as):00306                             fcb       $1b,$25,0,0,27,7,$1b,$33,4,$0c
+     040C
+0075 1B25010119051B33 (        main90.as):00307                             fcb       $1b,$25,1,1,25,5,$1b,$33,0,$0c
+     000C
+                      (        main90.as):00308         
+007F 071B231B25080917 (        main90.as):00309         BOTEND              fcb       7,$1b,$23,$1b,$25,8,9,23,8
+     08
+0088 1B32011B3300     (        main90.as):00310                             fcb       $1b,$32,1,$1b,$33,0
+                      (        main90.as):00311         
+008E 1B33021B250D010B (        main90.as):00312         TITLE               fcb       $1b,$33,2,$1b,$25,13,1,11,5
+     05
+0097 0C1B33011B250C00 (        main90.as):00313                             fcb       $0c,$1b,$33,1,$1b,$25,12,0,11
+     0B
+00A0 050C1B32021B3300 (        main90.as):00314                             fcb       5,$0c,$1b,$32,2,$1b,$33,0,$1b
+     1B
+00A9 250D0109030C0221 (        main90.as):00315                             fcb       $25,13,1,9,3,$0c,2,33,33,80
+     2150
+00B3 41432D4F5339     (        main90.as):00316                             fcb       65,67,45,79,83,57
+                      (        main90.as):00317         
+00B9 1B33021B25070819 (        main90.as):00318         SCRBOX              fcb       $1b,$33,2,$1b,$25,7,8,25,10,$0c
+     0A0C
+00C3 1B33011B25060719 (        main90.as):00319                             fcb       $1b,$33,1,$1b,$25,6,7,25,10,$0c
+     0A0C
+00CD 1B32021B33001B25 (        main90.as):00320                             fcb       $1b,$32,2,$1b,$33,0,$1b,$25,7,8
+     0708
+00D7 17080C1B25080916 (        main90.as):00321                             fcb       23,8,$0c,$1b,$25,8,9,22,7
+     07
+                      (        main90.as):00322         
+                      (        main90.as):00323         *    Select Start Screen # ?
+00E0 0223245374617274 (        main90.as):00324         STRSCN              fcb       2,35,36,83,116,97,114,116,32
+     20
+00E9 53637265656E2023 (        main90.as):00325                             fcb       83,99,114,101,101,110,32,35
+00F1 203F023224       (        main90.as):00326                             fcb       32,63,2,50,36
+                      (        main90.as):00327         *    Select Joystick Port
+                      (        main90.as):00328         *     (L)eft or (R)ight --> ?
+00F6 02212153656C6563 (        main90.as):00329         SELJOY              fcb       2,33,33,83,101,108,101,99,116,32
+     7420
+0100 4A6F79737469636B (        main90.as):00330                             fcb       74,111,121,115,116,105,99,107,32
+     20
+0109 506F727402222342 (        main90.as):00331                             fcb       80,111,114,116,2,34,35,66,121,32
+     7920
+0113 5072657373696E67 (        main90.as):00332                             fcb       80,114,101,115,115,105,110,103,32
+     20
+011C 427574746F6E     (        main90.as):00333                             fcb       66,117,116,116,111,110
+                      (        main90.as):00334         
+                      (        main90.as):00335         *    LEFT
+0122 1B32040222254C45 (        main90.as):00336         LFTSTR              fcb       $1b,$32,4,2,34,37,76,69,70,84,32
+     465420
+012D 504F525420       (        main90.as):00337                             fcb       80,79,82,84,32
+                      (        main90.as):00338         *    RIGHT
+0132 1B32040222255249 (        main90.as):00339         RGTSTR              fcb       $1b,$32,4,2,34,37,82,73,71,72,84
+     474854
+013D 20504F5254       (        main90.as):00340                             fcb       32,80,79,82,84
+0142 1B3202022C255365 (        main90.as):00341         SLCTED              fcb       $1b,$32,2,2,44,37,83,101
+014A 6C6563746564     (        main90.as):00342                             fcb       108,101,99,116,101,100
+                      (        main90.as):00343         
+                      (        main90.as):00344         *    Number of players
+                      (        main90.as):00345         *      (1 or 2) ?
+0150 0222214E756D6265 (        main90.as):00346         PLYSTR              fcb       2,34,33,78,117,109,98,101,114,32
+     7220
+015A 6F6620506C617965 (        main90.as):00347                             fcb       111,102,32,80,108,97,121,101,114,115
+     7273
+0164 1B3203022122286A (        main90.as):00348                             fcb       $1b,$32,3,2,33,34,40,106,111,121,115
+     6F7973
+016F 7469636B204D6F76 (        main90.as):00349                             fcb       116,105,99,107,32,77,111,118,101,115
+     6573
+0179 20426F78291B3204 (        main90.as):00350                             fcb       32,66,111,120,41,$1b,$32,4,2,38,36
+     022624
+0184 31022F24321B3201 (        main90.as):00351                             fcb       49,2,47,36,50,$1b,$32,1,2,34,38,83
+     02222653
+0190 656C656374205769 (        main90.as):00352                             fcb       101,108,101,99,116,32,87,105,116
+     74
+0199 6820427574746F6E (        main90.as):00353                             fcb       104,32,66,117,116,116,111,110
+                      (        main90.as):00354         
+01A1 023E36           (        main90.as):00355         CURXY               fcb       2,62,54
+                      (        main90.as):00356         
+01A4 023D36           (        main90.as):00357         CURXY1              fcb       2,61,54
+                      (        main90.as):00358         
+01A7 022F32           (        main90.as):00359         CURXY2              fcb       2,47,50
+                      (        main90.as):00360         
+01AA 022517           (        main90.as):00361         CURXY3              fcb       2,37,23
+                      (        main90.as):00362         
+01AD 023C37           (        main90.as):00363         CURXY4              fcb       2,60,55
+                      (        main90.as):00364         
+01B0 022634           (        main90.as):00365         CURXY5              fcb       2,38,52
+                      (        main90.as):00366         *    Player #1
+01B3 1B3204022F32504C (        main90.as):00367         PL1                 fcb       $1b,$32,4,2,47,50,80,76,65,89,69,82,32,35,49
+     41594552202331
+                      (        main90.as):00368         *    Player #2
+01C2 1B3204022F32504C (        main90.as):00369         PL2                 fcb       $1b,$32,4,2,47,50,80,76,65,89,69,82,32,35,50
+     41594552202332
+                      (        main90.as):00370         *   ** Pause **
+01D1 1B22010E170D0100 (        main90.as):00371         PAUSE               fcb       $1b,$22,1,14,23,13,1,0,10,32
+     0A20
+01DB 2A2A205041555345 (        main90.as):00372                             fcb       42,42,32,80,65,85,83,69,32,42,42
+     202A2A
+                      (        main90.as):00373         *    Close pause overlay or Hiscore overlay
+01E6 1B23             (        main90.as):00374         PAUEND              fcb       $1b,$23
+                      (        main90.as):00375         *    Get Ready
+01E8 0227244745542052 (        main90.as):00376         GETRDY              fcb       2,39,36,71,69,84,32,82,69,65,68,89
+     45414459
+                      (        main90.as):00377         *    Get Ready Player 1
+01F4 0227221B3201506C (        main90.as):00378         GETRD1              fcb       2,39,34,$1b,$32,1,80,108,97,121,101
+     617965
+01FF 7220311B32020227 (        main90.as):00379                             fcb       114,32,49,$1b,$32,2,2,39,36,71,69
+     244745
+020A 54205245414459   (        main90.as):00380                             fcb       84,32,82,69,65,68,89
+                      (        main90.as):00381         *    Get ready Player 2
+0211 0227221B3201506C (        main90.as):00382         GETRD2              fcb       2,39,34,$1b,$32,1,80,108,97,121,101
+     617965
+021C 7220321B32020227 (        main90.as):00383                             fcb       114,32,50,$1b,$32,2,2,39,36,71,69
+     244745
+0227 54205245414459   (        main90.as):00384                             fcb       84,32,82,69,65,68,89
+                      (        main90.as):00385         *    Game Over
+022E 1B22010D080E050A (        main90.as):00386         GMOVER              fcb       $1b,$22,1,13,8,14,5,10,2,$0c,2,34
+     020C0222
+023A 2247414D4520204F (        main90.as):00387                             fcb       34,71,65,77,69,32,32,79,86,69,82
+     564552
+                      (        main90.as):00388         *    Play Again (y/n) ?
+0245 1B3204022322504C (        main90.as):00389         PLYAGN              fcb       $1b,$32,4,2,35,34,80,76,65,89,32,65
+     41592041
+0251 4741494E2028592F (        main90.as):00390                             fcb       71,65,73,78,32,40,89,47,78,41,32,63
+     4E29203F
+025D 023422           (        main90.as):00391                             fcb       2,52,34
+                      (        main90.as):00392         *    QUIT PROGRAM (Y/N) ?
+0260 1B320A1B22010809 (        main90.as):00393         BRKKEY              fcb       $1b,$32,10,$1b,$22,1,8,9,24,3
+     1803
+026A 0A02022221515549 (        main90.as):00394                             fcb       10,2,2,34,33,81,85,73,84,32
+     5420
+0274 50524F4752414D20 (        main90.as):00395                             fcb       80,82,79,71,82,65,77,32
+027C 28592F4E29203F   (        main90.as):00396                             fcb       40,89,47,78,41,32,63
+                      (        main90.as):00397         *    Close
+                      (        main90.as):00398         *  break overlay
+0283 1B23             (        main90.as):00399         BRKEND              fcb       $1b,$23
+                      (        main90.as):00400         *    SCREEN BONUS
+                      (        main90.as):00401         *    1000  POINTS
+0285 1B320A1B22010C09 (        main90.as):00402         SCNBON              fcb       $1b,$32,10,$1b,$22,1,12,9,16,4,10
+     10040A
+0290 0202222153435245 (        main90.as):00403                             fcb       2,2,34,33,83,67,82,69,69,78,32
+     454E20
+029B 424F4E5553022222 (        main90.as):00404                             fcb       66,79,78,85,83,2,34,34,49,48
+     3130
+02A5 30302020504F494E (        main90.as):00405                             fcb       48,48,32,32,80,79,73,78,84,83
+     5453
+                      (        main90.as):00406         *    Close Screen bonus overlay
+02AF 1B23             (        main90.as):00407         SCBEND              fcb       $1b,$23
+                      (        main90.as):00408         *    100   High   Score   0
+02B1 1B320A           (        main90.as):00409         HSTRING             fcb       $1b,$32,10
+02B4 0222202020313030 (        main90.as):00410         HSTRG2              fcb       2,34,32,32,32,49,48,48,48
+     30
+02BD 1B320A           (        main90.as):00411         SCOR1               fcb       $1b,$32,10
+02C0 022B204849474802 (        main90.as):00412                             fcb       2,43,32,72,73,71,72,2,55,32
+     3720
+02CA 53434F5245024520 (        main90.as):00413                             fcb       83,67,79,82,69,2,69,32,48
+     30
+                      (        main90.as):00414         *    0  Player #1   <-UP    Player #2       0
+02D3 1B320A0220202020 (        main90.as):00415         SCOR2               fcb       $1b,$32,10,2,32,32,32,32,32
+     20
+02DC 20203020504C4159 (        main90.as):00416                             fcb       32,32,48,32,80,76,65,89,69
+     45
+02E5 52202331201B320C (        main90.as):00417                             fcb       82,32,35,49,32,$1b,$32,12,60
+     3C
+02EE 2D1B320955502020 (        main90.as):00418                             fcb       45,$1b,$32,9,85,80,32,32,32
+     20
+02F7 1B320A504C415945 (        main90.as):00419                             fcb       $1b,$32,10,80,76,65,89,69,82
+     52
+0300 2023322020202020 (        main90.as):00420                             fcb       32,35,50,32,32,32,32,32,32,48
+     2030
+                      (        main90.as):00421         *      This will print  <-UP
+030A 1B320C0231203C2D (        main90.as):00422         SCR1                fcb       $1b,$32,12,2,49,32,60,45,$1b
+     1B
+0313 3209555020201B32 (        main90.as):00423                             fcb       $32,9,85,80,32,32,$1b,$32,10
+     0A
+                      (        main90.as):00424         *      This will print    UP->
+031C 1B32090231202020 (        main90.as):00425         SCR2                fcb       $1b,$32,9,2,49,32,32,32,85,80
+     5550
+0326 1B320C2D3E1B320A (        main90.as):00426                             fcb       $1b,$32,12,45,62,$1b,$32,10
+                      (        main90.as):00427         
+                      (        main90.as):00428         
+                      (        main90.as):00429         __start             export
+032E                  (        main90.as):00430         __start
+                      (        main90.as):00431         *    Open window #1
+032E 8603             (        main90.as):00432         PAC                 lda       #UPDAT              Set for OPEN with UPDATE
+0330 308DFCCC         (        main90.as):00433                             leax      PTHLST,pcr          Point to addr of Path list
+0334 103F00           (        main90.as):00434                             os9       I$Open              Open path to window
+0337 102506C8         (        main90.as):00435                             lbcs      ERR2
+033B B70000           (        main90.as):00436                             sta       PATH                Save path number
+033E 308DFCC0         (        main90.as):00437                             leax      DWSET,pcr           Point to DWSET code
+0342 108E000A         (        main90.as):00438                             ldy       #10                 Output 10 bytes
+0346 B60000           (        main90.as):00439                             lda       PATH                Get path number
+0349 103F00           (        main90.as):00440                             os9       I$Write             Output DWSET code
+034C 102506B3         (        main90.as):00441                             lbcs      ERR2
+                      (        main90.as):00442         
+                      (        main90.as):00443         *    Open window #2
+                      (        main90.as):00444         
+0350 8603             (        main90.as):00445                             lda       #UPDAT              Set for OPEN with UPDATE
+0352 308DFCAA         (        main90.as):00446                             leax      PTHLST,pcr          Point to addr of Path list
+0356 103F00           (        main90.as):00447                             os9       I$Open              Open path to window
+0359 102506A6         (        main90.as):00448                             lbcs      ERR2                Branch if any errors
+035D B70000           (        main90.as):00449                             sta       PATH2               Save path number 2
+0360 308DFC9E         (        main90.as):00450                             leax      DWSET,pcr           Point to DWSET code
+0364 108E000A         (        main90.as):00451                             ldy       #10                 Output 10 bytes
+0368 B60000           (        main90.as):00452                             lda       PATH2               Get path number
+036B 103F00           (        main90.as):00453                             os9       I$Write             Output DWSET code
+036E 10250691         (        main90.as):00454                             lbcs      ERR2                Branch if any errors
+                      (        main90.as):00455         *    Setup window #2
+0372 308DFC9E         (        main90.as):00456                             leax      BOLDSW,pcr
+0376 108E0003         (        main90.as):00457                             ldy       #3
+037A 170616           (        main90.as):00458                             lbsr      OUTST2
+037D 308DFC91         (        main90.as):00459                             leax      CUROFF,pcr          Point to cursor OFF code
+0381 108E0002         (        main90.as):00460                             ldy       #2                  Output 2 bytes
+0385 17060B           (        main90.as):00461                             lbsr      OUTST2              Output cursor off string
+0388 308DFC8C         (        main90.as):00462                             leax      PLLST1,pcr          Set grey background
+038C 108E000A         (        main90.as):00463                             ldy       #10
+0390 170600           (        main90.as):00464                             lbsr      OUTST2
+0393 308DFC79         (        main90.as):00465                             leax      CLEAR,pcr           Point to clear screen code
+0397 108E0001         (        main90.as):00466                             ldy       #1                  Output 1 byte
+039B 1705F5           (        main90.as):00467                             lbsr      OUTST2              Output clear screen string
+                      (        main90.as):00468         *   Select Window #2
+039E B60000           (        main90.as):00469                             lda       PATH2               Get path number
+03A1 308DFC69         (        main90.as):00470                             leax      SELECT,pcr          Point to SELECT code
+03A5 108E0002         (        main90.as):00471                             ldy       #2                  Output 2 bytes
+03A9 103F00           (        main90.as):00472                             os9       I$Write             Output select code
+03AC 10250650         (        main90.as):00473                             lbcs      ERR1
+03B0 8602             (        main90.as):00474                             lda       #2
+03B2 B70000           (        main90.as):00475                             sta       WINDOW              Selecting window #2
+                      (        main90.as):00476         
+03B5 308DFCD5         (        main90.as):00477                             leax      TITLE,pcr           Put title on screen
+03B9 108E002B         (        main90.as):00478                             ldy       #43
+03BD 1705D3           (        main90.as):00479                             lbsr      OUTST2
+                      (        main90.as):00480         
+03C0 308DFC66         (        main90.as):00481                             leax      SCNRST,pcr          Reset screen to 40,24
+03C4 108E0006         (        main90.as):00482                             ldy       #6
+03C8 1705C8           (        main90.as):00483                             lbsr      OUTST2
+                      (        main90.as):00484         
+                      (        main90.as):00485         *    Setup window #1
+03CB 308DFC45         (        main90.as):00486                             leax      BOLDSW,pcr
+03CF 108E0003         (        main90.as):00487                             ldy       #3
+03D3 1705A0           (        main90.as):00488                             lbsr      OUTSTR
+03D6 308DFC38         (        main90.as):00489                             leax      CUROFF,pcr          Point to cursor OFF code
+03DA 108E0002         (        main90.as):00490                             ldy       #2                  Output 2 bytes
+03DE 170595           (        main90.as):00491                             lbsr      OUTSTR              Output cursor off string
+03E1 308DFC2B         (        main90.as):00492                             leax      CLEAR,pcr           Point to clear screen code
+03E5 108E0001         (        main90.as):00493                             ldy       #1                  Output 1 byte
+03E9 17058A           (        main90.as):00494                             lbsr      OUTSTR              Output clear screen code
+                      (        main90.as):00495         
+03EC 103F00           (        main90.as):00496         GETID               os9       F$ID                Get process ID
+03EF B70000           (        main90.as):00497                             sta       PROCID              Will be used for GBN
+                      (        main90.as):00498         
+                      (        main90.as):00499         *    Get system time and use the seconds value to
+                      (        main90.as):00500         *        seed the random number generator.
+                      (        main90.as):00501         *    The 2 bytes for the seconds will be put in
+                      (        main90.as):00502         *             RANNUM and ADDEND
+                      (        main90.as):00503         
+03F2 30C90000         (        main90.as):00504         SEEDER              leax      PALBT2,U            Put time bytes here
+03F6 103F00           (        main90.as):00505                             os9       F$Time              Go get time bytes
+03F9 10250603         (        main90.as):00506                             lbcs      ERR1                Branch if any errors
+                      (        main90.as):00507         
+                      (        main90.as):00508         ***   Set trap for BREAK key   ***
+                      (        main90.as):00509         
+03FD 308C09           (        main90.as):00510         KEYTRAP             leax      TRAP,pcr
+0400 103F00           (        main90.as):00511                             os9       F$Icpt
+0403 102505F9         (        main90.as):00512                             lbcs      ERR1
+0407 2005             (        main90.as):00513                             bra       FILSTR
+                      (        main90.as):00514         
+0409 E7C90000         (        main90.as):00515         TRAP                stb       SIGCODE,U
+040D 3B               (        main90.as):00516                             rti                           Return from interrupt
+                      (        main90.as):00517         
+                      (        main90.as):00518         
+                      (        main90.as):00519         *    Preload Dotcode, Putcode and Getcode strings
+                      (        main90.as):00520         
+040E CC1B2D           (        main90.as):00521         FILSTR              ldd       #$1b2d              Code for PUTBLK
+0411 FD0000           (        main90.as):00522                             std       PUTPACM
+0414 FD0000           (        main90.as):00523                             std       PUTGHS
+0417 FD0000           (        main90.as):00524                             std       PUTCODE             Put it in Putblk string
+041A FD0000           (        main90.as):00525                             std       DOTCODE             Put it in Putblk string
+041D B60000           (        main90.as):00526                             lda       PROCID              Get Process I.D.
+0420 B70000           (        main90.as):00527                             sta       PCGBN
+0423 B70000           (        main90.as):00528                             sta       PGBN                Set Group Buffer #
+0426 B70000           (        main90.as):00529                             sta       PDGBN               Set Group Buffer #
+0429 B70000           (        main90.as):00530                             sta       PGGBN               Set Group Buffer #
+                      (        main90.as):00531         
+042C 30C90000         (        main90.as):00532                             leax      KILBUF,U            Point to KILBUF string
+0430 CC1B2A           (        main90.as):00533                             ldd       #$1b2a              Kill buffer code
+0433 ED81             (        main90.as):00534                             std       ,X++
+0435 B60000           (        main90.as):00535                             lda       PROCID              Get process I.D.
+0438 A780             (        main90.as):00536                             sta       ,X+
+043A 8600             (        main90.as):00537                             lda       #$00
+043C A784             (        main90.as):00538                             sta       ,X
+043E CC1B31           (        main90.as):00539                             ldd       #$1b31
+0441 EDC90000         (        main90.as):00540                             std       PALBT1,U
+0445 EDC90000         (        main90.as):00541                             std       PALBT2,U
+                      (        main90.as):00542         
+0449 308DFE67         (        main90.as):00543                             leax      HSTRG2,pcr
+044D 31C90000         (        main90.as):00544                             leay      HISPOS,U
+0451 C609             (        main90.as):00545                             ldb       #9
+0453 A680             (        main90.as):00546         HSLOOP              lda       ,X+
+0455 A7A0             (        main90.as):00547                             sta       ,Y+
+0457 5A               (        main90.as):00548                             decb
+0458 26F9             (        main90.as):00549                             bne       HSLOOP
+                      (        main90.as):00550         
+045A 7F0000           (        main90.as):00551                             clr       RSFLAG
+045D 7F0000           (        main90.as):00552                             clr       SIGCODE
+0460 7F0000           (        main90.as):00553                             clr       BUTTON
+                      (        main90.as):00554         
+0463 170000           (        main90.as):00555                             lbsr      SBEGIN              Read & display high scores
+                      (        main90.as):00556         
+0466 12               (        main90.as):00557         RESTART             nop       Come                here to restart game
+                      (        main90.as):00558         
+                      (        main90.as):00559         *    Setupb will fill all object buffers
+                      (        main90.as):00560         **************************************
+                      (        main90.as):00561         *         For testing
+                      (        main90.as):00562         *   To see all the objects that are put
+                      (        main90.as):00563         *   into the buffers, remove the REM's
+                      (        main90.as):00564         *   at locations #1, #2 and change the
+                      (        main90.as):00565         *   PATH2 to PATH at location #3
+                      (        main90.as):00566         
+                      (        main90.as):00567         **************************************
+                      (        main90.as):00568         *         leax   SELECT,pcr      #1
+                      (        main90.as):00569         *         ldy    #$0002          #1
+                      (        main90.as):00570         *         lbsr   OUTSTR          #1
+                      (        main90.as):00571         *         clr    WINDOW          #1
+                      (        main90.as):00572         **************************************
+                      (        main90.as):00573         
+0467 8601             (        main90.as):00574         SETBUF              lda       #1                  Set board # to 1
+0469 B70000           (        main90.as):00575                             sta       BRDNUM
+046C B70000           (        main90.as):00576                             sta       BRDTMP
+                      (        main90.as):00577         
+046F 8602             (        main90.as):00578         SKPCL2              lda       #2                  Set screen count flag to 2
+0471 B70000           (        main90.as):00579                             sta       SCNFLG
+0474 B70000           (        main90.as):00580                             sta       SCFTMP
+                      (        main90.as):00581         
+0477 7D0000           (        main90.as):00582                             tst       RSFLAG              Check restart flag
+047A 2603             (        main90.as):00583                             bne       SETBF2              If no restart then
+047C 170000           (        main90.as):00584                             lbsr      SETUPB              go draw objects
+                      (        main90.as):00585         
+047F 170000           (        main90.as):00586         SETBF2              lbsr      SETUPC
+                      (        main90.as):00587         
+0482 FC0000           (        main90.as):00588                             ldd       SCNTOT              Get screen dot total
+0485 FD0000           (        main90.as):00589                             std       SCTOT2              Copy to temporary
+                      (        main90.as):00590         
+                      (        main90.as):00591         **************************************
+                      (        main90.as):00592         *         lda    PATH            #2
+                      (        main90.as):00593         *         leax   RESPON,U        #2
+                      (        main90.as):00594         *         ldy    #1              #2
+                      (        main90.as):00595         *         os9    I$Read          #2
+                      (        main90.as):00596         *         lbcs   ERR1            #2
+                      (        main90.as):00597         **************************************
+0488 308DFB84         (        main90.as):00598         CLSCRN              leax      CLEAR,pcr           Point to clear screen code
+048C 108E0001         (        main90.as):00599                             ldy       #1                  Output 1 char.
+0490 1704E3           (        main90.as):00600                             lbsr      OUTSTR              Go output clear screen code
+                      (        main90.as):00601         
+0493 B60000           (        main90.as):00602                             lda       RSFLAG              Check restart flag
+0496 1026014A         (        main90.as):00603                             lbne      SETVR1              Branch if restarting
+                      (        main90.as):00604         
+049A 308DFC58         (        main90.as):00605                             leax      SELJOY,pcr          Point to joystick select
+049E 108E002C         (        main90.as):00606                             ldy       #44                 Output 44 bytes
+04A2 1704DC           (        main90.as):00607                             lbsr      POPUP               Do popup and output SELJOY
+                      (        main90.as):00608         
+04A5 A6C90000         (        main90.as):00609         JYLOOP              lda       PATH2,U
+04A9 C613             (        main90.as):00610                             ldb       #$13
+04AB 8E0000           (        main90.as):00611                             ldx       #0
+04AE 103F00           (        main90.as):00612                             os9       I$GetStt
+04B1 1025054B         (        main90.as):00613                             lbcs      ERR1
+04B5 C600             (        main90.as):00614                             ldb       #0
+04B7 8100             (        main90.as):00615                             cmpa      #0
+04B9 2616             (        main90.as):00616                             bne       PUTPRT
+04BB A6C90000         (        main90.as):00617                             lda       PATH2,U
+04BF C613             (        main90.as):00618                             ldb       #$13
+04C1 8E0001           (        main90.as):00619                             ldx       #1
+04C4 103F00           (        main90.as):00620                             os9       I$GetStt
+04C7 10250535         (        main90.as):00621                             lbcs      ERR1
+04CB C601             (        main90.as):00622                             ldb       #1
+04CD 8100             (        main90.as):00623                             cmpa      #0
+04CF 27D4             (        main90.as):00624                             beq       JYLOOP
+                      (        main90.as):00625         
+04D1 4F               (        main90.as):00626         PUTPRT              clra
+04D2 EDC90000         (        main90.as):00627                             std       PORT,U              Put value in PORT
+04D6 308DFC48         (        main90.as):00628                             leax      LFTSTR,pcr
+04DA 108E0010         (        main90.as):00629                             ldy       #16
+04DE 10830000         (        main90.as):00630                             cmpd      #0
+04E2 2604             (        main90.as):00631                             bne       PTDSPL
+04E4 308DFC4A         (        main90.as):00632                             leax      RGTSTR,pcr
+04E8 1704A8           (        main90.as):00633         PTDSPL              lbsr      OUTST2
+04EB 308DFC53         (        main90.as):00634                             leax      SLCTED,pcr
+04EF 108E000E         (        main90.as):00635                             ldy       #14
+04F3 17049D           (        main90.as):00636                             lbsr      OUTST2
+                      (        main90.as):00637         
+04F6 8E0064           (        main90.as):00638                             ldx       #100
+04F9 1704A2           (        main90.as):00639                             lbsr      WAIT                Pause for 50 ticks
+                      (        main90.as):00640         
+04FC 308DFCE6         (        main90.as):00641                             leax      PAUEND,pcr
+0500 108E0002         (        main90.as):00642                             ldy       #2
+0504 17048C           (        main90.as):00643                             lbsr      OUTST2
+                      (        main90.as):00644         
+0507 8E004B           (        main90.as):00645                             ldx       #75
+050A 170491           (        main90.as):00646                             lbsr      WAIT
+                      (        main90.as):00647         
+050D 308DFC3F         (        main90.as):00648                             leax      PLYSTR,pcr          Point to players string
+0511 108E0051         (        main90.as):00649                             ldy       #81                 Output 81 bytes
+0515 170469           (        main90.as):00650                             lbsr      POPUP               Do popup and output PLYSTR
+                      (        main90.as):00651         
+                      (        main90.as):00652         *   Put square
+0518 CC1B32           (        main90.as):00653         PUTSQR              ldd       #$1b32
+051B EDC90000         (        main90.as):00654                             std       STRING,U
+051F 8601             (        main90.as):00655                             lda       #1
+0521 A7C90000         (        main90.as):00656                             sta       STRING+2,U
+0525 CC1B40           (        main90.as):00657                             ldd       #$1b40
+0528 EDC90000         (        main90.as):00658                             std       STRING+3,U
+052C CC00A8           (        main90.as):00659                             ldd       #168
+052F EDC90000         (        main90.as):00660                             std       STRING+5,U
+0533 CC0064           (        main90.as):00661                             ldd       #100
+0536 EDC90000         (        main90.as):00662                             std       STRING+7,U
+053A CC1B48           (        main90.as):00663                             ldd       #$1b48
+053D EDC90000         (        main90.as):00664                             std       STRING+9,U
+0541 CC00D0           (        main90.as):00665                             ldd       #208
+0544 EDC90000         (        main90.as):00666                             std       STRING+11,U
+0548 CC008F           (        main90.as):00667                             ldd       #143
+054B EDC90000         (        main90.as):00668                             std       STRING+13,U
+054F 30C90000         (        main90.as):00669                             leax      STRING,U
+0553 108E000F         (        main90.as):00670                             ldy       #15
+0557 170439           (        main90.as):00671                             lbsr      OUTST2
+                      (        main90.as):00672         
+055A 8600             (        main90.as):00673                             lda       #0                  Default = 1 player
+055C B70000           (        main90.as):00674                             sta       JOYSTY
+                      (        main90.as):00675         
+055F B60000           (        main90.as):00676         NUMLOP              lda       PATH2
+0562 C613             (        main90.as):00677                             ldb       #$13
+0564 AEC90000         (        main90.as):00678                             ldx       PORT,U
+0568 103F00           (        main90.as):00679                             os9       I$GetStt
+056B 10250491         (        main90.as):00680                             lbcs      ERR1
+056F BF0000           (        main90.as):00681                             stx       JOYSTX
+0572 B70000           (        main90.as):00682                             sta       BUTTON
+0575 2656             (        main90.as):00683                             bne       GOTBUT
+0577 1F10             (        main90.as):00684                             tfr       X,D
+0579 8601             (        main90.as):00685                             lda       #1
+057B C12A             (        main90.as):00686                             cmpb      #42
+057D 2C02             (        main90.as):00687                             bge       PUTNUM
+057F 8600             (        main90.as):00688                             lda       #0
+                      (        main90.as):00689         
+0581 B70000           (        main90.as):00690         PUTNUM              sta       JOYSTY
+0584 8600             (        main90.as):00691                             lda       #0
+0586 A7C90000         (        main90.as):00692                             sta       STRING+2,U
+058A 30C90000         (        main90.as):00693                             leax      STRING,U
+058E 108E000F         (        main90.as):00694                             ldy       #15
+0592 1703FE           (        main90.as):00695                             lbsr      OUTST2
+                      (        main90.as):00696         
+0595 B60000           (        main90.as):00697                             lda       JOYSTY
+0598 8100             (        main90.as):00698                             cmpa      #0
+059A 2610             (        main90.as):00699                             bne       PUTLFT
+059C CC00A8           (        main90.as):00700                             ldd       #168
+059F EDC90000         (        main90.as):00701                             std       STRING+5,U
+05A3 CC00D0           (        main90.as):00702                             ldd       #208
+05A6 EDC90000         (        main90.as):00703                             std       STRING+11,U
+05AA 200E             (        main90.as):00704                             bra       DRWSQR
+05AC CC01B0           (        main90.as):00705         PUTLFT              ldd       #432
+05AF EDC90000         (        main90.as):00706                             std       STRING+5,U
+05B3 CC01D8           (        main90.as):00707                             ldd       #472
+05B6 EDC90000         (        main90.as):00708                             std       STRING+11,U
+05BA 8601             (        main90.as):00709         DRWSQR              lda       #1
+05BC A7C90000         (        main90.as):00710                             sta       STRING+2,U
+05C0 30C90000         (        main90.as):00711                             leax      STRING,U
+05C4 108E000F         (        main90.as):00712                             ldy       #15
+05C8 1703C8           (        main90.as):00713                             lbsr      OUTST2
+05CB 2092             (        main90.as):00714                             bra       NUMLOP
+                      (        main90.as):00715         
+05CD B60000           (        main90.as):00716         GOTBUT              lda       JOYSTY
+05D0 B70000           (        main90.as):00717                             sta       PLAYRS
+                      (        main90.as):00718         
+05D3 8E0064           (        main90.as):00719                             ldx       #100
+05D6 1703C5           (        main90.as):00720                             lbsr      WAIT
+                      (        main90.as):00721         
+05D9 308DFC09         (        main90.as):00722                             leax      PAUEND,pcr
+05DD 108E0002         (        main90.as):00723                             ldy       #2
+05E1 1703AF           (        main90.as):00724                             lbsr      OUTST2
+                      (        main90.as):00725         
+05E4 CC0134           (        main90.as):00726         SETVR1              ldd       #308
+05E7 FD0000           (        main90.as):00727                             std       PXNEW               Pacman starting X location
+05EA FD0000           (        main90.as):00728                             std       PCXLOC
+05ED CC005E           (        main90.as):00729                             ldd       #94
+05F0 FD0000           (        main90.as):00730                             std       PYNEW               Pacman starting Y location
+05F3 FD0000           (        main90.as):00731                             std       PCYLOC
+05F6 CC07AE           (        main90.as):00732                             ldd       #1966               Set initial pacman array offset
+05F9 FD0000           (        main90.as):00733                             std       POFSET
+05FC 8603             (        main90.as):00734                             lda       #3
+05FE B70000           (        main90.as):00735                             sta       CYCLE               Set cycle to 3
+0601 861C             (        main90.as):00736                             lda       #28
+0603 B70000           (        main90.as):00737                             sta       BUFF                Set starting pacman buffer
+0606 8650             (        main90.as):00738                             lda       #80                 Setup ghost counter value
+0608 B70000           (        main90.as):00739                             sta       GCOUNT
+060B 7F0000           (        main90.as):00740                             clr       HITFLG              Pacman hit flag
+060E 7F0000           (        main90.as):00741                             clr       POWFLG              Power pill flag
+0611 8603             (        main90.as):00742                             lda       #3
+0613 B70000           (        main90.as):00743                             sta       PACMN1              Set # of players to 3
+0616 B70000           (        main90.as):00744                             sta       PACMN2              Set # of players to 3
+0619 B70000           (        main90.as):00745                             sta       PACMAN              Set current pacman to 3
+061C 8601             (        main90.as):00746                             lda       #1
+061E B70000           (        main90.as):00747                             sta       PLCRNT              Set current player to #1
+0621 A7C90000         (        main90.as):00748                             sta       EXTPAC,U            Extra pacman goal byte
+0625 A7C90000         (        main90.as):00749                             sta       EXTPC2,U            Goal for player 2
+0629 CC0000           (        main90.as):00750                             ldd       #0
+062C FD0000           (        main90.as):00751                             std       DOTTOT              Dot and pill total
+062F FD0000           (        main90.as):00752                             std       DOTTMP              Dot & pill total, player2
+                      (        main90.as):00753         
+0632 8645             (        main90.as):00754                             lda       #69
+0634 B70000           (        main90.as):00755                             sta       BONBUF
+0637 7F0000           (        main90.as):00756                             clr       BONFLG
+063A 8696             (        main90.as):00757                             lda       #150
+063C B70000           (        main90.as):00758                             sta       BONTIM
+063F 30C90000         (        main90.as):00759                             leax      BTEMP,U
+0643 CC0008           (        main90.as):00760                             ldd       #8
+0646 FD0000           (        main90.as):00761                             std       BONUSX              Set X starting location
+0649 ED81             (        main90.as):00762                             std       ,X++
+064B CC00B5           (        main90.as):00763                             ldd       #181
+064E FD0000           (        main90.as):00764                             std       BONUSY              Set Y starting location
+0651 ED81             (        main90.as):00765                             std       ,X++
+0653 7F0000           (        main90.as):00766                             clr       BONCNT              Clear bonus counter
+0656 6F84             (        main90.as):00767                             clr       ,X
+                      (        main90.as):00768         
+0658 B60000           (        main90.as):00769                             lda       PLAYRS              Check flag
+065B 2710             (        main90.as):00770                             beq       GRDY                If 0 then only 1 player
+065D 170394           (        main90.as):00771                             lbsr      BELL
+0660 308DFB90         (        main90.as):00772                             leax      GETRD1,pcr
+0664 108E001D         (        main90.as):00773                             ldy       #29
+0668 170316           (        main90.as):00774                             lbsr      POPUP
+066B 200E             (        main90.as):00775                             bra       DRWBRD
+066D 170384           (        main90.as):00776         GRDY                lbsr      BELL
+0670 308DFB74         (        main90.as):00777                             leax      GETRDY,pcr          Print GET READY
+0674 108E000C         (        main90.as):00778                             ldy       #12
+0678 170306           (        main90.as):00779                             lbsr      POPUP               Do popup and output GETRDY
+                      (        main90.as):00780         
+                      (        main90.as):00781         *    Now draw board and place objects
+                      (        main90.as):00782         
+067B 170000           (        main90.as):00783         DRWBRD              lbsr      BOARDC
+                      (        main90.as):00784         
+                      (        main90.as):00785         
+                      (        main90.as):00786         *    Select approprite header for 1 or 2 player mode
+                      (        main90.as):00787         
+067E B60000           (        main90.as):00788         HEADER              lda       PLAYRS              Check for 1 or 2 players
+0681 2623             (        main90.as):00789                             bne       HEADR2
+0683 308DFC36         (        main90.as):00790                             leax      SCOR1,pcr           Point to 1 player header
+0687 108E0016         (        main90.as):00791                             ldy       #22                 Output 22 bytes
+068B 1702E8           (        main90.as):00792                             lbsr      OUTSTR
+068E 308DFC1F         (        main90.as):00793                             leax      HSTRING,pcr         Position curser
+0692 108E0003         (        main90.as):00794                             ldy       #3                  Output 3 bytes
+0696 1702DD           (        main90.as):00795                             lbsr      OUTSTR
+0699 30C90000         (        main90.as):00796                             leax      HISPOS,U            Point to HIGH score
+069D 108E0009         (        main90.as):00797                             ldy       #9                  output 9 bytes
+06A1 1702D2           (        main90.as):00798                             lbsr      OUTSTR
+06A4 2013             (        main90.as):00799                             bra       SELSCN
+06A6 30C90000         (        main90.as):00800         HEADR2              leax      SCRPOS,U            Point to score string
+06AA 8620             (        main90.as):00801                             lda       #32
+06AC A701             (        main90.as):00802                             sta       1,X                 Set curser X location
+06AE 308DFC21         (        main90.as):00803                             leax      SCOR2,pcr           Point to 2 player header
+06B2 108E0037         (        main90.as):00804                             ldy       #55                 Output 55 bytes
+06B6 1702BD           (        main90.as):00805                             lbsr      OUTSTR
+                      (        main90.as):00806         
+                      (        main90.as):00807         *    Now select playing screen
+                      (        main90.as):00808         
+06B9 170338           (        main90.as):00809         SELSCN              lbsr      BELL
+                      (        main90.as):00810         
+06BC 308DF94E         (        main90.as):00811                             leax      SELECT,pcr          Point to select code
+06C0 108E0002         (        main90.as):00812                             ldy       #2                  Output 2 bytes
+06C4 1702AF           (        main90.as):00813                             lbsr      OUTSTR              Go to output routine
+06C7 7F0000           (        main90.as):00814                             clr       WINDOW              Flag for window 0
+                      (        main90.as):00815         
+06CA 308DF973         (        main90.as):00816                             leax      POPEND,pcr
+06CE 108E000F         (        main90.as):00817                             ldy       #15
+06D2 1702BE           (        main90.as):00818                             lbsr      OUTST2
+                      (        main90.as):00819         
+                      (        main90.as):00820         *     Main program loop
+                      (        main90.as):00821         *
+06D5 160000           (        main90.as):00822         MAIN                lbra      CHECKS              Go check & move ghosts
+06D8 170000           (        main90.as):00823         MAIN1               lbsr      MVPAC               Go move pacman
+                      (        main90.as):00824         
+                      (        main90.as):00825         *     Check for signals (break key)
+                      (        main90.as):00826         
+06DB E6C90000         (        main90.as):00827                             ldb       SIGCODE,U
+06DF C102             (        main90.as):00828                             cmpb      #2                  Was it the break key ?
+06E1 2647             (        main90.as):00829                             bne       NOBRK
+06E3 308DFB79         (        main90.as):00830                             leax      BRKKEY,pcr          Point to string
+06E7 108E0023         (        main90.as):00831                             ldy       #35                 Output 35 bytes
+06EB 170288           (        main90.as):00832                             lbsr      OUTSTR
+06EE 6FC90000         (        main90.as):00833                             clr       RESPON,U
+                      (        main90.as):00834         
+06F2 17025B           (        main90.as):00835                             lbsr      READ                Flush input buffer
+                      (        main90.as):00836         
+06F5 170258           (        main90.as):00837                             lbsr      READ                Go get input
+                      (        main90.as):00838         
+06F8 308DFB87         (        main90.as):00839                             leax      BRKEND,pcr          Erase BRKKEY prompt
+06FC 108E0002         (        main90.as):00840                             ldy       #2                  Output 2 bytes
+0700 170273           (        main90.as):00841                             lbsr      OUTSTR
+0703 6FC90000         (        main90.as):00842                             clr       SIGCODE,U           Clear signal flag
+                      (        main90.as):00843         
+0707 A6C90000         (        main90.as):00844                             lda       RESPON,U            Check input
+070B 8159             (        main90.as):00845                             cmpa      #89                 Was it a Y ?
+070D 2704             (        main90.as):00846                             beq       YESBRK
+070F 8179             (        main90.as):00847                             cmpa      #121                Was it a y ?
+0711 2617             (        main90.as):00848                             bne       NOBRK
+                      (        main90.as):00849         
+0713 308DF8F7         (        main90.as):00850         YESBRK              leax      SELECT,pcr
+0717 108E0002         (        main90.as):00851                             ldy       #2
+071B 170275           (        main90.as):00852                             lbsr      OUTST2
+                      (        main90.as):00853         
+071E 170000           (        main90.as):00854                             lbsr      SCEND
+0721 8E0032           (        main90.as):00855                             ldx       #50
+0724 170277           (        main90.as):00856                             lbsr      WAIT                Sleep for 50 ticks
+0727 16020B           (        main90.as):00857                             lbra      EXIT                Quit program
+                      (        main90.as):00858         
+072A FC0000           (        main90.as):00859         NOBRK               ldd       DOTTOT              Get dot total
+072D 10B30000         (        main90.as):00860                             cmpd      SCNTOT              Cleared the screen yet?
+0731 102600BB         (        main90.as):00861                             lbne      CHKBUT
+                      (        main90.as):00862         
+0735 8E0050           (        main90.as):00863                             ldx       #80
+0738 170263           (        main90.as):00864                             lbsr      WAIT                Pause for 80 ticks
+                      (        main90.as):00865         *   Display SCREEN BONUS
+073B 308DFB46         (        main90.as):00866                             leax      SCNBON,pcr
+073F 108E002A         (        main90.as):00867                             ldy       #42
+0743 170230           (        main90.as):00868                             lbsr      OUTSTR
+                      (        main90.as):00869         *   Make noise
+0746 8E3F06           (        main90.as):00870                             ldx       #$3f06
+0749 108E0BB8         (        main90.as):00871                             ldy       #3000
+074D 170280           (        main90.as):00872                             lbsr      SND
+0750 108E07D0         (        main90.as):00873                             ldy       #2000
+0754 170279           (        main90.as):00874                             lbsr      SND
+0757 108E0BB8         (        main90.as):00875                             ldy       #3000
+075B 170272           (        main90.as):00876                             lbsr      SND
+075E 108E07D0         (        main90.as):00877                             ldy       #2000
+0762 17026B           (        main90.as):00878                             lbsr      SND
+                      (        main90.as):00879         *   Pause a few more seconds
+0765 8E0096           (        main90.as):00880                             ldx       #150
+0768 170233           (        main90.as):00881                             lbsr      WAIT
+                      (        main90.as):00882         *   Close SCREEN BONUS overlay
+076B 308DFB40         (        main90.as):00883                             leax      SCBEND,pcr
+076F 108E0002         (        main90.as):00884                             ldy       #2
+0773 170200           (        main90.as):00885                             lbsr      OUTSTR
+                      (        main90.as):00886         *   Add 1000 points to score for clearing screen
+0776 8610             (        main90.as):00887                             lda       #16
+0778 B70000           (        main90.as):00888                             sta       POINTS+1
+077B 7F0000           (        main90.as):00889                             clr       POINTS+2
+077E 170000           (        main90.as):00890                             lbsr      ADDUP
+0781 7F0000           (        main90.as):00891                             clr       POINTS+1
+                      (        main90.as):00892         *   Pause some more
+0784 8E0096           (        main90.as):00893                             ldx       #150
+0787 170214           (        main90.as):00894                             lbsr      WAIT
+                      (        main90.as):00895         *   Add up bonus items at bottom of screen
+                      (        main90.as):00896         
+078A 170000           (        main90.as):00897                             lbsr      CNTBON
+                      (        main90.as):00898         
+                      (        main90.as):00899         *   Select comment window
+                      (        main90.as):00900         
+078D 308DF87D         (        main90.as):00901                             leax      SELECT,pcr
+0791 108E0002         (        main90.as):00902                             ldy       #2
+0795 1701FB           (        main90.as):00903                             lbsr      OUTST2
+                      (        main90.as):00904         
+0798 8E012C           (        main90.as):00905                             ldx       #300
+079B 170200           (        main90.as):00906                             lbsr      WAIT
+                      (        main90.as):00907         
+079E F60000           (        main90.as):00908                             ldb       PLAYRS              Get # of players(1=0,2=1)
+07A1 271D             (        main90.as):00909                             beq       GTRDY               Only one player
+07A3 17024E           (        main90.as):00910                             lbsr      BELL
+07A6 308DFA4A         (        main90.as):00911                             leax      GETRD1,pcr          Point player 1 string
+07AA 108E001D         (        main90.as):00912                             ldy       #29                 Output 29 bytes
+07AE F60000           (        main90.as):00913                             ldb       PLCRNT              Get current pacman number
+07B1 C102             (        main90.as):00914                             cmpb      #2                  Is it player #2 ?
+07B3 2702             (        main90.as):00915                             beq       PLNUM2
+07B5 2004             (        main90.as):00916                             bra       PLOUT
+                      (        main90.as):00917         
+07B7 308DFA56         (        main90.as):00918         PLNUM2              leax      GETRD2,pcr          Point to player #2 string
+07BB 1701C3           (        main90.as):00919         PLOUT               lbsr      POPUP               Go output string
+07BE 200E             (        main90.as):00920                             bra       DOREST
+07C0 170231           (        main90.as):00921         GTRDY               lbsr      BELL
+                      (        main90.as):00922         
+07C3 308DFA21         (        main90.as):00923                             leax      GETRDY,pcr          Point to GET READY string
+07C7 108E000C         (        main90.as):00924                             ldy       #12                 Output 12 bytes
+07CB 1701B3           (        main90.as):00925                             lbsr      POPUP               Do popup and output GETRDY
+                      (        main90.as):00926         
+                      (        main90.as):00927         *   Reset screen
+                      (        main90.as):00928         
+07CE 170000           (        main90.as):00929         DOREST              lbsr      NEWSCN
+                      (        main90.as):00930         
+07D1 8E0096           (        main90.as):00931                             ldx       #150
+07D4 1701C7           (        main90.as):00932                             lbsr      WAIT
+                      (        main90.as):00933         
+07D7 17021A           (        main90.as):00934                             lbsr      BELL
+                      (        main90.as):00935         
+                      (        main90.as):00936         *   Select game window
+                      (        main90.as):00937         
+07DA 308DF830         (        main90.as):00938                             leax      SELECT,pcr
+07DE 108E0002         (        main90.as):00939                             ldy       #2
+07E2 170191           (        main90.as):00940                             lbsr      OUTSTR
+                      (        main90.as):00941         
+07E5 308DF858         (        main90.as):00942                             leax      POPEND,pcr
+07E9 108E000F         (        main90.as):00943                             ldy       #15
+07ED 1701A3           (        main90.as):00944                             lbsr      OUTST2
+                      (        main90.as):00945         
+                      (        main90.as):00946         *    The following routines are run once
+                      (        main90.as):00947         *    for every three times pacman moves
+                      (        main90.as):00948         *
+                      (        main90.as):00949         *    First check to see if pacman screen is the
+                      (        main90.as):00950         *        screen currently being displayed.
+                      (        main90.as):00951         *         If not, then sleep for 2 ticks.
+                      (        main90.as):00952         
+                      (        main90.as):00953         
+07F0 B60000           (        main90.as):00954         CHKBUT              lda       CYCLE               Check for CYCLE=2
+07F3 8102             (        main90.as):00955                             cmpa      #2
+07F5 1026FEDC         (        main90.as):00956                             lbne      MAIN
+                      (        main90.as):00957         
+                      (        main90.as):00958         *    Update Mouse packet
+                      (        main90.as):00959         
+07F9 B60000           (        main90.as):00960         CHKBT1              lda       PATH
+07FC C689             (        main90.as):00961                             ldb       #$89
+07FE 30C90000         (        main90.as):00962                             leax      MOUSE,U
+0802 108E0000         (        main90.as):00963                             ldy       #0
+0806 103F00           (        main90.as):00964                             os9       I$GetStt            Do a SS.MOUSE call
+0809 102501F3         (        main90.as):00965                             lbcs      ERR1
+080D B60000           (        main90.as):00966                             lda       MOUSE               Get Pt.Valid byte
+0810 2608             (        main90.as):00967                             bne       CHKBT2
+0812 8E0002           (        main90.as):00968                             ldx       #2
+0815 170186           (        main90.as):00969                             lbsr      WAIT                Sleep for 2 ticks
+0818 20DF             (        main90.as):00970                             bra       CHKBT1              Loop till valid
+                      (        main90.as):00971         
+081A B60000           (        main90.as):00972         CHKBT2              lda       BUTTON              Check for button
+081D 1027FEB4         (        main90.as):00973                             lbeq      MAIN                Loop till button is pushed
+0821 308DF9AC         (        main90.as):00974                             leax      PAUSE,pcr           Point to pause string
+0825 108E0015         (        main90.as):00975                             ldy       #21                 Output 21 bytes
+0829 17014A           (        main90.as):00976                             lbsr      OUTSTR
+                      (        main90.as):00977         
+082C 8E0006           (        main90.as):00978         PAUBUT              ldx       #6                  Sleep for 6 ticks
+082F 17016C           (        main90.as):00979                             lbsr      WAIT
+                      (        main90.as):00980         *    Get joystick data using SS.JOY
+0832 B60000           (        main90.as):00981                             lda       PATH
+0835 C613             (        main90.as):00982                             ldb       #$13
+0837 AEC90000         (        main90.as):00983                             ldx       PORT,U
+083B 103F00           (        main90.as):00984                             os9       I$GetStt
+083E 102501BE         (        main90.as):00985                             lbcs      ERR1
+0842 B70000           (        main90.as):00986                             sta       BUTTON
+                      (        main90.as):00987         
+0845 F60000           (        main90.as):00988                             ldb       BUTTON              Check button
+0848 27E2             (        main90.as):00989                             beq       PAUBUT
+084A 7F0000           (        main90.as):00990                             clr       BUTTON
+                      (        main90.as):00991         
+084D 308DF995         (        main90.as):00992                             leax      PAUEND,pcr          Point to pause end
+0851 108E0002         (        main90.as):00993                             ldy       #2
+0855 17011E           (        main90.as):00994                             lbsr      OUTSTR
+                      (        main90.as):00995         
+0858 16FE7A           (        main90.as):00996                             lbra      MAIN
+                      (        main90.as):00997         
+                      (        main90.as):00998         
+085B 1700F2           (        main90.as):00999         WAIT4               lbsr      READ                Go wait for keypress
+085E 39               (        main90.as):01000                             rts
+                      (        main90.as):01001         
+                      (        main90.as):01002         *****  Game over  *****
+                      (        main90.as):01003         *   Used for 1 player mode and for
+                      (        main90.as):01004         *   player 2 in two player mode
+                      (        main90.as):01005         *   Ask player if they want to play again
+                      (        main90.as):01006         
+085F 308DF9CB         (        main90.as):01007         GAMOVR              leax      GMOVER,pcr          Point to GAME OVER string
+0863 108E0017         (        main90.as):01008                             ldy       #23                 Output 23 bytes
+0867 17010C           (        main90.as):01009                             lbsr      OUTSTR
+                      (        main90.as):01010         
+086A 8E0064           (        main90.as):01011                             ldx       #100
+086D 17012E           (        main90.as):01012                             lbsr      WAIT                Sleep for 100 ticks
+0870 308DF972         (        main90.as):01013                             leax      PAUEND,pcr
+0874 108E0002         (        main90.as):01014                             ldy       #2
+0878 1700FB           (        main90.as):01015                             lbsr      OUTSTR
+                      (        main90.as):01016         
+087B 308DF78F         (        main90.as):01017                             leax      SELECT,pcr
+087F 108E0002         (        main90.as):01018                             ldy       #2
+0883 17010D           (        main90.as):01019                             lbsr      OUTST2
+                      (        main90.as):01020         
+0886 170000           (        main90.as):01021                             lbsr      SCEND               Display high scores
+                      (        main90.as):01022         
+0889 308DF7C3         (        main90.as):01023                             leax      BOTWIN,pcr
+088D 108E002F         (        main90.as):01024                             ldy       #47
+0891 1700FF           (        main90.as):01025                             lbsr      OUTST2
+                      (        main90.as):01026         
+0894 308DF9AD         (        main90.as):01027                             leax      PLYAGN,pcr          Point to PLAY AGAIN
+0898 108E001B         (        main90.as):01028                             ldy       #27                 Output 27 bytes
+089C 1700F4           (        main90.as):01029                             lbsr      OUTST2              Go output string
+                      (        main90.as):01030         
+089F 1700C1           (        main90.as):01031                             lbsr      READ2               Go get response
+                      (        main90.as):01032         
+08A2 5F               (        main90.as):01033                             clrb                          Clear reset flag
+08A3 B60000           (        main90.as):01034                             lda       RESPON
+08A6 8159             (        main90.as):01035                             cmpa      #89                 Was it a Y ?
+08A8 2601             (        main90.as):01036                             bne       CKLOW
+08AA 5C               (        main90.as):01037                             incb                          Set flag
+08AB 8179             (        main90.as):01038         CKLOW               cmpa      #121                Was it a y ?
+08AD 2601             (        main90.as):01039                             bne       CKFLAG
+08AF 5C               (        main90.as):01040                             incb                          Set flag
+08B0 C100             (        main90.as):01041         CKFLAG              cmpb      #0                  Is flag clear ?
+08B2 2610             (        main90.as):01042                             bne       NOEX
+08B4 308DF7C7         (        main90.as):01043                             leax      BOTEND,pcr
+08B8 108E000F         (        main90.as):01044                             ldy       #15
+08BC 1700D4           (        main90.as):01045                             lbsr      OUTST2
+08BF C600             (        main90.as):01046                             ldb       #0
+08C1 160071           (        main90.as):01047                             lbra      EXIT
+                      (        main90.as):01048         
+08C4 308DF7B7         (        main90.as):01049         NOEX                leax      BOTEND,pcr
+08C8 108E000F         (        main90.as):01050                             ldy       #15
+08CC 1700C4           (        main90.as):01051                             lbsr      OUTST2
+                      (        main90.as):01052         
+08CF 308DF73D         (        main90.as):01053                             leax      CLEAR,pcr           Clear board screen
+08D3 108E0001         (        main90.as):01054                             ldy       #1
+08D7 17009C           (        main90.as):01055                             lbsr      OUTSTR
+                      (        main90.as):01056         
+                      (        main90.as):01057         *   Compare Players score to High score
+                      (        main90.as):01058         
+08DA C607             (        main90.as):01059         COMHGH              ldb       #7                  Set loop counter to 7
+08DC 31C90000         (        main90.as):01060                             leay      HSCASC,U            Point to High ascii
+08E0 30C90000         (        main90.as):01061                             leax      SCRASC-1,U          Point to Player ascii -1
+08E4 5A               (        main90.as):01062         CMLOOP              decb                          Decrement loop counter
+08E5 271B             (        main90.as):01063                             beq       COMEND              Exit loop
+08E7 A6A0             (        main90.as):01064                             lda       ,Y+
+08E9 3001             (        main90.as):01065                             leax      1,X
+08EB A184             (        main90.as):01066                             cmpa      ,X
+08ED 27F5             (        main90.as):01067                             beq       CMLOOP
+08EF 2211             (        main90.as):01068                             bhi       COMEND
+                      (        main90.as):01069         
+08F1 C606             (        main90.as):01070                             ldb       #6                  Set new loop counter
+08F3 30C90000         (        main90.as):01071                             leax      HSCASC,U
+08F7 31C90000         (        main90.as):01072                             leay      SCRASC,U
+08FB A6A0             (        main90.as):01073         C2LOOP              lda       ,Y+
+08FD A780             (        main90.as):01074                             sta       ,X+
+08FF 5A               (        main90.as):01075                             decb
+0900 26F9             (        main90.as):01076                             bne       C2LOOP
+                      (        main90.as):01077         
+0902 C601             (        main90.as):01078         COMEND              ldb       #1                  Set restart flag
+0904 F70000           (        main90.as):01079                             stb       RSFLAG
+0907 16FB5C           (        main90.as):01080                             lbra      RESTART             Go restart
+                      (        main90.as):01081         
+090A 308DF920         (        main90.as):01082         GAMOV2              leax      GMOVER,pcr          Point to GAME OVER string
+090E 108E0017         (        main90.as):01083                             ldy       #23                 Output 23 bytes
+0912 170061           (        main90.as):01084                             lbsr      OUTSTR
+                      (        main90.as):01085         
+0915 8E0096           (        main90.as):01086                             ldx       #150
+0918 170083           (        main90.as):01087                             lbsr      WAIT                Sleep for 100 ticks
+091B 308DF8C7         (        main90.as):01088                             leax      PAUEND,pcr          Kill overlay window
+091F 108E0002         (        main90.as):01089                             ldy       #2
+0923 170050           (        main90.as):01090                             lbsr      OUTSTR
+                      (        main90.as):01091         
+0926 308DF6E4         (        main90.as):01092                             leax      SELECT,pcr
+092A 108E0002         (        main90.as):01093                             ldy       #2
+092E 170062           (        main90.as):01094                             lbsr      OUTST2
+                      (        main90.as):01095         
+0931 170000           (        main90.as):01096                             lbsr      SCEND               Display high scores
+                      (        main90.as):01097         
+0934 39               (        main90.as):01098                             rts
+                      (        main90.as):01099         
+0935 12               (        main90.as):01100         EXIT                nop
+0936 30C90000         (        main90.as):01101                             leax      KILBUF,U
+093A 108E0004         (        main90.as):01102                             ldy       #4                  Output 4 bytes
+093E 170035           (        main90.as):01103                             lbsr      OUTSTR              Go kill buffers
+0941 308DF6C7         (        main90.as):01104                             leax      DWEND,pcr
+0945 108E0002         (        main90.as):01105                             ldy       #2
+0949 8D2B             (        main90.as):01106                             bsr       OUTSTR              End the game screen
+094B C600             (        main90.as):01107                             ldb       #0
+094D 103F00           (        main90.as):01108         QUIT                os9       F$Exit              Exit program
+                      (        main90.as):01109         
+                      (        main90.as):01110         *    Do READ from PATH
+0950 B60000           (        main90.as):01111         READ                lda       PATH
+0953 30C90000         (        main90.as):01112                             leax      RESPON,U            Put read char. here
+0957 108E0001         (        main90.as):01113                             ldy       #1                  Get 1 char.
+095B 103F00           (        main90.as):01114                             os9       I$Read              Go do read
+095E 1025009E         (        main90.as):01115                             lbcs      ERR1
+0962 39               (        main90.as):01116                             rts
+                      (        main90.as):01117         
+                      (        main90.as):01118         *    Do READ from PATH2
+0963 B60000           (        main90.as):01119         READ2               lda       PATH2
+0966 30C90000         (        main90.as):01120                             leax      RESPON,U
+096A 108E0001         (        main90.as):01121                             ldy       #1                  Get 1 char.
+096E 103F00           (        main90.as):01122                             os9       I$Read              Go do read
+0971 1025008B         (        main90.as):01123                             lbcs      ERR1
+0975 39               (        main90.as):01124                             rts
+                      (        main90.as):01125         
+0976 B60000           (        main90.as):01126         OUTSTR              lda       PATH                Get path number
+0979 103F00           (        main90.as):01127                             os9       I$Write             Output string till CR
+097C 10250080         (        main90.as):01128                             lbcs      ERR1
+0980 39               (        main90.as):01129         OTDONE              rts
+                      (        main90.as):01130         
+0981 3410             (        main90.as):01131         POPUP               pshs      X
+0983 3420             (        main90.as):01132                             pshs      Y
+0985 308DF6A7         (        main90.as):01133                             leax      POPWIN,pcr
+0989 108E0011         (        main90.as):01134                             ldy       #17
+098D 8D04             (        main90.as):01135                             bsr       OUTST2
+098F 3520             (        main90.as):01136                             puls      Y
+0991 3510             (        main90.as):01137                             puls      X
+0993 B60000           (        main90.as):01138         OUTST2              lda       PATH2
+0996 103F00           (        main90.as):01139                             os9       I$Write
+0999 10250063         (        main90.as):01140                             lbcs      ERR1
+099D 39               (        main90.as):01141                             rts
+                      (        main90.as):01142         
+                      (        main90.as):01143         *     This routine is used to sleep for
+                      (        main90.as):01144         *     a while. On entry the X reg. holds
+                      (        main90.as):01145         *     the number of ticks to sleep
+                      (        main90.as):01146         
+099E 103F00           (        main90.as):01147         WAIT                os9       F$Sleep
+09A1 1025005B         (        main90.as):01148                             lbcs      ERR1
+09A5 39               (        main90.as):01149                             rts
+                      (        main90.as):01150         
+09A6 3430             (        main90.as):01151         PUTBLK              pshs      X,Y
+09A8 30C90000         (        main90.as):01152                             leax      PUTCODE,U           Point to putblk code rmb's
+09AC 108E0008         (        main90.as):01153                             ldy       #8                  Output 8 bytes
+09B0 B60000           (        main90.as):01154                             lda       PATH                Set output path
+09B3 103F00           (        main90.as):01155                             os9       I$Write             Output putblk code bytes
+09B6 10250046         (        main90.as):01156                             lbcs      ERR1                Branch if any errors
+09BA 3530             (        main90.as):01157                             puls      X,Y
+09BC 39               (        main90.as):01158                             rts                           Return to calling routine
+                      (        main90.as):01159         
+09BD 30C90000         (        main90.as):01160         PUTGHT              leax      PUTGHS,U            Point to putghs code rmb's
+09C1 108E0008         (        main90.as):01161                             ldy       #8                  Output 8 bytes
+09C5 B60000           (        main90.as):01162                             lda       PATH                Set output path
+09C8 103F00           (        main90.as):01163                             os9       I$Write             Output putghs code bytes
+09CB 10250031         (        main90.as):01164                             lbcs      ERR1                Branch if any errors
+09CF 39               (        main90.as):01165                             rts                           Return to calling routine
+                      (        main90.as):01166         
+                      (        main90.as):01167         *   Sound routines
+                      (        main90.as):01168         *    On entry X & Y regs. are already
+                      (        main90.as):01169         *    loaded with sound data
+                      (        main90.as):01170         
+09D0 B60000           (        main90.as):01171         SND                 lda       PATH
+09D3 C698             (        main90.as):01172                             ldb       #$98
+09D5 103F00           (        main90.as):01173                             os9       I$SetStt
+09D8 39               (        main90.as):01174                             rts
+                      (        main90.as):01175         
+                      (        main90.as):01176         *   Random number routine
+                      (        main90.as):01177         *    Will return random number in A reg.
+                      (        main90.as):01178         
+09D9 BF0000           (        main90.as):01179         RANDNM              stx       SAVEX               Save X reg.
+09DC 30C90000         (        main90.as):01180                             leax      RANNUM,U            Point to random number
+09E0 A684             (        main90.as):01181                             lda       ,X
+09E2 49               (        main90.as):01182                             rola
+09E3 A884             (        main90.as):01183                             eora      ,X
+09E5 46               (        main90.as):01184                             rora
+09E6 6C01             (        main90.as):01185                             inc       1,X
+09E8 AB01             (        main90.as):01186                             adda      1,X
+09EA 2802             (        main90.as):01187                             bvc       RDSKIP
+09EC 6C01             (        main90.as):01188                             inc       1,X
+09EE A784             (        main90.as):01189         RDSKIP              sta       ,X
+09F0 BE0000           (        main90.as):01190                             ldx       SAVEX               Restore X reg.
+09F3 39               (        main90.as):01191                             rts                           Return, A reg. holds number
+                      (        main90.as):01192         
+                      (        main90.as):01193         *   Ring the bell
+09F4 308DF61F         (        main90.as):01194         BELL                leax      BELCOD,pcr
+09F8 108E0001         (        main90.as):01195                             ldy       #1
+09FC 17FF94           (        main90.as):01196                             lbsr      OUTST2
+09FF 39               (        main90.as):01197                             rts
+                      (        main90.as):01198         
+0A00 16FF32           (        main90.as):01199         ERR1                lbra      EXIT                Do select and dwend
+0A03 16FF47           (        main90.as):01200         ERR2                lbra      QUIT                Dont do select or dwend
+                      (        main90.as):01201         
+                      (        main90.as):01202         
+                      (        main90.as):01203         
+                      (        main90.as):01204                             endsect
+                      (        main90.as):01205         
+                      (        main90.as):01206         
+                      (        main90.as):01207         
+
+Symbol Table:
+[ sG] __start                          032E (code)
+[ sG] ADDEND                           00C1 (bss)
+[ sG] ARRAY                            06EE (bss)
+[ sG] ARREND                           157C (bss)
+[ cG] ATTR                             0080
+[ sG] BELCOD                           0017 (code)
+[ sG] BELL                             09F4 (code)
+[ sG] BOLDSW                           0014 (code)
+[ sG] BONBUF                           0020 (bss)
+[ sG] BONCNT                           0025 (bss)
+[ sG] BONFLG                           001E (bss)
+[ sG] BONTAB                           0026 (bss)
+[ sG] BONTIM                           001F (bss)
+[ sG] BONTMP                           0030 (bss)
+[ sG] BONUSX                           0021 (bss)
+[ sG] BONUSY                           0023 (bss)
+[ sG] BOTEND                           007F (code)
+[ sG] BOTWIN                           0050 (code)
+[ sG] BRDNUM                           00B6 (bss)
+[ sG] BRDTMP                           00BC (bss)
+[ sG] BRKEND                           0283 (code)
+[ sG] BRKKEY                           0260 (code)
+[ sG] BTEMP                            0032 (bss)
+[ sG] BUFF                             0019 (bss)
+[ sG] BUTTON                           0009 (bss)
+[ sG] C2LOOP                           08FB (code)
+[ sG] CHKBT1                           07F9 (code)
+[ sG] CHKBT2                           081A (code)
+[ sG] CHKBUT                           07F0 (code)
+[ sG] CKFLAG                           08B0 (code)
+[ sG] CKLOW                            08AB (code)
+[ sG] CLEAR                            0010 (code)
+[ sG] CLREND                           0011 (code)
+[ sG] CLSCRN                           0488 (code)
+[ sG] CMLOOP                           08E4 (code)
+[ sG] COMEND                           0902 (code)
+[ sG] COMHGH                           08DA (code)
+[ sG] CUROFF                           0012 (code)
+[ sG] CURXY                            01A1 (code)
+[ sG] CURXY1                           01A4 (code)
+[ sG] CURXY2                           01A7 (code)
+[ sG] CURXY3                           01AA (code)
+[ sG] CURXY4                           01AD (code)
+[ sG] CURXY5                           01B0 (code)
+[ sG] CYCLE                            001A (bss)
+[ sG] DIROFF                           0054 (bss)
+[ sG] DOREST                           07CE (code)
+[ sG] DOTCNT                           00BE (bss)
+[ sG] DOTCODE                          00DD (bss)
+[ sG] DOTTMP                           00B8 (bss)
+[ sG] DOTTOT                           00B2 (bss)
+[ sG] DRWBRD                           067B (code)
+[ sG] DRWSQR                           05BA (code)
+[ sG] DWEND                            000C (code)
+[ sG] DWSET                            0002 (code)
+[ cG] EDITION                          0002
+[ sG] ERR1                             0A00 (code)
+[ sG] ERR2                             0A03 (code)
+[ sG] EXIT                             0935 (code)
+[ sG] EXTPAC                           0112 (bss)
+[ sG] EXTPC2                           0113 (bss)
+[ sG] FILSTR                           040E (code)
+[ sG] G1BUFF                           0050 (bss)
+[ sG] G1DIR                            0053 (bss)
+[ sG] G1OFST                           0045 (bss)
+[ sG] G1STAT                           004F (bss)
+[ sG] G1TIME                           0051 (bss)
+[ sG] G1UPDT                           0055 (bss)
+[ sG] G1XNEW                           0047 (bss)
+[ sG] G1XOLD                           004B (bss)
+[ sG] G1YNEW                           0049 (bss)
+[ sG] G1YOLD                           004D (bss)
+[ sG] G2OFST                           0059 (bss)
+[ sG] G3OFST                           006D (bss)
+[ sG] G4OFST                           0081 (bss)
+[ sG] GAMOV2                           090A (code)
+[ sG] GAMOVR                           085F (code)
+[ sG] GCOUNT                           0095 (bss)
+[ sG] GETID                            03EC (code)
+[ sG] GETRD1                           01F4 (code)
+[ sG] GETRD2                           0211 (code)
+[ sG] GETRDY                           01E8 (code)
+[ sG] GHTABL                           0134 (bss)
+[ sG] GHTHIT                           001C (bss)
+[ sG] GMOVER                           022E (code)
+[ sG] GOTBUT                           05CD (code)
+[ sG] GRDY                             066D (code)
+[ sG] GTRDY                            07C0 (code)
+[ sG] HEADER                           067E (code)
+[ sG] HEADR2                           06A6 (code)
+[ sG] HISPOS                           0100 (bss)
+[ sG] HITFLG                           001B (bss)
+[ sG] HSCASC                           0103 (bss)
+[ sG] HSLOOP                           0453 (code)
+[ sG] HSTRG2                           02B4 (code)
+[ sG] HSTRING                          02B1 (code)
+[ sG] JOYSTX                           000A (bss)
+[ sG] JOYSTY                           000C (bss)
+[ sG] JYLOOP                           04A5 (code)
+[ sG] KEYTRAP                          03FD (code)
+[ sG] KILBF2                           010D (bss)
+[ sG] KILBUF                           0109 (bss)
+[ sG] LFTSTR                           0122 (code)
+[ sG] MAIN                             06D5 (code)
+[ sG] MAIN1                            06D8 (code)
+[ sG] MOUSE                            0114 (bss)
+[ sG] MOVFLG                           0111 (bss)
+[ sG] NOBRK                            072A (code)
+[ sG] NOEX                             08C4 (code)
+[ScG] NOS9MAJ                          0003
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0003
+[ sG] NUMLOP                           055F (code)
+[ sG] OTDONE                           0980 (code)
+[ sG] OUTST2                           0993 (code)
+[ sG] OUTSTR                           0976 (code)
+[ sG] PAC                              032E (code)
+[ sG] PACMAN                           0012 (bss)
+[ sG] PACMN1                           000F (bss)
+[ sG] PACMN2                           0010 (bss)
+[ sG] PALBT1                           00F8 (bss)
+[ sG] PALBT2                           00FC (bss)
+[ sG] PATH                             0001 (bss)
+[ sG] PATH2                            0002 (bss)
+[ sG] PAUBUT                           082C (code)
+[ sG] PAUEND                           01E6 (code)
+[ sG] PAUSE                            01D1 (code)
+[ sG] PBFN                             00D0 (bss)
+[ sG] PCBFN                            00C8 (bss)
+[ sG] PCGBN                            00C7 (bss)
+[ sG] PCXLOC                           00C9 (bss)
+[ sG] PCYLOC                           00CB (bss)
+[ sG] PDBFN                            00E0 (bss)
+[ sG] PDGBN                            00DF (bss)
+[ sG] PDXLOC                           00E1 (bss)
+[ sG] PDYLOC                           00E3 (bss)
+[ sG] PGBFN                            00D8 (bss)
+[ sG] PGBN                             00CF (bss)
+[ sG] PGGBN                            00D7 (bss)
+[ sG] PGXLOC                           00D9 (bss)
+[ sG] PGYLOC                           00DB (bss)
+[ sG] PL1                              01B3 (code)
+[ sG] PL2                              01C2 (code)
+[ sG] PLAYRS                           000E (bss)
+[ sG] PLCRNT                           0011 (bss)
+[ sG] PLLST1                           0018 (code)
+[ sG] PLLST2                           0022 (code)
+[ sG] PLNUM2                           07B7 (code)
+[ sG] PLOUT                            07BB (code)
+[ sG] PLYAGN                           0245 (code)
+[ sG] PLYSTR                           0150 (code)
+[ sG] POFSET                           0017 (bss)
+[ sG] POINTS                           00A2 (bss)
+[ sG] POPEND                           0041 (code)
+[ sG] POPUP                            0981 (code)
+[ sG] POPWIN                           0030 (code)
+[ sG] PORT                             0007 (bss)
+[ sG] POWFLG                           001D (bss)
+[ sG] PROCID                           0004 (bss)
+[ sG] PTDSPL                           04E8 (code)
+[ sG] PTHLST                           0000 (code)
+[ sG] PUTBLK                           09A6 (code)
+[ sG] PUTCODE                          00CD (bss)
+[ sG] PUTGHS                           00D5 (bss)
+[ sG] PUTGHT                           09BD (code)
+[ sG] PUTLFT                           05AC (code)
+[ sG] PUTNUM                           0581 (code)
+[ sG] PUTPACM                          00C5 (bss)
+[ sG] PUTPRT                           04D1 (code)
+[ sG] PUTSQR                           0518 (code)
+[ sG] PXLOC                            00D1 (bss)
+[ sG] PXNEW                            0013 (bss)
+[ sG] PYLOC                            00D3 (bss)
+[ sG] PYNEW                            0015 (bss)
+[ sG] QUIT                             094D (code)
+[ sG] RANDNM                           09D9 (code)
+[ sG] RANNUM                           00C0 (bss)
+[ sG] RDSKIP                           09EE (code)
+[ sG] READ                             0950 (code)
+[ sG] READ2                            0963 (code)
+[ sG] RESPON                           0005 (bss)
+[ sG] RESTART                          0466 (code)
+[ cG] REV                              0001
+[ sG] RGTSTR                           0132 (code)
+[ sG] RSFLAG                           00C4 (bss)
+[ sG] SAVEX                            00C2 (bss)
+[ sG] SCBEND                           02AF (code)
+[ sG] SCFTMP                           00BD (bss)
+[ sG] SCNBON                           0285 (code)
+[ sG] SCNFLG                           00B7 (bss)
+[ sG] SCNNUM                           064C (bss)
+[ sG] SCNRST                           002A (code)
+[ sG] SCNTOT                           00B4 (bss)
+[ sG] SCOR1                            02BD (code)
+[ sG] SCOR2                            02D3 (code)
+[ sG] SCR1                             030A (code)
+[ sG] SCR2                             031C (code)
+[ sG] SCRAS2                           00A9 (bss)
+[ sG] SCRASC                           0099 (bss)
+[ sG] SCRBC2                           00AF (bss)
+[ sG] SCRBCD                           009F (bss)
+[ sG] SCRBOX                           00B9 (code)
+[ sG] SCRPO2                           00A6 (bss)
+[ sG] SCRPOS                           0096 (bss)
+[ sG] SCTOT2                           00BA (bss)
+[ sG] SEEDER                           03F2 (code)
+[ sG] SELECT                           000E (code)
+[ sG] SELJOY                           00F6 (code)
+[ sG] SELSCN                           06B9 (code)
+[ sG] SETBF2                           047F (code)
+[ sG] SETBUF                           0467 (code)
+[ sG] SETVR1                           05E4 (code)
+[ sG] SHCNT                            00A5 (bss)
+[ sG] SIGCODE                          0000 (bss)
+[ sG] SKPCL2                           046F (code)
+[ sG] SLCTED                           0142 (code)
+[ sG] SND                              09D0 (code)
+[ sG] SNDPR1                           0041 (bss)
+[ sG] SNDPR2                           0043 (bss)
+[ cG] STACK                            01F4
+[ sG] STRING                           00E8 (bss)
+[ sG] STRLGH                           00E7 (bss)
+[ sG] STRSCN                           00E0 (code)
+[ sG] TABLE1                           0184 (bss)
+[ sG] TABLE2                           03E8 (bss)
+[ sG] TIMVAL                           0052 (bss)
+[ sG] TITLE                            008E (code)
+[ sG] TRAP                             0409 (code)
+[ cG] TYPE                             0011
+[ cG] UPDAT                            0003
+[ sG] UPDATE                           0056 (bss)
+[ sG] WAIT                             099E (code)
+[ sG] WAIT4                            085B (code)
+[ sG] WINDOW                           0003 (bss)
+[ sG] XSAVE                            00E5 (bss)
+[ sG] YESBRK                           0713 (code)

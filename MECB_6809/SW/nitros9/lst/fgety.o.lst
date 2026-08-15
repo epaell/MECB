@@ -1,0 +1,26 @@
+                      (         fgety.as):00001         ;;; FGETY
+                      (         fgety.as):00002         ;;;
+                      (         fgety.as):00003         ;;; Read a single word.
+                      (         fgety.as):00004         ;;;
+                      (         fgety.as):00005         ;;; Entry:  A = The path to read the string from.
+                      (         fgety.as):00006         ;;;
+                      (         fgety.as):00007         ;;; Exit:   Y = The read value.
+                      (         fgety.as):00008         ;;;
+                      (         fgety.as):00009         ;;; Error:  B = A non-zero error code.
+                      (         fgety.as):00010         ;;;        CC = Carry flag set to indicate error.
+                      (         fgety.as):00011         
+                      (         fgety.as):00012                             section   .text
+                      (         fgety.as):00013         
+0000 3430             (         fgety.as):00014         FGETY:              pshs      x,y
+0002 108E0002         (         fgety.as):00015                             ldy       #2                  number of char to read
+0006 3062             (         fgety.as):00016                             leax      2,s                 point x at 2 char buffer
+0008 103F00           (         fgety.as):00017                             os9       I$Read
+000B 35B0             (         fgety.as):00018                             puls      x,y,pc
+                      (         fgety.as):00019         
+                      (         fgety.as):00020                             endsect
+
+Symbol Table:
+[ sG] FGETY                            0000 (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000

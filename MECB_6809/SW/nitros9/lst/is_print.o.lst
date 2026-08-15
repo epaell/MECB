@@ -1,0 +1,28 @@
+                      (      is_print.as):00001         ;;; IS_PRINT
+                      (      is_print.as):00002         ;;;
+                      (      is_print.as):00003         ;;; Test if a character is a printable character from $20-$7E.
+                      (      is_print.as):00004         ;;;
+                      (      is_print.as):00005         ;;; Entry:  B = The character to test.
+                      (      is_print.as):00006         ;;;
+                      (      is_print.as):00007         ;;; Exit:  CC = Zero is 1 if the character is printable; otherwise, 0.
+                      (      is_print.as):00008         ;;;
+                      (      is_print.as):00009         
+                      (      is_print.as):00010                             section   .text
+                      (      is_print.as):00011         
+0000 170000           (      is_print.as):00012         IS_PRINT:           lbsr      IS_CNTRL
+0003 2703             (      is_print.as):00013                             beq       no
+0005 1A04             (      is_print.as):00014                             orcc      #%00000100          set zero
+0007 39               (      is_print.as):00015                             rts
+                      (      is_print.as):00016         
+0008 1CFB             (      is_print.as):00017         no                  andcc     #%11111011          clear zero
+000A 39               (      is_print.as):00018                             rts
+                      (      is_print.as):00019         
+                      (      is_print.as):00020                             endsect
+                      (      is_print.as):00021         
+
+Symbol Table:
+[ sG] IS_PRINT                         0000 (.text)
+[ sG] no                               0008 (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000

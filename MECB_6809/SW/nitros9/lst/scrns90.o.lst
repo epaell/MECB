@@ -1,0 +1,540 @@
+                      (       scrns90.as):00001         
+                      (       scrns90.as):00002         
+                      (       scrns90.as):00003                             nam       SCRNS
+                      (       scrns90.as):00004                             ttl       Screen handling routines
+                      (       scrns90.as):00005         
+                      (       scrns90.as):00006         *     Program segment to be compiled using Level II RMA
+                      (       scrns90.as):00007         *           This is not a mainline program segment
+                      (       scrns90.as):00008         *                 Written by Larry Olson
+                      (       scrns90.as):00009         
+                      (       scrns90.as):00010                             ifp1
+                      (       scrns90.as):00011         *         use    /dd/defs/os9defs.a
+                      (       scrns90.as):00012                             endc
+                      (       scrns90.as):00013         
+     0064             (       scrns90.as):00014         STACK               equ       100
+                      (       scrns90.as):00015         
+                      (       scrns90.as):00016                             section   bss
+                      (       scrns90.as):00017         
+                      (       scrns90.as):00018         *    Local variables
+                      (       scrns90.as):00019         
+0000                  (       scrns90.as):00020                             rmb       STACK
+                      (       scrns90.as):00021         
+                      (       scrns90.as):00022                             endsect
+                      (       scrns90.as):00023         
+                      (       scrns90.as):00024                             section   code
+                      (       scrns90.as):00025         
+0000 0220210B         (       scrns90.as):00026         ERSCRN              fcb       2,32,33,$0B
+                      (       scrns90.as):00027         
+0004 1B320A           (       scrns90.as):00028         SETCOL              fcb       $1b,$32,10
+                      (       scrns90.as):00029         
+0007 B60000           (       scrns90.as):00030         DELPAC              lda       PLAYRS              Check for 1 or 2 players
+000A 260E             (       scrns90.as):00031                             bne       CHKTWO
+000C B60000           (       scrns90.as):00032                             lda       PACMAN              Get # of pacmen
+000F 4A               (       scrns90.as):00033                             deca                          Subtract 1
+0010 B70000           (       scrns90.as):00034                             sta       PACMAN              Save new player count
+0013 10270000         (       scrns90.as):00035                             lbeq      GAMOVR              If 0 then END GAME
+0017 16008D           (       scrns90.as):00036                             lbra      NEWSC1
+                      (       scrns90.as):00037         
+                      (       scrns90.as):00038         *    2 players, so check who's up
+                      (       scrns90.as):00039         
+001A B60000           (       scrns90.as):00040         CHKTWO              lda       PLCRNT              Get current player
+001D 8101             (       scrns90.as):00041                             cmpa      #1                  Is it player #1 ?
+001F 261D             (       scrns90.as):00042                             bne       PLAY2
+                      (       scrns90.as):00043         *    Player 1 was up so kill one of his pacmen
+0021 B60000           (       scrns90.as):00044                             lda       PACMN1              Get number of pacmen
+0024 4A               (       scrns90.as):00045                             deca                          Subtract 1
+0025 B70000           (       scrns90.as):00046                             sta       PACMN1              Save new total
+0028 2603             (       scrns90.as):00047                             bne       TFRTWO
+002A 170000           (       scrns90.as):00048                             lbsr      GAMOV2              Game over for player 1
+                      (       scrns90.as):00049         
+                      (       scrns90.as):00050         *    Transfer player2 variables
+002D B60000           (       scrns90.as):00051         TFRTWO              lda       PACMN2              Get player 2 pacmen total
+0030 B70000           (       scrns90.as):00052                             sta       PACMAN              Put it in current pacman
+0033 8602             (       scrns90.as):00053                             lda       #2
+0035 B70000           (       scrns90.as):00054                             sta       PLCRNT              Set current player to 2
+0038 308D0000         (       scrns90.as):00055                             leax      SCR2,pcr            Point arrow at player 2
+003C 201A             (       scrns90.as):00056                             bra       TFRSCR              Go transfer score & run NEWSCREEN
+                      (       scrns90.as):00057         
+003E B60000           (       scrns90.as):00058         PLAY2               lda       PACMN2              Get player 2 pacmen
+0041 4A               (       scrns90.as):00059                             deca                          Subtract 1
+0042 B70000           (       scrns90.as):00060                             sta       PACMN2              Save new pacmen count
+0045 10270000         (       scrns90.as):00061                             lbeq      GAMOVR              Game over
+0049 B60000           (       scrns90.as):00062                             lda       PACMN1              Get player 1 pacmen
+004C B70000           (       scrns90.as):00063                             sta       PACMAN              Put it in current pacman
+004F 8601             (       scrns90.as):00064                             lda       #1
+0051 B70000           (       scrns90.as):00065                             sta       PLCRNT              Set current player to 1
+0054 308D0000         (       scrns90.as):00066                             leax      SCR1,pcr            Point arrow at player 1
+                      (       scrns90.as):00067         
+                      (       scrns90.as):00068         *    Transfer score variables
+                      (       scrns90.as):00069         
+0058 108E0012         (       scrns90.as):00070         TFRSCR              ldy       #18                 Output 18 characters to screen
+005C 170000           (       scrns90.as):00071                             lbsr      OUTSTR              Go output arrow
+005F 30C90000         (       scrns90.as):00072                             leax      SCRPOS,U            Point to score string
+0063 31C90000         (       scrns90.as):00073                             leay      SCRPO2,U            Point to score save area
+0067 C60C             (       scrns90.as):00074                             ldb       #12                 Set count to 12 bytes
+0069 F70000           (       scrns90.as):00075                             stb       DOTCNT              Save counter
+006C A684             (       scrns90.as):00076         SRLOOP              lda       ,X
+006E E6A4             (       scrns90.as):00077                             ldb       ,Y
+0070 A7A0             (       scrns90.as):00078                             sta       ,Y+
+0072 E780             (       scrns90.as):00079                             stb       ,X+
+0074 7A0000           (       scrns90.as):00080                             dec       DOTCNT
+0077 26F3             (       scrns90.as):00081                             bne       SRLOOP              Loop till 12 bytes done
+                      (       scrns90.as):00082         
+0079 ECC90000         (       scrns90.as):00083                             ldd       EXTPAC,U
+007D 3406             (       scrns90.as):00084                             pshs      d
+007F ECC90000         (       scrns90.as):00085                             ldd       EXTPC2,U
+0083 EDC90000         (       scrns90.as):00086                             std       EXTPAC,U
+0087 3506             (       scrns90.as):00087                             puls      D
+0089 EDC90000         (       scrns90.as):00088                             std       EXTPC2,U
+                      (       scrns90.as):00089         
+                      (       scrns90.as):00090         *    Transfer board variables
+                      (       scrns90.as):00091         
+008D 30C90000         (       scrns90.as):00092                             leax      DOTTOT,U
+0091 31C90000         (       scrns90.as):00093                             leay      DOTTMP,U
+0095 C606             (       scrns90.as):00094                             ldb       #6                  Transfer 6 bytes
+0097 F70000           (       scrns90.as):00095                             stb       DOTCNT              Save counter
+009A A684             (       scrns90.as):00096         SBLOOP              lda       ,X
+009C E6A4             (       scrns90.as):00097                             ldb       ,Y
+009E A7A0             (       scrns90.as):00098                             sta       ,Y+
+00A0 E780             (       scrns90.as):00099                             stb       ,X+
+00A2 7A0000           (       scrns90.as):00100                             dec       DOTCNT
+00A5 26F3             (       scrns90.as):00101                             bne       SBLOOP
+                      (       scrns90.as):00102         
+                      (       scrns90.as):00103         ******************************
+00A7 308D0000         (       scrns90.as):00104         NEWSC1              leax      SELECT,pcr          *---- Remark out for testing
+00AB 108E0002         (       scrns90.as):00105                             ldy       #2                  *
+00AF 170000           (       scrns90.as):00106                             lbsr      OUTST2              *
+                      (       scrns90.as):00107         ******************************
+                      (       scrns90.as):00108         
+00B2 8E004B           (       scrns90.as):00109                             ldx       #75
+00B5 170000           (       scrns90.as):00110                             lbsr      WAIT
+00B8 B60000           (       scrns90.as):00111                             lda       PLAYRS              Check for 1 or 2 players
+00BB 2724             (       scrns90.as):00112                             beq       ONEPLR
+00BD 170000           (       scrns90.as):00113                             lbsr      BELL
+00C0 308D0000         (       scrns90.as):00114                             leax      GETRD1,pcr
+00C4 B60000           (       scrns90.as):00115                             lda       PLCRNT              Get current player
+00C7 8101             (       scrns90.as):00116                             cmpa      #1
+00C9 2704             (       scrns90.as):00117                             beq       PUTPLR
+00CB 308D0000         (       scrns90.as):00118                             leax      GETRD2,pcr
+00CF 108E001D         (       scrns90.as):00119         PUTPLR              ldy       #29                 Output 29 bytes
+00D3 170000           (       scrns90.as):00120                             lbsr      POPUP
+00D6 2014             (       scrns90.as):00121                             bra       NEWSC2
+                      (       scrns90.as):00122         
+00D8 8E004B           (       scrns90.as):00123                             ldx       #75
+00DB 170000           (       scrns90.as):00124                             lbsr      WAIT
+                      (       scrns90.as):00125         
+00DE 170000           (       scrns90.as):00126                             lbsr      BELL
+                      (       scrns90.as):00127         
+00E1 308D0000         (       scrns90.as):00128         ONEPLR              leax      GETRDY,pcr
+00E5 108E000C         (       scrns90.as):00129                             ldy       #12
+00E9 170000           (       scrns90.as):00130                             lbsr      POPUP               Do popup and output GETRDY
+                      (       scrns90.as):00131         
+00EC 8D2B             (       scrns90.as):00132         NEWSC2              bsr       NEWSCN              Erase ghosts & pacman
+00EE B60000           (       scrns90.as):00133                             lda       PLAYRS              Check for 1 or 2 players
+00F1 2703             (       scrns90.as):00134                             beq       SKIPTR
+                      (       scrns90.as):00135         
+00F3 17011B           (       scrns90.as):00136                             lbsr      TRANSF              Transfer table to array
+                      (       scrns90.as):00137         
+00F6 12               (       scrns90.as):00138         SKIPTR              nop
+00F7 8E0032           (       scrns90.as):00139                             ldx       #50
+00FA 170000           (       scrns90.as):00140                             lbsr      WAIT
+                      (       scrns90.as):00141         
+00FD 170000           (       scrns90.as):00142                             lbsr      BELL
+                      (       scrns90.as):00143         
+0100 308D0000         (       scrns90.as):00144                             leax      SELECT,pcr
+0104 108E0002         (       scrns90.as):00145                             ldy       #2
+0108 170000           (       scrns90.as):00146                             lbsr      OUTSTR
+                      (       scrns90.as):00147         
+010B 308D0000         (       scrns90.as):00148                             leax      POPEND,pcr
+010F 108E000F         (       scrns90.as):00149                             ldy       #15
+0113 170000           (       scrns90.as):00150                             lbsr      OUTST2
+                      (       scrns90.as):00151         
+0116 160000           (       scrns90.as):00152                             lbra      MAIN
+                      (       scrns90.as):00153         
+                      (       scrns90.as):00154         *   New screen routines
+                      (       scrns90.as):00155         
+0119 FC0000           (       scrns90.as):00156         NEWSCN              ldd       PXNEW               First erase pacman
+011C FD0000           (       scrns90.as):00157                             std       PXLOC
+011F FC0000           (       scrns90.as):00158                             ldd       PYNEW
+0122 FD0000           (       scrns90.as):00159                             std       PYLOC
+0125 8625             (       scrns90.as):00160                             lda       #37                 Blank round pacman
+0127 B70000           (       scrns90.as):00161                             sta       PBFN
+012A 170000           (       scrns90.as):00162                             lbsr      PUTBLK
+                      (       scrns90.as):00163         *   Now erase ghosts
+012D 8601             (       scrns90.as):00164                             lda       #1
+012F B70000           (       scrns90.as):00165                             sta       PGBFN
+0132 8650             (       scrns90.as):00166                             lda       #80
+0134 B70000           (       scrns90.as):00167                             sta       GCOUNT
+0137 B60000           (       scrns90.as):00168         GHRSET              lda       GCOUNT
+013A 8014             (       scrns90.as):00169                             suba      #20
+013C 2B18             (       scrns90.as):00170                             bmi       GHRST2
+013E B70000           (       scrns90.as):00171                             sta       GCOUNT
+0141 30C90000         (       scrns90.as):00172                             leax      G1OFST,U
+0145 3086             (       scrns90.as):00173                             leax      A,X
+0147 EC02             (       scrns90.as):00174                             ldd       2,X
+0149 FD0000           (       scrns90.as):00175                             std       PGXLOC
+014C EC04             (       scrns90.as):00176                             ldd       4,X
+014E FD0000           (       scrns90.as):00177                             std       PGYLOC
+0151 170000           (       scrns90.as):00178                             lbsr      PUTGHT
+0154 20E1             (       scrns90.as):00179                             bra       GHRSET
+0156 170000           (       scrns90.as):00180         GHRST2              lbsr      GHDATA
+                      (       scrns90.as):00181         *    Reset palette registers
+0159 308D0000         (       scrns90.as):00182                             leax      PALST1,pcr
+015D 108E0010         (       scrns90.as):00183                             ldy       #16
+0161 170000           (       scrns90.as):00184                             lbsr      OUTSTR
+                      (       scrns90.as):00185         
+                      (       scrns90.as):00186         *    Clear and setup array
+                      (       scrns90.as):00187         *    Only clear array and dot total at start of game
+                      (       scrns90.as):00188         
+0164 FC0000           (       scrns90.as):00189                             ldd       DOTTOT              Check dot total
+0167 10B30000         (       scrns90.as):00190                             cmpd      SCNTOT              Cleared screen ?
+016B 2728             (       scrns90.as):00191                             beq       NEWBRD
+                      (       scrns90.as):00192         
+016D B60000           (       scrns90.as):00193                             lda       PLAYRS              Check for 2 player mode
+0170 275C             (       scrns90.as):00194                             beq       PTDOTS
+                      (       scrns90.as):00195         
+0172 B60000           (       scrns90.as):00196                             lda       BRDNUM
+0175 B10000           (       scrns90.as):00197                             cmpa      BRDTMP              Are players on same board?
+0178 275A             (       scrns90.as):00198                             beq       SETVR2
+                      (       scrns90.as):00199         
+017A 308DFE82         (       scrns90.as):00200                             leax      ERSCRN,pcr          Erase scrn, leave score
+017E 108E0004         (       scrns90.as):00201                             ldy       #4                  Output 4 bytes
+0182 170000           (       scrns90.as):00202                             lbsr      OUTSTR
+0185 170000           (       scrns90.as):00203                             lbsr      BOARDB              Go draw players board
+0188 308DFE78         (       scrns90.as):00204                             leax      SETCOL,pcr          Reset foreground color
+018C 108E0003         (       scrns90.as):00205                             ldy       #3                  Output 3 bytes
+0190 170000           (       scrns90.as):00206                             lbsr      OUTSTR
+0193 203F             (       scrns90.as):00207                             bra       SETVR2
+                      (       scrns90.as):00208         
+0195 7A0000           (       scrns90.as):00209         NEWBRD              dec       SCNFLG
+0198 262B             (       scrns90.as):00210                             bne       NEWBR2
+019A 8602             (       scrns90.as):00211                             lda       #2
+019C B70000           (       scrns90.as):00212                             sta       SCNFLG              Reset screen flag to 2
+019F B60000           (       scrns90.as):00213                             lda       BRDNUM              Get board number
+01A2 4C               (       scrns90.as):00214                             inca
+01A3 8109             (       scrns90.as):00215                             cmpa      #9                  Only 8 boards
+01A5 2602             (       scrns90.as):00216                             bne       GETBRD
+01A7 8601             (       scrns90.as):00217                             lda       #1                  Reset board to #1
+01A9 B70000           (       scrns90.as):00218         GETBRD              sta       BRDNUM              Save new board number
+01AC 308DFE50         (       scrns90.as):00219                             leax      ERSCRN,pcr          Erase scrn, leave score
+01B0 108E0004         (       scrns90.as):00220                             ldy       #4                  Output 4 bytes
+01B4 170000           (       scrns90.as):00221                             lbsr      OUTSTR
+01B7 170000           (       scrns90.as):00222                             lbsr      BOARDB              Go draw new board
+01BA 308DFE46         (       scrns90.as):00223                             leax      SETCOL,pcr          Reset forgroung color
+01BE 108E0003         (       scrns90.as):00224                             ldy       #3
+01C2 170000           (       scrns90.as):00225                             lbsr      OUTSTR
+01C5 170000           (       scrns90.as):00226         NEWBR2              lbsr      CLRARR              Clear array, fill with dots
+01C8 CC0000           (       scrns90.as):00227                             ldd       #0
+01CB FD0000           (       scrns90.as):00228                             std       DOTTOT              Reset dot total
+                      (       scrns90.as):00229         
+                      (       scrns90.as):00230         *    Redraw DOTS and PILLS that may have been
+                      (       scrns90.as):00231         *     partially erased by ghosts or pacman
+                      (       scrns90.as):00232         
+01CE 170000           (       scrns90.as):00233         PTDOTS              lbsr      PDOTS
+                      (       scrns90.as):00234         
+01D1 17013D           (       scrns90.as):00235         RSTBON              lbsr      RESBON              Go reset bonus
+                      (       scrns90.as):00236         
+                      (       scrns90.as):00237         *    Reset pacman variables
+01D4 CC0134           (       scrns90.as):00238         SETVR2              ldd       #308
+01D7 FD0000           (       scrns90.as):00239                             std       PXNEW
+01DA FD0000           (       scrns90.as):00240                             std       PCXLOC
+01DD EDC90000         (       scrns90.as):00241                             std       PXLOC,U
+01E1 CC005E           (       scrns90.as):00242                             ldd       #94
+01E4 FD0000           (       scrns90.as):00243                             std       PYNEW
+01E7 FD0000           (       scrns90.as):00244                             std       PCYLOC
+01EA EDC90000         (       scrns90.as):00245                             std       PYLOC,U
+01EE 861C             (       scrns90.as):00246                             lda       #28
+01F0 B70000           (       scrns90.as):00247                             sta       BUFF
+01F3 A7C90000         (       scrns90.as):00248                             sta       PBFN,U
+01F7 170000           (       scrns90.as):00249                             lbsr      PUTBLK              Put starting pacman
+01FA CC07AE           (       scrns90.as):00250                             ldd       #1966
+01FD FD0000           (       scrns90.as):00251                             std       POFSET
+0200 8603             (       scrns90.as):00252                             lda       #3
+0202 B70000           (       scrns90.as):00253                             sta       CYCLE
+0205 8650             (       scrns90.as):00254                             lda       #80
+0207 B70000           (       scrns90.as):00255                             sta       GCOUNT
+020A 7F0000           (       scrns90.as):00256                             clr       HITFLG
+020D 7F0000           (       scrns90.as):00257                             clr       POWFLG
+                      (       scrns90.as):00258         
+0210 39               (       scrns90.as):00259         RETURN              rts                           Return to  main loop
+                      (       scrns90.as):00260         
+                      (       scrns90.as):00261         *   Transfer player table to array & array to table
+                      (       scrns90.as):00262         *   Used to save one players screen when switching
+                      (       scrns90.as):00263         *   to second player.
+                      (       scrns90.as):00264         
+                      (       scrns90.as):00265         
+0211 31C90000         (       scrns90.as):00266         TRANSF              leay      TABLE1,U            Point to player 1 table
+0215 A6C90000         (       scrns90.as):00267                             lda       PLCRNT,U
+0219 8102             (       scrns90.as):00268                             cmpa      #2                  Is new player #2 ?
+021B 2704             (       scrns90.as):00269                             beq       TRFPUT
+021D 31C90000         (       scrns90.as):00270                             leay      TABLE2,U            Point to player 2 table
+0221 30C90000         (       scrns90.as):00271         TRFPUT              leax      ARRAY,U             Point to start of array
+0225 308846           (       scrns90.as):00272                             leax      70,X                Move to first dot location
+0228 7F0000           (       scrns90.as):00273                             clr       DOTCNT
+022B 7C0000           (       scrns90.as):00274         TRLOOP              inc       DOTCNT              Bump dot counter
+022E A684             (       scrns90.as):00275                             lda       ,X                  Get a byte from array
+0230 E6A4             (       scrns90.as):00276                             ldb       ,Y                  Get a byte from table
+0232 A7A0             (       scrns90.as):00277                             sta       ,Y+                 Put array byte in table
+0234 E781             (       scrns90.as):00278                             stb       ,X++                Put byte in array,bump pointer
+0236 B60000           (       scrns90.as):00279                             lda       DOTCNT              Get dot counter
+0239 8122             (       scrns90.as):00280                             cmpa      #34                 Done 34 yet?
+023B 26EE             (       scrns90.as):00281                             bne       TRLOOP
+023D 8C0000           (       scrns90.as):00282                             cmpx      #ARREND-69          Are we done?
+0240 2C09             (       scrns90.as):00283                             bge       TRCLR
+0242 3089008B         (       scrns90.as):00284                             leax      139,X               Move down 2 lines in array
+0246 7F0000           (       scrns90.as):00285                             clr       DOTCNT
+0249 20E0             (       scrns90.as):00286                             bra       TRLOOP
+                      (       scrns90.as):00287         
+024B 170000           (       scrns90.as):00288         TRCLR               lbsr      CLRARR              Go clear and setup array
+                      (       scrns90.as):00289         
+024E 31C90000         (       scrns90.as):00290                             leay      TABLE1,U            Point to player 1 table
+0252 A6C90000         (       scrns90.as):00291                             lda       PLCRNT,U
+0256 8101             (       scrns90.as):00292                             cmpa      #1                  Is new player #1 ?
+0258 2704             (       scrns90.as):00293                             beq       TFRPT2
+025A 31C90000         (       scrns90.as):00294                             leay      TABLE2,U            Point to player 2 table
+025E 30C90000         (       scrns90.as):00295         TFRPT2              leax      ARRAY,U             Point to start of array
+0262 308846           (       scrns90.as):00296                             leax      70,X
+0265 7F0000           (       scrns90.as):00297                             clr       DOTCNT
+0268 7C0000           (       scrns90.as):00298         TRLOP2              inc       DOTCNT
+026B A684             (       scrns90.as):00299                             lda       ,X
+026D E6A4             (       scrns90.as):00300                             ldb       ,Y
+026F A7A0             (       scrns90.as):00301                             sta       ,Y+
+0271 E781             (       scrns90.as):00302                             stb       ,X++
+0273 B60000           (       scrns90.as):00303                             lda       DOTCNT
+0276 8122             (       scrns90.as):00304                             cmpa      #34
+0278 26EE             (       scrns90.as):00305                             bne       TRLOP2
+027A 8C0000           (       scrns90.as):00306                             cmpx      #ARREND-69
+027D 2C09             (       scrns90.as):00307                             bge       TRDONE
+027F 3089008B         (       scrns90.as):00308                             leax      139,X
+0283 7F0000           (       scrns90.as):00309                             clr       DOTCNT
+0286 20E0             (       scrns90.as):00310                             bra       TRLOP2
+                      (       scrns90.as):00311         
+0288 170000           (       scrns90.as):00312         TRDONE              lbsr      PDOTS               Go put dots on screen
+                      (       scrns90.as):00313         
+                      (       scrns90.as):00314         *    Transfer players bonus variables (2 player mode only)
+                      (       scrns90.as):00315         *     Erase last players bonus items from screen
+                      (       scrns90.as):00316         
+028B 8645             (       scrns90.as):00317         TRFBON              lda       #69                 Blank Bonus
+028D A7C90000         (       scrns90.as):00318                             sta       PBFN,U
+0291 FC0000           (       scrns90.as):00319                             ldd       BONUSX              Get scrn x value
+0294 EDC90000         (       scrns90.as):00320                             std       PXLOC,U
+0298 FC0000           (       scrns90.as):00321                             ldd       BONUSY              Get scrn Y value
+029B EDC90000         (       scrns90.as):00322                             std       PYLOC,U
+029F B60000           (       scrns90.as):00323                             lda       BONCNT              Get count of items
+02A2 4C               (       scrns90.as):00324                             inca
+02A3 B70000           (       scrns90.as):00325                             sta       BONTMP
+02A6 7A0000           (       scrns90.as):00326         TBLOOP              dec       BONTMP
+02A9 2710             (       scrns90.as):00327                             beq       TRBON2              Leave routine if 0
+02AB 170000           (       scrns90.as):00328                             lbsr      PUTBLK              Go erase item
+02AE ECC90000         (       scrns90.as):00329                             ldd       PXLOC,U
+02B2 83001C           (       scrns90.as):00330                             subd      #28
+02B5 EDC90000         (       scrns90.as):00331                             std       PXLOC,U
+02B9 20EB             (       scrns90.as):00332                             bra       TBLOOP
+                      (       scrns90.as):00333         
+                      (       scrns90.as):00334         *    Now transfer bonus variables
+                      (       scrns90.as):00335         
+02BB 860F             (       scrns90.as):00336         TRBON2              lda       #15                 Transfer 15 bytes
+02BD B70000           (       scrns90.as):00337                             sta       BONTMP
+02C0 30C90000         (       scrns90.as):00338                             leax      BONUSX,U            Point to first block
+02C4 31C90000         (       scrns90.as):00339                             leay      BTEMP,U             Point to second block
+02C8 A684             (       scrns90.as):00340         TLOOP2              lda       ,X
+02CA E6A4             (       scrns90.as):00341                             ldb       ,Y
+02CC A7A0             (       scrns90.as):00342                             sta       ,Y+
+02CE E780             (       scrns90.as):00343                             stb       ,X+
+02D0 7A0000           (       scrns90.as):00344                             dec       BONTMP
+02D3 26F3             (       scrns90.as):00345                             bne       TLOOP2
+                      (       scrns90.as):00346         
+                      (       scrns90.as):00347         *    Now put new players bonus items on screen
+                      (       scrns90.as):00348         
+02D5 CC0008           (       scrns90.as):00349         PBONUS              ldd       #8
+02D8 EDC90000         (       scrns90.as):00350                             std       PXLOC,U
+02DC CC00B5           (       scrns90.as):00351                             ldd       #181
+02DF EDC90000         (       scrns90.as):00352                             std       PYLOC,U
+02E3 30C90000         (       scrns90.as):00353                             leax      BONTAB,U            Point to table
+02E7 BF0000           (       scrns90.as):00354                             stx       BONTMP              Save table pointer
+02EA B60000           (       scrns90.as):00355                             lda       BONCNT
+02ED 2721             (       scrns90.as):00356                             beq       PBDONE
+02EF 3402             (       scrns90.as):00357         PBLOOP              pshs      A                   Save count
+02F1 ECC90000         (       scrns90.as):00358                             ldd       PXLOC,U
+02F5 C3001C           (       scrns90.as):00359                             addd      #28
+02F8 EDC90000         (       scrns90.as):00360                             std       PXLOC,U
+02FC BE0000           (       scrns90.as):00361                             ldx       BONTMP              Get pointer
+02FF E680             (       scrns90.as):00362                             ldb       ,X+                 Get next table item
+0301 E7C90000         (       scrns90.as):00363                             stb       PBFN,U
+0305 BF0000           (       scrns90.as):00364                             stx       BONTMP              Save pointer
+0308 170000           (       scrns90.as):00365                             lbsr      PUTBLK              Go put item on screen
+030B 3502             (       scrns90.as):00366                             puls      A
+030D 4A               (       scrns90.as):00367                             deca                          Decrement counter
+030E 26DF             (       scrns90.as):00368                             bne       PBLOOP
+                      (       scrns90.as):00369         
+                      (       scrns90.as):00370         *  Pacman may have to be put back on screen here
+                      (       scrns90.as):00371         
+0310 39               (       scrns90.as):00372         PBDONE              rts
+                      (       scrns90.as):00373         
+                      (       scrns90.as):00374         *   Reset bonus variables
+                      (       scrns90.as):00375         
+0311 B60000           (       scrns90.as):00376         RESBON              lda       BONFLG              Check flag
+0314 2722             (       scrns90.as):00377                             beq       RESBN2              If 0, bonus not on screen
+0316 CC0136           (       scrns90.as):00378                             ldd       #310
+0319 FD0000           (       scrns90.as):00379                             std       PXLOC
+031C CC005F           (       scrns90.as):00380                             ldd       #95
+031F FD0000           (       scrns90.as):00381                             std       PYLOC
+0322 8645             (       scrns90.as):00382                             lda       #69
+0324 B70000           (       scrns90.as):00383                             sta       PBFN
+0327 170000           (       scrns90.as):00384                             lbsr      PUTBLK              Erase bonus from screen
+032A 30C90000         (       scrns90.as):00385                             leax      ARRAY,U
+032E CC07AE           (       scrns90.as):00386                             ldd       #1966
+0331 308B             (       scrns90.as):00387                             leax      D,X
+0333 6F84             (       scrns90.as):00388                             clr       ,X                  Erase bonus from array
+0335 7F0000           (       scrns90.as):00389                             clr       BONFLG
+0338 8645             (       scrns90.as):00390         RESBN2              lda       #69
+033A B70000           (       scrns90.as):00391                             sta       BONBUF              Reset bonus buffer #
+033D 86FA             (       scrns90.as):00392                             lda       #250
+033F B70000           (       scrns90.as):00393                             sta       BONTIM              Reset bonus timer
+0342 39               (       scrns90.as):00394                             rts
+                      (       scrns90.as):00395         
+                      (       scrns90.as):00396         *    Bonus was eaten by pacman, so erase it
+                      (       scrns90.as):00397         *    and put it at bottom of screen
+                      (       scrns90.as):00398         
+0343 CC0136           (       scrns90.as):00399         SETBON              ldd       #310                X scrn location of bonus
+0346 EDC90000         (       scrns90.as):00400                             std       PXLOC,U
+034A CC005F           (       scrns90.as):00401                             ldd       #95                 Y scrn location of bonus
+034D EDC90000         (       scrns90.as):00402                             std       PYLOC,U
+0351 8645             (       scrns90.as):00403                             lda       #69                 Number for blank bonus
+0353 A7C90000         (       scrns90.as):00404                             sta       PBFN,U
+0357 170000           (       scrns90.as):00405                             lbsr      PUTBLK              Go erase bonus
+                      (       scrns90.as):00406         *    Restore pacman (if erased)
+035A 30C90000         (       scrns90.as):00407                             leax      PUTPACM,U
+035E 108E0008         (       scrns90.as):00408                             ldy       #8
+0362 B60000           (       scrns90.as):00409                             lda       PATH
+0365 103F00           (       scrns90.as):00410                             os9       I$Write
+0368 10250000         (       scrns90.as):00411                             lbcs      ERR1
+                      (       scrns90.as):00412         *    Make noise
+                      (       scrns90.as):00413         
+036C 8E3F01           (       scrns90.as):00414                             ldx       #$3f01
+036F 108E0F0A         (       scrns90.as):00415                             ldy       #3850
+0373 170000           (       scrns90.as):00416                             lbsr      SND
+0376 8E3401           (       scrns90.as):00417                             ldx       #$3401
+0379 108E0FA0         (       scrns90.as):00418                             ldy       #4000
+037D 170000           (       scrns90.as):00419                             lbsr      SND
+                      (       scrns90.as):00420         
+0380 30C90000         (       scrns90.as):00421                             leax      BONTAB,U            Point to item table
+0384 B60000           (       scrns90.as):00422                             lda       BONCNT
+0387 3086             (       scrns90.as):00423                             leax      A,X                 Move to next table location
+0389 F60000           (       scrns90.as):00424                             ldb       BONBUF              Get buffer number
+038C E784             (       scrns90.as):00425                             stb       ,X                  Put it in table
+                      (       scrns90.as):00426         
+038E FC0000           (       scrns90.as):00427                             ldd       BONUSX
+0391 C3001C           (       scrns90.as):00428                             addd      #28                 Move to next location
+0394 FD0000           (       scrns90.as):00429                             std       BONUSX              Save new location
+0397 EDC90000         (       scrns90.as):00430                             std       PXLOC,U
+039B FC0000           (       scrns90.as):00431                             ldd       BONUSY
+039E EDC90000         (       scrns90.as):00432                             std       PYLOC,U
+03A2 B60000           (       scrns90.as):00433                             lda       BONBUF              Get Bonus buffer number
+03A5 A7C90000         (       scrns90.as):00434                             sta       PBFN,U
+03A9 170000           (       scrns90.as):00435                             lbsr      PUTBLK              Put bonus at bottom of scrn
+03AC 7C0000           (       scrns90.as):00436                             inc       BONCNT              Bump bonus counter
+03AF 39               (       scrns90.as):00437                             rts
+                      (       scrns90.as):00438         
+                      (       scrns90.as):00439         *    When screen has been cleared, give an additional
+                      (       scrns90.as):00440         *    100 points for each bonus at bottom of screen.
+                      (       scrns90.as):00441         *    Erase bonus item at bottom as it is added up.
+                      (       scrns90.as):00442         
+03B0 B60000           (       scrns90.as):00443         CNTBON              lda       BONCNT              Check for 0 bonus's
+03B3 275B             (       scrns90.as):00444                             beq       CTRTS               If zero, then return
+03B5 FC0000           (       scrns90.as):00445                             ldd       BONUSY
+03B8 EDC90000         (       scrns90.as):00446                             std       PYLOC,U
+03BC 8645             (       scrns90.as):00447                             lda       #69                 Blank Bonus
+03BE A7C90000         (       scrns90.as):00448                             sta       PBFN,U
+03C2 FC0000           (       scrns90.as):00449                             ldd       BONUSX
+03C5 EDC90000         (       scrns90.as):00450                             std       PXLOC,U
+03C9 170000           (       scrns90.as):00451         CTLOOP              lbsr      PUTBLK              Go erase bonus item
+                      (       scrns90.as):00452         
+                      (       scrns90.as):00453         *     Make noise
+                      (       scrns90.as):00454         
+03CC 8E3F02           (       scrns90.as):00455                             ldx       #$3f02
+03CF 108E0FA0         (       scrns90.as):00456                             ldy       #4000
+03D3 170000           (       scrns90.as):00457                             lbsr      SND
+03D6 8E3F03           (       scrns90.as):00458                             ldx       #$3f03
+03D9 108E0ED8         (       scrns90.as):00459                             ldy       #3800
+03DD 170000           (       scrns90.as):00460                             lbsr      SND
+03E0 8E3F02           (       scrns90.as):00461                             ldx       #$3f02
+03E3 108E0FA0         (       scrns90.as):00462                             ldy       #4000
+03E7 170000           (       scrns90.as):00463                             lbsr      SND
+                      (       scrns90.as):00464         
+                      (       scrns90.as):00465         *     Bump score
+                      (       scrns90.as):00466         
+03EA 8601             (       scrns90.as):00467                             lda       #1                  Add 100 points to score
+03EC B70000           (       scrns90.as):00468                             sta       POINTS+1
+03EF 7F0000           (       scrns90.as):00469                             clr       POINTS+2
+03F2 170000           (       scrns90.as):00470                             lbsr      ADDUP
+03F5 7A0000           (       scrns90.as):00471                             dec       BONCNT              Decrement bonus counter
+03F8 270D             (       scrns90.as):00472                             beq       CTDONE
+03FA ECC90000         (       scrns90.as):00473                             ldd       PXLOC,U
+03FE 83001C           (       scrns90.as):00474                             subd      #28                 Move to next item
+0401 EDC90000         (       scrns90.as):00475                             std       PXLOC,U
+0405 20C2             (       scrns90.as):00476                             bra       CTLOOP
+                      (       scrns90.as):00477         
+0407 7F0000           (       scrns90.as):00478         CTDONE              clr       POINTS+1
+040A CC0008           (       scrns90.as):00479                             ldd       #8
+040D FD0000           (       scrns90.as):00480                             std       BONUSX
+                      (       scrns90.as):00481         
+0410 39               (       scrns90.as):00482         CTRTS               rts
+                      (       scrns90.as):00483         
+                      (       scrns90.as):00484         
+                      (       scrns90.as):00485         
+                      (       scrns90.as):00486                             endsect
+                      (       scrns90.as):00487         
+                      (       scrns90.as):00488         
+                      (       scrns90.as):00489         
+
+Symbol Table:
+[ sG] CHKTWO                           001A (code)
+[ sG] CNTBON                           03B0 (code)
+[ sG] CTDONE                           0407 (code)
+[ sG] CTLOOP                           03C9 (code)
+[ sG] CTRTS                            0410 (code)
+[ sG] DELPAC                           0007 (code)
+[ sG] ERSCRN                           0000 (code)
+[ sG] GETBRD                           01A9 (code)
+[ sG] GHRSET                           0137 (code)
+[ sG] GHRST2                           0156 (code)
+[ sG] NEWBR2                           01C5 (code)
+[ sG] NEWBRD                           0195 (code)
+[ sG] NEWSC1                           00A7 (code)
+[ sG] NEWSC2                           00EC (code)
+[ sG] NEWSCN                           0119 (code)
+[ScG] NOS9MAJ                          0003
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0003
+[ sG] ONEPLR                           00E1 (code)
+[ sG] PBDONE                           0310 (code)
+[ sG] PBLOOP                           02EF (code)
+[ sG] PBONUS                           02D5 (code)
+[ sG] PLAY2                            003E (code)
+[ sG] PTDOTS                           01CE (code)
+[ sG] PUTPLR                           00CF (code)
+[ sG] RESBN2                           0338 (code)
+[ sG] RESBON                           0311 (code)
+[ sG] RETURN                           0210 (code)
+[ sG] RSTBON                           01D1 (code)
+[ sG] SBLOOP                           009A (code)
+[ sG] SETBON                           0343 (code)
+[ sG] SETCOL                           0004 (code)
+[ sG] SETVR2                           01D4 (code)
+[ sG] SKIPTR                           00F6 (code)
+[ sG] SRLOOP                           006C (code)
+[ cG] STACK                            0064
+[ sG] TBLOOP                           02A6 (code)
+[ sG] TFRPT2                           025E (code)
+[ sG] TFRSCR                           0058 (code)
+[ sG] TFRTWO                           002D (code)
+[ sG] TLOOP2                           02C8 (code)
+[ sG] TRANSF                           0211 (code)
+[ sG] TRBON2                           02BB (code)
+[ sG] TRCLR                            024B (code)
+[ sG] TRDONE                           0288 (code)
+[ sG] TRFBON                           028B (code)
+[ sG] TRFPUT                           0221 (code)
+[ sG] TRLOOP                           022B (code)
+[ sG] TRLOP2                           0268 (code)

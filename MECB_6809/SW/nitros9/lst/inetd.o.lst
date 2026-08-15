@@ -1,0 +1,638 @@
+                      (el1/cmds/inetd.as):00001         ********************************************************************
+                      (el1/cmds/inetd.as):00002         * inetd - internet daemon
+                      (el1/cmds/inetd.as):00003         *
+                      (el1/cmds/inetd.as):00004         * Edt/Rev  YYYY/MM/DD  Modified by
+                      (el1/cmds/inetd.as):00005         * Comment
+                      (el1/cmds/inetd.as):00006         * ------------------------------------------------------------------
+                      (el1/cmds/inetd.as):00007         *   1      2010/01/08  Boisy G. Pitre
+                      (el1/cmds/inetd.as):00008         * Started.
+                      (el1/cmds/inetd.as):00009         *
+                      (el1/cmds/inetd.as):00010         *   2      2010/01/22  Boisy G. Pitre
+                      (el1/cmds/inetd.as):00011         * Now reads inetd.conf file.
+                      (el1/cmds/inetd.as):00012         *
+                      (el1/cmds/inetd.as):00013         *   3      2011/08/07  Boisy G. Pitre
+                      (el1/cmds/inetd.as):00014         * Fixed bug where conf file wasn't being processed correctly.
+                      (el1/cmds/inetd.as):00015         
+                      (el1/cmds/inetd.as):00016                             nam       inetd
+                      (el1/cmds/inetd.as):00017                             ttl       internet daemon
+                      (el1/cmds/inetd.as):00018         
+                      (el1/cmds/inetd.as):00019                             section   __os9
+     ????             (el1/cmds/inetd.as):00020         type                equ       Prgrm
+     ????             (el1/cmds/inetd.as):00021         lang                equ       Objct
+     ????             (el1/cmds/inetd.as):00022         attr                equ       ReEnt
+     0000             (el1/cmds/inetd.as):00023         rev                 equ       $00
+     0003             (el1/cmds/inetd.as):00024         edition             equ       3
+     00C8             (el1/cmds/inetd.as):00025         stack               equ       200
+                      (el1/cmds/inetd.as):00026                             endsect
+                      (el1/cmds/inetd.as):00027         
+                      (el1/cmds/inetd.as):00028                             section   bss
+0000                  (el1/cmds/inetd.as):00029         targetport          rmb       2
+0002                  (el1/cmds/inetd.as):00030         netdatardy          rmb       1
+     0080             (el1/cmds/inetd.as):00031         nbufferl            equ       128
+0003                  (el1/cmds/inetd.as):00032         nbuffer             rmb       nbufferl
+     0080             (el1/cmds/inetd.as):00033         lbufferl            equ       128
+0083                  (el1/cmds/inetd.as):00034         lbuffer             rmb       lbufferl
+0103                  (el1/cmds/inetd.as):00035         nnext               rmb       2
+0105                  (el1/cmds/inetd.as):00036         token               rmb       2
+0107                  (el1/cmds/inetd.as):00037         orgstdin            rmb       1
+0108                  (el1/cmds/inetd.as):00038         orgstdout           rmb       1
+0109                  (el1/cmds/inetd.as):00039         orgstderr           rmb       1
+010A                  (el1/cmds/inetd.as):00040         childnetpath        rmb       1
+010B                  (el1/cmds/inetd.as):00041         netpath             rmb       1
+010C                  (el1/cmds/inetd.as):00042         targetprog          rmb       128
+018C                  (el1/cmds/inetd.as):00043         targetparams        rmb       128
+020C                  (el1/cmds/inetd.as):00044         tmodeparamlen       rmb       1
+020D                  (el1/cmds/inetd.as):00045         tmodeparams         rmb       128
+                      (el1/cmds/inetd.as):00046                             endsect
+                      (el1/cmds/inetd.as):00047         
+                      (el1/cmds/inetd.as):00048                             section   code
+                      (el1/cmds/inetd.as):00049         
+     0001             (el1/cmds/inetd.as):00050         DEBUG               equ       1
+                      (el1/cmds/inetd.as):00051         
+                      (el1/cmds/inetd.as):00052         
+     0002             (el1/cmds/inetd.as):00053         NetSig              equ       2
+                      (el1/cmds/inetd.as):00054         
+0000 746D6F64E5       (el1/cmds/inetd.as):00055         tmode               fcs       /tmode/
+                      (el1/cmds/inetd.as):00056         
+                      (el1/cmds/inetd.as):00057         * signal intercept routine
+0005 C102             (el1/cmds/inetd.as):00058         sigint              cmpb      #NetSig
+0007 2604             (el1/cmds/inetd.as):00059                             bne       sigex
+0009 6CC90000         (el1/cmds/inetd.as):00060                             inc       netdatardy,u
+000D 3B               (el1/cmds/inetd.as):00061         sigex               rti
+                      (el1/cmds/inetd.as):00062         
+                      (el1/cmds/inetd.as):00063         **** Entry Point ****
+000E                  (el1/cmds/inetd.as):00064         __start
+                      (el1/cmds/inetd.as):00065         * setup signal intercept
+000E 308CF4           (el1/cmds/inetd.as):00066                             leax      sigint,pcr
+0011 103F00           (el1/cmds/inetd.as):00067                             os9       F$Icpt
+                      (el1/cmds/inetd.as):00068         
+0014 6FC90000         (el1/cmds/inetd.as):00069                             clr       netdatardy,u
+                      (el1/cmds/inetd.as):00070         
+0018 30C90000         (el1/cmds/inetd.as):00071                             leax      nbuffer,u
+001C AFC90000         (el1/cmds/inetd.as):00072                             stx       nnext,u
+                      (el1/cmds/inetd.as):00073         
+                      (el1/cmds/inetd.as):00074         * Turn off pause in standard out
+0020 CC0000           (el1/cmds/inetd.as):00075                             ldd       #$01*256+SS.Opt
+0023 32E8E0           (el1/cmds/inetd.as):00076                             leas      -32,s
+0026 1F41             (el1/cmds/inetd.as):00077                             tfr       s,x
+0028 103F00           (el1/cmds/inetd.as):00078                             os9       I$GetStt
+002B 2507             (el1/cmds/inetd.as):00079                             bcs       opterr
+002D 6F890000         (el1/cmds/inetd.as):00080                             clr       PD.PAU-PD.OPT,x
+0031 103F00           (el1/cmds/inetd.as):00081                             os9       I$SetStt
+0034                  (el1/cmds/inetd.as):00082         opterr
+0034 32E820           (el1/cmds/inetd.as):00083                             leas      32,s
+                      (el1/cmds/inetd.as):00084         
+                      (el1/cmds/inetd.as):00085         * open the path to the control channel
+0037 170000           (el1/cmds/inetd.as):00086                             lbsr      TCPOpen
+003A 10250163         (el1/cmds/inetd.as):00087                             lbcs      errex
+003E A7C90000         (el1/cmds/inetd.as):00088                             sta       netpath,u
+0042 308D01D4         (el1/cmds/inetd.as):00089                             leax      SetupPorts,pcr
+0046 17015B           (el1/cmds/inetd.as):00090                             lbsr      ProcInetd
+0049 10250154         (el1/cmds/inetd.as):00091                             lbcs      errex
+                      (el1/cmds/inetd.as):00092         
+                      (el1/cmds/inetd.as):00093                             ifne      DEBUG
+004D 170000           (el1/cmds/inetd.as):00094                             lbsr      PRINTS
+0050 476F74206E657470 (el1/cmds/inetd.as):00095                             fcc       /Got netpath and setup ports/
+     61746820616E6420
+     736574757020706F
+     727473
+006B 00               (el1/cmds/inetd.as):00096                             fcb       C$CR
+006C 00               (el1/cmds/inetd.as):00097                             fcb       $00
+                      (el1/cmds/inetd.as):00098                             endc
+                      (el1/cmds/inetd.as):00099         
+006D                  (el1/cmds/inetd.as):00100         ssignetpath
+                      (el1/cmds/inetd.as):00101                             ifne      DEBUG
+006D 170000           (el1/cmds/inetd.as):00102                             lbsr      PRINTS
+0070 53532E5353696720 (el1/cmds/inetd.as):00103                             fcc       /SS.SSig on NetPath/
+     6F6E204E65745061
+     7468
+0082 00               (el1/cmds/inetd.as):00104                             fcb       C$CR
+0083 00               (el1/cmds/inetd.as):00105                             fcb       $00
+                      (el1/cmds/inetd.as):00106                             endc
+                      (el1/cmds/inetd.as):00107         
+0084 A6C90000         (el1/cmds/inetd.as):00108                             lda       netpath,u
+0088 C600             (el1/cmds/inetd.as):00109                             ldb       #SS.SSig            send signal on data ready
+008A 8E0002           (el1/cmds/inetd.as):00110                             ldx       #NetSig
+008D 103F00           (el1/cmds/inetd.as):00111                             os9       I$SetStt
+0090 1025010D         (el1/cmds/inetd.as):00112                             lbcs      errex
+                      (el1/cmds/inetd.as):00113         
+                      (el1/cmds/inetd.as):00114         **** MAIN LOOP ****
+0094                  (el1/cmds/inetd.as):00115         mainloop
+0094 3401             (el1/cmds/inetd.as):00116                             pshs      cc
+0096 1A00             (el1/cmds/inetd.as):00117                             orcc      #IntMasks
+0098 6DC90000         (el1/cmds/inetd.as):00118                             tst       netdatardy,u
+009C 2613             (el1/cmds/inetd.as):00119                             bne       gotdata
+                      (el1/cmds/inetd.as):00120         
+                      (el1/cmds/inetd.as):00121         * wait for a child to die (or wake up via signal)
+009E 103F00           (el1/cmds/inetd.as):00122                             os9       F$Wait
+00A1 240A             (el1/cmds/inetd.as):00123                             bcc       chkrdy
+00A3 C100             (el1/cmds/inetd.as):00124                             cmpb      #E$NoChld
+00A5 2606             (el1/cmds/inetd.as):00125                             bne       chkrdy              got error other than "no children"
+                      (el1/cmds/inetd.as):00126         * if no children, go to sleep
+00A7 8E0000           (el1/cmds/inetd.as):00127                             ldx       #$0000
+00AA 103F00           (el1/cmds/inetd.as):00128                             os9       F$Sleep
+                      (el1/cmds/inetd.as):00129         
+00AD 3501             (el1/cmds/inetd.as):00130         chkrdy              puls      cc
+00AF 20BC             (el1/cmds/inetd.as):00131                             bra       ssignetpath
+                      (el1/cmds/inetd.as):00132         
+00B1 3501             (el1/cmds/inetd.as):00133         gotdata             puls      cc
+00B3 6AC90000         (el1/cmds/inetd.as):00134                             dec       netdatardy,u
+                      (el1/cmds/inetd.as):00135         * read the data from netpath
+                      (el1/cmds/inetd.as):00136                             ifne      DEBUG
+00B7 170000           (el1/cmds/inetd.as):00137                             lbsr      PRINTS
+00BA 52656164696E6720 (el1/cmds/inetd.as):00138                             fcc       /Reading data from netpath/
+     646174612066726F
+     6D206E6574706174
+     68
+00D3 00               (el1/cmds/inetd.as):00139                             fcb       C$CR
+00D4 00               (el1/cmds/inetd.as):00140                             fcb       $00
+                      (el1/cmds/inetd.as):00141                             endc
+                      (el1/cmds/inetd.as):00142         
+00D5 A6C90000         (el1/cmds/inetd.as):00143                             lda       netpath,u
+00D9 C600             (el1/cmds/inetd.as):00144                             ldb       #SS.Ready
+00DB 103F00           (el1/cmds/inetd.as):00145                             os9       I$GetStt
+00DE 258D             (el1/cmds/inetd.as):00146                             bcs       ssignetpath
+                      (el1/cmds/inetd.as):00147         
+00E0 4F               (el1/cmds/inetd.as):00148                             clra
+00E1 1F02             (el1/cmds/inetd.as):00149                             tfr       d,y
+00E3 A6C90000         (el1/cmds/inetd.as):00150                             lda       netpath,u
+00E7 AEC90000         (el1/cmds/inetd.as):00151                             ldx       nnext,u
+00EB 103F00           (el1/cmds/inetd.as):00152                             os9       I$Read
+00EE 102500AF         (el1/cmds/inetd.as):00153                             lbcs      errex
+00F2 1F20             (el1/cmds/inetd.as):00154                             tfr       y,d
+00F4 308B             (el1/cmds/inetd.as):00155                             leax      d,x
+00F6 AFC90000         (el1/cmds/inetd.as):00156                             stx       nnext,u
+00FA A61F             (el1/cmds/inetd.as):00157                             lda       -1,x
+00FC 8100             (el1/cmds/inetd.as):00158                             cmpa      #C$CR
+00FE 1026FF6B         (el1/cmds/inetd.as):00159                             lbne      ssignetpath
+                      (el1/cmds/inetd.as):00160         
+0102 30C90000         (el1/cmds/inetd.as):00161                             leax      nbuffer,u
+0106 AFC90000         (el1/cmds/inetd.as):00162                             stx       nnext,u
+                      (el1/cmds/inetd.as):00163         
+010A 8601             (el1/cmds/inetd.as):00164                             lda       #1
+010C 108E0100         (el1/cmds/inetd.as):00165                             ldy       #256
+0110 103F00           (el1/cmds/inetd.as):00166                             os9       I$WritLn
+                      (el1/cmds/inetd.as):00167         
+                      (el1/cmds/inetd.as):00168         * determine response
+0113 A684             (el1/cmds/inetd.as):00169                             lda       ,x
+0115 8139             (el1/cmds/inetd.as):00170                             cmpa      #'9
+0117 2F05             (el1/cmds/inetd.as):00171                             ble       incoming
+                      (el1/cmds/inetd.as):00172         
+0119 8146             (el1/cmds/inetd.as):00173                             cmpa      #'F
+011B 16FF4F           (el1/cmds/inetd.as):00174                             lbra      ssignetpath
+                      (el1/cmds/inetd.as):00175         
+                      (el1/cmds/inetd.as):00176         * get token number
+011E                  (el1/cmds/inetd.as):00177         incoming
+011E 170000           (el1/cmds/inetd.as):00178                             lbsr      DEC_BIN
+0121 EDC90000         (el1/cmds/inetd.as):00179                             std       token,u
+                      (el1/cmds/inetd.as):00180                             ifne      DEBUG
+0125 3406             (el1/cmds/inetd.as):00181                             pshs      d
+0127 170000           (el1/cmds/inetd.as):00182                             lbsr      PRINTS
+012A 476F7420746F6B65 (el1/cmds/inetd.as):00183                             fcc       /Got token /
+     6E20
+0134 00               (el1/cmds/inetd.as):00184                             fcb       $00
+0135 3506             (el1/cmds/inetd.as):00185                             puls      d
+0137 170000           (el1/cmds/inetd.as):00186                             lbsr      PRINT_DEC
+013A 170000           (el1/cmds/inetd.as):00187                             lbsr      PRINTS
+013D 00               (el1/cmds/inetd.as):00188                             fcb       C$CR
+013E 00               (el1/cmds/inetd.as):00189                             fcb       $00
+                      (el1/cmds/inetd.as):00190                             endc
+                      (el1/cmds/inetd.as):00191         
+                      (el1/cmds/inetd.as):00192         * skip over token number
+                      (el1/cmds/inetd.as):00193                             ifne      DEBUG
+013F 170000           (el1/cmds/inetd.as):00194                             lbsr      PRINTS
+0142 546F205370616365 (el1/cmds/inetd.as):00195                             fcc       /To Space.../
+     2E2E2E
+014D 00               (el1/cmds/inetd.as):00196                             fcb       C$CR
+014E 00               (el1/cmds/inetd.as):00197                             fcb       $00
+                      (el1/cmds/inetd.as):00198                             endc
+014F 170000           (el1/cmds/inetd.as):00199                             lbsr      TO_SP
+                      (el1/cmds/inetd.as):00200                             ifne      DEBUG
+0152 170000           (el1/cmds/inetd.as):00201                             lbsr      PRINTS
+0155 546F204E6F6E2D53 (el1/cmds/inetd.as):00202                             fcc       /To Non-Space.../
+     706163652E2E2E
+0164 00               (el1/cmds/inetd.as):00203                             fcb       C$CR
+0165 00               (el1/cmds/inetd.as):00204                             fcb       $00
+                      (el1/cmds/inetd.as):00205                             endc
+0166 170000           (el1/cmds/inetd.as):00206                             lbsr      TO_NON_SP
+                      (el1/cmds/inetd.as):00207         
+                      (el1/cmds/inetd.as):00208         * get port number
+0169 170000           (el1/cmds/inetd.as):00209                             lbsr      DEC_BIN
+016C EDC90000         (el1/cmds/inetd.as):00210                             std       targetport,u
+                      (el1/cmds/inetd.as):00211         
+                      (el1/cmds/inetd.as):00212                             ifne      DEBUG
+0170 3406             (el1/cmds/inetd.as):00213                             pshs      d
+0172 170000           (el1/cmds/inetd.as):00214                             lbsr      PRINTS
+0175 476F742072657175 (el1/cmds/inetd.as):00215                             fcc       /Got request for port /
+     65737420666F7220
+     706F727420
+018A 00               (el1/cmds/inetd.as):00216                             fcb       $00
+018B ECE4             (el1/cmds/inetd.as):00217                             ldd       ,s
+018D 170000           (el1/cmds/inetd.as):00218                             lbsr      PRINT_DEC
+0190 170000           (el1/cmds/inetd.as):00219                             lbsr      PRINTS
+0193 00               (el1/cmds/inetd.as):00220                             fcb       C$CR
+0194 00               (el1/cmds/inetd.as):00221                             fcb       $00
+0195 3506             (el1/cmds/inetd.as):00222                             puls      d
+                      (el1/cmds/inetd.as):00223                             endc
+                      (el1/cmds/inetd.as):00224         
+0197 308D00B4         (el1/cmds/inetd.as):00225                             leax      ForkProcForPort,pcr
+019B 170006           (el1/cmds/inetd.as):00226                             lbsr      ProcInetd
+019E 16FECC           (el1/cmds/inetd.as):00227                             lbra      ssignetpath         we may want to tell server we have no app
+                      (el1/cmds/inetd.as):00228         
+01A1 103F00           (el1/cmds/inetd.as):00229         errex               os9       F$Exit
+                      (el1/cmds/inetd.as):00230         
+                      (el1/cmds/inetd.as):00231         
+                      (el1/cmds/inetd.as):00232         * Process inetd.conf file
+                      (el1/cmds/inetd.as):00233         *
+                      (el1/cmds/inetd.as):00234         * Entry: X = processor routine
+                      (el1/cmds/inetd.as):00235         *
+                      (el1/cmds/inetd.as):00236         * - open conf file
+                      (el1/cmds/inetd.as):00237         * - read each line and get first parameter (port number)
+                      (el1/cmds/inetd.as):00238         * - send it to the processor routine at x
+                      (el1/cmds/inetd.as):00239         * - if error or end of file, close and return
+01A4 3410             (el1/cmds/inetd.as):00240         ProcInetd           pshs      x
+01A6 308D02C9         (el1/cmds/inetd.as):00241                             leax      inetdconf,pcr
+01AA 8600             (el1/cmds/inetd.as):00242                             lda       #READ.
+01AC 103F00           (el1/cmds/inetd.as):00243                             os9       I$Open
+01AF 2567             (el1/cmds/inetd.as):00244                             bcs       adex
+                      (el1/cmds/inetd.as):00245                             ifne      DEBUG
+01B1 3406             (el1/cmds/inetd.as):00246                             pshs      d
+01B3 170000           (el1/cmds/inetd.as):00247                             lbsr      PRINTS
+01B6 4F70656E65642069 (el1/cmds/inetd.as):00248                             fcc       /Opened inetd.conf ok/
+     6E6574642E636F6E
+     66206F6B
+01CA 00               (el1/cmds/inetd.as):00249                             fcb       C$CR
+01CB 00               (el1/cmds/inetd.as):00250                             fcb       $00
+01CC 3506             (el1/cmds/inetd.as):00251                             puls      d
+                      (el1/cmds/inetd.as):00252                             endc
+01CE 30C90000         (el1/cmds/inetd.as):00253         nextline            leax      lbuffer,u
+01D2 108E007F         (el1/cmds/inetd.as):00254                             ldy       #lbufferl-1
+01D6 170000           (el1/cmds/inetd.as):00255                             lbsr      FGETS
+01D9 2531             (el1/cmds/inetd.as):00256                             bcs       closeup
+01DB 170000           (el1/cmds/inetd.as):00257                             lbsr      TO_NON_SP           skip any leading spaces
+01DE E684             (el1/cmds/inetd.as):00258                             ldb       ,x                  check for EOL or comment
+01E0 C100             (el1/cmds/inetd.as):00259                             cmpb      #C$CR
+01E2 27EA             (el1/cmds/inetd.as):00260                             beq       nextline
+01E4 C123             (el1/cmds/inetd.as):00261                             cmpb      #'#
+01E6 27E6             (el1/cmds/inetd.as):00262                             beq       nextline
+                      (el1/cmds/inetd.as):00263                             ifne      DEBUG
+01E8 3416             (el1/cmds/inetd.as):00264                             pshs      d,x
+01EA 170000           (el1/cmds/inetd.as):00265                             lbsr      PRINTS
+01ED 52656164696E6720 (el1/cmds/inetd.as):00266                             fcc       /Reading line: /
+     6C696E653A20
+01FB 00               (el1/cmds/inetd.as):00267                             fcb       $00
+01FC AE62             (el1/cmds/inetd.as):00268                             ldx       2,s
+01FE 170000           (el1/cmds/inetd.as):00269                             lbsr      PUTS
+0201 3516             (el1/cmds/inetd.as):00270                             puls      d,x
+                      (el1/cmds/inetd.as):00271                             endc
+0203 3402             (el1/cmds/inetd.as):00272                             pshs      a
+0205 ADF801           (el1/cmds/inetd.as):00273                             jsr       [1,s]
+0208 3502             (el1/cmds/inetd.as):00274                             puls      a
+020A 24C2             (el1/cmds/inetd.as):00275                             bcc       nextline
+020C C100             (el1/cmds/inetd.as):00276         closeup             cmpb      #E$EOF
+020E 2601             (el1/cmds/inetd.as):00277                             bne       closeandex
+0210 5F               (el1/cmds/inetd.as):00278                             clrb
+0211 3405             (el1/cmds/inetd.as):00279         closeandex          pshs      b,cc
+0213 103F00           (el1/cmds/inetd.as):00280                             os9       I$Close
+0216 3505             (el1/cmds/inetd.as):00281                             puls      b,cc
+0218 3590             (el1/cmds/inetd.as):00282         adex                puls      x,pc
+                      (el1/cmds/inetd.as):00283         
+                      (el1/cmds/inetd.as):00284         
+                      (el1/cmds/inetd.as):00285         * Setup ports
+                      (el1/cmds/inetd.as):00286         * Extract first parameter at X and send to server
+021A 170000           (el1/cmds/inetd.as):00287         SetupPorts          lbsr      DEC_BIN
+021D 10830000         (el1/cmds/inetd.as):00288                             cmpd      #0
+0221 2729             (el1/cmds/inetd.as):00289                             beq       ret0
+                      (el1/cmds/inetd.as):00290         * find comma and change it to nul
+0223 1F12             (el1/cmds/inetd.as):00291                             tfr       x,y
+0225 A6A0             (el1/cmds/inetd.as):00292         setuploop           lda       ,y+
+0227 8100             (el1/cmds/inetd.as):00293                             cmpa      #C$CR
+0229 2721             (el1/cmds/inetd.as):00294                             beq       ret0
+022B 812C             (el1/cmds/inetd.as):00295                             cmpa      #',
+022D 26F6             (el1/cmds/inetd.as):00296                             bne       setuploop
+022F                  (el1/cmds/inetd.as):00297         setuplisten
+022F 6F3F             (el1/cmds/inetd.as):00298                             clr       -1,y
+                      (el1/cmds/inetd.as):00299                             ifne      DEBUG
+0231 3416             (el1/cmds/inetd.as):00300                             pshs      d,x
+0233 170000           (el1/cmds/inetd.as):00301                             lbsr      PRINTS
+0236 53656E64206C6973 (el1/cmds/inetd.as):00302                             fcc       /Send listen/
+     74656E
+0241 00               (el1/cmds/inetd.as):00303                             fcb       C$CR
+0242 00               (el1/cmds/inetd.as):00304                             fcb       $00
+0243 3516             (el1/cmds/inetd.as):00305                             puls      d,x
+                      (el1/cmds/inetd.as):00306                             endc
+0245 A6C90000         (el1/cmds/inetd.as):00307                             lda       netpath,u
+0249 170000           (el1/cmds/inetd.as):00308                             lbsr      TCPListen
+024C 39               (el1/cmds/inetd.as):00309         ret0                rts
+                      (el1/cmds/inetd.as):00310         
+024D 5F               (el1/cmds/inetd.as):00311         retcc               clrb
+024E 39               (el1/cmds/inetd.as):00312                             rts
+                      (el1/cmds/inetd.as):00313         
+                      (el1/cmds/inetd.as):00314         * Fork Proccess that matches target port
+                      (el1/cmds/inetd.as):00315         * Extract first parameter at X and see if it matches target port
+                      (el1/cmds/inetd.as):00316         * if so, read rest of line and fork the process
+                      (el1/cmds/inetd.as):00317         * Line looks like this:  portnumberplusoptions,prog,params,path opts
+024F                  (el1/cmds/inetd.as):00318         ForkProcForPort
+                      (el1/cmds/inetd.as):00319         * get port number
+024F 170000           (el1/cmds/inetd.as):00320                             lbsr      DEC_BIN
+                      (el1/cmds/inetd.as):00321                             ifne      DEBUG
+0252 3406             (el1/cmds/inetd.as):00322                             pshs      d
+0254 170000           (el1/cmds/inetd.as):00323                             lbsr      PRINTS
+0257 52656164696E6720 (el1/cmds/inetd.as):00324                             fcc       /Reading port /
+     706F727420
+0264 00               (el1/cmds/inetd.as):00325                             fcb       $00
+0265 ECE4             (el1/cmds/inetd.as):00326                             ldd       ,s
+0267 170000           (el1/cmds/inetd.as):00327                             lbsr      PRINT_DEC
+026A 170000           (el1/cmds/inetd.as):00328                             lbsr      PRINTS
+026D 00               (el1/cmds/inetd.as):00329                             fcb       C$CR
+026E 00               (el1/cmds/inetd.as):00330                             fcb       $00
+026F 170000           (el1/cmds/inetd.as):00331                             lbsr      PRINTS
+0272 436F6D706172696E (el1/cmds/inetd.as):00332                             fcc       /Comparing to port /
+     6720746F20706F72
+     7420
+0284 00               (el1/cmds/inetd.as):00333                             fcb       $00
+0285 ECC90000         (el1/cmds/inetd.as):00334                             ldd       targetport,u
+0289 170000           (el1/cmds/inetd.as):00335                             lbsr      PRINT_DEC
+028C 170000           (el1/cmds/inetd.as):00336                             lbsr      PRINTS
+028F 00               (el1/cmds/inetd.as):00337                             fcb       C$CR
+0290 00               (el1/cmds/inetd.as):00338                             fcb       $00
+0291 3506             (el1/cmds/inetd.as):00339                             puls      d
+                      (el1/cmds/inetd.as):00340                             endc
+0293 10A3C90000       (el1/cmds/inetd.as):00341                             cmpd      targetport,u
+0298 1026FFB1         (el1/cmds/inetd.as):00342                             lbne      retcc
+                      (el1/cmds/inetd.as):00343         * point Y to byte after comma
+029C A6A0             (el1/cmds/inetd.as):00344         portloop            lda       ,y+
+029E 8100             (el1/cmds/inetd.as):00345                             cmpa      #C$CR
+02A0 27AA             (el1/cmds/inetd.as):00346                             beq       ret0
+02A2 812C             (el1/cmds/inetd.as):00347                             cmpa      #',
+02A4 26F6             (el1/cmds/inetd.as):00348                             bne       portloop
+02A6 1F21             (el1/cmds/inetd.as):00349                             tfr       y,x
+                      (el1/cmds/inetd.as):00350         * copy bytes up to comma at X
+02A8 31C90000         (el1/cmds/inetd.as):00351                             leay      targetprog,u
+02AC A680             (el1/cmds/inetd.as):00352         prgloop             lda       ,x+
+02AE 812C             (el1/cmds/inetd.as):00353                             cmpa      #',
+02B0 270A             (el1/cmds/inetd.as):00354                             beq       sethi
+02B2 8100             (el1/cmds/inetd.as):00355                             cmpa      #C$CR
+02B4 102701BA         (el1/cmds/inetd.as):00356                             lbeq      ret
+02B8 A7A0             (el1/cmds/inetd.as):00357                             sta       ,y+
+02BA 20F0             (el1/cmds/inetd.as):00358                             bra       prgloop
+02BC A63F             (el1/cmds/inetd.as):00359         sethi               lda       -1,y
+02BE 8A80             (el1/cmds/inetd.as):00360                             ora       #$80
+02C0 A73F             (el1/cmds/inetd.as):00361                             sta       -1,y
+02C2 6FC90000         (el1/cmds/inetd.as):00362         copypar             clr       tmodeparamlen,u
+02C6 31C90000         (el1/cmds/inetd.as):00363                             leay      targetparams,u
+02CA A680             (el1/cmds/inetd.as):00364         parloop             lda       ,x+
+02CC A7A0             (el1/cmds/inetd.as):00365                             sta       ,y+
+02CE 812C             (el1/cmds/inetd.as):00366                             cmpa      #',
+02D0 2704             (el1/cmds/inetd.as):00367                             beq       procopts
+02D2 8100             (el1/cmds/inetd.as):00368                             cmpa      #C$CR
+02D4 2710             (el1/cmds/inetd.as):00369                             beq       gotprocparms
+                      (el1/cmds/inetd.as):00370         
+02D6                  (el1/cmds/inetd.as):00371         procopts
+02D6 31C90000         (el1/cmds/inetd.as):00372                             leay      tmodeparams,u
+02DA A680             (el1/cmds/inetd.as):00373         procoptsloop        lda       ,x+
+02DC A7A0             (el1/cmds/inetd.as):00374                             sta       ,y+
+02DE 6CC90000         (el1/cmds/inetd.as):00375                             inc       targetparams,u
+02E2 8100             (el1/cmds/inetd.as):00376                             cmpa      #C$CR
+02E4 27F4             (el1/cmds/inetd.as):00377                             beq       procoptsloop
+                      (el1/cmds/inetd.as):00378         
+02E6                  (el1/cmds/inetd.as):00379         gotprocparms
+                      (el1/cmds/inetd.as):00380                             ifne      DEBUG
+02E6 3406             (el1/cmds/inetd.as):00381                             pshs      d
+02E8 170000           (el1/cmds/inetd.as):00382                             lbsr      PRINTS
+02EB 476F742070726F63 (el1/cmds/inetd.as):00383                             fcc       /Got proc and params to fork/
+     20616E6420706172
+     616D7320746F2066
+     6F726B
+0306 00               (el1/cmds/inetd.as):00384                             fcb       C$CR
+0307 00               (el1/cmds/inetd.as):00385                             fcb       $00
+0308 3506             (el1/cmds/inetd.as):00386                             puls      d
+                      (el1/cmds/inetd.as):00387                             endc
+                      (el1/cmds/inetd.as):00388         
+                      (el1/cmds/inetd.as):00389         * ignore client port number and hostname for now
+030A 170000           (el1/cmds/inetd.as):00390                             lbsr      TCPOpen
+030D 2419             (el1/cmds/inetd.as):00391                             bcc       savechild
+                      (el1/cmds/inetd.as):00392         
+030F ECC90000         (el1/cmds/inetd.as):00393                             ldd       token,u
+0313 3278             (el1/cmds/inetd.as):00394                             leas      -8,s
+0315 30E4             (el1/cmds/inetd.as):00395                             leax      ,s
+0317 170000           (el1/cmds/inetd.as):00396                             lbsr      BIN_DEC
+031A A6C90000         (el1/cmds/inetd.as):00397                             lda       netpath,u
+031E 1F12             (el1/cmds/inetd.as):00398                             tfr       x,y
+0320 170000           (el1/cmds/inetd.as):00399                             lbsr      TCPKill
+0323 3268             (el1/cmds/inetd.as):00400                             leas      8,s
+0325 160147           (el1/cmds/inetd.as):00401                             lbra      forkex
+                      (el1/cmds/inetd.as):00402         
+0328                  (el1/cmds/inetd.as):00403         savechild
+0328 A7C90000         (el1/cmds/inetd.as):00404                             sta       childnetpath,u
+032C ECC90000         (el1/cmds/inetd.as):00405                             ldd       token,u
+0330 3278             (el1/cmds/inetd.as):00406                             leas      -8,s
+0332 30E4             (el1/cmds/inetd.as):00407                             leax      ,s
+0334 170000           (el1/cmds/inetd.as):00408                             lbsr      BIN_DEC
+0337 A6C90000         (el1/cmds/inetd.as):00409                             lda       childnetpath,u
+033B 1F12             (el1/cmds/inetd.as):00410                             tfr       x,y
+033D 170000           (el1/cmds/inetd.as):00411                             lbsr      TCPJoin
+0340 3268             (el1/cmds/inetd.as):00412                             leas      8,s
+0342 2406             (el1/cmds/inetd.as):00413                             bcc       turnonechoalf
+0344 103F00           (el1/cmds/inetd.as):00414                             os9       I$Close
+0347 160125           (el1/cmds/inetd.as):00415                             lbra      forkex
+                      (el1/cmds/inetd.as):00416         
+034A                  (el1/cmds/inetd.as):00417         turnonechoalf
+                      (el1/cmds/inetd.as):00418                             ifne      DEBUG
+034A 3406             (el1/cmds/inetd.as):00419                             pshs      d
+034C 170000           (el1/cmds/inetd.as):00420                             lbsr      PRINTS
+034F 5475726E696E6720 (el1/cmds/inetd.as):00421                             fcc       /Turning on PD.EKO and PD.ALF/
+     6F6E2050442E454B
+     4F20616E64205044
+     2E414C46
+036B 00               (el1/cmds/inetd.as):00422                             fcb       C$CR
+036C 00               (el1/cmds/inetd.as):00423                             fcb       $00
+036D 3506             (el1/cmds/inetd.as):00424                             puls      d
+                      (el1/cmds/inetd.as):00425                             endc
+036F 170000           (el1/cmds/inetd.as):00426                             lbsr      SetEchoOn
+0372 102500FC         (el1/cmds/inetd.as):00427                             lbcs      ret
+0376 170000           (el1/cmds/inetd.as):00428                             lbsr      SetAutoLFOn
+0379 102500F5         (el1/cmds/inetd.as):00429                             lbcs      ret
+                      (el1/cmds/inetd.as):00430         
+                      (el1/cmds/inetd.as):00431         * dup paths
+037D                  (el1/cmds/inetd.as):00432         duper
+                      (el1/cmds/inetd.as):00433                             ifne      DEBUG
+037D 3406             (el1/cmds/inetd.as):00434                             pshs      d
+037F 170000           (el1/cmds/inetd.as):00435                             lbsr      PRINTS
+0382 447570696E672070 (el1/cmds/inetd.as):00436                             fcc       /Duping paths/
+     61746873
+038E 00               (el1/cmds/inetd.as):00437                             fcb       C$CR
+038F 00               (el1/cmds/inetd.as):00438                             fcb       $00
+0390 3506             (el1/cmds/inetd.as):00439                             puls      d
+                      (el1/cmds/inetd.as):00440                             endc
+                      (el1/cmds/inetd.as):00441         
+0392 4F               (el1/cmds/inetd.as):00442                             clra
+0393 103F00           (el1/cmds/inetd.as):00443                             os9       I$Dup
+0396 1025FE07         (el1/cmds/inetd.as):00444                             lbcs      errex
+039A A7C90000         (el1/cmds/inetd.as):00445                             sta       orgstdin,u
+039E 8601             (el1/cmds/inetd.as):00446                             lda       #1
+03A0 103F00           (el1/cmds/inetd.as):00447                             os9       I$Dup
+03A3 1025FDFA         (el1/cmds/inetd.as):00448                             lbcs      errex
+03A7 A7C90000         (el1/cmds/inetd.as):00449                             sta       orgstdout,u
+03AB 8602             (el1/cmds/inetd.as):00450                             lda       #2
+03AD 103F00           (el1/cmds/inetd.as):00451                             os9       I$Dup
+03B0 1025FDED         (el1/cmds/inetd.as):00452                             lbcs      errex
+03B4 A7C90000         (el1/cmds/inetd.as):00453                             sta       orgstderr,u
+                      (el1/cmds/inetd.as):00454         
+                      (el1/cmds/inetd.as):00455         * close original stdin/out/err paths
+03B8 4F               (el1/cmds/inetd.as):00456                             clra
+03B9 103F00           (el1/cmds/inetd.as):00457                             os9       I$Close
+03BC 4C               (el1/cmds/inetd.as):00458                             inca
+03BD 103F00           (el1/cmds/inetd.as):00459                             os9       I$Close
+03C0 4C               (el1/cmds/inetd.as):00460                             inca
+03C1 103F00           (el1/cmds/inetd.as):00461                             os9       I$Close
+                      (el1/cmds/inetd.as):00462         
+                      (el1/cmds/inetd.as):00463         * Dup child net path to stdin/stdout/stderr
+03C4 A6C90000         (el1/cmds/inetd.as):00464                             lda       childnetpath,u
+03C8 103F00           (el1/cmds/inetd.as):00465                             os9       I$Dup
+03CB 1025FDD2         (el1/cmds/inetd.as):00466                             lbcs      errex
+03CF 103F00           (el1/cmds/inetd.as):00467                             os9       I$Dup
+03D2 1025FDCB         (el1/cmds/inetd.as):00468                             lbcs      errex
+03D6 103F00           (el1/cmds/inetd.as):00469                             os9       I$Dup
+03D9 1025FDC4         (el1/cmds/inetd.as):00470                             lbcs      errex
+                      (el1/cmds/inetd.as):00471         
+                      (el1/cmds/inetd.as):00472         * fork tmode process if tmode param length > 0
+03DD 6DC90000         (el1/cmds/inetd.as):00473                             tst       tmodeparamlen,u
+03E1 2719             (el1/cmds/inetd.as):00474                             beq       forkchild
+03E3 3440             (el1/cmds/inetd.as):00475                             pshs      u
+03E5 308DFC17         (el1/cmds/inetd.as):00476                             leax      tmode,pcr
+03E9 33C90000         (el1/cmds/inetd.as):00477                             leau      tmodeparams,u
+03ED 8600             (el1/cmds/inetd.as):00478                             lda       #Objct
+03EF 5F               (el1/cmds/inetd.as):00479                             clrb
+03F0 108E0100         (el1/cmds/inetd.as):00480                             ldy       #256
+03F4 103F00           (el1/cmds/inetd.as):00481                             os9       F$Fork
+03F7 3540             (el1/cmds/inetd.as):00482                             puls      u
+03F9 103F00           (el1/cmds/inetd.as):00483                             os9       F$Wait
+                      (el1/cmds/inetd.as):00484         
+                      (el1/cmds/inetd.as):00485         * fork child process
+03FC                  (el1/cmds/inetd.as):00486         forkchild
+03FC 3440             (el1/cmds/inetd.as):00487                             pshs      u
+03FE 30C90000         (el1/cmds/inetd.as):00488                             leax      targetprog,u
+0402 33C90000         (el1/cmds/inetd.as):00489                             leau      targetparams,u
+0406 8600             (el1/cmds/inetd.as):00490                             lda       #Objct
+0408 5F               (el1/cmds/inetd.as):00491                             clrb
+0409 108E0100         (el1/cmds/inetd.as):00492                             ldy       #256
+040D 103F00           (el1/cmds/inetd.as):00493                             os9       F$Fork
+0410 3540             (el1/cmds/inetd.as):00494                             puls      u
+                      (el1/cmds/inetd.as):00495         * If our F$Fork fails, do not error out...
+                      (el1/cmds/inetd.as):00496         *              bcs       ret2
+                      (el1/cmds/inetd.as):00497         
+                      (el1/cmds/inetd.as):00498         * restore orginal paths
+0412 4F               (el1/cmds/inetd.as):00499                             clra
+0413 103F00           (el1/cmds/inetd.as):00500                             os9       I$Close
+0416 4C               (el1/cmds/inetd.as):00501                             inca
+0417 103F00           (el1/cmds/inetd.as):00502                             os9       I$Close
+041A 4C               (el1/cmds/inetd.as):00503                             inca
+041B 103F00           (el1/cmds/inetd.as):00504                             os9       I$Close
+                      (el1/cmds/inetd.as):00505         
+041E A6C90000         (el1/cmds/inetd.as):00506                             lda       orgstdin,u
+0422 103F00           (el1/cmds/inetd.as):00507                             os9       I$Dup
+0425 1025FD78         (el1/cmds/inetd.as):00508                             lbcs      errex
+0429 A6C90000         (el1/cmds/inetd.as):00509                             lda       orgstdout,u
+042D 103F00           (el1/cmds/inetd.as):00510                             os9       I$Dup
+0430 1025FD6D         (el1/cmds/inetd.as):00511                             lbcs      errex
+0434 A6C90000         (el1/cmds/inetd.as):00512                             lda       orgstderr,u
+0438 103F00           (el1/cmds/inetd.as):00513                             os9       I$Dup
+043B 1025FD62         (el1/cmds/inetd.as):00514                             lbcs      errex
+043F A6C90000         (el1/cmds/inetd.as):00515                             lda       orgstdin,u
+0443 103F00           (el1/cmds/inetd.as):00516                             os9       I$Close
+0446 A6C90000         (el1/cmds/inetd.as):00517                             lda       orgstdout,u
+044A 103F00           (el1/cmds/inetd.as):00518                             os9       I$Close
+044D A6C90000         (el1/cmds/inetd.as):00519                             lda       orgstderr,u
+0451 103F00           (el1/cmds/inetd.as):00520                             os9       I$Close
+0454 A6C90000         (el1/cmds/inetd.as):00521                             lda       childnetpath,u
+0458 103F00           (el1/cmds/inetd.as):00522                             os9       I$Close
+                      (el1/cmds/inetd.as):00523         
+                      (el1/cmds/inetd.as):00524                             ifne      DEBUG
+045B 3406             (el1/cmds/inetd.as):00525                             pshs      d
+045D 170000           (el1/cmds/inetd.as):00526                             lbsr      PRINTS
+0460 50726F6320666F72 (el1/cmds/inetd.as):00527                             fcc       /Proc forked/
+     6B6564
+046B 00               (el1/cmds/inetd.as):00528                             fcb       C$CR
+046C 00               (el1/cmds/inetd.as):00529                             fcb       $00
+046D 3506             (el1/cmds/inetd.as):00530                             puls      d
+                      (el1/cmds/inetd.as):00531                             endc
+                      (el1/cmds/inetd.as):00532         
+046F 53               (el1/cmds/inetd.as):00533         forkex              comb
+0470 C600             (el1/cmds/inetd.as):00534                             ldb       #E$EOF
+0472 39               (el1/cmds/inetd.as):00535         ret                 rts
+                      (el1/cmds/inetd.as):00536         
+0473 2E2E2E2E2E2E2F53 (el1/cmds/inetd.as):00537         inetdconf           fcc       "....../SYS/inetd.conf"
+     59532F696E657464
+     2E636F6E66
+0488 00               (el1/cmds/inetd.as):00538                             fcb       C$CR
+                      (el1/cmds/inetd.as):00539                             endsect
+
+Symbol Table:
+[ sG] __start                          000E (code)
+[ sG] adex                             0218 (code)
+[ sG] attr                             <<incomplete>>
+[ sG] childnetpath                     010A (bss)
+[ sG] chkrdy                           00AD (code)
+[ sG] closeandex                       0211 (code)
+[ sG] closeup                          020C (code)
+[ScG] coco3                            0001
+[ sG] copypar                          02C2 (code)
+[ cG] DEBUG                            0001
+[ sG] duper                            037D (code)
+[ cG] edition                          0003
+[ sG] errex                            01A1 (code)
+[ sG] forkchild                        03FC (code)
+[ sG] forkex                           046F (code)
+[ sG] ForkProcForPort                  024F (code)
+[ sG] gotdata                          00B1 (code)
+[ sG] gotprocparms                     02E6 (code)
+[ScG] H6309                            0001
+[ sG] incoming                         011E (code)
+[ sG] inetdconf                        0473 (code)
+[ sG] lang                             <<incomplete>>
+[ sG] lbuffer                          0083 (bss)
+[ cG] lbufferl                         0080
+[ sG] mainloop                         0094 (code)
+[ sG] nbuffer                          0003 (bss)
+[ cG] nbufferl                         0080
+[ sG] netdatardy                       0002 (bss)
+[ sG] netpath                          010B (bss)
+[ cG] NetSig                           0002
+[ sG] nextline                         01CE (code)
+[ sG] nnext                            0103 (bss)
+[ScG] NOS9MAJ                          0003
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0003
+[ sG] opterr                           0034 (code)
+[ sG] orgstderr                        0109 (bss)
+[ sG] orgstdin                         0107 (bss)
+[ sG] orgstdout                        0108 (bss)
+[ sG] parloop                          02CA (code)
+[ sG] portloop                         029C (code)
+[ sG] prgloop                          02AC (code)
+[ sG] ProcInetd                        01A4 (code)
+[ sG] procopts                         02D6 (code)
+[ sG] procoptsloop                     02DA (code)
+[ sG] ret                              0472 (code)
+[ sG] ret0                             024C (code)
+[ sG] retcc                            024D (code)
+[ cG] rev                              0000
+[ sG] savechild                        0328 (code)
+[ sG] sethi                            02BC (code)
+[ sG] setuplisten                      022F (code)
+[ sG] setuploop                        0225 (code)
+[ sG] SetupPorts                       021A (code)
+[ sG] sigex                            000D (code)
+[ sG] sigint                           0005 (code)
+[ sG] ssignetpath                      006D (code)
+[ cG] stack                            00C8
+[ sG] targetparams                     018C (bss)
+[ sG] targetport                       0000 (bss)
+[ sG] targetprog                       010C (bss)
+[ sG] tmode                            0000 (code)
+[ sG] tmodeparamlen                    020C (bss)
+[ sG] tmodeparams                      020D (bss)
+[ sG] token                            0105 (bss)
+[ sG] turnonechoalf                    034A (code)
+[ sG] type                             <<incomplete>>

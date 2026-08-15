@@ -1,0 +1,101 @@
+                      (       bin_rom.as):00001         ;;; BIN_HEX
+                      (       bin_rom.as):00002         ;;;
+                      (       bin_rom.as):00003         ;;; Binary to Roman number string conversion.
+                      (       bin_rom.as):00004         ;;;
+                      (       bin_rom.as):00005         ;;; Entry:  D = The binary value to convert.
+                      (       bin_rom.as):00006         ;;;         X = The address of the 20-byte buffer that holds the roman numerals.
+                      (       bin_rom.as):00007         ;;;
+                      (       bin_rom.as):00008         ;;; Exit:  None.
+                      (       bin_rom.as):00009         ;;;
+                      (       bin_rom.as):00010         ;;; Note: the buffer should be set to 20 bytes. This permits the
+                      (       bin_rom.as):00011         ;;; longest possible number to be converted without a buffer overflow.
+                      (       bin_rom.as):00012         ;;; This routine truncates any numbers >8191 to ensure that no number
+                      (       bin_rom.as):00013         ;;; is longer than 19 characters (plus the null terminator).
+                      (       bin_rom.as):00014         ;;; The number 7888 converts to a 19 character string. To permit larger
+                      (       bin_rom.as):00015         ;;; number conversions one could delete the anda #%00011111 statement.
+                      (       bin_rom.as):00016         ;;;
+                      (       bin_rom.as):00017         ;;; All registers (except CC) are preserved.
+                      (       bin_rom.as):00018         
+                      (       bin_rom.as):00019         * This routine has been converted from the BASIC09 sample in
+                      (       bin_rom.as):00020         * the Basic09 Reference Manual (Microware) page a-3.
+                      (       bin_rom.as):00021         
+                      (       bin_rom.as):00022                             section   .text
+                      (       bin_rom.as):00023         
+0000                  (       bin_rom.as):00024         BIN_ROM:
+0000 3476             (       bin_rom.as):00025                             pshs      d,x,y,u
+                      (       bin_rom.as):00026         
+0002 338C4D           (       bin_rom.as):00027                             leau      nums,pcr            number conversion table
+0005 6FE2             (       bin_rom.as):00028                             clr       ,-s                 counter on stack
+0007 A661             (       bin_rom.as):00029                             lda       1,s                 restore value
+0009 841F             (       bin_rom.as):00030                             anda      #%00011111          ensure no value>8191 permitted
+                      (       bin_rom.as):00031         
+000B                  (       bin_rom.as):00032         roman1
+000B 10A3C4           (       bin_rom.as):00033                             cmpd      ,u
+000E 2509             (       bin_rom.as):00034                             blo       roman2
+0010 318C5B           (       bin_rom.as):00035                             leay      chars,pcr
+0013 8D33             (       bin_rom.as):00036                             bsr       addchar
+0015 A3C4             (       bin_rom.as):00037                             subd      ,u
+0017 20F2             (       bin_rom.as):00038                             bra       roman1
+                      (       bin_rom.as):00039         
+0019                  (       bin_rom.as):00040         roman2
+0019 3406             (       bin_rom.as):00041                             pshs      d
+001B ECC4             (       bin_rom.as):00042                             ldd       ,u
+001D A342             (       bin_rom.as):00043                             subd      2,u
+001F 10A3E4           (       bin_rom.as):00044                             cmpd      ,s
+0022 3506             (       bin_rom.as):00045                             puls      d
+0024 220E             (       bin_rom.as):00046                             bhi       roman3
+                      (       bin_rom.as):00047         
+0026 318C4C           (       bin_rom.as):00048                             leay      subs,pcr
+0029 8D1D             (       bin_rom.as):00049                             bsr       addchar
+002B 318C40           (       bin_rom.as):00050                             leay      chars,pcr
+002E 8D18             (       bin_rom.as):00051                             bsr       addchar
+0030 A3C4             (       bin_rom.as):00052                             subd      ,u
+0032 E342             (       bin_rom.as):00053                             addd      2,u
+                      (       bin_rom.as):00054         
+0034                  (       bin_rom.as):00055         roman3
+0034 3344             (       bin_rom.as):00056                             leau      4,u                 next pair of values
+0036 3406             (       bin_rom.as):00057                             pshs      d
+0038 6C62             (       bin_rom.as):00058                             inc       2,s                 counter
+003A A662             (       bin_rom.as):00059                             lda       2,s
+003C 8107             (       bin_rom.as):00060                             cmpa      #7                  done?
+003E 3506             (       bin_rom.as):00061                             puls      d
+0040 26C9             (       bin_rom.as):00062                             bne       roman1              no, do more
+                      (       bin_rom.as):00063         
+0042 3502             (       bin_rom.as):00064                             puls      a
+0044 6F84             (       bin_rom.as):00065                             clr       ,x                  null terminator
+                      (       bin_rom.as):00066         
+0046 35F6             (       bin_rom.as):00067                             puls      d,x,y,u,pc
+                      (       bin_rom.as):00068         
+0048                  (       bin_rom.as):00069         addchar
+0048 3406             (       bin_rom.as):00070                             pshs      d
+004A A664             (       bin_rom.as):00071                             lda       4,s                 get loop count
+004C A6A6             (       bin_rom.as):00072                             lda       a,y                 get char
+004E A780             (       bin_rom.as):00073                             sta       ,x+
+0050 3586             (       bin_rom.as):00074                             puls      d,pc
+                      (       bin_rom.as):00075         
+0052 03E80064         (       bin_rom.as):00076         nums                fdb       1000,100
+0056 01F40064         (       bin_rom.as):00077                             fdb       500,100
+005A 0064000A         (       bin_rom.as):00078                             fdb       100,10
+005E 0032000A         (       bin_rom.as):00079                             fdb       50,10
+0062 000A0001         (       bin_rom.as):00080                             fdb       10,1
+0066 00050001         (       bin_rom.as):00081                             fdb       5,1
+006A 00010000         (       bin_rom.as):00082                             fdb       1,0
+                      (       bin_rom.as):00083         
+006E 4D44434C585649   (       bin_rom.as):00084         chars               fcc       /MDCLXVI/
+0075 434358584949     (       bin_rom.as):00085         subs                fcc       /CCXXII/
+                      (       bin_rom.as):00086         
+                      (       bin_rom.as):00087                             endsect
+                      (       bin_rom.as):00088         
+
+Symbol Table:
+[ sG] addchar                          0048 (.text)
+[ sG] BIN_ROM                          0000 (.text)
+[ sG] chars                            006E (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000
+[ sG] nums                             0052 (.text)
+[ sG] roman1                           000B (.text)
+[ sG] roman2                           0019 (.text)
+[ sG] roman3                           0034 (.text)
+[ sG] subs                             0075 (.text)

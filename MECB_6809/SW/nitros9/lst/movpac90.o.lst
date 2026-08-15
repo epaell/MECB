@@ -1,0 +1,492 @@
+                      (      movpac90.as):00001         
+                      (      movpac90.as):00002                             nam       MOVPAC
+                      (      movpac90.as):00003                             ttl       Move pacman routines
+                      (      movpac90.as):00004         
+                      (      movpac90.as):00005         *     Program segment to be compiled using Level II RMA
+                      (      movpac90.as):00006         *           This is not a mainline program segment
+                      (      movpac90.as):00007         *                 Written by Larry Olson
+                      (      movpac90.as):00008         
+                      (      movpac90.as):00009                             ifp1
+                      (      movpac90.as):00010         *         use    /dd/defs/os9defs.a
+                      (      movpac90.as):00011                             endc
+                      (      movpac90.as):00012         
+                      (      movpac90.as):00013         
+     0064             (      movpac90.as):00014         STACK               equ       100
+                      (      movpac90.as):00015         
+                      (      movpac90.as):00016         
+                      (      movpac90.as):00017                             section   bss
+                      (      movpac90.as):00018         
+                      (      movpac90.as):00019         *    Local variables
+                      (      movpac90.as):00020         
+0000                  (      movpac90.as):00021                             rmb       STACK
+                      (      movpac90.as):00022         
+                      (      movpac90.as):00023                             endsect
+                      (      movpac90.as):00024         
+                      (      movpac90.as):00025                             section   code
+                      (      movpac90.as):00026         
+0000 12               (      movpac90.as):00027         MVPAC               nop
+                      (      movpac90.as):00028         
+                      (      movpac90.as):00029         *      Read joystick
+                      (      movpac90.as):00030         
+0001 B60000           (      movpac90.as):00031         JOY                 lda       PATH                Set path to window
+0004 C613             (      movpac90.as):00032                             ldb       #$13                Setup for SS.Joy
+0006 AEC90000         (      movpac90.as):00033                             ldx       PORT,U              Get selected port
+000A 103F00           (      movpac90.as):00034                             os9       I$GetStt
+000D 10250000         (      movpac90.as):00035                             lbcs      ERR1
+0011 BF0000           (      movpac90.as):00036                             stx       JOYSTX
+0014 10BF0000         (      movpac90.as):00037                             sty       JOYSTY
+0018 B70000           (      movpac90.as):00038                             sta       BUTTON
+                      (      movpac90.as):00039         *    Cycle is used to animate pacman
+                      (      movpac90.as):00040         
+001B 7A0000           (      movpac90.as):00041         CYC                 dec       CYCLE               Decrement cycle counter
+001E 2A0A             (      movpac90.as):00042                             bpl       MVRT                If >0 continue
+0020 8602             (      movpac90.as):00043                             lda       #2                  Reset counter to 2
+0022 B70000           (      movpac90.as):00044                             sta       CYCLE
+                      (      movpac90.as):00045         
+0025 4F               (      movpac90.as):00046                             clra
+0026 A7C90000         (      movpac90.as):00047                             sta       MOVFLG,U
+                      (      movpac90.as):00048         
+                      (      movpac90.as):00049         *    Check direction of joystick & move pacman
+                      (      movpac90.as):00050         
+002A 31C90000         (      movpac90.as):00051         MVRT                leay      ARRAY,U             Point to start of array
+002E FC0000           (      movpac90.as):00052                             ldd       POFSET              Get pacman offset in array
+0031 30AB             (      movpac90.as):00053                             leax      D,Y
+                      (      movpac90.as):00054         *    X reg now points to pacman position in array
+0033 FC0000           (      movpac90.as):00055                             ldd       JOYSTX              Get joystick X value
+0036 10830025         (      movpac90.as):00056                             cmpd      #37                 Is it greater than 37 ?
+003A 2572             (      movpac90.as):00057                             blo       MVLFT               Go to move left
+                      (      movpac90.as):00058         
+003C 6CC90000         (      movpac90.as):00059                             inc       MOVFLG,U
+                      (      movpac90.as):00060         
+0040 A601             (      movpac90.as):00061                             lda       1,X                 Get adjacent byte from array
+0042 102B00E9         (      movpac90.as):00062                             lbmi      MVDWN               If wall then go check for down
+0046 FC0000           (      movpac90.as):00063                             ldd       PCXLOC              GET pseudo screen X location
+0049 10B30000         (      movpac90.as):00064                             cmpd      PXNEW               Is it equal to actual location?
+004D 2706             (      movpac90.as):00065                             beq       SKIPR
+004F C30008           (      movpac90.as):00066                             addd      #8
+0052 FD0000           (      movpac90.as):00067                             std       PCXLOC
+0055 FC0000           (      movpac90.as):00068         SKIPR               ldd       PXNEW               Get actual screen X location
+0058 C30008           (      movpac90.as):00069                             addd      #8                  Add 8 to it
+005B FD0000           (      movpac90.as):00070                             std       PXNEW               Put it back
+005E FC0000           (      movpac90.as):00071                             ldd       PYNEW               Get screen Y location
+0061 FD0000           (      movpac90.as):00072                             std       PCYLOC              Set pyold = pynew
+0064 FC0000           (      movpac90.as):00073                             ldd       POFSET              Get pacman array offset
+0067 C30001           (      movpac90.as):00074                             addd      #1                  Increment it
+006A 10830701         (      movpac90.as):00075                             cmpd      #1793               Is it off screen to the right ?
+006E 2625             (      movpac90.as):00076                             bne       STBUF1
+                      (      movpac90.as):00077         *   Erase pacman on right side of screen
+                      (      movpac90.as):00078         *   Before moving pacman to left side
+0070 8625             (      movpac90.as):00079                             lda       #37                 Set for blank pacman
+0072 B70000           (      movpac90.as):00080                             sta       PBFN                Put it in putblk code
+0075 CC023C           (      movpac90.as):00081                             ldd       #572
+0078 FD0000           (      movpac90.as):00082                             std       PXLOC
+007B CC0055           (      movpac90.as):00083                             ldd       #85
+007E FD0000           (      movpac90.as):00084                             std       PYLOC
+0081 170000           (      movpac90.as):00085                             lbsr      PUTBLK              Go erase pacman
+                      (      movpac90.as):00086         
+0084 CC002C           (      movpac90.as):00087                             ldd       #44
+0087 FD0000           (      movpac90.as):00088                             std       PXNEW               Reset pac screen X to 36
+008A 830008           (      movpac90.as):00089                             subd      #8                  Set pseudo X location
+008D FD0000           (      movpac90.as):00090                             std       PCXLOC
+0090 8601             (      movpac90.as):00091                             lda       #1
+0092 CC06BE           (      movpac90.as):00092                             ldd       #1726               Move pacman to left side
+0095 FD0000           (      movpac90.as):00093         STBUF1              std       POFSET              Store pacman array offset
+0098 30AB             (      movpac90.as):00094                             leax      D,Y                 Point to pacman position in array
+009A 8619             (      movpac90.as):00095                             lda       #25                 Set pacman direction buffer
+009C B70000           (      movpac90.as):00096                             sta       BUFF                for right facing pacman
+009F C601             (      movpac90.as):00097                             ldb       #1
+00A1 A685             (      movpac90.as):00098                             lda       B,X                 Get the byte at this spot
+00A3 2B6F             (      movpac90.as):00099                             bmi       MVPAC1              Branch if wall
+00A5 8506             (      movpac90.as):00100                             bita      #6                  Check for a dot or pill
+00A7 276B             (      movpac90.as):00101                             beq       MVPAC1
+00A9 17026B           (      movpac90.as):00102                             lbsr      ERPILL              Go erase pill or dot
+00AC 2066             (      movpac90.as):00103                             bra       MVPAC1
+00AE FC0000           (      movpac90.as):00104         MVLFT               ldd       JOYSTX              Get joystick X value
+00B1 1083001B         (      movpac90.as):00105                             cmpd      #27
+00B5 2278             (      movpac90.as):00106                             bhi       MVDWN
+00B7 6CC90000         (      movpac90.as):00107                             inc       MOVFLG,U
+00BB A61F             (      movpac90.as):00108                             lda       -1,X                Get byte 1 move to the left
+00BD 2B70             (      movpac90.as):00109                             bmi       MVDWN               Branch if wall
+00BF FC0000           (      movpac90.as):00110                             ldd       PXNEW               Get new pac position
+00C2 830008           (      movpac90.as):00111                             subd      #8                  Subtract 8 from it
+00C5 FD0000           (      movpac90.as):00112                             std       PXNEW               Put it back
+00C8 FD0000           (      movpac90.as):00113                             std       PCXLOC              Set pxold = pxnew
+00CB FC0000           (      movpac90.as):00114                             ldd       PYNEW
+00CE FD0000           (      movpac90.as):00115                             std       PCYLOC              Set pyold = pynew
+00D1 FC0000           (      movpac90.as):00116                             ldd       POFSET              Get pacman array offset
+00D4 830001           (      movpac90.as):00117                             subd      #1                  Decrement it
+00D7 108306BD         (      movpac90.as):00118                             cmpd      #1725               Is it off left side of screen ?
+00DB 2620             (      movpac90.as):00119                             bne       STBUF2              If not then store hcount
+                      (      movpac90.as):00120         *   Erase pacman on left side of screen
+                      (      movpac90.as):00121         *   Before moving pacman to right side
+00DD 8625             (      movpac90.as):00122                             lda       #37                 Set for blank pacman
+00DF B70000           (      movpac90.as):00123                             sta       PBFN                Put it in PUTBLK code
+00E2 CC002C           (      movpac90.as):00124                             ldd       #44
+00E5 FD0000           (      movpac90.as):00125                             std       PXLOC
+00E8 CC0055           (      movpac90.as):00126                             ldd       #85
+00EB FD0000           (      movpac90.as):00127                             std       PYLOC
+00EE 170000           (      movpac90.as):00128                             lbsr      PUTBLK              Go erase pacman
+                      (      movpac90.as):00129         
+00F1 CC023C           (      movpac90.as):00130                             ldd       #572
+00F4 FD0000           (      movpac90.as):00131                             std       PXNEW               Update screen location too.
+00F7 FD0000           (      movpac90.as):00132                             std       PCXLOC
+00FA CC0700           (      movpac90.as):00133                             ldd       #1792               Move pacman to right side
+00FD FD0000           (      movpac90.as):00134         STBUF2              std       POFSET              Store pacman array offset
+0100 30AB             (      movpac90.as):00135                             leax      D,Y                 X holds pacman position in array
+0102 861C             (      movpac90.as):00136                             lda       #28                 Set pacman direction buffer
+0104 B70000           (      movpac90.as):00137                             sta       BUFF                for left facing pacman
+0107 C6FF             (      movpac90.as):00138                             ldb       #-1
+0109 A685             (      movpac90.as):00139                             lda       B,X                 Get byte from array
+010B 2B07             (      movpac90.as):00140                             bmi       MVPAC1              Branch if wall
+010D 8506             (      movpac90.as):00141                             bita      #6                  Check for dot or pill
+010F 2703             (      movpac90.as):00142                             beq       MVPAC1
+0111 170203           (      movpac90.as):00143                             lbsr      ERPILL              Go erase pill or dot
+0114 B60000           (      movpac90.as):00144         MVPAC1              lda       BUFF
+0117 BB0000           (      movpac90.as):00145                             adda      CYCLE
+011A B70000           (      movpac90.as):00146                             sta       PCBFN
+011D 30C90000         (      movpac90.as):00147                             leax      PUTPACM,U
+0121 108E0008         (      movpac90.as):00148                             ldy       #8
+0125 B60000           (      movpac90.as):00149                             lda       PATH
+0128 103F00           (      movpac90.as):00150                             os9       I$Write
+012B 10250000         (      movpac90.as):00151                             lbcs      ERR1
+                      (      movpac90.as):00152         
+012F 31C90000         (      movpac90.as):00153         MVDWN               leay      ARRAY,U             Point to start of array
+0133 FC0000           (      movpac90.as):00154                             ldd       POFSET              Get pacman array offset
+0136 30AB             (      movpac90.as):00155                             leax      D,Y                 X holds pacman array position
+0138 FC0000           (      movpac90.as):00156                             ldd       JOYSTY              Get joystick Y value
+013B 1083001B         (      movpac90.as):00157                             cmpd      #27                 Is it greater than 27 ?
+013F 227A             (      movpac90.as):00158                             bhi       MVUP                If not, then check for up move
+0141 6CC90000         (      movpac90.as):00159                             inc       MOVFLG,U
+0145 A68845           (      movpac90.as):00160                             lda       69,X                Look at byte one line down
+0148 102B00FC         (      movpac90.as):00161                             lbmi      LEAVE               Branch if wall
+014C FC0000           (      movpac90.as):00162                             ldd       PCYLOC              Get pseudo screen Y location
+014F 10B30000         (      movpac90.as):00163                             cmpd      PYNEW               Are they the same ?
+0153 2706             (      movpac90.as):00164                             beq       SKIPD
+0155 C30003           (      movpac90.as):00165                             addd      #3                  Add 3 to it
+0158 FD0000           (      movpac90.as):00166                             std       PCYLOC
+015B FC0000           (      movpac90.as):00167         SKIPD               ldd       PYNEW               Get actual screen Y location
+015E C30003           (      movpac90.as):00168                             addd      #3                  Add 3 to it
+0161 FD0000           (      movpac90.as):00169                             std       PYNEW               Put it back
+0164 FC0000           (      movpac90.as):00170                             ldd       PXNEW
+0167 FD0000           (      movpac90.as):00171                             std       PCXLOC
+016A FC0000           (      movpac90.as):00172         SKIPD2              ldd       POFSET              Get location in array
+016D C30045           (      movpac90.as):00173                             addd      #69                 Move down 1 line
+0170 10830E6C         (      movpac90.as):00174                             cmpd      #3692               Off screen at bottom?
+0174 262C             (      movpac90.as):00175                             bne       STBUF3
+                      (      movpac90.as):00176         
+0176 8625             (      movpac90.as):00177                             lda       #37                 Blank pacman buffer
+0178 B70000           (      movpac90.as):00178                             sta       PBFN
+017B CC013C           (      movpac90.as):00179                             ldd       #316
+017E FD0000           (      movpac90.as):00180                             std       PXLOC
+0181 CC00A6           (      movpac90.as):00181                             ldd       #166
+0184 FD0000           (      movpac90.as):00182                             std       PYLOC
+0187 170000           (      movpac90.as):00183                             lbsr      PUTBLK              Go erase pacman at bottom
+                      (      movpac90.as):00184         
+018A CC012C           (      movpac90.as):00185                             ldd       #300
+018D FD0000           (      movpac90.as):00186                             std       PXNEW
+0190 FD0000           (      movpac90.as):00187                             std       PCXLOC
+0193 CC0007           (      movpac90.as):00188                             ldd       #07                 New Y scrn location
+0196 FD0000           (      movpac90.as):00189                             std       PCYLOC
+0199 C30003           (      movpac90.as):00190                             addd      #3
+019C FD0000           (      movpac90.as):00191                             std       PYNEW
+019F CC0021           (      movpac90.as):00192                             ldd       #33                 Move to top of array
+01A2 FD0000           (      movpac90.as):00193         STBUF3              std       POFSET
+01A5 30AB             (      movpac90.as):00194                             leax      D,Y
+01A7 8622             (      movpac90.as):00195                             lda       #34                 Set pacman direction buffer
+01A9 B70000           (      movpac90.as):00196                             sta       BUFF                for down facing pacman
+01AC C645             (      movpac90.as):00197                             ldb       #69                 Look one line down
+01AE A685             (      movpac90.as):00198                             lda       B,X                 Get byte at this spot
+01B0 2B7B             (      movpac90.as):00199                             bmi       MVPAC2              Branch if wall
+01B2 8506             (      movpac90.as):00200                             bita      #6                  Check for dot(2) or pill(4)
+01B4 2777             (      movpac90.as):00201                             beq       MVPAC2              Go move pacman
+01B6 17015E           (      movpac90.as):00202                             lbsr      ERPILL              Go erase pill or dot
+01B9 2072             (      movpac90.as):00203                             bra       MVPAC2              Go move pacman
+                      (      movpac90.as):00204         
+01BB FC0000           (      movpac90.as):00205         MVUP                ldd       JOYSTY              Get joystick Y value
+01BE 10830025         (      movpac90.as):00206                             cmpd      #37                 Is it less than 37 ?
+01C2 10250082         (      movpac90.as):00207                             lblo      LEAVE
+01C6 6CC90000         (      movpac90.as):00208                             inc       MOVFLG,U
+01CA A688BB           (      movpac90.as):00209                             lda       -69,X               Get byte from array, 1 line up
+01CD 2B79             (      movpac90.as):00210                             bmi       LEAVE               Branch if wall
+01CF FC0000           (      movpac90.as):00211                             ldd       PYNEW               Get pac screen Y location
+01D2 830003           (      movpac90.as):00212                             subd      #3                  Subtract 3 from it
+01D5 FD0000           (      movpac90.as):00213                             std       PYNEW               Put it back
+01D8 FD0000           (      movpac90.as):00214                             std       PCYLOC              Set pyold = pynew
+01DB FC0000           (      movpac90.as):00215                             ldd       PXNEW
+01DE FD0000           (      movpac90.as):00216                             std       PCXLOC              Set pxold = pxnew
+01E1 861F             (      movpac90.as):00217                             lda       #31                 Set direction buffer
+01E3 B70000           (      movpac90.as):00218                             sta       BUFF                to up facing pacman
+01E6 FC0000           (      movpac90.as):00219                             ldd       POFSET              Get pacman array offset
+01E9 830045           (      movpac90.as):00220                             subd      #69                 Move up one line
+01EC 10830021         (      movpac90.as):00221                             cmpd      #33                 At top of screen?
+01F0 2629             (      movpac90.as):00222                             bne       STBUF4
+                      (      movpac90.as):00223         
+01F2 8625             (      movpac90.as):00224                             lda       #37                 Blank pacman buffer #
+01F4 B70000           (      movpac90.as):00225                             sta       PBFN
+01F7 CC012C           (      movpac90.as):00226                             ldd       #300
+01FA FD0000           (      movpac90.as):00227                             std       PXLOC
+01FD CC000D           (      movpac90.as):00228                             ldd       #13
+0200 FD0000           (      movpac90.as):00229                             std       PYLOC
+0203 170000           (      movpac90.as):00230                             lbsr      PUTBLK              Erase pacman at top
+                      (      movpac90.as):00231         
+0206 CC013C           (      movpac90.as):00232                             ldd       #316
+0209 FD0000           (      movpac90.as):00233                             std       PXNEW
+020C FD0000           (      movpac90.as):00234                             std       PCXLOC
+020F CC00A9           (      movpac90.as):00235                             ldd       #169
+0212 FD0000           (      movpac90.as):00236                             std       PYNEW
+0215 FD0000           (      movpac90.as):00237                             std       PCYLOC
+0218 CC0E6C           (      movpac90.as):00238                             ldd       #3692
+021B FD0000           (      movpac90.as):00239         STBUF4              std       POFSET              Put it back
+021E 30AB             (      movpac90.as):00240                             leax      D,Y                 X holds pacman array position
+0220 C6BB             (      movpac90.as):00241                             ldb       #-69
+0222 A685             (      movpac90.as):00242                             lda       B,X                 Get byte at this spot
+0224 2B07             (      movpac90.as):00243                             bmi       MVPAC2              Branch if wall
+0226 8506             (      movpac90.as):00244                             bita      #6                  Check for dot(2) or pill(4)
+0228 2703             (      movpac90.as):00245                             beq       MVPAC2              Go move pacman
+022A 1700EA           (      movpac90.as):00246                             lbsr      ERPILL              Go erase pill or dot
+022D B60000           (      movpac90.as):00247         MVPAC2              lda       BUFF                Get current pac buffer
+0230 BB0000           (      movpac90.as):00248                             adda      CYCLE               Add cycle count
+0233 B70000           (      movpac90.as):00249                             sta       PCBFN               Set putblk buffer
+0236 30C90000         (      movpac90.as):00250                             leax      PUTPACM,U
+023A 108E0008         (      movpac90.as):00251                             ldy       #8
+023E B60000           (      movpac90.as):00252                             lda       PATH
+0241 103F00           (      movpac90.as):00253                             os9       I$Write
+0244 10250000         (      movpac90.as):00254                             lbcs      ERR1
+                      (      movpac90.as):00255         
+0248 A6C90000         (      movpac90.as):00256         LEAVE               lda       MOVFLG,U
+024C 2606             (      movpac90.as):00257                             bne       EXTCHK
+024E 8E0002           (      movpac90.as):00258                             ldx       #2
+0251 170000           (      movpac90.as):00259                             lbsr      WAIT
+                      (      movpac90.as):00260         
+0254 F60000           (      movpac90.as):00261         EXTCHK              ldb       PACMAN              Get # of pacmen left
+0257 C106             (      movpac90.as):00262                             cmpb      #6                  Only a total of 6 allowed
+0259 273B             (      movpac90.as):00263                             beq       MVDONE              If already 6, then exit
+025B A6C90000         (      movpac90.as):00264                             lda       SCRBCD,U
+025F 840F             (      movpac90.as):00265                             anda      #15                 %00001111 strip high
+0261 A1C90000         (      movpac90.as):00266                             cmpa      EXTPAC,U            Compare it with goal
+0265 252F             (      movpac90.as):00267                             blo       MVDONE              If not =, then exit
+0267 5C               (      movpac90.as):00268                             incb                          If =, then give bonus-
+0268 F70000           (      movpac90.as):00269                             stb       PACMAN              pacman to player
+026B 6CC90000         (      movpac90.as):00270                             inc       EXTPAC,U            Increment goal
+026F CC00B5           (      movpac90.as):00271                             ldd       #181
+0272 EDC90000         (      movpac90.as):00272                             std       PYLOC,U
+0276 861C             (      movpac90.as):00273                             lda       #28
+0278 A7C90000         (      movpac90.as):00274                             sta       PBFN,U
+027C 861E             (      movpac90.as):00275                             lda       #30
+027E F60000           (      movpac90.as):00276                             ldb       PACMAN
+0281 C001             (      movpac90.as):00277                             subb      #1
+0283 3D               (      movpac90.as):00278                             mul
+0284 EDC90000         (      movpac90.as):00279                             std       PXLOC,U
+0288 CC0258           (      movpac90.as):00280                             ldd       #600
+028B A3C90000         (      movpac90.as):00281                             subd      PXLOC,U
+028F EDC90000         (      movpac90.as):00282                             std       PXLOC,U
+0293 170000           (      movpac90.as):00283                             lbsr      PUTBLK
+                      (      movpac90.as):00284         
+0296 39               (      movpac90.as):00285         MVDONE              rts                           Return to MAIN
+                      (      movpac90.as):00286         
+0297 5F               (      movpac90.as):00287         PALCHG              clrb
+0298 F70000           (      movpac90.as):00288                             stb       STRLGH              Save counter
+029B 31C90000         (      movpac90.as):00289                             leay      STRING,U            String to output
+029F 30C90000         (      movpac90.as):00290                             leax      G1OFST,U            Point to ghost tables
+02A3 A60A             (      movpac90.as):00291                             lda       10,X                Get #1 ghost status
+02A5 8101             (      movpac90.as):00292                             cmpa      #1
+02A7 2611             (      movpac90.as):00293                             bne       TEST2
+02A9 CC1B31           (      movpac90.as):00294                             ldd       #$1b31              Palette set code
+02AC EDA1             (      movpac90.as):00295                             std       ,Y++                Put it in string
+02AE CC043D           (      movpac90.as):00296                             ldd       #$043d
+02B1 EDA1             (      movpac90.as):00297                             std       ,Y++                Put it in string
+02B3 7C0000           (      movpac90.as):00298                             inc       STRLGH
+02B6 8602             (      movpac90.as):00299                             lda       #2
+02B8 A70A             (      movpac90.as):00300                             sta       10,X                Make ghost run from pacman
+02BA A6881E           (      movpac90.as):00301         TEST2               lda       30,X                Get #2 ghost status
+02BD 8101             (      movpac90.as):00302                             cmpa      #1
+02BF 2612             (      movpac90.as):00303                             bne       TEST3
+02C1 CC1B31           (      movpac90.as):00304                             ldd       #$1b31              Palette set code
+02C4 EDA1             (      movpac90.as):00305                             std       ,Y++                Put it in string
+02C6 CC063D           (      movpac90.as):00306                             ldd       #$063d
+02C9 EDA1             (      movpac90.as):00307                             std       ,Y++                Put it in string
+02CB 7C0000           (      movpac90.as):00308                             inc       STRLGH
+02CE 8602             (      movpac90.as):00309                             lda       #2
+02D0 A7881E           (      movpac90.as):00310                             sta       30,X                Make ghost run from pacman
+02D3 A68832           (      movpac90.as):00311         TEST3               lda       50,X                Get #3 ghost status
+02D6 8101             (      movpac90.as):00312                             cmpa      #1
+02D8 2612             (      movpac90.as):00313                             bne       TEST4
+02DA CC1B31           (      movpac90.as):00314                             ldd       #$1b31              Palette set code
+02DD EDA1             (      movpac90.as):00315                             std       ,Y++
+02DF CC053D           (      movpac90.as):00316                             ldd       #$053d
+02E2 EDA1             (      movpac90.as):00317                             std       ,Y++                Put it in string
+02E4 7C0000           (      movpac90.as):00318                             inc       STRLGH
+02E7 8602             (      movpac90.as):00319                             lda       #2
+02E9 A78832           (      movpac90.as):00320                             sta       50,X                Make ghost run from pacman
+02EC A68846           (      movpac90.as):00321         TEST4               lda       70,X                Get #4 ghost status
+02EF 8101             (      movpac90.as):00322                             cmpa      #1
+02F1 2612             (      movpac90.as):00323                             bne       TESTCK
+02F3 CC1B31           (      movpac90.as):00324                             ldd       #$1b31              Palette set code
+02F6 EDA1             (      movpac90.as):00325                             std       ,Y++
+02F8 CC033D           (      movpac90.as):00326                             ldd       #$033d
+02FB EDA4             (      movpac90.as):00327                             std       ,Y
+02FD 7C0000           (      movpac90.as):00328                             inc       STRLGH
+0300 8602             (      movpac90.as):00329                             lda       #2
+0302 A78846           (      movpac90.as):00330                             sta       70,X                Make ghost run from pacman
+0305 F60000           (      movpac90.as):00331         TESTCK              ldb       STRLGH
+0308 270C             (      movpac90.as):00332                             beq       OTDONE
+030A 8604             (      movpac90.as):00333                             lda       #4
+030C 3D               (      movpac90.as):00334                             mul
+030D 1F02             (      movpac90.as):00335                             tfr       D,Y
+030F 30C90000         (      movpac90.as):00336                             leax      STRING,U
+0313 170000           (      movpac90.as):00337                             lbsr      OUTSTR
+0316 39               (      movpac90.as):00338         OTDONE              rts
+                      (      movpac90.as):00339         
+                      (      movpac90.as):00340         *           erase pill subroutine
+                      (      movpac90.as):00341         *        Erases DOT or PILL from array
+                      (      movpac90.as):00342         *             and updates score
+                      (      movpac90.as):00343         *    On entry, X reg points to spot in array
+                      (      movpac90.as):00344         *    B reg holds 1 byte offset 1,-1,96 or -96
+                      (      movpac90.as):00345         *    A reg holds byte at that point in array
+                      (      movpac90.as):00346         
+0317 8106             (      movpac90.as):00347         ERPILL              cmpa      #6                  Was it a bonus ?
+0319 2720             (      movpac90.as):00348                             beq       ERBON
+031B 8504             (      movpac90.as):00349                             bita      #4                  Was it a power dot ?
+031D 2729             (      movpac90.as):00350                             beq       ERDOT
+031F 8401             (      movpac90.as):00351                             anda      #1
+0321 A785             (      movpac90.as):00352                             sta       B,X                 Erase power pill from array
+0323 8620             (      movpac90.as):00353                             lda       #32                 Add 20 to score
+0325 B70000           (      movpac90.as):00354                             sta       POINTS+2
+                      (      movpac90.as):00355         
+0328 FC0000           (      movpac90.as):00356                             ldd       DOTTOT
+032B C30001           (      movpac90.as):00357                             addd      #1
+032E FD0000           (      movpac90.as):00358                             std       DOTTOT
+                      (      movpac90.as):00359         
+0331 8664             (      movpac90.as):00360                             lda       #100                Set timeout counter
+0333 B70000           (      movpac90.as):00361                             sta       POWFLG
+0336 17FF5E           (      movpac90.as):00362                             lbsr      PALCHG              Go change color of ghosts
+0339 201F             (      movpac90.as):00363                             bra       ADDUP
+                      (      movpac90.as):00364         
+033B 4F               (      movpac90.as):00365         ERBON               clra
+033C A785             (      movpac90.as):00366                             sta       B,X
+033E 170000           (      movpac90.as):00367                             lbsr      SETBON              Go to Bonus Routines(in SCRNS)
+0341 869A             (      movpac90.as):00368                             lda       #154                Add 100 to score
+0343 B70000           (      movpac90.as):00369                             sta       POINTS+2
+0346 2012             (      movpac90.as):00370                             bra       ADDUP
+                      (      movpac90.as):00371         
+0348 8401             (      movpac90.as):00372         ERDOT               anda      #1
+034A A785             (      movpac90.as):00373                             sta       B,X                 Erase dot from array
+034C 8601             (      movpac90.as):00374                             lda       #1                  Add 1 point to score
+034E B70000           (      movpac90.as):00375                             sta       POINTS+2            Put it back
+                      (      movpac90.as):00376         
+0351 FC0000           (      movpac90.as):00377                             ldd       DOTTOT
+0354 C30001           (      movpac90.as):00378                             addd      #1
+0357 FD0000           (      movpac90.as):00379                             std       DOTTOT
+                      (      movpac90.as):00380         
+                      (      movpac90.as):00381         *    Add points to score
+                      (      movpac90.as):00382         
+035A 30C90000         (      movpac90.as):00383         ADDUP               leax      SCRBCD+3,U
+035E 31C90000         (      movpac90.as):00384                             leay      POINTS+3,U
+0362 C603             (      movpac90.as):00385                             ldb       #3                  Set loop counter to 3
+0364 1CFE             (      movpac90.as):00386                             andcc     #%11111110          Clear carry
+0366 A682             (      movpac90.as):00387         ADLOOP              lda       ,-X                 Decrement X and get a byte
+0368 A9A2             (      movpac90.as):00388                             adca      ,-Y                 Add new points
+036A 19               (      movpac90.as):00389                             daa                           Decimal adjust bytes
+036B A784             (      movpac90.as):00390                             sta       ,X                  Put result back in score byte
+036D 5A               (      movpac90.as):00391                             decb                          Decrement loop counter
+036E 26F6             (      movpac90.as):00392                             bne       ADLOOP              Loop till done
+                      (      movpac90.as):00393         
+0370 31C90000         (      movpac90.as):00394         SHIFT               leay      SCRASC,U            Point to asc string
+0374 30C90000         (      movpac90.as):00395                             leax      SCRBCD,U            Point to score bytes
+0378 C603             (      movpac90.as):00396                             ldb       #3                  Set loop counter to 3
+037A F70000           (      movpac90.as):00397                             stb       SHCNT               Set loop counter to 3
+037D 5F               (      movpac90.as):00398                             clrb                          Clear leading zero flag
+037E A684             (      movpac90.as):00399         SFLOOP              lda       ,X                  Get a byte of score, bump pointer
+0380 44               (      movpac90.as):00400                             lsra
+0381 44               (      movpac90.as):00401                             lsra                          Shift high nibble to low
+0382 44               (      movpac90.as):00402                             lsra
+0383 44               (      movpac90.as):00403                             lsra
+0384 2701             (      movpac90.as):00404                             beq       TSTFG1
+0386 5C               (      movpac90.as):00405                             incb                          Set leading zero flag
+0387 5D               (      movpac90.as):00406         TSTFG1              tstb                          Is leading zero flag set ?
+0388 2602             (      movpac90.as):00407                             bne       ASCSET1
+038A 86F0             (      movpac90.as):00408                             lda       #-16                48-16 = ascii space
+038C 8B30             (      movpac90.as):00409         ASCSET1             adda      #48                 Add ascii offset for number
+038E A7A0             (      movpac90.as):00410                             sta       ,Y+                 Put result in score string
+0390 A680             (      movpac90.as):00411                             lda       ,X+                 Get bcd score byte again
+0392 840F             (      movpac90.as):00412                             anda      #15                 Mask off high nibble
+0394 2701             (      movpac90.as):00413                             beq       TSTFG2
+0396 5C               (      movpac90.as):00414                             incb
+0397 5D               (      movpac90.as):00415         TSTFG2              tstb
+0398 2602             (      movpac90.as):00416                             bne       ASCSET2
+039A 86F0             (      movpac90.as):00417                             lda       #-16
+039C 8B30             (      movpac90.as):00418         ASCSET2             adda      #48
+039E A7A0             (      movpac90.as):00419                             sta       ,Y+
+03A0 7A0000           (      movpac90.as):00420                             dec       SHCNT
+03A3 26D9             (      movpac90.as):00421                             bne       SFLOOP              Loop 3 times
+                      (      movpac90.as):00422         
+03A5 30C90000         (      movpac90.as):00423         JUST1               leax      SCRPOS,U            Point to score string
+03A9 108E0009         (      movpac90.as):00424                             ldy       #9                  Output 9 characters
+03AD 170000           (      movpac90.as):00425                             lbsr      OUTSTR              Go output string
+                      (      movpac90.as):00426         
+03B0 39               (      movpac90.as):00427                             rts
+                      (      movpac90.as):00428         
+                      (      movpac90.as):00429         *     Noise maker when pacman eats a dot
+                      (      movpac90.as):00430         
+                      (      movpac90.as):00431         
+                      (      movpac90.as):00432         *WOCWOC   lda    PATH
+                      (      movpac90.as):00433         *         ldb    #$98
+                      (      movpac90.as):00434         *         ldx    #$3202
+                      (      movpac90.as):00435         *         ldy    #3000
+                      (      movpac90.as):00436         *         os9    I$SetStt
+                      (      movpac90.as):00437         
+                      (      movpac90.as):00438         *         ldy    #2000
+                      (      movpac90.as):00439         *         os9    I$GetStt
+                      (      movpac90.as):00440         
+                      (      movpac90.as):00441         *     Return to MAIN
+                      (      movpac90.as):00442         
+                      (      movpac90.as):00443         *SCDONE   rts
+                      (      movpac90.as):00444         
+                      (      movpac90.as):00445         
+                      (      movpac90.as):00446                             endsect
+                      (      movpac90.as):00447         
+                      (      movpac90.as):00448         
+                      (      movpac90.as):00449         
+
+Symbol Table:
+[ sG] ADDUP                            035A (code)
+[ sG] ADLOOP                           0366 (code)
+[ sG] ASCSET1                          038C (code)
+[ sG] ASCSET2                          039C (code)
+[ sG] CYC                              001B (code)
+[ sG] ERBON                            033B (code)
+[ sG] ERDOT                            0348 (code)
+[ sG] ERPILL                           0317 (code)
+[ sG] EXTCHK                           0254 (code)
+[ sG] JOY                              0001 (code)
+[ sG] JUST1                            03A5 (code)
+[ sG] LEAVE                            0248 (code)
+[ sG] MVDONE                           0296 (code)
+[ sG] MVDWN                            012F (code)
+[ sG] MVLFT                            00AE (code)
+[ sG] MVPAC                            0000 (code)
+[ sG] MVPAC1                           0114 (code)
+[ sG] MVPAC2                           022D (code)
+[ sG] MVRT                             002A (code)
+[ sG] MVUP                             01BB (code)
+[ScG] NOS9MAJ                          0003
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0003
+[ sG] OTDONE                           0316 (code)
+[ sG] PALCHG                           0297 (code)
+[ sG] SFLOOP                           037E (code)
+[ sG] SHIFT                            0370 (code)
+[ sG] SKIPD                            015B (code)
+[ sG] SKIPD2                           016A (code)
+[ sG] SKIPR                            0055 (code)
+[ cG] STACK                            0064
+[ sG] STBUF1                           0095 (code)
+[ sG] STBUF2                           00FD (code)
+[ sG] STBUF3                           01A2 (code)
+[ sG] STBUF4                           021B (code)
+[ sG] TEST2                            02BA (code)
+[ sG] TEST3                            02D3 (code)
+[ sG] TEST4                            02EC (code)
+[ sG] TESTCK                           0305 (code)
+[ sG] TSTFG1                           0387 (code)
+[ sG] TSTFG2                           0397 (code)

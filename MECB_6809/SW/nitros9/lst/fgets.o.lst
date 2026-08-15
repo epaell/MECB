@@ -1,0 +1,56 @@
+                      (         fgets.as):00001                             section   .text
+                      (         fgets.as):00002         
+                      (         fgets.as):00003         ;;; FGETC_NOCR
+                      (         fgets.as):00004         ;;;
+                      (         fgets.as):00005         ;;; Read a string from a device and removes the carriage return from the input.
+                      (         fgets.as):00006         ;;;
+                      (         fgets.as):00007         ;;; Entry:  A = The path to read the string from.
+                      (         fgets.as):00008         ;;;         X = The address of the buffer that holds the string.
+                      (         fgets.as):00009         ;;;         Y = The maximum buffer size minus 1 (for the null character).
+                      (         fgets.as):00010         ;;;
+                      (         fgets.as):00011         ;;; Error:  B = A non-zero error code.
+                      (         fgets.as):00012         ;;;        CC = Carry flag set to indicate error.
+                      (         fgets.as):00013         ;;;
+                      (         fgets.as):00014         ;;; The string entered must end with an end-of-record char (usually a $0D). The null is appended for ease in string handling.
+                      (         fgets.as):00015         
+0000 3416             (         fgets.as):00016         FGETS_NOCR:         pshs      d,x
+0002 8D0A             (         fgets.as):00017                             bsr       FGETS
+0004 2506             (         fgets.as):00018                             bcs       bye
+0006 1F20             (         fgets.as):00019                             tfr       y,d
+0008 301F             (         fgets.as):00020                             leax      -1,x
+000A 6F8B             (         fgets.as):00021                             clr       d,x
+000C 3596             (         fgets.as):00022         bye                 puls      d,x,pc
+                      (         fgets.as):00023         
+                      (         fgets.as):00024         ;;; FGETC
+                      (         fgets.as):00025         ;;;
+                      (         fgets.as):00026         ;;; Read a string from a device.
+                      (         fgets.as):00027         ;;;
+                      (         fgets.as):00028         ;;; Entry:  A = The path to read the string from.
+                      (         fgets.as):00029         ;;;         X = The address of the buffer that holds the string.
+                      (         fgets.as):00030         ;;;         Y = The maximum buffer size minus 1 (for the null character).
+                      (         fgets.as):00031         ;;;
+                      (         fgets.as):00032         ;;; Error:  B = A non-zero error code.
+                      (         fgets.as):00033         ;;;        CC = Carry flag set to indicate error.
+                      (         fgets.as):00034         ;;;
+                      (         fgets.as):00035         ;;; The string entered must end with an end-of-record char (usually a $0D). The null is appended for ease in string handling.
+                      (         fgets.as):00036         
+000E 3412             (         fgets.as):00037         FGETS:              pshs      a,x
+0010 103F00           (         fgets.as):00038                             os9       I$ReadLn            get line
+0013 2505             (         fgets.as):00039                             bcs       exit                return error code
+0015 1F20             (         fgets.as):00040                             tfr       y,d
+0017 6F8B             (         fgets.as):00041                             clr       d,x                 add null
+0019 5F               (         fgets.as):00042                             clrb                          no error..
+                      (         fgets.as):00043         
+001A 3592             (         fgets.as):00044         exit                puls      a,x,pc
+                      (         fgets.as):00045         
+                      (         fgets.as):00046                             endsect
+                      (         fgets.as):00047         
+
+Symbol Table:
+[ sG] bye                              000C (.text)
+[ sG] exit                             001A (.text)
+[ sG] FGETS                            000E (.text)
+[ sG] FGETS_NOCR                       0000 (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000

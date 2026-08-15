@@ -1,0 +1,41 @@
+                      (        prints.as):00001         ;;; PRINTS
+                      (        prints.as):00002         ;;;
+                      (        prints.as):00003         ;;; Print an embedded, null-terminated string to the standard output.
+                      (        prints.as):00004         ;;;
+                      (        prints.as):00005         ;;; Other modules needed: PUTS
+                      (        prints.as):00006         ;;;
+                      (        prints.as):00007         ;;; Entry:  None
+                      (        prints.as):00008         ;;;
+                      (        prints.as):00009         ;;; Error:  B = A non-zero error code.
+                      (        prints.as):00010         ;;;        CC = Carry flag set to indicate error.
+                      (        prints.as):00011         ;;;
+                      (        prints.as):00012         ;;; The null-terminated follows the PRINTS call:
+                      (        prints.as):00013         ;;;
+                      (        prints.as):00014         ;;;          LBSR PRINTS
+                      (        prints.as):00015         ;;;          fcc /this is stuff to print/
+                      (        prints.as):00016         ;;;          fcb $0d  * a new line
+                      (        prints.as):00017         ;;;          fcc /more stuff to print/
+                      (        prints.as):00018         ;;;          fcb $0d,0  the end
+                      (        prints.as):00019         
+                      (        prints.as):00020                             section   .text
+                      (        prints.as):00021         
+0000 3450             (        prints.as):00022         PRINTS:             pshs      x,u
+0002 AE64             (        prints.as):00023                             ldx       4,s                 get start of string (old return address)
+0004 1F13             (        prints.as):00024                             tfr       x,u                 copy it
+                      (        prints.as):00025         
+0006 6DC0             (        prints.as):00026         loop                tst       ,u+                 advance U to end of string
+0008 26FC             (        prints.as):00027                             bne       loop
+                      (        prints.as):00028         
+000A EF64             (        prints.as):00029                             stu       4,s                 one past null=return address
+000C 170000           (        prints.as):00030                             lbsr      PUTS                print from orig pos.
+000F 35D0             (        prints.as):00031                             puls      x,u,pc              return to caller
+                      (        prints.as):00032         
+                      (        prints.as):00033                             endsect
+                      (        prints.as):00034         
+
+Symbol Table:
+[ sG] loop                             0006 (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000
+[ sG] PRINTS                           0000 (.text)

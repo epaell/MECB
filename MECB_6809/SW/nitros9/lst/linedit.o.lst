@@ -1,0 +1,270 @@
+                      (       linedit.as):00001         ;;; LINEDIT
+                      (       linedit.as):00002         ;;;
+                      (       linedit.as):00003         ;;; A line editor routine.
+                      (       linedit.as):00004         ;;;
+                      (       linedit.as):00005         ;;; Other modules needed: STRLEN,IS_PRINT, FPUTS, FPUTC, FGETC, MEMMOVE
+                      (       linedit.as):00006         ;;;
+                      (       linedit.as):00007         ;;; Entry:  A = The input path.
+                      (       linedit.as):00008         ;;;         B = The output path.
+                      (       linedit.as):00009         ;;;         X = The null terminated string to edit.
+                      (       linedit.as):00010         ;;;
+                      (       linedit.as):00011         ;;; Exit:   B = The key that ended the editing.
+                      (       linedit.as):00012         ;;;
+                      (       linedit.as):00013         ;;; This routine does not use cursor positioning. It uses backspacing, so you can use
+                      (       linedit.as):00014         ;;; it without requiring special GOTO XY commands.
+                      (       linedit.as):00015         ;;; It is slow, especially when lines get longer than one line.
+                      (       linedit.as):00016         ;;; If the buffer contains data, you will be able to edit.
+                      (       linedit.as):00017         ;;; To enter new data pass a buffer of blanks.
+                      (       linedit.as):00018         
+                      (       linedit.as):00019                             section   .text
+                      (       linedit.as):00020         
+                      (       linedit.as):00021         * these variable are all referenced via the
+                      (       linedit.as):00022         * U stack pointer.
+                      (       linedit.as):00023         
+     0000             (       linedit.as):00024         modPD               equ       0                   first buffer of copy of path descriptor
+     0004             (       linedit.as):00025         echo                equ       $04                 echo mode
+     0002             (       linedit.as):00026         bso                 equ       $02                 backspace mode
+     0012             (       linedit.as):00027         bse                 equ       $12                 backspace echo char
+     0009             (       linedit.as):00028         bsp                 equ       $09                 backspace char
+     0010             (       linedit.as):00029         int                 equ       $10                 interupt char
+     0011             (       linedit.as):00030         qut                 equ       $11                 quit char
+     0013             (       linedit.as):00031         bell                equ       $13                 line-overflow char
+                      (       linedit.as):00032         
+     0023             (       linedit.as):00033         maxsize             equ       35                  temp variable
+     0026             (       linedit.as):00034         dupPD               equ       38                  2nd path desc.
+                      (       linedit.as):00035         
+     0046             (       linedit.as):00036         vsize               equ       dupPD+32            variable stack size
+     0048             (       linedit.as):00037         strptr              equ       vsize+2             x on stack
+     0046             (       linedit.as):00038         inpath              equ       vsize+0             a on stack
+     0047             (       linedit.as):00039         outpath             equ       inpath+1            b on stack
+                      (       linedit.as):00040         
+0000 3476             (       linedit.as):00041         LINEDIT:            pshs      a,b,x,y,u
+0002 32E8BA           (       linedit.as):00042                             leas      -vsize,s            variable storage area
+0005 1F43             (       linedit.as):00043                             tfr       s,u                 point U to var. area
+0007 170000           (       linedit.as):00044                             lbsr      STRLEN
+000A EDC823           (       linedit.as):00045                             std       maxsize,u           save max leng.
+000D 10270116         (       linedit.as):00046                             lbeq      exit
+                      (       linedit.as):00047         
+                      (       linedit.as):00048         * get 2 copies of path descriptor, one to restore with, one to modify
+                      (       linedit.as):00049         
+0011 A6C847           (       linedit.as):00050                             lda       outpath,u
+0014 30C826           (       linedit.as):00051                             leax      dupPD,u
+0017 5F               (       linedit.as):00052                             clrb                          SS.OPT
+0018 103F00           (       linedit.as):00053                             os9       I$GetStt
+001B 2516             (       linedit.as):00054                             bcs       err1
+001D 30C4             (       linedit.as):00055                             leax      modPD,u
+001F 5F               (       linedit.as):00056                             clrb
+0020 103F00           (       linedit.as):00057                             os9       I$GetStt
+0023 250E             (       linedit.as):00058                             bcs       err1
+                      (       linedit.as):00059         
+0025 5F               (       linedit.as):00060                             clrb
+0026 6F44             (       linedit.as):00061                             clr       echo,u              turn off echo
+0028 6FC810           (       linedit.as):00062                             clr       int,u               ignore keyboard interupt
+002B 6FC811           (       linedit.as):00063                             clr       qut,u               ignore quit
+002E 6F42             (       linedit.as):00064                             clr       bso,u               backspace overstrike
+0030 103F00           (       linedit.as):00065                             os9       I$SetStt
+0033 102500F0         (       linedit.as):00066         err1                lbcs      exit
+                      (       linedit.as):00067         
+                      (       linedit.as):00068         * parse string and change all controls to space
+                      (       linedit.as):00069         
+0037 A680             (       linedit.as):00070         fixloop             lda       ,x+
+0039 270B             (       linedit.as):00071                             beq       fixx
+003B 170000           (       linedit.as):00072                             lbsr      IS_PRINT            is it printable?
+003E 27F7             (       linedit.as):00073                             beq       fixloop             yes, test next
+0040 8620             (       linedit.as):00074                             lda       #$20                change control to space
+0042 A71F             (       linedit.as):00075                             sta       -1,x
+0044 20F1             (       linedit.as):00076                             bra       fixloop
+0046                  (       linedit.as):00077         fixx
+                      (       linedit.as):00078         
+                      (       linedit.as):00079         * print string at current cursor pos....
+                      (       linedit.as):00080         
+0046 A6C847           (       linedit.as):00081                             lda       outpath,u
+0049 10AEC823         (       linedit.as):00082                             ldy       maxsize,u
+004D AEC848           (       linedit.as):00083                             ldx       strptr,u            get string start
+0050 170000           (       linedit.as):00084                             lbsr      FPUTS               print string
+0053 206E             (       linedit.as):00085                             bra       shiftl1             go to line start
+                      (       linedit.as):00086         
+0055 3402             (       linedit.as):00087         loop                pshs      a                   save outpath
+0057 A6C846           (       linedit.as):00088                             lda       inpath,u
+005A 170000           (       linedit.as):00089                             lbsr      FGETC               get one char
+005D 1F89             (       linedit.as):00090                             tfr       a,b                 keypress to B
+005F 3502             (       linedit.as):00091                             puls      a                   restore outpath
+0061 102500A5         (       linedit.as):00092                             lbcs      out
+0065 E149             (       linedit.as):00093                             cmpb      bsp,u               backspace?
+0067 260C             (       linedit.as):00094                             bne       delete              no, try next
+                      (       linedit.as):00095         
+                      (       linedit.as):00096         * backspace one position
+                      (       linedit.as):00097         
+0069 10AF7E           (       linedit.as):00098                             sty       -2,s                test y
+006C 27E7             (       linedit.as):00099                             beq       loop                ignore if already at start
+006E 1700C5           (       linedit.as):00100                             lbsr      bs                  do a backspace
+0071 301F             (       linedit.as):00101                             leax      -1,x
+0073 20E0             (       linedit.as):00102                             bra       loop
+                      (       linedit.as):00103         
+                      (       linedit.as):00104         * Delete char at cursor
+                      (       linedit.as):00105         
+0075 C110             (       linedit.as):00106         delete              cmpb      #$10                delete char?
+0077 262D             (       linedit.as):00107                             bne       inspace             no, try next
+0079 3436             (       linedit.as):00108                             pshs      d,x,y
+007B ECC823           (       linedit.as):00109                             ldd       maxsize,u           max leng
+007E A364             (       linedit.as):00110                             subd      4,s                 -current pos
+0080 1F12             (       linedit.as):00111                             tfr       x,y                 destination
+0082 3001             (       linedit.as):00112                             leax      1,x                 source
+0084 170000           (       linedit.as):00113                             lbsr      MEMMOVE
+0087 30AB             (       linedit.as):00114                             leax      d,y                 end of string
+0089 8620             (       linedit.as):00115                             lda       #$20                put space at end of string
+008B A71F             (       linedit.as):00116                             sta       -1,x
+008D 1F21             (       linedit.as):00117                             tfr       y,x
+                      (       linedit.as):00118         
+008F 3506             (       linedit.as):00119         del1                puls      d                   get outpath and char
+0091 170000           (       linedit.as):00120                             lbsr      FPUTS               reprint string
+0094 10AEC823         (       linedit.as):00121                             ldy       maxsize,u
+                      (       linedit.as):00122         
+0098 10AC62           (       linedit.as):00123         del2                cmpy      2,s                 back up to current cur pos
+009B 2705             (       linedit.as):00124                             beq       del3
+009D 170096           (       linedit.as):00125                             lbsr      bs
+00A0 20F6             (       linedit.as):00126                             bra       del2
+                      (       linedit.as):00127         
+00A2 3530             (       linedit.as):00128         del3                puls      x,y                 clean up and loop
+                      (       linedit.as):00129         
+00A4 20AF             (       linedit.as):00130         del4                bra       loop
+                      (       linedit.as):00131         
+                      (       linedit.as):00132         
+00A6 C111             (       linedit.as):00133         inspace             cmpb      #$11                insert space?
+00A8 2615             (       linedit.as):00134                             bne       shiftl              no, try next
+00AA 3436             (       linedit.as):00135                             pshs      d,x,y
+00AC ECC823           (       linedit.as):00136                             ldd       maxsize,u
+00AF A364             (       linedit.as):00137                             subd      4,s
+00B1 830001           (       linedit.as):00138                             subd      #1
+00B4 3101             (       linedit.as):00139                             leay      1,x                 X=source, Y=dest
+00B6 170000           (       linedit.as):00140                             lbsr      MEMMOVE
+00B9 C620             (       linedit.as):00141                             ldb       #$20                insert space in hole
+00BB E784             (       linedit.as):00142                             stb       ,x
+00BD 20D0             (       linedit.as):00143                             bra       del1                go reprint and loop
+                      (       linedit.as):00144         
+                      (       linedit.as):00145         * move cursor to start of line
+                      (       linedit.as):00146         
+00BF C118             (       linedit.as):00147         shiftl              cmpb      #$18                shift left?
+00C1 2607             (       linedit.as):00148                             bne       shiftr              no, try next
+                      (       linedit.as):00149         
+00C3 8D67             (       linedit.as):00150         shiftl1             bsr       startln             backup to start of line
+00C5 AEC848           (       linedit.as):00151                             ldx       strptr,u            reset x to start of line
+00C8 203D             (       linedit.as):00152                             bra       asciix              go loop
+                      (       linedit.as):00153         
+                      (       linedit.as):00154         * move cursor to end of line
+                      (       linedit.as):00155         
+00CA C119             (       linedit.as):00156         shiftr              cmpb      #$19                shift right?
+00CC 260F             (       linedit.as):00157                             bne       right
+                      (       linedit.as):00158         
+00CE 10ACC823         (       linedit.as):00159         shiftr1             cmpy      maxsize,u
+00D2 24D0             (       linedit.as):00160                             bhs       del4                back to loop
+00D4 E680             (       linedit.as):00161                             ldb       ,x+                 move to end by printing string
+00D6 170000           (       linedit.as):00162                             lbsr      FPUTC
+00D9 3121             (       linedit.as):00163                             leay      1,y
+00DB 20F1             (       linedit.as):00164                             bra       shiftr1
+                      (       linedit.as):00165         
+                      (       linedit.as):00166         * move 1 pos right
+                      (       linedit.as):00167         
+00DD C109             (       linedit.as):00168         right               cmpb      #$09
+00DF 2606             (       linedit.as):00169                             bne       maybasci
+00E1 E684             (       linedit.as):00170                             ldb       ,x                  get current char and insert it
+00E3 1027FF6E         (       linedit.as):00171                             lbeq      loop                at end, don't move
+                      (       linedit.as):00172         
+                      (       linedit.as):00173         * insert ascii char into buffer
+                      (       linedit.as):00174         
+00E7 5D               (       linedit.as):00175         maybasci            tstb                          insert ascii into buffer
+00E8 102B001E         (       linedit.as):00176                             lbmi      out                 not ascii
+00EC C120             (       linedit.as):00177                             cmpb      #$20
+00EE 10250018         (       linedit.as):00178                             lblo      out
+00F2 10ACC823         (       linedit.as):00179                             cmpy      maxsize,u           room for this?
+00F6 2508             (       linedit.as):00180                             blo       ascii               yes, insert it
+00F8 E6C813           (       linedit.as):00181                             ldb       bell,u
+00FB 170000           (       linedit.as):00182                             lbsr      FPUTC
+00FE 2007             (       linedit.as):00183                             bra       asciix              to main loop
+                      (       linedit.as):00184         
+0100 E780             (       linedit.as):00185         ascii               stb       ,x+
+0102 170000           (       linedit.as):00186                             lbsr      FPUTC
+0105 3121             (       linedit.as):00187                             leay      1,y
+0107 16FF4B           (       linedit.as):00188         asciix              lbra      loop
+                      (       linedit.as):00189         
+010A 3404             (       linedit.as):00190         out                 pshs      b                   save keypress
+010C 8D1E             (       linedit.as):00191                             bsr       startln
+010E AEC848           (       linedit.as):00192                             ldx       strptr,u
+0111 170000           (       linedit.as):00193                             lbsr      FPUTS
+                      (       linedit.as):00194         
+0114 30C826           (       linedit.as):00195                             leax      dupPD,u             get original pd
+0117 A6C847           (       linedit.as):00196                             lda       outpath,u
+011A 5F               (       linedit.as):00197                             clrb
+011B 103F00           (       linedit.as):00198                             os9       I$SetStt
+011E 3502             (       linedit.as):00199                             puls      a                   get keypress
+0120 2402             (       linedit.as):00200                             bcc       out1
+0122 1F98             (       linedit.as):00201                             tfr       b,a                 set error to A
+0124 A7E847           (       linedit.as):00202         out1                sta       outpath,s           set B to error/keypress
+                      (       linedit.as):00203         
+                      (       linedit.as):00204         * when exiting CARRY will be set if error. B will contain
+                      (       linedit.as):00205         * either the keypress or the error code.
+                      (       linedit.as):00206         
+0127 32E846           (       linedit.as):00207         exit                leas      vsize,s
+012A 35F6             (       linedit.as):00208                             puls      a,b,x,y,u,pc
+                      (       linedit.as):00209         
+                      (       linedit.as):00210         * move cursor to start of line
+                      (       linedit.as):00211         
+012C 10AF7E           (       linedit.as):00212         startln             sty       -2,s
+012F 2704             (       linedit.as):00213                             beq       startlnx            exit if at start
+0131 8D03             (       linedit.as):00214         startln1            bsr       bs
+0133 26FC             (       linedit.as):00215                             bne       startln1
+                      (       linedit.as):00216         
+0135 39               (       linedit.as):00217         startlnx            rts
+                      (       linedit.as):00218         
+0136 3404             (       linedit.as):00219         bs                  pshs      b
+0138 E6C812           (       linedit.as):00220                             ldb       bse,u
+013B 170000           (       linedit.as):00221                             lbsr      FPUTC
+013E 313F             (       linedit.as):00222                             leay      -1,y
+0140 3584             (       linedit.as):00223                             puls      b,pc
+                      (       linedit.as):00224         
+                      (       linedit.as):00225                             endsect
+
+Symbol Table:
+[ sG] ascii                            0100 (.text)
+[ sG] asciix                           0107 (.text)
+[ cG] bell                             0013
+[ sG] bs                               0136 (.text)
+[ cG] bse                              0012
+[ cG] bso                              0002
+[ cG] bsp                              0009
+[ sG] del1                             008F (.text)
+[ sG] del2                             0098 (.text)
+[ sG] del3                             00A2 (.text)
+[ sG] del4                             00A4 (.text)
+[ sG] delete                           0075 (.text)
+[ cG] dupPD                            0026
+[ cG] echo                             0004
+[ sG] err1                             0033 (.text)
+[ sG] exit                             0127 (.text)
+[ sG] fixloop                          0037 (.text)
+[ sG] fixx                             0046 (.text)
+[ cG] inpath                           0046
+[ sG] inspace                          00A6 (.text)
+[ cG] int                              0010
+[ sG] LINEDIT                          0000 (.text)
+[ sG] loop                             0055 (.text)
+[ cG] maxsize                          0023
+[ sG] maybasci                         00E7 (.text)
+[ cG] modPD                            0000
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000
+[ sG] out                              010A (.text)
+[ sG] out1                             0124 (.text)
+[ cG] outpath                          0047
+[ cG] qut                              0011
+[ sG] right                            00DD (.text)
+[ sG] shiftl                           00BF (.text)
+[ sG] shiftl1                          00C3 (.text)
+[ sG] shiftr                           00CA (.text)
+[ sG] shiftr1                          00CE (.text)
+[ sG] startln                          012C (.text)
+[ sG] startln1                         0131 (.text)
+[ sG] startlnx                         0135 (.text)
+[ cG] strptr                           0048
+[ cG] vsize                            0046

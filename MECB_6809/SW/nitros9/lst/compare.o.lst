@@ -1,0 +1,42 @@
+                      (       compare.as):00001         ;;; COMPARE
+                      (       compare.as):00002         ;;;
+                      (       compare.as):00003         ;;; Compares two characters.
+                      (       compare.as):00004         ;;;
+                      (       compare.as):00005         ;;; Other modules needed: TO_UPPER
+                      (       compare.as):00006         ;;;
+                      (       compare.as):00007         ;;; Entry:  A = The first comparison value.
+                      (       compare.as):00008         ;;;         B = The second comparison value.
+                      (       compare.as):00009         ;;;
+                      (       compare.as):00010         ;;; Exit:  CC = Zero bit set if the characters match.
+                      (       compare.as):00011         ;;;
+                      (       compare.as):00012         ;;; Set CASEMTCH = 0 for non-case comparison, or -1 for case comparison.
+                      (       compare.as):00013         ;;;
+                      (       compare.as):00014         ;;; All registers (except CC) are preserved.
+                      (       compare.as):00015         
+                      (       compare.as):00016                             section   .bss
+                      (       compare.as):00017         
+0000                  (       compare.as):00018         CASEMTCH            rmb       1
+                      (       compare.as):00019         
+                      (       compare.as):00020                             endsect
+                      (       compare.as):00021         
+                      (       compare.as):00022                             section   .text
+                      (       compare.as):00023         
+0000 3406             (       compare.as):00024         COMPARE:            pshs      d
+0002 7D0000           (       compare.as):00025                             tst       CASEMTCH            need to covert to upper?
+0005 2A08             (       compare.as):00026                             bpl       no
+0007 170000           (       compare.as):00027                             lbsr      TO_UPPER
+000A 1E89             (       compare.as):00028                             exg       a,b
+000C 170000           (       compare.as):00029                             lbsr      TO_UPPER
+000F 3402             (       compare.as):00030         no                  pshs      a                   somewhere to compare it
+0011 E1E0             (       compare.as):00031                             cmpb      ,s+                 do compare, set zero
+0013 3586             (       compare.as):00032                             puls      d,pc                go home
+                      (       compare.as):00033         
+                      (       compare.as):00034                             endsect
+
+Symbol Table:
+[ sG] CASEMTCH                         0000 (.bss)
+[ sG] COMPARE                          0000 (.text)
+[ sG] no                               000F (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000

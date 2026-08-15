@@ -1,0 +1,45 @@
+                      (       strncmp.as):00001         ;;; STRNCMP
+                      (       strncmp.as):00002         ;;;
+                      (       strncmp.as):00003         ;;; Compare two null-terminated strings up to a maximum length.
+                      (       strncmp.as):00004         ;;;
+                      (       strncmp.as):00005         ;;; Other modules needed: COMPARE
+                      (       strncmp.as):00006         ;;;
+                      (       strncmp.as):00007         ;;; Entry:  D = The number of characters to compare.
+                      (       strncmp.as):00008         ;;;         X = The address of the first string.
+                      (       strncmp.as):00009         ;;;         Y = The address of the second string.
+                      (       strncmp.as):00010         ;;;
+                      (       strncmp.as):00011         ;;; Exit:  CC = Zero set if the strings are equal.
+                      (       strncmp.as):00012         ;;;        CC = Carry set and Zero clear if the first string is greater than the second.
+                      (       strncmp.as):00013         ;;;        CC = Carry set and Zero set if the first string is less than the second.
+                      (       strncmp.as):00014         ;;;
+                      (       strncmp.as):00015         ;;; Set CASEMTCH = 0 for non-case comparison, or -1 for case comparison.
+                      (       strncmp.as):00016         
+                      (       strncmp.as):00017                             section   .text
+                      (       strncmp.as):00018         
+0000 3476             (       strncmp.as):00019         STRNCMP:            pshs      d,x,y,u
+                      (       strncmp.as):00020         
+0002 1F23             (       strncmp.as):00021                             tfr       y,u                 U=string2
+0004 1F02             (       strncmp.as):00022                             tfr       d,y                 use Y for counter
+0006 3121             (       strncmp.as):00023                             leay      1,y                 comp for initial dec.
+                      (       strncmp.as):00024         
+0008 313F             (       strncmp.as):00025         loop                leay      -1,y                count down
+000A 2709             (       strncmp.as):00026                             beq       exit                no miss-matches
+000C A680             (       strncmp.as):00027                             lda       ,x+                 get 2 to compare
+000E E6C0             (       strncmp.as):00028                             ldb       ,u+
+0010 170000           (       strncmp.as):00029                             lbsr      COMPARE             go compare chars.
+0013 27F3             (       strncmp.as):00030                             beq       loop                chars match, do more
+                      (       strncmp.as):00031         
+                      (       strncmp.as):00032         * exit with flags set. Do a beq, bhi or blo to correct
+                      (       strncmp.as):00033         * routines....
+                      (       strncmp.as):00034         
+0015 35F6             (       strncmp.as):00035         exit                puls      d,x,y,u,pc
+                      (       strncmp.as):00036         
+                      (       strncmp.as):00037                             endsect
+
+Symbol Table:
+[ sG] exit                             0015 (.text)
+[ sG] loop                             0008 (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000
+[ sG] STRNCMP                          0000 (.text)

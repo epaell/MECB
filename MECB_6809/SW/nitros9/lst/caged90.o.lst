@@ -1,0 +1,399 @@
+                      (       caged90.as):00001         
+                      (       caged90.as):00002                             nam       Caged
+                      (       caged90.as):00003                             ttl       Routines to Cage and Uncage Ghosts
+                      (       caged90.as):00004         
+                      (       caged90.as):00005         *     Program segment to be compiled using Level II RMA
+                      (       caged90.as):00006         *          This is not a mainline program segment
+                      (       caged90.as):00007         *                 Written by Larry Olson
+                      (       caged90.as):00008         
+                      (       caged90.as):00009                             ifp1
+                      (       caged90.as):00010         *         use   /dd/defs/os9defs.a
+                      (       caged90.as):00011                             endc
+                      (       caged90.as):00012         
+                      (       caged90.as):00013         
+     0064             (       caged90.as):00014         STACK               equ       100
+                      (       caged90.as):00015         
+                      (       caged90.as):00016                             section   bss
+                      (       caged90.as):00017         
+                      (       caged90.as):00018         *     Lcoal Variables
+                      (       caged90.as):00019         
+0000                  (       caged90.as):00020         XSAVE               rmb       2
+0002                  (       caged90.as):00021                             rmb       STACK
+                      (       caged90.as):00022         
+                      (       caged90.as):00023         
+                      (       caged90.as):00024         *********************************
+                      (       caged90.as):00025         *     Global Variables          *
+                      (       caged90.as):00026         *                               *
+                      (       caged90.as):00027         *        ARRAY     ---   MAIN   *
+                      (       caged90.as):00028         *                               *
+                      (       caged90.as):00029         *     Ghost tables. One table   *
+                      (       caged90.as):00030         *         for each ghost        *
+                      (       caged90.as):00031         *        located in MAIN        *
+                      (       caged90.as):00032         *                               *
+                      (       caged90.as):00033         *        G1OFST    ---   MAIN   *
+                      (       caged90.as):00034         *        G1XNEW    ---   MAIN   *
+                      (       caged90.as):00035         *        G1YNEW    ---   MAIN   *
+                      (       caged90.as):00036         *        G1XOLD    ---   MAIN   *
+                      (       caged90.as):00037         *        G1YOLD    ---   MAIN   *
+                      (       caged90.as):00038         *        G1STAT    ---   MAIN   *
+                      (       caged90.as):00039         *        G1BUFF    ---   MAIN   *
+                      (       caged90.as):00040         *        G1TIME    ---   MAIN   *
+                      (       caged90.as):00041         *        TIMVAL    ---   MAIN   *
+                      (       caged90.as):00042         *        G1DIR     ---   MAIN   *
+                      (       caged90.as):00043         *        DIROFF    ---   MAIN   *
+                      (       caged90.as):00044         *        G1UPDT    ---   MAIN   *
+                      (       caged90.as):00045         *        UPDATE    ---   MAIN   *
+                      (       caged90.as):00046         *                               *
+                      (       caged90.as):00047         *        GCOUNT    ---   MAIN   *
+                      (       caged90.as):00048         *                               *
+                      (       caged90.as):00049         *        PBFN      ---   MAIN   *
+                      (       caged90.as):00050         *                               *
+                      (       caged90.as):00051         *        PXLOC     ---   MAIN   *
+                      (       caged90.as):00052         *        PYLOC     ---   MAIN   *
+                      (       caged90.as):00053         *        POFSET    ---   MAIN   *
+                      (       caged90.as):00054         *                               *
+                      (       caged90.as):00055         *     Global Labels             *
+                      (       caged90.as):00056         *                               *
+                      (       caged90.as):00057         *        PUTBLK    ---   MAIN   *
+                      (       caged90.as):00058         *        ERR1      ---   MAIN   *
+                      (       caged90.as):00059         *        GHMOVE    ---   GHOSTS *
+                      (       caged90.as):00060         *        HUNT      ---   GHOSTS *
+                      (       caged90.as):00061         *********************************
+                      (       caged90.as):00062         
+                      (       caged90.as):00063         
+                      (       caged90.as):00064                             endsect
+                      (       caged90.as):00065         
+                      (       caged90.as):00066                             section   code
+                      (       caged90.as):00067         
+                      (       caged90.as):00068         *     Ghost is caged, so check timer value
+                      (       caged90.as):00069         
+0000 E60A             (       caged90.as):00070         CAGED               ldb       10,X                Check status
+0002 C1FD             (       caged90.as):00071                             cmpb      #-3                 Are eyes free of cage?
+0004 1027020D         (       caged90.as):00072                             lbeq      MVEYES              Go move eyes
+0008 E60C             (       caged90.as):00073                             ldb       12,X                Get timer value for ghost
+000A 5A               (       caged90.as):00074                             decb                          Decrement it
+000B E70C             (       caged90.as):00075                             stb       12,X                Put it back
+000D 2738             (       caged90.as):00076                             beq       MOVOUT              Start moving ghost out
+000F C10A             (       caged90.as):00077                             cmpb      #10                 Are we close to zero?
+0011 230B             (       caged90.as):00078                             bls       GHFLSH              Go flash ghost
+                      (       caged90.as):00079         
+0013 8E0002           (       caged90.as):00080                             ldx       #2
+0016 103F00           (       caged90.as):00081                             os9       F$Sleep
+0019 10250000         (       caged90.as):00082                             lbcs      ERR1
+                      (       caged90.as):00083         
+001D 39               (       caged90.as):00084                             rts                           If not, return to MAIN
+                      (       caged90.as):00085         
+                      (       caged90.as):00086         *     Ghost is caged and close to coming out so blink it
+                      (       caged90.as):00087         *       or if status=-2 then go blink eyes
+                      (       caged90.as):00088         *     X reg points to start of current ghost table
+                      (       caged90.as):00089         *     A reg contains current ghost status byte
+                      (       caged90.as):00090         
+001E C1FE             (       caged90.as):00091         GHFLSH              cmpb      #-2                 Is ghost dead? Only eyes?
+0020 102700F3         (       caged90.as):00092                             lbeq      EYFLSH              If so, then go flash eyes
+0024 EC02             (       caged90.as):00093                             ldd       2,X                 Get ghost scrn X location
+0026 FD0000           (       caged90.as):00094                             std       PGXLOC              Put it in PUTGHT string
+0029 EC04             (       caged90.as):00095                             ldd       4,X                 Get ghost scrn Y location
+002B FD0000           (       caged90.as):00096                             std       PGYLOC              Put it in PUTGHT string
+002E C601             (       caged90.as):00097                             ldb       #1                  Buffer # for blank ghost
+0030 F70000           (       caged90.as):00098                             stb       PGBFN               Put it in PUTGHT string
+0033 BF0000           (       caged90.as):00099                             stx       XSAVE               Save X register
+0036 170000           (       caged90.as):00100                             lbsr      PUTGHT              Go erase ghost
+0039 BE0000           (       caged90.as):00101                             ldx       XSAVE               Restore X register
+003C E60B             (       caged90.as):00102                             ldb       11,X                Get ghost buffer #
+003E F70000           (       caged90.as):00103                             stb       PGBFN               Put it in PUTGHT string
+0041 170000           (       caged90.as):00104                             lbsr      PUTGHT              Put ghost back on screen
+0044 1600CF           (       caged90.as):00105                             lbra      RETURN              Return to MAIN
+                      (       caged90.as):00106         
+                      (       caged90.as):00107         *     Ghost is available to come out, so set status
+                      (       caged90.as):00108         *     flags and open cage door
+                      (       caged90.as):00109         *             X reg. points to start of ghost table
+                      (       caged90.as):00110         *             A reg. contains ghost status byte
+                      (       caged90.as):00111         *             B reg. contains ghost timer value
+                      (       caged90.as):00112         
+0047 4F               (       caged90.as):00113         MOVOUT              clra                          0=Caged but moving out
+0048 A70A             (       caged90.as):00114                             sta       10,X                Save new ghost status
+004A C616             (       caged90.as):00115                             ldb       #22                 22=Buff # for blank door
+004C F70000           (       caged90.as):00116                             stb       PBFN                Put it in PUTBLK string
+004F CC0133           (       caged90.as):00117                             ldd       #307                X location of door
+0052 FD0000           (       caged90.as):00118                             std       PXLOC               Put it in PUTBLK string
+0055 CC004E           (       caged90.as):00119                             ldd       #78                 Y location of door
+0058 FD0000           (       caged90.as):00120                             std       PYLOC               Put it in PUTBLK string
+005B 170000           (       caged90.as):00121                             lbsr      PUTBLK              Go erase door
+005E 1600B5           (       caged90.as):00122                             lbra      RETURN              Return to MAIN
+                      (       caged90.as):00123         
+                      (       caged90.as):00124         *     Check for direction to move ghost
+                      (       caged90.as):00125         *             X reg. points to start of current ghost table
+                      (       caged90.as):00126         *             A reg. contains current ghost status
+                      (       caged90.as):00127         
+0061 EC00             (       caged90.as):00128         MOVING              ldd       0,X                 Get array offset for ghost
+0063 10830610         (       caged90.as):00129                             cmpd      #1552               Are we moving up?
+0067 10230060         (       caged90.as):00130                             lbls      MUP                 If so, then keep moving up
+006B 10830655         (       caged90.as):00131                             cmpd      #1621               Are we on center line?
+006F 10270058         (       caged90.as):00132                             lbeq      MUP                 If so, then go move up
+0073 2525             (       caged90.as):00133                             blo       MRIGHT              If lower, then move right
+0075 830001           (       caged90.as):00134                             subd      #1                  Move 1 position left in array
+0078 ED00             (       caged90.as):00135                             std       0,X                 Save new offset position
+007A EC02             (       caged90.as):00136                             ldd       2,X                 Get ghost scrn X location
+007C 830008           (       caged90.as):00137                             subd      #8                  Move 8 pixels to the left
+007F ED02             (       caged90.as):00138                             std       2,X                 Save new scrn X location
+0081 ED06             (       caged90.as):00139                             std       6,X                 Also save in OLD X location
+0083 FD0000           (       caged90.as):00140                             std       PGXLOC              Also put it in PUTGHT
+0086 EC04             (       caged90.as):00141                             ldd       4,X                 Get ghost scrn Y location
+0088 ED08             (       caged90.as):00142                             std       8,X                 Also put it in OLD Y location
+008A FD0000           (       caged90.as):00143                             std       PGYLOC              Put it in PUTGHT
+008D A60B             (       caged90.as):00144                             lda       11,X                Get current ghost buffer#
+008F 8B01             (       caged90.as):00145                             adda      #1                  Add 1 for left facing ghost
+0091 B70000           (       caged90.as):00146                             sta       PGBFN               Put it in PUTGHT string
+0094 170000           (       caged90.as):00147                             lbsr      PUTGHT              Put ghost back on screen
+0097 16007C           (       caged90.as):00148                             lbra      RETURN              Return to MAIN
+                      (       caged90.as):00149         
+                      (       caged90.as):00150         *     Ghost is left of center so move to the right
+                      (       caged90.as):00151         *           X reg. points to start of current ghost table
+                      (       caged90.as):00152         *           D reg. contains array position offset of ghost
+                      (       caged90.as):00153         
+009A C30001           (       caged90.as):00154         MRIGHT              addd      #1                  Move 1 position to right
+009D ED00             (       caged90.as):00155                             std       0,X                 Save new offset position
+009F EC06             (       caged90.as):00156                             ldd       6,X                 Get G1XOLD
+00A1 10A302           (       caged90.as):00157                             cmpd      2,X                 Compare it with G1XNEW
+00A4 2705             (       caged90.as):00158                             beq       SKIPMR
+00A6 C30008           (       caged90.as):00159                             addd      #8                  Add 8 to OLD location
+00A9 ED06             (       caged90.as):00160                             std       6,X                 Put result back in G1XOLD
+00AB EC02             (       caged90.as):00161         SKIPMR              ldd       2,X                 Get new scrn X location
+00AD C30008           (       caged90.as):00162                             addd      #8                  Move 8 pixels to the right
+00B0 ED02             (       caged90.as):00163                             std       2,X                 Save new scrn X location
+00B2 EC06             (       caged90.as):00164                             ldd       6,X                 Get OLD scrn X location
+00B4 FD0000           (       caged90.as):00165                             std       PGXLOC              Also put it in PUTGHT
+00B7 EC04             (       caged90.as):00166                             ldd       4,X                 Get NEW scrn Y location
+00B9 ED08             (       caged90.as):00167                             std       8,X                 G1YOLD=G1YNEW
+00BB FD0000           (       caged90.as):00168                             std       PGYLOC              Also put it in PUTGHT
+00BE A60B             (       caged90.as):00169                             lda       11,X                Get current ghost buffer #
+00C0 8B02             (       caged90.as):00170                             adda      #2                  Add 2,for right facing ghost
+00C2 B70000           (       caged90.as):00171                             sta       PGBFN               Put it in PUTGHT string
+00C5 170000           (       caged90.as):00172                             lbsr      PUTGHT              Put ghost back on screen
+00C8 16004B           (       caged90.as):00173                             lbra      RETURN              Return to MAIN
+                      (       caged90.as):00174         
+                      (       caged90.as):00175         *     Ghost is on center line so move up
+                      (       caged90.as):00176         *            X reg. points to start of current ghost table
+                      (       caged90.as):00177         *            D reg. contains array position offset of ghost
+                      (       caged90.as):00178         
+00CB 10830541         (       caged90.as):00179         MUP                 cmpd      #1345               Are we out of cage?
+00CF 2723             (       caged90.as):00180                             beq       FREEGH              Yes? go set ghost free flags
+00D1 830045           (       caged90.as):00181                             subd      #69                 Move 1 position up in array
+00D4 ED00             (       caged90.as):00182                             std       0,X                 Save new array offset
+00D6 EC04             (       caged90.as):00183                             ldd       4,X                 in the up direction
+00D8 830003           (       caged90.as):00184                             subd      #3                  Move up 3 pixels
+00DB ED04             (       caged90.as):00185                             std       4,X                 Save new scrn Y location
+00DD ED08             (       caged90.as):00186                             std       8,X                 Also put it in OLD Y
+00DF FD0000           (       caged90.as):00187                             std       PGYLOC              Also load PUTGHT string
+00E2 EC02             (       caged90.as):00188                             ldd       2,X                 Get G1XNEW
+00E4 ED06             (       caged90.as):00189                             std       6,X                 G1XOLD=G1XNEW
+00E6 FD0000           (       caged90.as):00190                             std       PGXLOC              Also put it in PUTGHT
+00E9 A60B             (       caged90.as):00191                             lda       11,X                Get current ghost buffer#
+00EB B70000           (       caged90.as):00192                             sta       PGBFN               Put it in PUTGHT string
+00EE 170000           (       caged90.as):00193                             lbsr      PUTGHT              Go put ghost on screen
+00F1 160022           (       caged90.as):00194                             lbra      RETURN              Return to MAIN
+                      (       caged90.as):00195         
+                      (       caged90.as):00196         *     Ghost is out of cage, so close door and set flags
+                      (       caged90.as):00197         *             X reg. points to start of current ghost table
+                      (       caged90.as):00198         *             D reg. contains ghost array position offset
+                      (       caged90.as):00199         
+00F4 C601             (       caged90.as):00200         FREEGH              ldb       #1                  1=Free ghost
+00F6 E70A             (       caged90.as):00201                             stb       10,X                Update status for this ghost
+                      (       caged90.as):00202         
+00F8 31C90000         (       caged90.as):00203                             leay      ARRAY,U             Point to start of array
+00FC EC00             (       caged90.as):00204                             ldd       0,X                 Get ghost array ofset
+00FE 31AB             (       caged90.as):00205                             leay      D,Y                 Move Y reg. to that spot
+                      (       caged90.as):00206         
+0100 8D39             (       caged90.as):00207                             bsr       HUNT                Go find direction of pacman
+                      (       caged90.as):00208         
+0102 C617             (       caged90.as):00209                             ldb       #23                 23=Buffer# for cage door
+0104 F70000           (       caged90.as):00210                             stb       PGBFN               Put it in PUTGHT string
+0107 CC0133           (       caged90.as):00211                             ldd       #307                307=Scrn X location of door
+010A FD0000           (       caged90.as):00212                             std       PGXLOC              Put it in PUTGHT string
+010D CC004E           (       caged90.as):00213                             ldd       #78                 78=Scrn Y location of door
+0110 FD0000           (       caged90.as):00214                             std       PGYLOC              Put it in PUTGHT string
+0113 170000           (       caged90.as):00215                             lbsr      PUTGHT              Go draw cage door
+0116 39               (       caged90.as):00216         RETURN              rts
+                      (       caged90.as):00217         
+                      (       caged90.as):00218         
+                      (       caged90.as):00219         
+0117 39               (       caged90.as):00220         EYFLSH              rts
+                      (       caged90.as):00221         
+                      (       caged90.as):00222         *     This routine is used to compare the ghosts
+                      (       caged90.as):00223         *     location to pacman's location and then set
+                      (       caged90.as):00224         *     the ghost direction pointers to move away
+                      (       caged90.as):00225         *     from pacman.
+                      (       caged90.as):00226         *     ON ENTRY:
+                      (       caged90.as):00227         *       X reg. points to top of current ghost table
+                      (       caged90.as):00228         
+0118 EC00             (       caged90.as):00229         RUN                 ldd       0,X                 Get ghost array offset
+011A C30045           (       caged90.as):00230                             addd      #69                 Move down 1 line
+011D 10B30000         (       caged90.as):00231                             cmpd      POFSET              Compare ghost to pacman offset
+0121 10250097         (       caged90.as):00232                             lblo      HUNTUP              Pacman is down or to right
+0125 830045           (       caged90.as):00233                             subd      #69
+0128 10B30000         (       caged90.as):00234                             cmpd      POFSET
+012C 2552             (       caged90.as):00235                             blo       HUNTLF
+012E 830045           (       caged90.as):00236                             subd      #69
+0131 10B30000         (       caged90.as):00237                             cmpd      POFSET
+0135 102200A0         (       caged90.as):00238                             lbhi      HUNTDN
+0139 2063             (       caged90.as):00239                             bra       HUNTRT
+                      (       caged90.as):00240         
+                      (       caged90.as):00241         *     This routine is used to compare the ghosts
+                      (       caged90.as):00242         *     location to pacman's location and then set
+                      (       caged90.as):00243         *     the ghost direction pointers to move toward
+                      (       caged90.as):00244         *     pacman.
+                      (       caged90.as):00245         *     ON ENTRY:
+                      (       caged90.as):00246         *       X reg. points to top of current ghost table
+                      (       caged90.as):00247         *     First run random number generator
+                      (       caged90.as):00248         
+013B 170000           (       caged90.as):00249         HUNT                lbsr      RANDNM              Go pick random number
+013E 811E             (       caged90.as):00250                             cmpa      #30
+0140 2221             (       caged90.as):00251                             bhi       HUNT2
+                      (       caged90.as):00252         
+0142 EC00             (       caged90.as):00253                             ldd       0,X                 Get ghost array offset
+0144 C30045           (       caged90.as):00254                             addd      #69                 Move down 1 line
+0147 10B30000         (       caged90.as):00255                             cmpd      POFSET              Compare ghost to pacman offset
+014B 1025006D         (       caged90.as):00256                             lblo      HUNTUP              Pacman is down move up
+014F 830045           (       caged90.as):00257                             subd      #69                 Move back to offset location
+0152 10B30000         (       caged90.as):00258                             cmpd      POFSET              Compare ghost to pacman offset
+0156 2528             (       caged90.as):00259                             blo       HUNTLF              Pacman to right, move left
+0158 830045           (       caged90.as):00260                             subd      #69                 Move up 1 line
+015B 10B30000         (       caged90.as):00261                             cmpd      POFSET              Compare ghost to pacman offset
+015F 2278             (       caged90.as):00262                             bhi       HUNTDN              Pacman is up, move down
+0161 203B             (       caged90.as):00263                             bra       HUNTRT              go move right
+                      (       caged90.as):00264         
+0163 EC00             (       caged90.as):00265         HUNT2               ldd       0,X                 Get ghost array offset
+0165 C30045           (       caged90.as):00266                             addd      #69                 Move down 1 line
+0168 10B30000         (       caged90.as):00267                             cmpd      POFSET              Compare ghost to pacman offset
+016C 256B             (       caged90.as):00268                             blo       HUNTDN              Pacman is down or to right
+016E 830045           (       caged90.as):00269                             subd      #69                 Move back to offset location
+0171 10B30000         (       caged90.as):00270                             cmpd      POFSET              Compare ghost to pacman offset
+0175 2527             (       caged90.as):00271                             blo       HUNTRT              Pacman is to right of ghost
+0177 830045           (       caged90.as):00272                             subd      #69                 Move up 1 line
+017A 10B30000         (       caged90.as):00273                             cmpd      POFSET              Compare ghost to pacman offset
+017E 223C             (       caged90.as):00274                             bhi       HUNTUP              Pacman is above the ghost
+                      (       caged90.as):00275         
+0180 C601             (       caged90.as):00276         HUNTLF              ldb       #1
+0182 E10F             (       caged90.as):00277                             cmpb      15,X                Did we go right last time?
+0184 2706             (       caged90.as):00278                             beq       HLFUP
+0186 8601             (       caged90.as):00279                             lda       #1                  Set dir. LEFT
+0188 E63F             (       caged90.as):00280                             ldb       -1,Y
+018A 2A68             (       caged90.as):00281                             bpl       SETDIR
+018C 8600             (       caged90.as):00282         HLFUP               lda       #0                  Set dir. UP
+018E E6A8BB           (       caged90.as):00283                             ldb       -69,Y
+0191 2A61             (       caged90.as):00284                             bpl       SETDIR
+0193 8603             (       caged90.as):00285                             lda       #3                  SET dir. DOWN
+0195 E6A845           (       caged90.as):00286                             ldb       69,Y
+0198 2A5A             (       caged90.as):00287                             bpl       SETDIR
+019A 8602             (       caged90.as):00288                             lda       #2                  SET dir. RIGHT
+019C 2056             (       caged90.as):00289                             bra       SETDIR
+                      (       caged90.as):00290         
+019E C6FF             (       caged90.as):00291         HUNTRT              ldb       #-1
+01A0 E10F             (       caged90.as):00292                             cmpb      15,X                Did we go left last time?
+01A2 2706             (       caged90.as):00293                             beq       HRTDN
+01A4 8602             (       caged90.as):00294                             lda       #2                  Set dir.offset to right
+01A6 E621             (       caged90.as):00295                             ldb       1,Y                 Look 1 space to right in array
+01A8 2A4A             (       caged90.as):00296                             bpl       SETDIR              Found move, Go set direction
+01AA 8603             (       caged90.as):00297         HRTDN               lda       #3                  Set dir. DOWN
+01AC E6A845           (       caged90.as):00298                             ldb       69,Y                Look 1 line down in array
+01AF 2A43             (       caged90.as):00299                             bpl       SETDIR              Found move, Go set direction
+01B1 8600             (       caged90.as):00300                             lda       #0                  Set dir. offset to UP
+01B3 E6A8BB           (       caged90.as):00301                             ldb       -69,Y               Look 1 line up in array
+01B6 2A3C             (       caged90.as):00302                             bpl       SETDIR              Found a move, go set direction
+01B8 8601             (       caged90.as):00303                             lda       #1                  Set dir. offset to left
+01BA 2038             (       caged90.as):00304                             bra       SETDIR              Go set direction
+                      (       caged90.as):00305         *     Look UP,LEFT,RIGHT and DOWN
+01BC C645             (       caged90.as):00306         HUNTUP              ldb       #69
+01BE E10F             (       caged90.as):00307                             cmpb      15,X                Did we go down last time?
+01C0 2707             (       caged90.as):00308                             beq       HUPLF
+01C2 8600             (       caged90.as):00309                             lda       #0                  Direction offset (UP)
+01C4 E6A8BB           (       caged90.as):00310                             ldb       -69,Y               Look 1 line up in array
+01C7 2A2B             (       caged90.as):00311                             bpl       SETDIR              Found move,Go set direction
+01C9 8601             (       caged90.as):00312         HUPLF               lda       #1                  Direction offset (LEFT)
+01CB E63F             (       caged90.as):00313                             ldb       -1,Y                Look 1 space to left in array
+01CD 2A25             (       caged90.as):00314                             bpl       SETDIR              Found move, Go set direction
+01CF 8602             (       caged90.as):00315                             lda       #2                  Direction offset (RIGHT)
+01D1 E621             (       caged90.as):00316                             ldb       1,Y                 Look 1 space to right in array
+01D3 2A1F             (       caged90.as):00317                             bpl       SETDIR              Found move, Go set direction
+01D5 8603             (       caged90.as):00318                             lda       #3                  Only dir. left (DOWN)
+01D7 201B             (       caged90.as):00319                             bra       SETDIR              Go set direction
+                      (       caged90.as):00320         *     Look DOWN,LEFT,RIGHT and UP
+01D9 C6BB             (       caged90.as):00321         HUNTDN              ldb       #-69
+01DB E10F             (       caged90.as):00322                             cmpb      15,X                Did we go up last time?
+01DD 2707             (       caged90.as):00323                             beq       HDNRT
+01DF 8603             (       caged90.as):00324                             lda       #3                  Direction offset (DOWN)
+01E1 E6A845           (       caged90.as):00325                             ldb       69,Y                Look 1 space down in array
+01E4 2A0E             (       caged90.as):00326                             bpl       SETDIR              Found move, Go set direction
+01E6 8602             (       caged90.as):00327         HDNRT               lda       #2                  Direction offset (RIGHT)
+01E8 E621             (       caged90.as):00328                             ldb       1,Y                 Look 1 space to right in array
+01EA 2A08             (       caged90.as):00329                             bpl       SETDIR              Found move, Go set direction
+01EC 8601             (       caged90.as):00330                             lda       #1                  Direction offset (LEFT)
+01EE E63F             (       caged90.as):00331                             ldb       -1,Y                Look 1 space to left in array
+01F0 2A02             (       caged90.as):00332                             bpl       SETDIR              Found move, Go set direction
+01F2 8600             (       caged90.as):00333                             lda       #0                  Only dir. left (UP)
+                      (       caged90.as):00334         *     Move found, So set direction flags
+01F4 A70E             (       caged90.as):00335         SETDIR              sta       14,X                Save dir.# (0,1,2,3)
+01F6 2606             (       caged90.as):00336                             bne       SETD2
+01F8 C6BB             (       caged90.as):00337                             ldb       #-69                -69
+01FA E70F             (       caged90.as):00338                             stb       15,X                Put it in GARDIR
+01FC 2016             (       caged90.as):00339                             bra       DONE
+                      (       caged90.as):00340         
+01FE 4A               (       caged90.as):00341         SETD2               deca
+01FF 2606             (       caged90.as):00342                             bne       SETD3
+0201 C6FF             (       caged90.as):00343                             ldb       #-1                 -1
+0203 E70F             (       caged90.as):00344                             stb       15,X                Put it in GARDIR
+0205 200D             (       caged90.as):00345                             bra       DONE
+                      (       caged90.as):00346         
+0207 4A               (       caged90.as):00347         SETD3               deca
+0208 2606             (       caged90.as):00348                             bne       SETD4
+020A C601             (       caged90.as):00349                             ldb       #1                  +1
+020C E70F             (       caged90.as):00350                             stb       15,X                Put it in GARDIR
+020E 2004             (       caged90.as):00351                             bra       DONE
+                      (       caged90.as):00352         
+0210 C645             (       caged90.as):00353         SETD4               ldb       #69                 +69
+0212 E70F             (       caged90.as):00354                             stb       15,X                Put it in GARDIR
+                      (       caged90.as):00355         
+0214 39               (       caged90.as):00356         DONE                rts
+                      (       caged90.as):00357         
+                      (       caged90.as):00358         *    Move ghost eyes
+                      (       caged90.as):00359         
+0215 39               (       caged90.as):00360         MVEYES              rts
+                      (       caged90.as):00361         
+                      (       caged90.as):00362         
+                      (       caged90.as):00363                             endsect
+                      (       caged90.as):00364         
+                      (       caged90.as):00365         
+
+Symbol Table:
+[ sG] CAGED                            0000 (code)
+[ sG] DONE                             0214 (code)
+[ sG] EYFLSH                           0117 (code)
+[ sG] FREEGH                           00F4 (code)
+[ sG] GHFLSH                           001E (code)
+[ sG] HDNRT                            01E6 (code)
+[ sG] HLFUP                            018C (code)
+[ sG] HRTDN                            01AA (code)
+[ sG] HUNT                             013B (code)
+[ sG] HUNT2                            0163 (code)
+[ sG] HUNTDN                           01D9 (code)
+[ sG] HUNTLF                           0180 (code)
+[ sG] HUNTRT                           019E (code)
+[ sG] HUNTUP                           01BC (code)
+[ sG] HUPLF                            01C9 (code)
+[ sG] MOVING                           0061 (code)
+[ sG] MOVOUT                           0047 (code)
+[ sG] MRIGHT                           009A (code)
+[ sG] MUP                              00CB (code)
+[ sG] MVEYES                           0215 (code)
+[ScG] NOS9MAJ                          0003
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0003
+[ sG] RETURN                           0116 (code)
+[ sG] RUN                              0118 (code)
+[ sG] SETD2                            01FE (code)
+[ sG] SETD3                            0207 (code)
+[ sG] SETD4                            0210 (code)
+[ sG] SETDIR                           01F4 (code)
+[ sG] SKIPMR                           00AB (code)
+[ cG] STACK                            0064
+[ sG] XSAVE                            0000 (bss)

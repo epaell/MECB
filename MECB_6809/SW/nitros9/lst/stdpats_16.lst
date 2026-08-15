@@ -1,0 +1,227 @@
+                      (ys/stdpats_16.asm):00001         ********************************************************************
+                      (ys/stdpats_16.asm):00002         * StdPats_16 - Standard Patterns for 16 colors
+                      (ys/stdpats_16.asm):00003         *
+                      (ys/stdpats_16.asm):00004         * Edt/Rev  YYYY/MM/DD  Modified by
+                      (ys/stdpats_16.asm):00005         * Comment
+                      (ys/stdpats_16.asm):00006         * ------------------------------------------------------------------
+                      (ys/stdpats_16.asm):00007         *          2003/11/26  Boisy G. Pitre
+                      (ys/stdpats_16.asm):00008         * Made into source form.
+                      (ys/stdpats_16.asm):00009         
+                      (ys/stdpats_16.asm):00010                             nam       StdPats_16
+                      (ys/stdpats_16.asm):00011                             ttl       Standard Patterns for 16 colors
+                      (ys/stdpats_16.asm):00012         
+                      (ys/stdpats_16.asm):00013         
+                      (ys/stdpats_16.asm):00014                             org       0
+                      (ys/stdpats_16.asm):00015         
+0000 1B2B             (ys/stdpats_16.asm):00016         dots                fcb       $1B,$2B
+0002 CD               (ys/stdpats_16.asm):00017                             fcb       $CD                 group #
+0003 01               (ys/stdpats_16.asm):00018                             fcb       $01                 buffer #
+0004 05               (ys/stdpats_16.asm):00019                             fcb       $05                 style 640x192x2
+0005 0020             (ys/stdpats_16.asm):00020                             fdb       $0020               xsize
+0007 0008             (ys/stdpats_16.asm):00021                             fdb       $0008               ysize
+0009 0080             (ys/stdpats_16.asm):00022                             fdb       $0080               bytes
+                      (ys/stdpats_16.asm):00023         
+000B F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00024                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+0013 F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00025                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+001B 0F0F0F0F0F0F0F0F (ys/stdpats_16.asm):00026                             fcb       $0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
+0023 0F0F0F0F0F0F0F0F (ys/stdpats_16.asm):00027                             fcb       $0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
+002B F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00028                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+0033 F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00029                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+003B 0F0F0F0F0F0F0F0F (ys/stdpats_16.asm):00030                             fcb       $0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
+0043 0F0F0F0F0F0F0F0F (ys/stdpats_16.asm):00031                             fcb       $0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
+004B F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00032                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+0053 F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00033                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+005B 0F0F0F0F0F0F0F0F (ys/stdpats_16.asm):00034                             fcb       $0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
+0063 0F0F0F0F0F0F0F0F (ys/stdpats_16.asm):00035                             fcb       $0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
+006B F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00036                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+0073 F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00037                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+007B 0F0F0F0F0F0F0F0F (ys/stdpats_16.asm):00038                             fcb       $0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
+0083 0F0F0F0F0F0F0F0F (ys/stdpats_16.asm):00039                             fcb       $0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
+                      (ys/stdpats_16.asm):00040         
+008B 1B2B             (ys/stdpats_16.asm):00041         vrtline             fcb       $1B,$2B
+008D CD               (ys/stdpats_16.asm):00042                             fcb       $CD                 group #
+008E 02               (ys/stdpats_16.asm):00043                             fcb       $02                 buffer #
+008F 05               (ys/stdpats_16.asm):00044                             fcb       $05                 style 640x192x2
+0090 0020             (ys/stdpats_16.asm):00045                             fdb       $0020               xsize
+0092 0008             (ys/stdpats_16.asm):00046                             fdb       $0008               ysize
+0094 0080             (ys/stdpats_16.asm):00047                             fdb       $0080               bytes
+                      (ys/stdpats_16.asm):00048         
+0096 F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00049                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+009E F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00050                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+00A6 F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00051                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+00AE F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00052                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+00B6 F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00053                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+00BE F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00054                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+00C6 F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00055                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+00CE F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00056                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+00D6 F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00057                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+00DE F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00058                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+00E6 F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00059                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+00EE F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00060                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+00F6 F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00061                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+00FE F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00062                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+0106 F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00063                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+010E F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00064                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+                      (ys/stdpats_16.asm):00065         
+0116 1B2B             (ys/stdpats_16.asm):00066         hrzline             fcb       $1B,$2B
+0118 CD               (ys/stdpats_16.asm):00067                             fcb       $CD                 group #
+0119 03               (ys/stdpats_16.asm):00068                             fcb       $03                 buffer #
+011A 05               (ys/stdpats_16.asm):00069                             fcb       $05                 style 640x192x2
+011B 0020             (ys/stdpats_16.asm):00070                             fdb       $0020               xsize
+011D 0008             (ys/stdpats_16.asm):00071                             fdb       $0008               ysize
+011F 0080             (ys/stdpats_16.asm):00072                             fdb       $0080               bytes
+                      (ys/stdpats_16.asm):00073         
+0121 FFFFFFFFFFFFFFFF (ys/stdpats_16.asm):00074                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+0129 FFFFFFFFFFFFFFFF (ys/stdpats_16.asm):00075                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+0131 0000000000000000 (ys/stdpats_16.asm):00076                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+0139 0000000000000000 (ys/stdpats_16.asm):00077                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+0141 FFFFFFFFFFFFFFFF (ys/stdpats_16.asm):00078                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+0149 FFFFFFFFFFFFFFFF (ys/stdpats_16.asm):00079                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+0151 0000000000000000 (ys/stdpats_16.asm):00080                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+0159 0000000000000000 (ys/stdpats_16.asm):00081                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+0161 FFFFFFFFFFFFFFFF (ys/stdpats_16.asm):00082                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+0169 FFFFFFFFFFFFFFFF (ys/stdpats_16.asm):00083                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+0171 0000000000000000 (ys/stdpats_16.asm):00084                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+0179 0000000000000000 (ys/stdpats_16.asm):00085                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+0181 FFFFFFFFFFFFFFFF (ys/stdpats_16.asm):00086                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+0189 FFFFFFFFFFFFFFFF (ys/stdpats_16.asm):00087                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+0191 0000000000000000 (ys/stdpats_16.asm):00088                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+0199 0000000000000000 (ys/stdpats_16.asm):00089                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+                      (ys/stdpats_16.asm):00090         
+01A1 1B2B             (ys/stdpats_16.asm):00091         xhatch              fcb       $1B,$2B
+01A3 CD               (ys/stdpats_16.asm):00092                             fcb       $CD                 group #
+01A4 04               (ys/stdpats_16.asm):00093                             fcb       $04                 buffer #
+01A5 05               (ys/stdpats_16.asm):00094                             fcb       $05                 style 640x192x2
+01A6 0020             (ys/stdpats_16.asm):00095                             fdb       $0020               xsize
+01A8 0008             (ys/stdpats_16.asm):00096                             fdb       $0008               ysize
+01AA 0080             (ys/stdpats_16.asm):00097                             fdb       $0080               bytes
+                      (ys/stdpats_16.asm):00098         
+01AC FFFFFFFFFFFFFFFF (ys/stdpats_16.asm):00099                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+01B4 FFFFFFFFFFFFFFFF (ys/stdpats_16.asm):00100                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+01BC F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00101                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+01C4 F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00102                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+01CC FFFFFFFFFFFFFFFF (ys/stdpats_16.asm):00103                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+01D4 FFFFFFFFFFFFFFFF (ys/stdpats_16.asm):00104                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+01DC F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00105                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+01E4 F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00106                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+01EC FFFFFFFFFFFFFFFF (ys/stdpats_16.asm):00107                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+01F4 FFFFFFFFFFFFFFFF (ys/stdpats_16.asm):00108                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+01FC F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00109                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+0204 F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00110                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+020C FFFFFFFFFFFFFFFF (ys/stdpats_16.asm):00111                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+0214 FFFFFFFFFFFFFFFF (ys/stdpats_16.asm):00112                             fcb       $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+021C F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00113                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+0224 F0F0F0F0F0F0F0F0 (ys/stdpats_16.asm):00114                             fcb       $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
+                      (ys/stdpats_16.asm):00115         
+022C 1B2B             (ys/stdpats_16.asm):00116         leftslnt            fcb       $1B,$2B
+022E CD               (ys/stdpats_16.asm):00117                             fcb       $CD                 group #
+022F 05               (ys/stdpats_16.asm):00118                             fcb       $05                 buffer #
+0230 05               (ys/stdpats_16.asm):00119                             fcb       $05                 style 640x192x2
+0231 0020             (ys/stdpats_16.asm):00120                             fdb       $0020               xsize
+0233 0008             (ys/stdpats_16.asm):00121                             fdb       $0008               ysize
+0235 0080             (ys/stdpats_16.asm):00122                             fdb       $0080               bytes
+                      (ys/stdpats_16.asm):00123         
+0237 0F000F000F000F00 (ys/stdpats_16.asm):00124                             fcb       $0F,$00,$0F,$00,$0F,$00,$0F,$00
+023F 0F000F000F000F00 (ys/stdpats_16.asm):00125                             fcb       $0F,$00,$0F,$00,$0F,$00,$0F,$00
+0247 F000F000F000F000 (ys/stdpats_16.asm):00126                             fcb       $F0,$00,$F0,$00,$F0,$00,$F0,$00
+024F F000F000F000F000 (ys/stdpats_16.asm):00127                             fcb       $F0,$00,$F0,$00,$F0,$00,$F0,$00
+0257 000F000F000F000F (ys/stdpats_16.asm):00128                             fcb       $00,$0F,$00,$0F,$00,$0F,$00,$0F
+025F 000F000F000F000F (ys/stdpats_16.asm):00129                             fcb       $00,$0F,$00,$0F,$00,$0F,$00,$0F
+0267 00F000F000F000F0 (ys/stdpats_16.asm):00130                             fcb       $00,$F0,$00,$F0,$00,$F0,$00,$F0
+026F 00F000F000F000F0 (ys/stdpats_16.asm):00131                             fcb       $00,$F0,$00,$F0,$00,$F0,$00,$F0
+0277 0F000F000F000F00 (ys/stdpats_16.asm):00132                             fcb       $0F,$00,$0F,$00,$0F,$00,$0F,$00
+027F 0F000F000F000F00 (ys/stdpats_16.asm):00133                             fcb       $0F,$00,$0F,$00,$0F,$00,$0F,$00
+0287 F000F000F000F000 (ys/stdpats_16.asm):00134                             fcb       $F0,$00,$F0,$00,$F0,$00,$F0,$00
+028F F000F000F000F000 (ys/stdpats_16.asm):00135                             fcb       $F0,$00,$F0,$00,$F0,$00,$F0,$00
+0297 000F000F000F000F (ys/stdpats_16.asm):00136                             fcb       $00,$0F,$00,$0F,$00,$0F,$00,$0F
+029F 000F000F000F000F (ys/stdpats_16.asm):00137                             fcb       $00,$0F,$00,$0F,$00,$0F,$00,$0F
+02A7 00F000F000F000F0 (ys/stdpats_16.asm):00138                             fcb       $00,$F0,$00,$F0,$00,$F0,$00,$F0
+02AF 00F000F000F000F0 (ys/stdpats_16.asm):00139                             fcb       $00,$F0,$00,$F0,$00,$F0,$00,$F0
+                      (ys/stdpats_16.asm):00140         
+02B7 1B2B             (ys/stdpats_16.asm):00141         rghtslnt            fcb       $1B,$2B
+02B9 CD               (ys/stdpats_16.asm):00142                             fcb       $CD                 group #
+02BA 06               (ys/stdpats_16.asm):00143                             fcb       $06                 buffer #
+02BB 05               (ys/stdpats_16.asm):00144                             fcb       $05                 style 640x192x2
+02BC 0020             (ys/stdpats_16.asm):00145                             fdb       $0020               xsize
+02BE 0008             (ys/stdpats_16.asm):00146                             fdb       $0008               ysize
+02C0 0080             (ys/stdpats_16.asm):00147                             fdb       $0080               bytes
+                      (ys/stdpats_16.asm):00148         
+02C2 00F000F000F000F0 (ys/stdpats_16.asm):00149                             fcb       $00,$F0,$00,$F0,$00,$F0,$00,$F0
+02CA 00F000F000F000F0 (ys/stdpats_16.asm):00150                             fcb       $00,$F0,$00,$F0,$00,$F0,$00,$F0
+02D2 000F000F000F000F (ys/stdpats_16.asm):00151                             fcb       $00,$0F,$00,$0F,$00,$0F,$00,$0F
+02DA 000F000F000F000F (ys/stdpats_16.asm):00152                             fcb       $00,$0F,$00,$0F,$00,$0F,$00,$0F
+02E2 F000F000F000F000 (ys/stdpats_16.asm):00153                             fcb       $F0,$00,$F0,$00,$F0,$00,$F0,$00
+02EA F000F000F000F000 (ys/stdpats_16.asm):00154                             fcb       $F0,$00,$F0,$00,$F0,$00,$F0,$00
+02F2 0F000F000F000F00 (ys/stdpats_16.asm):00155                             fcb       $0F,$00,$0F,$00,$0F,$00,$0F,$00
+02FA 0F000F000F000F00 (ys/stdpats_16.asm):00156                             fcb       $0F,$00,$0F,$00,$0F,$00,$0F,$00
+0302 00F000F000F000F0 (ys/stdpats_16.asm):00157                             fcb       $00,$F0,$00,$F0,$00,$F0,$00,$F0
+030A 00F000F000F000F0 (ys/stdpats_16.asm):00158                             fcb       $00,$F0,$00,$F0,$00,$F0,$00,$F0
+0312 000F000F000F000F (ys/stdpats_16.asm):00159                             fcb       $00,$0F,$00,$0F,$00,$0F,$00,$0F
+031A 000F000F000F000F (ys/stdpats_16.asm):00160                             fcb       $00,$0F,$00,$0F,$00,$0F,$00,$0F
+0322 F000F000F000F000 (ys/stdpats_16.asm):00161                             fcb       $F0,$00,$F0,$00,$F0,$00,$F0,$00
+032A F000F000F000F000 (ys/stdpats_16.asm):00162                             fcb       $F0,$00,$F0,$00,$F0,$00,$F0,$00
+0332 0F000F000F000F00 (ys/stdpats_16.asm):00163                             fcb       $0F,$00,$0F,$00,$0F,$00,$0F,$00
+033A 0F000F000F000F00 (ys/stdpats_16.asm):00164                             fcb       $0F,$00,$0F,$00,$0F,$00,$0F,$00
+                      (ys/stdpats_16.asm):00165         
+0342 1B2B             (ys/stdpats_16.asm):00166         smalldot            fcb       $1B,$2B
+0344 CD               (ys/stdpats_16.asm):00167                             fcb       $CD                 group #
+0345 07               (ys/stdpats_16.asm):00168                             fcb       $07                 buffer #
+0346 05               (ys/stdpats_16.asm):00169                             fcb       $05                 style 640x192x2
+0347 0020             (ys/stdpats_16.asm):00170                             fdb       $0020               xsize
+0349 0008             (ys/stdpats_16.asm):00171                             fdb       $0008               ysize
+034B 0080             (ys/stdpats_16.asm):00172                             fdb       $0080               bytes
+                      (ys/stdpats_16.asm):00173         
+034D F000F000F000F000 (ys/stdpats_16.asm):00174                             fcb       $F0,$00,$F0,$00,$F0,$00,$F0,$00
+0355 F000F000F000F000 (ys/stdpats_16.asm):00175                             fcb       $F0,$00,$F0,$00,$F0,$00,$F0,$00
+035D 0000000000000000 (ys/stdpats_16.asm):00176                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+0365 0000000000000000 (ys/stdpats_16.asm):00177                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+036D 00F000F000F000F0 (ys/stdpats_16.asm):00178                             fcb       $00,$F0,$00,$F0,$00,$F0,$00,$F0
+0375 00F000F000F000F0 (ys/stdpats_16.asm):00179                             fcb       $00,$F0,$00,$F0,$00,$F0,$00,$F0
+037D 0000000000000000 (ys/stdpats_16.asm):00180                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+0385 0000000000000000 (ys/stdpats_16.asm):00181                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+038D F000F000F000F000 (ys/stdpats_16.asm):00182                             fcb       $F0,$00,$F0,$00,$F0,$00,$F0,$00
+0395 F000F000F000F000 (ys/stdpats_16.asm):00183                             fcb       $F0,$00,$F0,$00,$F0,$00,$F0,$00
+039D 0000000000000000 (ys/stdpats_16.asm):00184                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+03A5 0000000000000000 (ys/stdpats_16.asm):00185                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+03AD 00F000F000F000F0 (ys/stdpats_16.asm):00186                             fcb       $00,$F0,$00,$F0,$00,$F0,$00,$F0
+03B5 00F000F000F000F0 (ys/stdpats_16.asm):00187                             fcb       $00,$F0,$00,$F0,$00,$F0,$00,$F0
+03BD 0000000000000000 (ys/stdpats_16.asm):00188                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+03C5 0000000000000000 (ys/stdpats_16.asm):00189                             fcb       $00,$00,$00,$00,$00,$00,$00,$00
+                      (ys/stdpats_16.asm):00190         
+03CD 1B2B             (ys/stdpats_16.asm):00191         largedot            fcb       $1B,$2B
+03CF CD               (ys/stdpats_16.asm):00192                             fcb       $CD                 group #
+03D0 08               (ys/stdpats_16.asm):00193                             fcb       $08                 buffer #
+03D1 05               (ys/stdpats_16.asm):00194                             fcb       $05                 style 640x192x2
+03D2 0020             (ys/stdpats_16.asm):00195                             fdb       $0020               xsize
+03D4 0008             (ys/stdpats_16.asm):00196                             fdb       $0008               ysize
+03D6 0080             (ys/stdpats_16.asm):00197                             fdb       $0080               bytes
+                      (ys/stdpats_16.asm):00198         
+03D8 0FF00FF00FF00FF0 (ys/stdpats_16.asm):00199                             fcb       $0F,$F0,$0F,$F0,$0F,$F0,$0F,$F0
+03E0 0FF00FF00FF00FF0 (ys/stdpats_16.asm):00200                             fcb       $0F,$F0,$0F,$F0,$0F,$F0,$0F,$F0
+03E8 F00FF00FF00FF00F (ys/stdpats_16.asm):00201                             fcb       $F0,$0F,$F0,$0F,$F0,$0F,$F0,$0F
+03F0 F00FF00FF00FF00F (ys/stdpats_16.asm):00202                             fcb       $F0,$0F,$F0,$0F,$F0,$0F,$F0,$0F
+03F8 F00FF00FF00FF00F (ys/stdpats_16.asm):00203                             fcb       $F0,$0F,$F0,$0F,$F0,$0F,$F0,$0F
+0400 F00FF00FF00FF00F (ys/stdpats_16.asm):00204                             fcb       $F0,$0F,$F0,$0F,$F0,$0F,$F0,$0F
+0408 0FF00FF00FF00FF0 (ys/stdpats_16.asm):00205                             fcb       $0F,$F0,$0F,$F0,$0F,$F0,$0F,$F0
+0410 0FF00FF00FF00FF0 (ys/stdpats_16.asm):00206                             fcb       $0F,$F0,$0F,$F0,$0F,$F0,$0F,$F0
+0418 0FF00FF00FF00FF0 (ys/stdpats_16.asm):00207                             fcb       $0F,$F0,$0F,$F0,$0F,$F0,$0F,$F0
+0420 0FF00FF00FF00FF0 (ys/stdpats_16.asm):00208                             fcb       $0F,$F0,$0F,$F0,$0F,$F0,$0F,$F0
+0428 F00FF00FF00FF00F (ys/stdpats_16.asm):00209                             fcb       $F0,$0F,$F0,$0F,$F0,$0F,$F0,$0F
+0430 F00FF00FF00FF00F (ys/stdpats_16.asm):00210                             fcb       $F0,$0F,$F0,$0F,$F0,$0F,$F0,$0F
+0438 F00FF00FF00FF00F (ys/stdpats_16.asm):00211                             fcb       $F0,$0F,$F0,$0F,$F0,$0F,$F0,$0F
+0440 F00FF00FF00FF00F (ys/stdpats_16.asm):00212                             fcb       $F0,$0F,$F0,$0F,$F0,$0F,$F0,$0F
+0448 0FF00FF00FF00FF0 (ys/stdpats_16.asm):00213                             fcb       $0F,$F0,$0F,$F0,$0F,$F0,$0F,$F0
+0450 0FF00FF00FF00FF0 (ys/stdpats_16.asm):00214                             fcb       $0F,$F0,$0F,$F0,$0F,$F0,$0F,$F0
+
+Symbol Table:
+[ G] dots                             0000
+[ G] hrzline                          0116
+[ G] largedot                         03CD
+[ G] leftslnt                         022C
+[SG] NOS9MAJ                          0003
+[SG] NOS9MIN                          0000
+[SG] NOS9VER                          0003
+[ G] rghtslnt                         02B7
+[ G] smalldot                         0342
+[ G] vrtline                          008B
+[ G] xhatch                           01A1

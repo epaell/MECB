@@ -1,0 +1,34 @@
+                      (       bin_hex.as):00001         ;;; BIN_HEX
+                      (       bin_hex.as):00002         ;;;
+                      (       bin_hex.as):00003         ;;; Binary to hexadecimal string conversion.
+                      (       bin_hex.as):00004         ;;;
+                      (       bin_hex.as):00005         ;;; OTHER MODULES NEEDED: BIN2HEX
+                      (       bin_hex.as):00006         ;;;
+                      (       bin_hex.as):00007         ;;; Entry:  D = The binary value to convert.
+                      (       bin_hex.as):00008         ;;;         X = The address of the buffer that holds the nul-terminated hexadecimal string.
+                      (       bin_hex.as):00009         ;;;
+                      (       bin_hex.as):00010         ;;; Exit:  None.
+                      (       bin_hex.as):00011         ;;;
+                      (       bin_hex.as):00012         ;;; All registers (except CC) are preserved.
+                      (       bin_hex.as):00013         
+                      (       bin_hex.as):00014                             section   .text
+                      (       bin_hex.as):00015         
+0000 3416             (       bin_hex.as):00016         BIN_HEX:            pshs      d,x
+0002 E6E4             (       bin_hex.as):00017                             ldb       ,s
+0004 170000           (       bin_hex.as):00018                             lbsr      BIN2HEX             convert 1 byte
+0007 ED81             (       bin_hex.as):00019                             std       ,x++
+0009 E661             (       bin_hex.as):00020                             ldb       1,s
+000B 170000           (       bin_hex.as):00021                             lbsr      BIN2HEX             convert 2nd byte
+000E ED81             (       bin_hex.as):00022                             std       ,x++
+0010 6F84             (       bin_hex.as):00023                             clr       ,x                  term with null
+0012 3516             (       bin_hex.as):00024                             puls      d,x
+                      (       bin_hex.as):00025         
+                      (       bin_hex.as):00026                             endsect
+                      (       bin_hex.as):00027         
+                      (       bin_hex.as):00028         
+
+Symbol Table:
+[ sG] BIN_HEX                          0000 (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000

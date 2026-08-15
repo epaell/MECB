@@ -1,0 +1,164 @@
+                      (sys/stdpats_2.asm):00001         ********************************************************************
+                      (sys/stdpats_2.asm):00002         * StdPats_2 - Standard Patterns for 2 colors
+                      (sys/stdpats_2.asm):00003         *
+                      (sys/stdpats_2.asm):00004         * Edt/Rev  YYYY/MM/DD  Modified by
+                      (sys/stdpats_2.asm):00005         * Comment
+                      (sys/stdpats_2.asm):00006         * ------------------------------------------------------------------
+                      (sys/stdpats_2.asm):00007         *          2003/11/26  Boisy G. Pitre
+                      (sys/stdpats_2.asm):00008         * Made into source form.
+                      (sys/stdpats_2.asm):00009         
+                      (sys/stdpats_2.asm):00010                             nam       StdPats_2
+                      (sys/stdpats_2.asm):00011                             ttl       Standard Patterns for 2 colors
+                      (sys/stdpats_2.asm):00012         
+                      (sys/stdpats_2.asm):00013         
+                      (sys/stdpats_2.asm):00014                             org       0
+                      (sys/stdpats_2.asm):00015         
+0000 1B2B             (sys/stdpats_2.asm):00016         dots                fcb       $1B,$2B
+0002 CB               (sys/stdpats_2.asm):00017                             fcb       $CB                 group #
+0003 01               (sys/stdpats_2.asm):00018                             fcb       $01                 buffer #
+0004 05               (sys/stdpats_2.asm):00019                             fcb       $05                 style 640x192x2
+0005 0020             (sys/stdpats_2.asm):00020                             fdb       $0020               xsize
+0007 0008             (sys/stdpats_2.asm):00021                             fdb       $0008               ysize
+0009 0020             (sys/stdpats_2.asm):00022                             fdb       $0020               bytes
+                      (sys/stdpats_2.asm):00023         
+000B AAAAAAAA         (sys/stdpats_2.asm):00024                             fcb       $AA,$AA,$AA,$AA
+000F 55555555         (sys/stdpats_2.asm):00025                             fcb       $55,$55,$55,$55
+0013 AAAAAAAA         (sys/stdpats_2.asm):00026                             fcb       $AA,$AA,$AA,$AA
+0017 55555555         (sys/stdpats_2.asm):00027                             fcb       $55,$55,$55,$55
+001B AAAAAAAA         (sys/stdpats_2.asm):00028                             fcb       $AA,$AA,$AA,$AA
+001F 55555555         (sys/stdpats_2.asm):00029                             fcb       $55,$55,$55,$55
+0023 AAAAAAAA         (sys/stdpats_2.asm):00030                             fcb       $AA,$AA,$AA,$AA
+0027 55555555         (sys/stdpats_2.asm):00031                             fcb       $55,$55,$55,$55
+                      (sys/stdpats_2.asm):00032         
+002B 1B2B             (sys/stdpats_2.asm):00033         vrtline             fcb       $1B,$2B
+002D CB               (sys/stdpats_2.asm):00034                             fcb       $CB                 group #
+002E 02               (sys/stdpats_2.asm):00035                             fcb       $02                 buffer #
+002F 05               (sys/stdpats_2.asm):00036                             fcb       $05                 style
+0030 0020             (sys/stdpats_2.asm):00037                             fdb       $0020               xsize
+0032 0008             (sys/stdpats_2.asm):00038                             fdb       $0008               ysize
+0034 0020             (sys/stdpats_2.asm):00039                             fdb       $0020               bytes
+                      (sys/stdpats_2.asm):00040         
+0036 88888888         (sys/stdpats_2.asm):00041                             fcb       $88,$88,$88,$88
+003A 88888888         (sys/stdpats_2.asm):00042                             fcb       $88,$88,$88,$88
+003E 88888888         (sys/stdpats_2.asm):00043                             fcb       $88,$88,$88,$88
+0042 88888888         (sys/stdpats_2.asm):00044                             fcb       $88,$88,$88,$88
+0046 88888888         (sys/stdpats_2.asm):00045                             fcb       $88,$88,$88,$88
+004A 88888888         (sys/stdpats_2.asm):00046                             fcb       $88,$88,$88,$88
+004E 88888888         (sys/stdpats_2.asm):00047                             fcb       $88,$88,$88,$88
+0052 88888888         (sys/stdpats_2.asm):00048                             fcb       $88,$88,$88,$88
+                      (sys/stdpats_2.asm):00049         
+0056 1B2B             (sys/stdpats_2.asm):00050         hrzline             fcb       $1B,$2B
+0058 CB               (sys/stdpats_2.asm):00051                             fcb       $CB                 group #
+0059 03               (sys/stdpats_2.asm):00052                             fcb       $03                 buffer #
+005A 05               (sys/stdpats_2.asm):00053                             fcb       $05                 style
+005B 0020             (sys/stdpats_2.asm):00054                             fdb       $0020               xsize
+005D 0008             (sys/stdpats_2.asm):00055                             fdb       $0008               ysize
+005F 0020             (sys/stdpats_2.asm):00056                             fdb       $0020               bytes
+                      (sys/stdpats_2.asm):00057         
+0061 FFFFFFFF         (sys/stdpats_2.asm):00058                             fcb       $FF,$FF,$FF,$FF
+0065 00000000         (sys/stdpats_2.asm):00059                             fcb       $00,$00,$00,$00
+0069 FFFFFFFF         (sys/stdpats_2.asm):00060                             fcb       $FF,$FF,$FF,$FF
+006D 00000000         (sys/stdpats_2.asm):00061                             fcb       $00,$00,$00,$00
+0071 FFFFFFFF         (sys/stdpats_2.asm):00062                             fcb       $FF,$FF,$FF,$FF
+0075 00000000         (sys/stdpats_2.asm):00063                             fcb       $00,$00,$00,$00
+0079 FFFFFFFF         (sys/stdpats_2.asm):00064                             fcb       $FF,$FF,$FF,$FF
+007D 00000000         (sys/stdpats_2.asm):00065                             fcb       $00,$00,$00,$00
+                      (sys/stdpats_2.asm):00066         
+0081 1B2B             (sys/stdpats_2.asm):00067         xhatch              fcb       $1B,$2B
+0083 CB               (sys/stdpats_2.asm):00068                             fcb       $CB                 group #
+0084 04               (sys/stdpats_2.asm):00069                             fcb       $04                 buffer #
+0085 05               (sys/stdpats_2.asm):00070                             fcb       $05                 style
+0086 0020             (sys/stdpats_2.asm):00071                             fdb       $0020               xsize
+0088 0008             (sys/stdpats_2.asm):00072                             fdb       $0008               ysize
+008A 0020             (sys/stdpats_2.asm):00073                             fdb       $0020               bytes
+                      (sys/stdpats_2.asm):00074         
+008C FFFFFFFF         (sys/stdpats_2.asm):00075                             fcb       $FF,$FF,$FF,$FF
+0090 88888888         (sys/stdpats_2.asm):00076                             fcb       $88,$88,$88,$88
+0094 FFFFFFFF         (sys/stdpats_2.asm):00077                             fcb       $FF,$FF,$FF,$FF
+0098 88888888         (sys/stdpats_2.asm):00078                             fcb       $88,$88,$88,$88
+009C FFFFFFFF         (sys/stdpats_2.asm):00079                             fcb       $FF,$FF,$FF,$FF
+00A0 88888888         (sys/stdpats_2.asm):00080                             fcb       $88,$88,$88,$88
+00A4 FFFFFFFF         (sys/stdpats_2.asm):00081                             fcb       $FF,$FF,$FF,$FF
+00A8 88888888         (sys/stdpats_2.asm):00082                             fcb       $88,$88,$88,$88
+                      (sys/stdpats_2.asm):00083         
+00AC 1B2B             (sys/stdpats_2.asm):00084         leftslnt            fcb       $1B,$2B
+00AE CB               (sys/stdpats_2.asm):00085                             fcb       $CB                 group #
+00AF 05               (sys/stdpats_2.asm):00086                             fcb       $05                 buffer #
+00B0 05               (sys/stdpats_2.asm):00087                             fcb       $05                 style
+00B1 0020             (sys/stdpats_2.asm):00088                             fdb       $0020               xsize
+00B3 0008             (sys/stdpats_2.asm):00089                             fdb       $0008               ysize
+00B5 0020             (sys/stdpats_2.asm):00090                             fdb       $0020               bytes
+                      (sys/stdpats_2.asm):00091         
+00B7 44444444         (sys/stdpats_2.asm):00092                             fcb       $44,$44,$44,$44
+00BB 88888888         (sys/stdpats_2.asm):00093                             fcb       $88,$88,$88,$88
+00BF 11111111         (sys/stdpats_2.asm):00094                             fcb       $11,$11,$11,$11
+00C3 22222222         (sys/stdpats_2.asm):00095                             fcb       $22,$22,$22,$22
+00C7 44444444         (sys/stdpats_2.asm):00096                             fcb       $44,$44,$44,$44
+00CB 88888888         (sys/stdpats_2.asm):00097                             fcb       $88,$88,$88,$88
+00CF 11111111         (sys/stdpats_2.asm):00098                             fcb       $11,$11,$11,$11
+00D3 22222222         (sys/stdpats_2.asm):00099                             fcb       $22,$22,$22,$22
+                      (sys/stdpats_2.asm):00100         
+00D7 1B2B             (sys/stdpats_2.asm):00101         rghtslnt            fcb       $1B,$2B
+00D9 CB               (sys/stdpats_2.asm):00102                             fcb       $CB                 group #
+00DA 06               (sys/stdpats_2.asm):00103                             fcb       $06                 buffer #
+00DB 05               (sys/stdpats_2.asm):00104                             fcb       $05                 style
+00DC 0020             (sys/stdpats_2.asm):00105                             fdb       $0020               xsize
+00DE 0008             (sys/stdpats_2.asm):00106                             fdb       $0008               ysize
+00E0 0020             (sys/stdpats_2.asm):00107                             fdb       $0020               bytes
+                      (sys/stdpats_2.asm):00108         
+00E2 22222222         (sys/stdpats_2.asm):00109                             fcb       $22,$22,$22,$22
+00E6 11111111         (sys/stdpats_2.asm):00110                             fcb       $11,$11,$11,$11
+00EA 88888888         (sys/stdpats_2.asm):00111                             fcb       $88,$88,$88,$88
+00EE 44444444         (sys/stdpats_2.asm):00112                             fcb       $44,$44,$44,$44
+00F2 22222222         (sys/stdpats_2.asm):00113                             fcb       $22,$22,$22,$22
+00F6 11111111         (sys/stdpats_2.asm):00114                             fcb       $11,$11,$11,$11
+00FA 88888888         (sys/stdpats_2.asm):00115                             fcb       $88,$88,$88,$88
+00FE 44444444         (sys/stdpats_2.asm):00116                             fcb       $44,$44,$44,$44
+                      (sys/stdpats_2.asm):00117         
+0102 1B2B             (sys/stdpats_2.asm):00118         smalldot            fcb       $1B,$2B
+0104 CB               (sys/stdpats_2.asm):00119                             fcb       $CB                 group #
+0105 07               (sys/stdpats_2.asm):00120                             fcb       $07                 buffer #
+0106 05               (sys/stdpats_2.asm):00121                             fcb       $05                 style
+0107 0020             (sys/stdpats_2.asm):00122                             fdb       $0020               xsize
+0109 0008             (sys/stdpats_2.asm):00123                             fdb       $0008               ysize
+010B 0020             (sys/stdpats_2.asm):00124                             fdb       $0020               bytes
+                      (sys/stdpats_2.asm):00125         
+010D 88888888         (sys/stdpats_2.asm):00126                             fcb       $88,$88,$88,$88
+0111 00000000         (sys/stdpats_2.asm):00127                             fcb       $00,$00,$00,$00
+0115 22222222         (sys/stdpats_2.asm):00128                             fcb       $22,$22,$22,$22
+0119 00000000         (sys/stdpats_2.asm):00129                             fcb       $00,$00,$00,$00
+011D 88888888         (sys/stdpats_2.asm):00130                             fcb       $88,$88,$88,$88
+0121 00000000         (sys/stdpats_2.asm):00131                             fcb       $00,$00,$00,$00
+0125 22222222         (sys/stdpats_2.asm):00132                             fcb       $22,$22,$22,$22
+0129 00000000         (sys/stdpats_2.asm):00133                             fcb       $00,$00,$00,$00
+                      (sys/stdpats_2.asm):00134         
+012D 1B2B             (sys/stdpats_2.asm):00135         largedot            fcb       $1B,$2B
+012F CB               (sys/stdpats_2.asm):00136                             fcb       $CB                 group #
+0130 08               (sys/stdpats_2.asm):00137                             fcb       $08                 buffer #
+0131 05               (sys/stdpats_2.asm):00138                             fcb       $05                 style
+0132 0020             (sys/stdpats_2.asm):00139                             fdb       $0020               xsize
+0134 0008             (sys/stdpats_2.asm):00140                             fdb       $0008               ysize
+0136 0020             (sys/stdpats_2.asm):00141                             fdb       $0020               bytes
+                      (sys/stdpats_2.asm):00142         
+0138 66666666         (sys/stdpats_2.asm):00143                             fcb       $66,$66,$66,$66
+013C 99999999         (sys/stdpats_2.asm):00144                             fcb       $99,$99,$99,$99
+0140 99999999         (sys/stdpats_2.asm):00145                             fcb       $99,$99,$99,$99
+0144 66666666         (sys/stdpats_2.asm):00146                             fcb       $66,$66,$66,$66
+0148 66666666         (sys/stdpats_2.asm):00147                             fcb       $66,$66,$66,$66
+014C 99999999         (sys/stdpats_2.asm):00148                             fcb       $99,$99,$99,$99
+0150 99999999         (sys/stdpats_2.asm):00149                             fcb       $99,$99,$99,$99
+0154 66666666         (sys/stdpats_2.asm):00150                             fcb       $66,$66,$66,$66
+                      (sys/stdpats_2.asm):00151         
+
+Symbol Table:
+[ G] dots                             0000
+[ G] hrzline                          0056
+[ G] largedot                         012D
+[ G] leftslnt                         00AC
+[SG] NOS9MAJ                          0003
+[SG] NOS9MIN                          0000
+[SG] NOS9VER                          0003
+[ G] rghtslnt                         00D7
+[ G] smalldot                         0102
+[ G] vrtline                          002B
+[ G] xhatch                           0081

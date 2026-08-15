@@ -1,0 +1,32 @@
+                      (      parsnstr.as):00001         ;;; PARSNSTR
+                      (      parsnstr.as):00002         ;;;
+                      (      parsnstr.as):00003         ;;; Parse a sign bit terminated string.
+                      (      parsnstr.as):00004         ;;;
+                      (      parsnstr.as):00005         ;;; Entry:  X = The address of the sign bit termianted string.
+                      (      parsnstr.as):00006         ;;;         Y = The buffer for the null-terminated string.
+                      (      parsnstr.as):00007         ;;;
+                      (      parsnstr.as):00008         ;;; Exit:   D = The string size (not including the null character).
+                      (      parsnstr.as):00009         ;;;
+                      (      parsnstr.as):00010         ;;; All registers except CC are preserved.
+                      (      parsnstr.as):00011         
+                      (      parsnstr.as):00012                             section   .text
+                      (      parsnstr.as):00013         
+0000 3410             (      parsnstr.as):00014         PARSNSTR:           pshs      x
+0002 170000           (      parsnstr.as):00015                             lbsr      STRHCPY             copy string
+0005 1F21             (      parsnstr.as):00016                             tfr       y,x                 point to moved string
+0007 170000           (      parsnstr.as):00017                             lbsr      STRHLEN             find length of string
+000A 3406             (      parsnstr.as):00018                             pshs      d                   size
+000C 308B             (      parsnstr.as):00019                             leax      d,x
+000E A682             (      parsnstr.as):00020                             lda       ,-x                 get final byte
+0010 847F             (      parsnstr.as):00021                             anda      #%01111111          clear sign bit
+0012 5F               (      parsnstr.as):00022                             clrb                          add null terminator
+0013 ED84             (      parsnstr.as):00023                             std       ,x
+0015 3596             (      parsnstr.as):00024                             puls      d,x,pc
+                      (      parsnstr.as):00025         
+                      (      parsnstr.as):00026                             endsect
+
+Symbol Table:
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000
+[ sG] PARSNSTR                         0000 (.text)

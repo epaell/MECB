@@ -1,0 +1,25 @@
+                      (      is_alpha.as):00001         ;;; IS_ALPHA
+                      (      is_alpha.as):00002         ;;;
+                      (      is_alpha.as):00003         ;;; Test if a character is a letter from a-z or A-Z.
+                      (      is_alpha.as):00004         ;;;
+                      (      is_alpha.as):00005         ;;; Entry:  B = The character to test.
+                      (      is_alpha.as):00006         ;;;
+                      (      is_alpha.as):00007         ;;; Exit:  CC = Zero is 1 if the character is alphabetic; otherwise, 0.
+                      (      is_alpha.as):00008         ;;;
+                      (      is_alpha.as):00009         
+                      (      is_alpha.as):00010                             section   .text
+                      (      is_alpha.as):00011         
+0000 170000           (      is_alpha.as):00012         IS_ALPHA:           lbsr      IS_UPPER
+0003 2703             (      is_alpha.as):00013                             beq       yes                 uppercase letters are alpha
+0005 170000           (      is_alpha.as):00014                             lbsr      IS_LOWER            last chance to set flags.
+                      (      is_alpha.as):00015         
+0008 39               (      is_alpha.as):00016         yes                 rts
+                      (      is_alpha.as):00017         
+                      (      is_alpha.as):00018                             endsect
+
+Symbol Table:
+[ sG] IS_ALPHA                         0000 (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000
+[ sG] yes                              0008 (.text)

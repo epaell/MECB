@@ -1,0 +1,25 @@
+                      (          puty.as):00001         ;;; PUTY
+                      (          puty.as):00002         ;;;
+                      (          puty.as):00003         ;;; Print a word to the standard output.
+                      (          puty.as):00004         ;;;
+                      (          puty.as):00005         ;;; Other modules needed: FPUTY
+                      (          puty.as):00006         ;;;
+                      (          puty.as):00007         ;;; Entry:  Y = The value to print.
+                      (          puty.as):00008         ;;;
+                      (          puty.as):00009         ;;; Error:  B = A non-zero error code.
+                      (          puty.as):00010         ;;;        CC = Carry flag set to indicate error.
+                      (          puty.as):00011         
+                      (          puty.as):00012                             section   .text
+                      (          puty.as):00013         
+0000 3402             (          puty.as):00014         PUTY:               pshs      a
+0002 8601             (          puty.as):00015                             lda       #1                  stn out
+0004 170000           (          puty.as):00016                             lbsr      FPUTY
+0007 3582             (          puty.as):00017                             puls      a,pc
+                      (          puty.as):00018         
+                      (          puty.as):00019                             endsect
+
+Symbol Table:
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000
+[ sG] PUTY                             0000 (.text)

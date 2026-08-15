@@ -1,0 +1,174 @@
+                      (2/sys/stdptrs.asm):00001         ********************************************************************
+                      (2/sys/stdptrs.asm):00002         * StdPtrs - Standard Pointers
+                      (2/sys/stdptrs.asm):00003         *
+                      (2/sys/stdptrs.asm):00004         * Edt/Rev  YYYY/MM/DD  Modified by
+                      (2/sys/stdptrs.asm):00005         * Comment
+                      (2/sys/stdptrs.asm):00006         * ------------------------------------------------------------------
+                      (2/sys/stdptrs.asm):00007         *          2003/11/26  Boisy G. Pitre
+                      (2/sys/stdptrs.asm):00008         * Made into source form.
+                      (2/sys/stdptrs.asm):00009         
+                      (2/sys/stdptrs.asm):00010                             nam       StdPtrs
+                      (2/sys/stdptrs.asm):00011                             ttl       Standard Pointers
+                      (2/sys/stdptrs.asm):00012         
+                      (2/sys/stdptrs.asm):00013         
+                      (2/sys/stdptrs.asm):00014                             org       0
+                      (2/sys/stdptrs.asm):00015         
+0000 1B2B             (2/sys/stdptrs.asm):00016         pointer             fcb       $1B,$2B
+0002 CA               (2/sys/stdptrs.asm):00017                             fcb       $CA                 group #
+0003 01               (2/sys/stdptrs.asm):00018                             fcb       $01                 buffer #
+0004 05               (2/sys/stdptrs.asm):00019                             fcb       $05                 style 640x192x2
+0005 0008             (2/sys/stdptrs.asm):00020                             fdb       $0008               xsize
+0007 0008             (2/sys/stdptrs.asm):00021                             fdb       $0008               ysize
+0009 0008             (2/sys/stdptrs.asm):00022                             fdb       $0008               bytes
+                      (2/sys/stdptrs.asm):00023         
+000B F8               (2/sys/stdptrs.asm):00024                             fcb       %11111000
+000C F0               (2/sys/stdptrs.asm):00025                             fcb       %11110000
+000D F0               (2/sys/stdptrs.asm):00026                             fcb       %11110000
+000E F8               (2/sys/stdptrs.asm):00027                             fcb       %11111000
+000F 9C               (2/sys/stdptrs.asm):00028                             fcb       %10011100
+0010 0E               (2/sys/stdptrs.asm):00029                             fcb       %00001110
+0011 07               (2/sys/stdptrs.asm):00030                             fcb       %00000111
+0012 02               (2/sys/stdptrs.asm):00031                             fcb       %00000010
+                      (2/sys/stdptrs.asm):00032         
+0013 1B2B             (2/sys/stdptrs.asm):00033         pencil              fcb       $1B,$2B
+0015 CA               (2/sys/stdptrs.asm):00034                             fcb       $CA                 group #
+0016 02               (2/sys/stdptrs.asm):00035                             fcb       $02                 buffer #
+0017 05               (2/sys/stdptrs.asm):00036                             fcb       $05                 style 640x192x2
+0018 0010             (2/sys/stdptrs.asm):00037                             fdb       $0010               xsize
+001A 000D             (2/sys/stdptrs.asm):00038                             fdb       $000d               ysize
+001C 001A             (2/sys/stdptrs.asm):00039                             fdb       $001a               bytes
+                      (2/sys/stdptrs.asm):00040         
+001E F000             (2/sys/stdptrs.asm):00041                             fcb       %11110000,%00000000
+0020 A800             (2/sys/stdptrs.asm):00042                             fcb       %10101000,%00000000
+0022 C400             (2/sys/stdptrs.asm):00043                             fcb       %11000100,%00000000
+0024 8200             (2/sys/stdptrs.asm):00044                             fcb       %10000010,%00000000
+0026 4100             (2/sys/stdptrs.asm):00045                             fcb       %01000001,%00000000
+0028 2080             (2/sys/stdptrs.asm):00046                             fcb       %00100000,%10000000
+002A 1040             (2/sys/stdptrs.asm):00047                             fcb       %00010000,%01000000
+002C 0820             (2/sys/stdptrs.asm):00048                             fcb       %00001000,%00100000
+002E 0450             (2/sys/stdptrs.asm):00049                             fcb       %00000100,%01010000
+0030 0288             (2/sys/stdptrs.asm):00050                             fcb       %00000010,%10001000
+0032 0110             (2/sys/stdptrs.asm):00051                             fcb       %00000001,%00010000
+0034 00A0             (2/sys/stdptrs.asm):00052                             fcb       %00000000,%10100000
+0036 0040             (2/sys/stdptrs.asm):00053                             fcb       %00000000,%01000000
+                      (2/sys/stdptrs.asm):00054         
+0038 1B2B             (2/sys/stdptrs.asm):00055         lcross              fcb       $1B,$2B
+003A CA               (2/sys/stdptrs.asm):00056                             fcb       $CA                 group #
+003B 03               (2/sys/stdptrs.asm):00057                             fcb       $03                 buffer #
+003C 05               (2/sys/stdptrs.asm):00058                             fcb       $05                 style 640x192x2
+003D 0010             (2/sys/stdptrs.asm):00059                             fdb       $0010               xsize
+003F 0010             (2/sys/stdptrs.asm):00060                             fdb       $0010               ysize
+0041 0020             (2/sys/stdptrs.asm):00061                             fdb       $0020               bytes
+                      (2/sys/stdptrs.asm):00062         
+0043 0300             (2/sys/stdptrs.asm):00063                             fcb       %00000011,%00000000
+0045 0300             (2/sys/stdptrs.asm):00064                             fcb       %00000011,%00000000
+0047 0300             (2/sys/stdptrs.asm):00065                             fcb       %00000011,%00000000
+0049 0300             (2/sys/stdptrs.asm):00066                             fcb       %00000011,%00000000
+004B 0300             (2/sys/stdptrs.asm):00067                             fcb       %00000011,%00000000
+004D 0300             (2/sys/stdptrs.asm):00068                             fcb       %00000011,%00000000
+004F 0300             (2/sys/stdptrs.asm):00069                             fcb       %00000011,%00000000
+0051 FFFF             (2/sys/stdptrs.asm):00070                             fcb       %11111111,%11111111
+0053 FFFF             (2/sys/stdptrs.asm):00071                             fcb       %11111111,%11111111
+0055 0300             (2/sys/stdptrs.asm):00072                             fcb       %00000011,%00000000
+0057 0300             (2/sys/stdptrs.asm):00073                             fcb       %00000011,%00000000
+0059 0300             (2/sys/stdptrs.asm):00074                             fcb       %00000011,%00000000
+005B 0300             (2/sys/stdptrs.asm):00075                             fcb       %00000011,%00000000
+005D 0300             (2/sys/stdptrs.asm):00076                             fcb       %00000011,%00000000
+005F 0300             (2/sys/stdptrs.asm):00077                             fcb       %00000011,%00000000
+0061 0300             (2/sys/stdptrs.asm):00078                             fcb       %00000011,%00000000
+                      (2/sys/stdptrs.asm):00079         
+0063 1B2B             (2/sys/stdptrs.asm):00080         sleep               fcb       $1B,$2B
+0065 CA               (2/sys/stdptrs.asm):00081                             fcb       $CA                 group #
+0066 04               (2/sys/stdptrs.asm):00082                             fcb       $04                 buffer #
+0067 05               (2/sys/stdptrs.asm):00083                             fcb       $05                 style 640x192x2
+0068 0010             (2/sys/stdptrs.asm):00084                             fdb       $0010               xsize
+006A 0010             (2/sys/stdptrs.asm):00085                             fdb       $0010               ysize
+006C 0020             (2/sys/stdptrs.asm):00086                             fdb       $0020               bytes
+                      (2/sys/stdptrs.asm):00087         
+006E FFFF             (2/sys/stdptrs.asm):00088                             fcb       %11111111,%11111111
+0070 4002             (2/sys/stdptrs.asm):00089                             fcb       %01000000,%00000010
+0072 2004             (2/sys/stdptrs.asm):00090                             fcb       %00100000,%00000100
+0074 1FF8             (2/sys/stdptrs.asm):00091                             fcb       %00011111,%11111000
+0076 0FF0             (2/sys/stdptrs.asm):00092                             fcb       %00001111,%11110000
+0078 07E0             (2/sys/stdptrs.asm):00093                             fcb       %00000111,%11100000
+007A 03C0             (2/sys/stdptrs.asm):00094                             fcb       %00000011,%11000000
+007C 0180             (2/sys/stdptrs.asm):00095                             fcb       %00000001,%10000000
+007E 0180             (2/sys/stdptrs.asm):00096                             fcb       %00000001,%10000000
+0080 0240             (2/sys/stdptrs.asm):00097                             fcb       %00000010,%01000000
+0082 05A0             (2/sys/stdptrs.asm):00098                             fcb       %00000101,%10100000
+0084 0810             (2/sys/stdptrs.asm):00099                             fcb       %00001000,%00010000
+0086 1188             (2/sys/stdptrs.asm):00100                             fcb       %00010001,%10001000
+0088 23C4             (2/sys/stdptrs.asm):00101                             fcb       %00100011,%11000100
+008A 47E2             (2/sys/stdptrs.asm):00102                             fcb       %01000111,%11100010
+008C FFFF             (2/sys/stdptrs.asm):00103                             fcb       %11111111,%11111111
+                      (2/sys/stdptrs.asm):00104         
+008E 1B2B             (2/sys/stdptrs.asm):00105         illegal             fcb       $1B,$2B
+0090 CA               (2/sys/stdptrs.asm):00106                             fcb       $CA                 group #
+0091 05               (2/sys/stdptrs.asm):00107                             fcb       $05                 buffer #
+0092 05               (2/sys/stdptrs.asm):00108                             fcb       $05                 style 640x192x2
+0093 0010             (2/sys/stdptrs.asm):00109                             fdb       $0010               xsize
+0095 000F             (2/sys/stdptrs.asm):00110                             fdb       $000f               ysize
+0097 001E             (2/sys/stdptrs.asm):00111                             fdb       $001e               bytes
+                      (2/sys/stdptrs.asm):00112         
+0099 07C0             (2/sys/stdptrs.asm):00113                             fcb       %00000111,%11000000
+009B 1830             (2/sys/stdptrs.asm):00114                             fcb       %00011000,%00110000
+009D 2008             (2/sys/stdptrs.asm):00115                             fcb       %00100000,%00001000
+009F 401C             (2/sys/stdptrs.asm):00116                             fcb       %01000000,%00011100
+00A1 4034             (2/sys/stdptrs.asm):00117                             fcb       %01000000,%00110100
+00A3 8062             (2/sys/stdptrs.asm):00118                             fcb       %10000000,%01100010
+00A5 80C2             (2/sys/stdptrs.asm):00119                             fcb       %10000000,%11000010
+00A7 8182             (2/sys/stdptrs.asm):00120                             fcb       %10000001,%10000010
+00A9 8302             (2/sys/stdptrs.asm):00121                             fcb       %10000011,%00000010
+00AB 8602             (2/sys/stdptrs.asm):00122                             fcb       %10000110,%00000010
+00AD 4C04             (2/sys/stdptrs.asm):00123                             fcb       %01001100,%00000100
+00AF 5804             (2/sys/stdptrs.asm):00124                             fcb       %01011000,%00000100
+00B1 3008             (2/sys/stdptrs.asm):00125                             fcb       %00110000,%00001000
+00B3 1830             (2/sys/stdptrs.asm):00126                             fcb       %00011000,%00110000
+00B5 07C0             (2/sys/stdptrs.asm):00127                             fcb       %00000111,%11000000
+                      (2/sys/stdptrs.asm):00128         
+00B7 1B2B             (2/sys/stdptrs.asm):00129         textmark            fcb       $1B,$2B
+00B9 CA               (2/sys/stdptrs.asm):00130                             fcb       $CA                 group #
+00BA 06               (2/sys/stdptrs.asm):00131                             fcb       $06                 buffer #
+00BB 05               (2/sys/stdptrs.asm):00132                             fcb       $05                 style 640x192x2
+00BC 0008             (2/sys/stdptrs.asm):00133                             fdb       $0008               xsize
+00BE 0008             (2/sys/stdptrs.asm):00134                             fdb       $0008               ysize
+00C0 0008             (2/sys/stdptrs.asm):00135                             fdb       $0008               bytes
+                      (2/sys/stdptrs.asm):00136         
+00C2 FF               (2/sys/stdptrs.asm):00137                             fcb       %11111111
+00C3 18               (2/sys/stdptrs.asm):00138                             fcb       %00011000
+00C4 18               (2/sys/stdptrs.asm):00139                             fcb       %00011000
+00C5 18               (2/sys/stdptrs.asm):00140                             fcb       %00011000
+00C6 18               (2/sys/stdptrs.asm):00141                             fcb       %00011000
+00C7 18               (2/sys/stdptrs.asm):00142                             fcb       %00011000
+00C8 18               (2/sys/stdptrs.asm):00143                             fcb       %00011000
+00C9 FF               (2/sys/stdptrs.asm):00144                             fcb       %11111111
+                      (2/sys/stdptrs.asm):00145         
+00CA 1B2B             (2/sys/stdptrs.asm):00146         scross              fcb       $1B,$2B
+00CC CA               (2/sys/stdptrs.asm):00147                             fcb       $CA                 group #
+00CD 07               (2/sys/stdptrs.asm):00148                             fcb       $07                 buffer #
+00CE 05               (2/sys/stdptrs.asm):00149                             fcb       $05                 style 640x192x2
+00CF 0008             (2/sys/stdptrs.asm):00150                             fdb       $0008               xsize
+00D1 0008             (2/sys/stdptrs.asm):00151                             fdb       $0008               ysize
+00D3 0008             (2/sys/stdptrs.asm):00152                             fdb       $0008               bytes
+                      (2/sys/stdptrs.asm):00153         
+00D5 18               (2/sys/stdptrs.asm):00154                             fcb       %00011000
+00D6 18               (2/sys/stdptrs.asm):00155                             fcb       %00011000
+00D7 18               (2/sys/stdptrs.asm):00156                             fcb       %00011000
+00D8 FF               (2/sys/stdptrs.asm):00157                             fcb       %11111111
+00D9 18               (2/sys/stdptrs.asm):00158                             fcb       %00011000
+00DA 18               (2/sys/stdptrs.asm):00159                             fcb       %00011000
+00DB 18               (2/sys/stdptrs.asm):00160                             fcb       %00011000
+00DC 00               (2/sys/stdptrs.asm):00161                             fcb       %00000000
+                      (2/sys/stdptrs.asm):00162         
+
+Symbol Table:
+[ G] illegal                          008E
+[ G] lcross                           0038
+[SG] NOS9MAJ                          0003
+[SG] NOS9MIN                          0000
+[SG] NOS9VER                          0003
+[ G] pencil                           0013
+[ G] pointer                          0000
+[ G] scross                           00CA
+[ G] sleep                            0063
+[ G] textmark                         00B7

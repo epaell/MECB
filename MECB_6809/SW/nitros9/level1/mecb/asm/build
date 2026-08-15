@@ -1,0 +1,11 @@
+lwasm --6309 --format=os9 --pragma=pcaspcr,nosymbolcase,condundefzero,undefextern,dollarnotlocal,noforwardrefmax --includedir=. --includedir=$NITROS9DIR/defs -DNOS9VER=3 -DNOS9MAJ=3 -DNOS9MIN=0 -DNOS9DBG=1 -Dmecb=1  $NITROS9DIR/level1/mecb/asm/testvdp.asm -otestvdp --list=testvdp.lst
+
+lwasm --6309 --format=os9 --pragma=pcaspcr,nosymbolcase,condundefzero,undefextern,dollarnotlocal,noforwardrefmax --includedir=. --includedir=$NITROS9DIR/defs -DNOS9VER=3 -DNOS9MAJ=3 -DNOS9MIN=0 -DNOS9DBG=1 -Dmecb=1  $NITROS9DIR/level1/mecb/asm/testpsg.asm -otestpsg --list=testpsg.lst
+
+lwasm --6309 --format=os9 --pragma=pcaspcr,nosymbolcase,condundefzero,undefextern,dollarnotlocal,noforwardrefmax --includedir=. --includedir=$NITROS9DIR/defs -DNOS9VER=3 -DNOS9MAJ=3 -DNOS9MIN=0 -DNOS9DBG=1 -Dmecb=1  $NITROS9DIR/level1/mecb/asm/testpia1.asm -otestpia1 --list=testpia1.lst
+
+lwasm --6309 --format=os9 --pragma=pcaspcr,nosymbolcase,condundefzero,undefextern,dollarnotlocal,noforwardrefmax --includedir=. --includedir=$NITROS9DIR/defs -DNOS9VER=3 -DNOS9MAJ=3 -DNOS9MIN=0 -DNOS9DBG=1 -Dmecb=1  $NITROS9DIR/level1/mecb/asm/testpia2.asm -otestpia2 --list=testpia2.lst
+
+lwasm --6309 --format=os9 --pragma=pcaspcr,nosymbolcase,condundefzero,undefextern,dollarnotlocal,noforwardrefmax --includedir=. --includedir=$NITROS9DIR/defs -DNOS9VER=3 -DNOS9MAJ=3 -DNOS9MIN=0 -DNOS9DBG=1 -Dmecb=1  $NITROS9DIR/level1/mecb/asm/nopsg.asm -onopsg --list=nopsg.lst
+
+lwasm --6309 --format=os9 --pragma=pcaspcr,nosymbolcase,condundefzero,undefextern,dollarnotlocal,noforwardrefmax --includedir=. --includedir=$NITROS9DIR/defs -DNOS9VER=3 -DNOS9MAJ=3 -DNOS9MIN=0 -DNOS9DBG=1 -Dmecb=1  $NITROS9DIR/level1/mecb/asm/testio.asm -otestio --list=testio.lst

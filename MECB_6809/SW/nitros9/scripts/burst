@@ -1,0 +1,23 @@
+#!/bin/sh -e
+
+NAME=$1
+TAG=$2
+
+HTDOCS=/home/project-web/nitros9/htdocs
+
+if [ -z "$TAG" ]; then
+	echo "$0: Missing name and date tag"
+	exit 1
+fi
+
+cd $HTDOCS
+mkdir snapshot-$TAG
+cd snapshot-$TAG
+unzip -o ../$NAME-$TAG.zip
+echo "Options +Indexes" > .htaccess
+
+cd $HTDOCS
+rm snapshot
+ln -s snapshot-$TAG snapshot
+rm $NAME.zip
+ln -s $NAME-$TAG.zip $NAME.zip

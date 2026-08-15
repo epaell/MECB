@@ -1,0 +1,22 @@
+                      (      is_space.as):00001         ;;; IS_SPACE
+                      (      is_space.as):00002         ;;;
+                      (      is_space.as):00003         ;;; Test if a character is a space.
+                      (      is_space.as):00004         ;;;
+                      (      is_space.as):00005         ;;; Entry:  B = The character to test.
+                      (      is_space.as):00006         ;;;
+                      (      is_space.as):00007         ;;; Exit:  CC = Zero is 1 if the character is a space; otherwise, 0.
+                      (      is_space.as):00008         ;;;
+                      (      is_space.as):00009         
+                      (      is_space.as):00010                             section   .text
+                      (      is_space.as):00011         
+0000 C120             (      is_space.as):00012         IS_SPACE:           cmpb      #$20
+0002 39               (      is_space.as):00013                             rts
+                      (      is_space.as):00014         
+                      (      is_space.as):00015                             endsect
+                      (      is_space.as):00016         
+
+Symbol Table:
+[ sG] IS_SPACE                         0000 (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000

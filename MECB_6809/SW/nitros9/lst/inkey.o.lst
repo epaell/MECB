@@ -1,0 +1,43 @@
+                      (         inkey.as):00001         ;;; INKEY
+                      (         inkey.as):00002         ;;;
+                      (         inkey.as):00003         ;;; Reads one character from the standard input.
+                      (         inkey.as):00004         ;;;
+                      (         inkey.as):00005         ;;; Other modules needed: FGETC
+                      (         inkey.as):00006         ;;;
+                      (         inkey.as):00007         ;;; Entry:  NOne.
+                      (         inkey.as):00008         ;;;
+                      (         inkey.as):00009         ;;; Exit:   A = The character read, or 0 if there was no character.
+                      (         inkey.as):00010         ;;;
+                      (         inkey.as):00011         ;;; Error:  B = A non-zero error code.
+                      (         inkey.as):00012         ;;;        CC = Carry flag set to indicate error (too large, non-numeric).
+                      (         inkey.as):00013         
+                      (         inkey.as):00014                             section   .text
+                      (         inkey.as):00015         
+0000 4F               (         inkey.as):00016         INKEY:              clra                          std in
+0001 C600             (         inkey.as):00017                             ldb       #SS.Ready
+0003 103F00           (         inkey.as):00018                             os9       I$GetStt            see if key ready
+0006 2407             (         inkey.as):00019                             bcc       getit
+0008 C100             (         inkey.as):00020                             cmpb      #E$NotRdy           no keys ready=no error
+000A 2607             (         inkey.as):00021                             bne       exit                other error, report it
+000C 4F               (         inkey.as):00022                             clra                          no error
+000D 2004             (         inkey.as):00023                             bra       exit
+                      (         inkey.as):00024         
+000F 170000           (         inkey.as):00025         getit               lbsr      FGETC               go get the key
+                      (         inkey.as):00026         
+                      (         inkey.as):00027         * this inst. needed since ctrl/: sometimes returns a null
+                      (         inkey.as):00028         * usually callers are not expecting a null....
+                      (         inkey.as):00029         
+0012 4D               (         inkey.as):00030                             tsta
+                      (         inkey.as):00031         
+0013 39               (         inkey.as):00032         exit                rts
+                      (         inkey.as):00033         
+                      (         inkey.as):00034                             endsect
+                      (         inkey.as):00035         
+
+Symbol Table:
+[ sG] exit                             0013 (.text)
+[ sG] getit                            000F (.text)
+[ sG] INKEY                            0000 (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000

@@ -1,0 +1,61 @@
+PROCEDURE pi
+     BASE 1
+     DIM N,L,I,J,K,Q,X,Y,P,R:INTEGER
+     N := 100
+     L := 10 * N / 3 + 1
+     J = 0
+     K := 0
+     Q := 0
+     Y := 0
+     R := 0
+     I := 0
+     X := 0
+     Y := 0
+     P := 0
+     DIM A(1000):INTEGER
+     FOR J = 1 TO L
+        A(J) := 2
+     NEXT J
+     FOR J = 1 TO N
+        I := N - J
+        I := I * 10 / 3 + 16
+        IF I>L THEN
+           I := L
+        ENDIF
+        R := 0
+        REPEAT
+           X := 10 * A(I) + R * I
+           R := X / (2 * I - 1)
+           A(I) := MOD(X, 2 * I - 1)
+           I := I - 1
+        UNTIL I <= 0
+        Q := R
+        A(1) := MOD(Q, 10)
+        Q := Q / 10
+        IF Q = 9 THEN
+           Y := Y + 1
+        ENDIF
+        IF Q = 10 THEN
+           PRINT P + 1;
+           IF Y <> 0 THEN
+              FOR K = 1 TO Y
+                 PRINT 0;
+              NEXT K
+           ENDIF
+           P := 0
+           Y := 0
+        ENDIF
+        IF (Q<>9) AND (Q<>10) THEN
+           PRINT P;
+           P := Q
+           IF Y <> 0 THEN
+              FOR K = 1 TO Y
+                 PRINT 9;
+              NEXT K
+              Y := 0
+          ENDIF
+        ENDIF
+     NEXT J
+     PRINT P
+     END
+

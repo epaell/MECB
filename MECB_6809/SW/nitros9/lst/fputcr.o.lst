@@ -1,0 +1,21 @@
+                      (        fputcr.as):00001         ;;; FPUTCR
+                      (        fputcr.as):00002         ;;;
+                      (        fputcr.as):00003         ;;; Prints a carriage return to a device.
+                      (        fputcr.as):00004         ;;;
+                      (        fputcr.as):00005         ;;; Entry:  A = The path to print to.
+                      (        fputcr.as):00006         ;;;
+                      (        fputcr.as):00007         ;;; Error:  B = A non-zero error code.
+                      (        fputcr.as):00008         ;;;        CC = Carry flag set to indicate error.
+                      (        fputcr.as):00009         
+                      (        fputcr.as):00010                             section   .text
+                      (        fputcr.as):00011         
+0000 C60D             (        fputcr.as):00012         FPUTCR:             ldb       #$0d
+0002 160000           (        fputcr.as):00013                             lbra      FPUTC
+                      (        fputcr.as):00014         
+                      (        fputcr.as):00015                             endsect
+
+Symbol Table:
+[ sG] FPUTCR                           0000 (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000

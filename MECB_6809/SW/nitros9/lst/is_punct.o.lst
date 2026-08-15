@@ -1,0 +1,34 @@
+                      (      is_punct.as):00001         ;;; IS_PUNCT
+                      (      is_punct.as):00002         ;;;
+                      (      is_punct.as):00003         ;;; Test if a character is a punctuation character
+                      (      is_punct.as):00004         ;;;
+                      (      is_punct.as):00005         ;;; Other modules needed: IS_ALNUM, IS_CNTRL
+                      (      is_punct.as):00006         ;;;
+                      (      is_punct.as):00007         ;;; Entry:  B = The character to test.
+                      (      is_punct.as):00008         ;;;
+                      (      is_punct.as):00009         ;;; Exit:  CC = Zero is 1 if the character is a punctuation character; otherwise, 0.
+                      (      is_punct.as):00010         ;;;
+                      (      is_punct.as):00011         
+                      (      is_punct.as):00012                             section   .text
+                      (      is_punct.as):00013         
+                      (      is_punct.as):00014         
+0000 170000           (      is_punct.as):00015         IS_PUNCT:           lbsr      IS_ALNUM
+0003 2708             (      is_punct.as):00016                             beq       no                  if its a.z,A.Z or 0.9 not punct
+0005 170000           (      is_punct.as):00017                             lbsr      IS_CNTRL
+0008 2703             (      is_punct.as):00018                             beq       no                  controls not punct.
+000A 1A04             (      is_punct.as):00019                             orcc      #%00000100          set carry
+000C 39               (      is_punct.as):00020                             rts
+                      (      is_punct.as):00021         
+000D 1CFB             (      is_punct.as):00022         no                  andcc     #%11111011          clear zero
+000F 39               (      is_punct.as):00023                             rts
+                      (      is_punct.as):00024         
+                      (      is_punct.as):00025         
+                      (      is_punct.as):00026                             endsect
+                      (      is_punct.as):00027         
+
+Symbol Table:
+[ sG] IS_PUNCT                         0000 (.text)
+[ sG] no                               000D (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000

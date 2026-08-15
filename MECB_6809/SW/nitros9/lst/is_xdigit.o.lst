@@ -1,0 +1,37 @@
+                      (     is_xdigit.as):00001         ;;; IS_XDIGIT
+                      (     is_xdigit.as):00002         ;;;
+                      (     is_xdigit.as):00003         ;;; Test if a character is a hexadecimal digit from 0-9, a-f, or A-F.
+                      (     is_xdigit.as):00004         ;;;
+                      (     is_xdigit.as):00005         ;;; Entry:  B = The character to test.
+                      (     is_xdigit.as):00006         ;;;
+                      (     is_xdigit.as):00007         ;;; Exit:  CC = Zero is 1 if the character is a hexadecimal digit; otherwise, 0.
+                      (     is_xdigit.as):00008         ;;;
+                      (     is_xdigit.as):00009         
+                      (     is_xdigit.as):00010                             section   .text
+                      (     is_xdigit.as):00011         
+0000 3404             (     is_xdigit.as):00012         IS_XDIGIT:          pshs      b
+0002 170000           (     is_xdigit.as):00013                             lbsr      IS_DIGIT
+0005 2712             (     is_xdigit.as):00014                             beq       exit                digits are okay
+0007 C141             (     is_xdigit.as):00015                             cmpb      #'A
+0009 250E             (     is_xdigit.as):00016                             blo       exit                exit, zero not set
+000B C166             (     is_xdigit.as):00017                             cmpb      #'f
+000D 220A             (     is_xdigit.as):00018                             bhi       exit                zero not set
+000F C161             (     is_xdigit.as):00019                             cmpb      #'a
+0011 2404             (     is_xdigit.as):00020                             bhs       yes
+0013 C146             (     is_xdigit.as):00021                             cmpb      #'F
+0015 2202             (     is_xdigit.as):00022                             bhi       exit
+                      (     is_xdigit.as):00023         
+0017 1A04             (     is_xdigit.as):00024         yes                 orcc      #%00000100          set zero
+                      (     is_xdigit.as):00025         
+0019 3584             (     is_xdigit.as):00026         exit                puls      b,pc
+                      (     is_xdigit.as):00027         
+                      (     is_xdigit.as):00028                             endsect
+                      (     is_xdigit.as):00029         
+
+Symbol Table:
+[ sG] exit                             0019 (.text)
+[ sG] IS_XDIGIT                        0000 (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000
+[ sG] yes                              0017 (.text)

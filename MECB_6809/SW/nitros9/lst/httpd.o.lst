@@ -1,0 +1,437 @@
+                      (el1/cmds/httpd.as):00001         ********************************************************************
+                      (el1/cmds/httpd.as):00002         * httpd - HTTP daemon
+                      (el1/cmds/httpd.as):00003         *
+                      (el1/cmds/httpd.as):00004         * Edt/Rev  YYYY/MM/DD  Modified by
+                      (el1/cmds/httpd.as):00005         * Comment
+                      (el1/cmds/httpd.as):00006         * ------------------------------------------------------------------
+                      (el1/cmds/httpd.as):00007         *   1      2013/05/22  Boisy G. Pitre
+                      (el1/cmds/httpd.as):00008         * Started.
+                      (el1/cmds/httpd.as):00009         
+                      (el1/cmds/httpd.as):00010                             nam       httpd
+                      (el1/cmds/httpd.as):00011                             ttl       HTTP daemon
+                      (el1/cmds/httpd.as):00012         
+                      (el1/cmds/httpd.as):00013                             section   __os9
+     ????             (el1/cmds/httpd.as):00014         type                equ       Prgrm
+     ????             (el1/cmds/httpd.as):00015         lang                equ       Objct
+     ????             (el1/cmds/httpd.as):00016         attr                equ       ReEnt
+     0000             (el1/cmds/httpd.as):00017         rev                 equ       $00
+     0001             (el1/cmds/httpd.as):00018         edition             equ       1
+     00C8             (el1/cmds/httpd.as):00019         stack               equ       200
+                      (el1/cmds/httpd.as):00020                             endsect
+                      (el1/cmds/httpd.as):00021         
+                      (el1/cmds/httpd.as):00022                             section   bss
+     0080             (el1/cmds/httpd.as):00023         gbufferl            equ       128
+0000                  (el1/cmds/httpd.as):00024         gbuffer             rmb       gbufferl
+0080                  (el1/cmds/httpd.as):00025         dentbuf             rmb       32
+00A0                  (el1/cmds/httpd.as):00026         filepath            rmb       1
+00A1                  (el1/cmds/httpd.as):00027         fileptr             rmb       2
+     0080             (el1/cmds/httpd.as):00028         lbufferl            equ       128
+00A3                  (el1/cmds/httpd.as):00029         lbuffer             rmb       lbufferl
+                      (el1/cmds/httpd.as):00030                             endsect
+                      (el1/cmds/httpd.as):00031         
+                      (el1/cmds/httpd.as):00032                             section   code
+                      (el1/cmds/httpd.as):00033         
+     0001             (el1/cmds/httpd.as):00034         DEBUG               equ       1
+                      (el1/cmds/httpd.as):00035         
+                      (el1/cmds/httpd.as):00036         **** Entry Point ****
+0000                  (el1/cmds/httpd.as):00037         __start
+                      (el1/cmds/httpd.as):00038         * Turn off pause in standard out
+0000 8601             (el1/cmds/httpd.as):00039                             lda       #1
+0002 170000           (el1/cmds/httpd.as):00040                             lbsr      SetEchoOff
+0005 170000           (el1/cmds/httpd.as):00041                             lbsr      SetAutoLFOn
+                      (el1/cmds/httpd.as):00042         
+                      (el1/cmds/httpd.as):00043         * change to www root dir
+0008 8600             (el1/cmds/httpd.as):00044                             lda       #READ.
+000A 308D034C         (el1/cmds/httpd.as):00045                             leax      wwwroot,pcr
+000E 103F00           (el1/cmds/httpd.as):00046                             os9       I$ChgDir
+0011 2521             (el1/cmds/httpd.as):00047                             bcs       errexit
+                      (el1/cmds/httpd.as):00048         
+                      (el1/cmds/httpd.as):00049         * main loop: read line on stdin
+0013                  (el1/cmds/httpd.as):00050         mainloop
+0013 30C90000         (el1/cmds/httpd.as):00051                             leax      gbuffer,u
+0017 108E0080         (el1/cmds/httpd.as):00052                             ldy       #gbufferl
+001B 4F               (el1/cmds/httpd.as):00053                             clra
+001C 103F00           (el1/cmds/httpd.as):00054                             os9       I$ReadLn
+001F 250E             (el1/cmds/httpd.as):00055                             bcs       checkeof
+                      (el1/cmds/httpd.as):00056         * quickly nul terminate the line we just read
+0021 3410             (el1/cmds/httpd.as):00057                             pshs      x
+0023 1F20             (el1/cmds/httpd.as):00058                             tfr       y,d
+0025 308B             (el1/cmds/httpd.as):00059                             leax      d,x
+0027 6F1F             (el1/cmds/httpd.as):00060                             clr       -1,x
+0029 3510             (el1/cmds/httpd.as):00061                             puls      x
+002B 8D13             (el1/cmds/httpd.as):00062                             bsr       process
+002D 2005             (el1/cmds/httpd.as):00063                             bra       errexit
+                      (el1/cmds/httpd.as):00064         
+002F C100             (el1/cmds/httpd.as):00065         checkeof            cmpb      #E$EOF
+0031 2501             (el1/cmds/httpd.as):00066                             bcs       errexit
+0033 5F               (el1/cmds/httpd.as):00067                             clrb
+0034                  (el1/cmds/httpd.as):00068         errexit
+0034 3405             (el1/cmds/httpd.as):00069                             pshs      cc,b
+0036 8601             (el1/cmds/httpd.as):00070                             lda       #1
+0038 170000           (el1/cmds/httpd.as):00071                             lbsr      SetEchoOn
+003B 3505             (el1/cmds/httpd.as):00072                             puls      cc,b
+003D 103F00           (el1/cmds/httpd.as):00073                             os9       F$Exit
+                      (el1/cmds/httpd.as):00074         
+                      (el1/cmds/httpd.as):00075         * input: X = line read (nul terminated)
+0040                  (el1/cmds/httpd.as):00076         process
+                      (el1/cmds/httpd.as):00077         * check for GET
+0040 318D0324         (el1/cmds/httpd.as):00078                             leay      get,pcr
+0044 CC0004           (el1/cmds/httpd.as):00079                             ldd       #getl
+0047 170000           (el1/cmds/httpd.as):00080                             lbsr      STRNCMP
+004A 2702             (el1/cmds/httpd.as):00081                             beq       GETOK
+004C 5F               (el1/cmds/httpd.as):00082                             clrb
+004D 39               (el1/cmds/httpd.as):00083                             rts
+                      (el1/cmds/httpd.as):00084         
+                      (el1/cmds/httpd.as):00085         * we know it is a GET... get the text following it
+004E 3004             (el1/cmds/httpd.as):00086         GETOK               leax      4,x
+0050 EC84             (el1/cmds/httpd.as):00087                             ldd       ,x
+0052 10830000         (el1/cmds/httpd.as):00088                             cmpd      #'/*256+C$SPAC
+0056 2718             (el1/cmds/httpd.as):00089                             beq       doindex
+0058 3001             (el1/cmds/httpd.as):00090                             leax      1,x
+                      (el1/cmds/httpd.as):00091         
+005A 3410             (el1/cmds/httpd.as):00092         NulTerminate        pshs      x
+005C A680             (el1/cmds/httpd.as):00093         loop@               lda       ,x+
+005E 270A             (el1/cmds/httpd.as):00094                             beq       terminate@
+0060 8100             (el1/cmds/httpd.as):00095                             cmpa      #C$CR
+0062 2706             (el1/cmds/httpd.as):00096                             beq       terminate@
+0064 8100             (el1/cmds/httpd.as):00097                             cmpa      #C$SPAC
+0066 2702             (el1/cmds/httpd.as):00098                             beq       terminate@
+0068 20F2             (el1/cmds/httpd.as):00099                             bra       loop@
+006A 6F1F             (el1/cmds/httpd.as):00100         terminate@          clr       -1,x
+006C 3510             (el1/cmds/httpd.as):00101                             puls      x
+006E 2004             (el1/cmds/httpd.as):00102                             bra       readfile
+                      (el1/cmds/httpd.as):00103         
+                      (el1/cmds/httpd.as):00104         * point to index.html
+0070 308D02F9         (el1/cmds/httpd.as):00105         doindex             leax      index,pcr
+0074                  (el1/cmds/httpd.as):00106         readfile
+0074 AFC90000         (el1/cmds/httpd.as):00107                             stx       fileptr,u
+0078 8600             (el1/cmds/httpd.as):00108                             lda       #READ.
+007A 103F00           (el1/cmds/httpd.as):00109                             os9       I$Open
+007D 2524             (el1/cmds/httpd.as):00110                             bcs       isitdir
+                      (el1/cmds/httpd.as):00111         
+007F 1701C3           (el1/cmds/httpd.as):00112                             lbsr      print200OK
+                      (el1/cmds/httpd.as):00113         
+0082 30C90000         (el1/cmds/httpd.as):00114         readloop            leax      lbuffer,u
+0086 108E0080         (el1/cmds/httpd.as):00115                             ldy       #lbufferl
+008A 103F00           (el1/cmds/httpd.as):00116                             os9       I$Read
+008D 250B             (el1/cmds/httpd.as):00117                             bcs       eofcheck
+008F 3402             (el1/cmds/httpd.as):00118                             pshs      a
+0091 8601             (el1/cmds/httpd.as):00119                             lda       #1
+0093 103F00           (el1/cmds/httpd.as):00120                             os9       I$Write
+0096 3502             (el1/cmds/httpd.as):00121                             puls      a
+0098 20E8             (el1/cmds/httpd.as):00122                             bra       readloop
+                      (el1/cmds/httpd.as):00123         
+009A C100             (el1/cmds/httpd.as):00124         eofcheck            cmpb      #E$EOF
+009C 2604             (el1/cmds/httpd.as):00125                             bne       ret
+009E 5F               (el1/cmds/httpd.as):00126                             clrb
+009F 103F00           (el1/cmds/httpd.as):00127                             os9       I$Close
+00A2 39               (el1/cmds/httpd.as):00128         ret                 rts
+                      (el1/cmds/httpd.as):00129         
+00A3 C100             (el1/cmds/httpd.as):00130         isitdir             cmpb      #E$FNA
+00A5 102600E1         (el1/cmds/httpd.as):00131                             lbne      notfound
+                      (el1/cmds/httpd.as):00132         * open as directory
+00A9 8600             (el1/cmds/httpd.as):00133                             lda       #READ.+DIR.
+00AB AEC90000         (el1/cmds/httpd.as):00134                             ldx       fileptr,u
+00AF 103F00           (el1/cmds/httpd.as):00135                             os9       I$Open
+00B2 102500D4         (el1/cmds/httpd.as):00136                             lbcs      notfound
+                      (el1/cmds/httpd.as):00137         * process dir here
+00B6 A7C90000         (el1/cmds/httpd.as):00138                             sta       filepath,u
+00BA 170188           (el1/cmds/httpd.as):00139                             lbsr      print200OK
+00BD 170127           (el1/cmds/httpd.as):00140                             lbsr      _htmltag
+00C0 17013B           (el1/cmds/httpd.as):00141                             lbsr      _headtag
+00C3 17014F           (el1/cmds/httpd.as):00142                             lbsr      _titletag
+00C6 170000           (el1/cmds/httpd.as):00143                             lbsr      PRINTS
+00C9 4469726563746F72 (el1/cmds/httpd.as):00144                             fcc       "Directory of "
+     79206F6620
+00D6 00               (el1/cmds/httpd.as):00145                             fcb       $00
+00D7 AEC90000         (el1/cmds/httpd.as):00146                             ldx       fileptr,u
+00DB 170000           (el1/cmds/httpd.as):00147                             lbsr      PUTS
+00DE 170140           (el1/cmds/httpd.as):00148                             lbsr      _ntitletag
+00E1 170125           (el1/cmds/httpd.as):00149                             lbsr      _nheadtag
+00E4 170147           (el1/cmds/httpd.as):00150                             lbsr      _bodytag
+00E7 170000           (el1/cmds/httpd.as):00151                             lbsr      PRINTS
+00EA 3C48333E         (el1/cmds/httpd.as):00152                             fcc       "<H3>"
+00EE 4469726563746F72 (el1/cmds/httpd.as):00153                             fcc       "Directory of "
+     79206F6620
+00FB 00               (el1/cmds/httpd.as):00154                             fcb       $00
+00FC AEC90000         (el1/cmds/httpd.as):00155                             ldx       fileptr,u
+0100 170000           (el1/cmds/httpd.as):00156                             lbsr      PUTS
+0103 170000           (el1/cmds/httpd.as):00157                             lbsr      PRINTS
+0106 3C2F48333E       (el1/cmds/httpd.as):00158                             fcc       "</H3>"
+010B 00               (el1/cmds/httpd.as):00159                             fcb       $00
+010C A6C90000         (el1/cmds/httpd.as):00160                             lda       filepath,u
+                      (el1/cmds/httpd.as):00161         * skip over .. and .
+0110 108E0000         (el1/cmds/httpd.as):00162                             ldy       #DIR.SZ
+0114 30C90000         (el1/cmds/httpd.as):00163                             leax      dentbuf,u
+0118 103F00           (el1/cmds/httpd.as):00164                             os9       I$Read
+011B 30C90000         (el1/cmds/httpd.as):00165                             leax      dentbuf,u
+011F 103F00           (el1/cmds/httpd.as):00166                             os9       I$Read
+                      (el1/cmds/httpd.as):00167         
+0122 A6C90000         (el1/cmds/httpd.as):00168         nextdirent          lda       filepath,u
+0126 30C90000         (el1/cmds/httpd.as):00169                             leax      dentbuf,u
+012A 108E0000         (el1/cmds/httpd.as):00170                             ldy       #DIR.SZ
+012E 103F00           (el1/cmds/httpd.as):00171                             os9       I$Read
+0131 2549             (el1/cmds/httpd.as):00172                             bcs       endoffile
+0133 6D84             (el1/cmds/httpd.as):00173                             tst       ,x
+0135 27EB             (el1/cmds/httpd.as):00174                             beq       nextdirent
+                      (el1/cmds/httpd.as):00175         
+                      (el1/cmds/httpd.as):00176         * find char with hi bit set
+0137 1F12             (el1/cmds/httpd.as):00177                             tfr       x,y
+0139 A6A0             (el1/cmds/httpd.as):00178         lo@                 lda       ,y+
+013B 2AFC             (el1/cmds/httpd.as):00179                             bpl       lo@
+013D 847F             (el1/cmds/httpd.as):00180                             anda      #$7F
+013F A73F             (el1/cmds/httpd.as):00181                             sta       -1,y
+0141 6FA4             (el1/cmds/httpd.as):00182                             clr       ,y
+0143 3410             (el1/cmds/httpd.as):00183                             pshs      x
+0145 170000           (el1/cmds/httpd.as):00184                             lbsr      PRINTS
+0148 3C4120485245463D (el1/cmds/httpd.as):00185                             fcc       '<A HREF="'
+     22
+0151 00               (el1/cmds/httpd.as):00186                             fcb       $00
+0152 AEC90000         (el1/cmds/httpd.as):00187                             ldx       fileptr,u
+0156 170000           (el1/cmds/httpd.as):00188                             lbsr      PUTS
+0159 170000           (el1/cmds/httpd.as):00189                             lbsr      PRINTS
+015C 2F               (el1/cmds/httpd.as):00190                             fcc       "/"
+015D 00               (el1/cmds/httpd.as):00191                             fcb       $00
+015E AEE4             (el1/cmds/httpd.as):00192                             ldx       ,s
+0160 170000           (el1/cmds/httpd.as):00193                             lbsr      PUTS
+0163 170000           (el1/cmds/httpd.as):00194                             lbsr      PRINTS
+0166 223E             (el1/cmds/httpd.as):00195                             fcc       '">'
+0168 00               (el1/cmds/httpd.as):00196                             fcb       $00
+0169 3510             (el1/cmds/httpd.as):00197                             puls      x
+016B 170000           (el1/cmds/httpd.as):00198                             lbsr      PUTS
+016E 170000           (el1/cmds/httpd.as):00199                             lbsr      PRINTS
+0171 3C2F413E         (el1/cmds/httpd.as):00200                             fcc       "</A>"
+0175 3C42523E         (el1/cmds/httpd.as):00201                             fcc       "<BR>"
+0179 00               (el1/cmds/httpd.as):00202                             fcb       $00
+017A 20A6             (el1/cmds/httpd.as):00203                             bra       nextdirent
+017C                  (el1/cmds/httpd.as):00204         endoffile
+017C A6C90000         (el1/cmds/httpd.as):00205                             lda       filepath,u
+0180 103F00           (el1/cmds/httpd.as):00206                             os9       I$Close
+0183 1700B3           (el1/cmds/httpd.as):00207                             lbsr      _nbodytag
+0186 170069           (el1/cmds/httpd.as):00208                             lbsr      _nhtmltag
+0189 39               (el1/cmds/httpd.as):00209                             rts
+                      (el1/cmds/httpd.as):00210         
+018A 1700D0           (el1/cmds/httpd.as):00211         notfound            lbsr      print404
+018D 39               (el1/cmds/httpd.as):00212                             rts
+                      (el1/cmds/httpd.as):00213         
+018E                  (el1/cmds/httpd.as):00214         _http11
+018E 170000           (el1/cmds/httpd.as):00215                             lbsr      PRINTS
+0191 485454502F312E31 (el1/cmds/httpd.as):00216                             fcc       "HTTP/1.1 "
+     20
+019A 00               (el1/cmds/httpd.as):00217                             fcb       $00
+019B 39               (el1/cmds/httpd.as):00218                             rts
+                      (el1/cmds/httpd.as):00219         
+019C                  (el1/cmds/httpd.as):00220         _server
+019C 170000           (el1/cmds/httpd.as):00221                             lbsr      PRINTS
+019F 5365727665723A20 (el1/cmds/httpd.as):00222                             fcc       "Server: "
+01A7 00               (el1/cmds/httpd.as):00223                             fcb       $00
+01A8 170021           (el1/cmds/httpd.as):00224                             lbsr      _serverinf
+01AB 170018           (el1/cmds/httpd.as):00225                             lbsr      _newline
+01AE 39               (el1/cmds/httpd.as):00226                             rts
+                      (el1/cmds/httpd.as):00227         
+01AF                  (el1/cmds/httpd.as):00228         _connclose
+01AF 170000           (el1/cmds/httpd.as):00229                             lbsr      PRINTS
+01B2 436F6E6E65637469 (el1/cmds/httpd.as):00230                             fcc       "Connection: close"
+     6F6E3A20636C6F73
+     65
+01C3 0000             (el1/cmds/httpd.as):00231                             fcb       C$CR,$00
+01C5 39               (el1/cmds/httpd.as):00232                             rts
+                      (el1/cmds/httpd.as):00233         
+01C6                  (el1/cmds/httpd.as):00234         _newline
+01C6 170000           (el1/cmds/httpd.as):00235                             lbsr      PRINTS
+01C9 0000             (el1/cmds/httpd.as):00236                             fcb       C$CR,$00
+01CB 39               (el1/cmds/httpd.as):00237                             rts
+                      (el1/cmds/httpd.as):00238         
+01CC                  (el1/cmds/httpd.as):00239         _serverinf
+01CC 170000           (el1/cmds/httpd.as):00240                             lbsr      PRINTS
+01CF 6874747064206564 (el1/cmds/httpd.as):00241                             fcc       /httpd ed. /
+     2E20
+01D9 31               (el1/cmds/httpd.as):00242                             fcb       edition+$30
+01DA 20284E6974724F53 (el1/cmds/httpd.as):00243                             fcc       / (NitrOS-9)/
+     2D3929
+01E5 00               (el1/cmds/httpd.as):00244                             fcb       $00
+01E6 39               (el1/cmds/httpd.as):00245                             rts
+                      (el1/cmds/httpd.as):00246         
+01E7                  (el1/cmds/httpd.as):00247         _htmltag
+01E7 170000           (el1/cmds/httpd.as):00248                             lbsr      PRINTS
+01EA 3C48544D4C3E     (el1/cmds/httpd.as):00249                             fcc       "<HTML>"
+01F0 00               (el1/cmds/httpd.as):00250                             fcb       $00
+01F1 39               (el1/cmds/httpd.as):00251                             rts
+                      (el1/cmds/httpd.as):00252         
+01F2                  (el1/cmds/httpd.as):00253         _nhtmltag
+01F2 170000           (el1/cmds/httpd.as):00254                             lbsr      PRINTS
+01F5 3C2F48544D4C3E   (el1/cmds/httpd.as):00255                             fcc       "</HTML>"
+01FC 00               (el1/cmds/httpd.as):00256                             fcb       $00
+01FD 39               (el1/cmds/httpd.as):00257                             rts
+                      (el1/cmds/httpd.as):00258         
+01FE                  (el1/cmds/httpd.as):00259         _headtag
+01FE 170000           (el1/cmds/httpd.as):00260                             lbsr      PRINTS
+0201 3C484541443E     (el1/cmds/httpd.as):00261                             fcc       "<HEAD>"
+0207 00               (el1/cmds/httpd.as):00262                             fcb       $00
+0208 39               (el1/cmds/httpd.as):00263                             rts
+                      (el1/cmds/httpd.as):00264         
+0209                  (el1/cmds/httpd.as):00265         _nheadtag
+0209 170000           (el1/cmds/httpd.as):00266                             lbsr      PRINTS
+020C 3C2F484541443E   (el1/cmds/httpd.as):00267                             fcc       "</HEAD>"
+0213 00               (el1/cmds/httpd.as):00268                             fcb       $00
+0214 39               (el1/cmds/httpd.as):00269                             rts
+                      (el1/cmds/httpd.as):00270         
+0215                  (el1/cmds/httpd.as):00271         _titletag
+0215 170000           (el1/cmds/httpd.as):00272                             lbsr      PRINTS
+0218 3C5449544C453E   (el1/cmds/httpd.as):00273                             fcc       "<TITLE>"
+021F 00               (el1/cmds/httpd.as):00274                             fcb       $00
+0220 39               (el1/cmds/httpd.as):00275                             rts
+                      (el1/cmds/httpd.as):00276         
+0221                  (el1/cmds/httpd.as):00277         _ntitletag
+0221 170000           (el1/cmds/httpd.as):00278                             lbsr      PRINTS
+0224 3C2F5449544C453E (el1/cmds/httpd.as):00279                             fcc       "</TITLE>"
+022C 00               (el1/cmds/httpd.as):00280                             fcb       $00
+022D 39               (el1/cmds/httpd.as):00281                             rts
+                      (el1/cmds/httpd.as):00282         
+022E                  (el1/cmds/httpd.as):00283         _bodytag
+022E 170000           (el1/cmds/httpd.as):00284                             lbsr      PRINTS
+0231 3C424F44593E     (el1/cmds/httpd.as):00285                             fcc       "<BODY>"
+0237 00               (el1/cmds/httpd.as):00286                             fcb       $00
+0238 39               (el1/cmds/httpd.as):00287                             rts
+                      (el1/cmds/httpd.as):00288         
+0239                  (el1/cmds/httpd.as):00289         _nbodytag
+0239 170000           (el1/cmds/httpd.as):00290                             lbsr      PRINTS
+023C 3C2F424F44593E   (el1/cmds/httpd.as):00291                             fcc       "</BODY>"
+0243 00               (el1/cmds/httpd.as):00292                             fcb       $00
+0244 39               (el1/cmds/httpd.as):00293                             rts
+                      (el1/cmds/httpd.as):00294         
+0245                  (el1/cmds/httpd.as):00295         print200OK
+0245 17FF46           (el1/cmds/httpd.as):00296                             lbsr      _http11
+0248 170000           (el1/cmds/httpd.as):00297                             lbsr      PRINTS
+024B 323030204F4B     (el1/cmds/httpd.as):00298                             fcc       "200 OK"
+0251 0000             (el1/cmds/httpd.as):00299                             fcb       C$CR,$00
+0253 17FF46           (el1/cmds/httpd.as):00300                             lbsr      _server
+0256 17FF56           (el1/cmds/httpd.as):00301                             lbsr      _connclose
+0259 17FF6A           (el1/cmds/httpd.as):00302                             lbsr      _newline
+025C 39               (el1/cmds/httpd.as):00303                             rts
+                      (el1/cmds/httpd.as):00304         
+025D                  (el1/cmds/httpd.as):00305         print404
+025D 17FF2E           (el1/cmds/httpd.as):00306                             lbsr      _http11
+0260 170000           (el1/cmds/httpd.as):00307                             lbsr      PRINTS
+0263 343034204E6F7420 (el1/cmds/httpd.as):00308                             fcc       "404 Not Found"
+     466F756E64
+0270 0000             (el1/cmds/httpd.as):00309                             fcb       C$CR,$00
+0272 17FF27           (el1/cmds/httpd.as):00310                             lbsr      _server
+0275 17FF37           (el1/cmds/httpd.as):00311                             lbsr      _connclose
+0278 17FF4B           (el1/cmds/httpd.as):00312                             lbsr      _newline
+027B 170000           (el1/cmds/httpd.as):00313                             lbsr      PRINTS
+027E 3C21444F43545950 (el1/cmds/httpd.as):00314                             fcc       '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">'
+     452048544D4C2050
+     55424C494320222D
+     2F2F494554462F2F
+     4454442048544D4C
+     20322E302F2F454E
+     223E
+02B0 00               (el1/cmds/httpd.as):00315                             fcb       $00
+02B1 17FF33           (el1/cmds/httpd.as):00316                             lbsr      _htmltag
+02B4 17FF47           (el1/cmds/httpd.as):00317                             lbsr      _headtag
+02B7 170000           (el1/cmds/httpd.as):00318                             lbsr      PRINTS
+02BA 3C7469746C653E34 (el1/cmds/httpd.as):00319                             fcc       '<title>404 Not Found</title>'
+     3034204E6F742046
+     6F756E643C2F7469
+     746C653E
+02D6 00               (el1/cmds/httpd.as):00320                             fcb       $00
+02D7 17FF2F           (el1/cmds/httpd.as):00321                             lbsr      _nheadtag
+02DA 17FF51           (el1/cmds/httpd.as):00322                             lbsr      _bodytag
+02DD 170000           (el1/cmds/httpd.as):00323                             lbsr      PRINTS
+02E0 3C68313E4E6F7420 (el1/cmds/httpd.as):00324                             fcc       '<h1>Not Found</h1>'
+     466F756E643C2F68
+     313E
+02F2 3C703E5468652072 (el1/cmds/httpd.as):00325                             fcc       '<p>The requested URL '
+     6571756573746564
+     2055524C20
+0307 00               (el1/cmds/httpd.as):00326                             fcb       $00
+0308 AEC90000         (el1/cmds/httpd.as):00327                             ldx       fileptr,u
+030C 170000           (el1/cmds/httpd.as):00328                             lbsr      PUTS
+030F 170000           (el1/cmds/httpd.as):00329                             lbsr      PRINTS
+0312 20776173206E6F74 (el1/cmds/httpd.as):00330                             fcc       ' was not found on this server.</p>'
+     20666F756E64206F
+     6E20746869732073
+     65727665722E3C2F
+     703E
+0334 3C68723E         (el1/cmds/httpd.as):00331                             fcc       '<hr>'
+0338 3C61646472657373 (el1/cmds/httpd.as):00332                             fcc       '<address>'
+     3E
+0341 00               (el1/cmds/httpd.as):00333                             fcb       $00
+0342 17FE87           (el1/cmds/httpd.as):00334                             lbsr      _serverinf
+0345 170000           (el1/cmds/httpd.as):00335                             lbsr      PRINTS
+0348 3C2F616464726573 (el1/cmds/httpd.as):00336                             fcc       '</address>'
+     733E
+0352 00               (el1/cmds/httpd.as):00337                             fcb       $00
+0353 17FEE3           (el1/cmds/httpd.as):00338                             lbsr      _nbodytag
+0356 17FE99           (el1/cmds/httpd.as):00339                             lbsr      _nhtmltag
+0359 39               (el1/cmds/httpd.as):00340                             rts
+                      (el1/cmds/httpd.as):00341         
+035A 2E2E2E2E2E2E2F57 (el1/cmds/httpd.as):00342         wwwroot             fcs       "....../WWWROOT"
+     5757524F4FD4
+0368 47455420         (el1/cmds/httpd.as):00343         get                 fcc       "GET "
+     0004             (el1/cmds/httpd.as):00344         getl                equ       *-get
+036C 00               (el1/cmds/httpd.as):00345                             fcb       $00
+036D 696E6465782E6874 (el1/cmds/httpd.as):00346         index               fcs       "index.html"
+     6DEC
+                      (el1/cmds/httpd.as):00347         
+                      (el1/cmds/httpd.as):00348                             endsect
+
+Symbol Table:
+[ sG] __start                          0000 (code)
+[ sG] _bodytag                         022E (code)
+[ sG] _connclose                       01AF (code)
+[ sG] _headtag                         01FE (code)
+[ sG] _htmltag                         01E7 (code)
+[ sG] _http11                          018E (code)
+[ sG] _nbodytag                        0239 (code)
+[ sG] _newline                         01C6 (code)
+[ sG] _nheadtag                        0209 (code)
+[ sG] _nhtmltag                        01F2 (code)
+[ sG] _ntitletag                       0221 (code)
+[ sG] _server                          019C (code)
+[ sG] _serverinf                       01CC (code)
+[ sG] _titletag                        0215 (code)
+[ sG] attr                             <<incomplete>>
+[ sG] checkeof                         002F (code)
+[ScG] coco3                            0001
+[ cG] DEBUG                            0001
+[ sG] dentbuf                          0080 (bss)
+[ sG] doindex                          0070 (code)
+[ cG] edition                          0001
+[ sG] endoffile                        017C (code)
+[ sG] eofcheck                         009A (code)
+[ sG] errexit                          0034 (code)
+[ sG] filepath                         00A0 (bss)
+[ sG] fileptr                          00A1 (bss)
+[ sG] gbuffer                          0000 (bss)
+[ cG] gbufferl                         0080
+[ sG] get                              0368 (code)
+[ cG] getl                             0004
+[ sG] GETOK                            004E (code)
+[ScG] H6309                            0001
+[ sG] index                            036D (code)
+[ sG] isitdir                          00A3 (code)
+[ sG] lang                             <<incomplete>>
+[ sG] lbuffer                          00A3 (bss)
+[ cG] lbufferl                         0080
+[ sL] lo@                              0139 (code)
+[ sL] loop@                            005C (code)
+[ sG] mainloop                         0013 (code)
+[ sG] nextdirent                       0122 (code)
+[ScG] NOS9MAJ                          0003
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0003
+[ sG] notfound                         018A (code)
+[ sG] NulTerminate                     005A (code)
+[ sG] print200OK                       0245 (code)
+[ sG] print404                         025D (code)
+[ sG] process                          0040 (code)
+[ sG] readfile                         0074 (code)
+[ sG] readloop                         0082 (code)
+[ sG] ret                              00A2 (code)
+[ cG] rev                              0000
+[ cG] stack                            00C8
+[ sL] terminate@                       006A (code)
+[ sG] type                             <<incomplete>>
+[ sG] wwwroot                          035A (code)

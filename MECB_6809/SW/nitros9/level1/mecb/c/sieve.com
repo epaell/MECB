@@ -1,0 +1,1 @@
+echo 'sieve.c'-xecho c.prep:C.PREP sieve.c >ctmp.3.mxecho c.pass1:C.PASS1 ctmp.3.m -o=ctmp.3.idel ctmp.3.mecho c.pass2:C.PASS2 ctmp.3.i -o=ctmp.3.adel ctmp.3.iecho c.opt:C.OPT ctmp.3.a ctmp.3.odel ctmp.3.aecho c.asm:C.ASM ctmp.3.o -o=ctmp.3.rdel ctmp.3.oecho c.link:C.LINK /dd/lib/cstart.r ctmp.3.r -o=sieve -l=/dd/lib/clib.l del ctmp.3.r

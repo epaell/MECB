@@ -1,0 +1,34 @@
+* Echo welcome message
+echo ***********************************
+echo *                                 *
+echo *  Thank you for supporting the   *
+echo *   RealCoCoFPGA CoCo 3 clone     *
+echo *                                 *
+echo ***********************************
+echo
+Echo [Linking shell and std utils into memory...]
+link shell
+load utilpak1
+echo [Requesting the current date/time in 24-hour format...]
+* Set system time from keyboard
+setime <>>>/1
+echo
+echo [Creating windows...]
+shell i=/w1&
+shell i=/w2&
+shell i=/w3&
+shell i=/w4&
+echo
+echo [Loading stdfonts, stdpats, stdptrs...]
+cd sys
+merge stdfonts stdpats_2 stdpats_16 stdpats_4 stdptrs
+*Echo [Loading stdwnd...]
+*merge stdwnd
+*Echo [Loading extra fonts...]
+*merge isolatin1font ibmedcfont smallfont.27 macfonts ansifonts_65.fnt ia.fnt roguefonts
+*Echo [Loading IBM fonts...]
+*merge ibmpoker.fnt ibmcga.fnt
+*echo [Loading extended patterns for MVCanvas...]
+*merge stdpats_2.plus stdpats_4.plus stdpats_16.plus
+echo [All startup tasks completed]
+cd ..

@@ -1,0 +1,33 @@
+                      (        strlen.as):00001         ;;; STRLEN
+                      (        strlen.as):00002         ;;;
+                      (        strlen.as):00003         ;;; Find the length of a null-terminated string.
+                      (        strlen.as):00004         ;;;
+                      (        strlen.as):00005         ;;; Entry:  X = The address of the string.
+                      (        strlen.as):00006         ;;;
+                      (        strlen.as):00007         ;;; Exit:   D = The length of the string.
+                      (        strlen.as):00008         ;;;
+                      (        strlen.as):00009         ;;; All registers except CC are preserved.
+                      (        strlen.as):00010         ;;;
+                      (        strlen.as):00011         ;;; The null byte is not included in the count.
+                      (        strlen.as):00012         
+                      (        strlen.as):00013                             section   .text
+                      (        strlen.as):00014         
+0000 3410             (        strlen.as):00015         STRLEN:             pshs      x
+0002 CCFFFF           (        strlen.as):00016                             ldd       #-1                 comp for inital inc
+                      (        strlen.as):00017         
+0005 C30001           (        strlen.as):00018         loop                addd      #1                  bump count
+0008 6D80             (        strlen.as):00019                             tst       ,x+                 end?
+000A 26F9             (        strlen.as):00020                             bne       loop
+                      (        strlen.as):00021         
+000C 3590             (        strlen.as):00022                             puls      x,pc
+                      (        strlen.as):00023         
+                      (        strlen.as):00024                             endsect
+                      (        strlen.as):00025         
+                      (        strlen.as):00026         
+
+Symbol Table:
+[ sG] loop                             0005 (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000
+[ sG] STRLEN                           0000 (.text)

@@ -1,0 +1,41 @@
+                      (       bin_asc.as):00001         ;;; BIN_ASC
+                      (       bin_asc.as):00002         ;;;
+                      (       bin_asc.as):00003         ;;; Binary word to ASCII string conversion.
+                      (       bin_asc.as):00004         ;;;
+                      (       bin_asc.as):00005         ;;; Entry:  D = The binary value to convert.
+                      (       bin_asc.as):00006         ;;;         X = The address of the buffer that holds a 16-bit number.
+                      (       bin_asc.as):00007         ;;;
+                      (       bin_asc.as):00008         ;;; Exit:  None.
+                      (       bin_asc.as):00009         ;;;
+                      (       bin_asc.as):00010         ;;; All registers (except CC) are preserved.
+                      (       bin_asc.as):00011         
+                      (       bin_asc.as):00012                             section   .text
+                      (       bin_asc.as):00013         
+0000 3416             (       bin_asc.as):00014         BIN_ASC:            pshs      a,b,x               save registers
+0002 3406             (       bin_asc.as):00015                             pshs      a,b                 save data again
+0004 C610             (       bin_asc.as):00016                             ldb       #16                 total bits to convert
+0006 1CFE             (       bin_asc.as):00017                             andcc     #%11111110          clear CARRY to start
+                      (       bin_asc.as):00018         
+0008 8630             (       bin_asc.as):00019         binas1              lda       #'0                 get ASCII 0
+000A 6961             (       bin_asc.as):00020                             rol       1,S                 get hi bit in LSB to carry
+000C 69E4             (       bin_asc.as):00021                             rol       ,S                  and into MSB; is it 1 or 0?
+000E 2401             (       bin_asc.as):00022                             bcc       binas2              0, skip
+0010 4C               (       bin_asc.as):00023                             inca                          get ASCII 1
+                      (       bin_asc.as):00024         
+0011 A780             (       bin_asc.as):00025         binas2              sta       ,x+                 put it in the buffer
+0013 5A               (       bin_asc.as):00026                             decb                          done all bits?
+0014 26F2             (       bin_asc.as):00027                             bne       binas1              no, loop
+0016 6F84             (       bin_asc.as):00028                             clr       ,x                  mark end of string
+0018 3262             (       bin_asc.as):00029                             leas      2,s                 clean up
+001A 3596             (       bin_asc.as):00030                             puls      a,b,x,pc            restore & return
+                      (       bin_asc.as):00031         
+                      (       bin_asc.as):00032                             endsect
+                      (       bin_asc.as):00033         
+
+Symbol Table:
+[ sG] BIN_ASC                          0000 (.text)
+[ sG] binas1                           0008 (.text)
+[ sG] binas2                           0011 (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000

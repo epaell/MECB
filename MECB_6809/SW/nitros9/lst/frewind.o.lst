@@ -1,0 +1,25 @@
+                      (       frewind.as):00001         ;;; FREWIND
+                      (       frewind.as):00002         ;;;
+                      (       frewind.as):00003         ;;; Rewind a file.
+                      (       frewind.as):00004         ;;;
+                      (       frewind.as):00005         ;;; Entry:  A = The path to print to.
+                      (       frewind.as):00006         ;;;
+                      (       frewind.as):00007         ;;; Error:  B = A non-zero error code.
+                      (       frewind.as):00008         ;;;        CC = Carry flag set to indicate error.
+                      (       frewind.as):00009         
+                      (       frewind.as):00010                             section   .text
+                      (       frewind.as):00011         
+0000 3450             (       frewind.as):00012         FREWIND:            pshs      x,u
+0002 8E0000           (       frewind.as):00013                             ldx       #0
+0005 1F13             (       frewind.as):00014                             tfr       x,u
+0007 103F00           (       frewind.as):00015                             os9       I$Seek              seek to pos 0
+000A 35D0             (       frewind.as):00016                             puls      x,u,pc
+                      (       frewind.as):00017         
+                      (       frewind.as):00018                             endsect
+                      (       frewind.as):00019         
+
+Symbol Table:
+[ sG] FREWIND                          0000 (.text)
+[ScG] NOS9MAJ                          0000
+[ScG] NOS9MIN                          0000
+[ScG] NOS9VER                          0000
