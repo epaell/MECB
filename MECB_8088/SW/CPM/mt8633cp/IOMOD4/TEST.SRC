@@ -1,0 +1,40 @@
+program test;
+
+procedure test;
+
+var
+    f : text;
+    d : packed array[1..2] of char;
+    s : string[255];
+    c : char;
+    i : integer;
+    r : integer;
+
+begin
+  writeln('IOMOD4 Test Support ...');
+  writeln;
+  readln(s);
+  writeln(s);
+
+  open(f, 'TEST.TXT', r);
+  if r <> 0 then
+    exit;
+
+  writeln('.');
+  while not eof(f) and (r = 0) do
+    begin
+      readln(f, d[1], d[2], c, s);
+      r := ioresult;
+      write('.');
+    end;
+  writeln('.');
+
+  close(f, r);
+
+end;
+
+begin
+  test;
+
+end.
+

@@ -1,0 +1,397 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                  *********************************
+                  **  R E L E A S E   N O T E S  **
+                  *********************************
+
+
+                       PROGRAMMER'S UTILITIES
+
+                             VERSION 1.1
+
+
+             FOR THE CP/M-86 FAMILY OF OPERATING SYSTEMS
+
+
+            Copyright (c) 1984 by Digital Research, Inc.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                1-1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        Programmer's Utilities                  Release Notes
+
+
+
+        These release notes pertain to both the software  and
+        the   documentation  set  for  the  Digital  Research
+        product:
+
+
+                       Programmer's Utilities
+
+             For the CP/M-86 Family of Operating Systems
+
+
+
+        They provide the most current information regarding:
+
+           o changes to the software, or problems  that  have
+             been  identified since the product was released.
+
+           o errors or omissions  in  the  documentation  set
+             that  could not be corrected because of the lead
+             time needed for production and printing.
+
+
+
+        Note:  These release notes have been formatted so you
+        can  print them on your own printer, cut them to size
+        (6 1/2 x 8 1/2), and place them in your manuals.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                1-2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        Programmer's Utilities                  Release Notes
+
+
+                           ***************
+                           **  LINK-86  **
+                           ***************
+
+
+
+        There are several enhancements to LINK-86 V1.4:
+
+        LINK-86  can  now  report  three   additional   error
+        messages:
+
+           CLASS NOT FOUND  -  The class  name  specified  in
+           the  command  line  does  not  exist in any of the
+           files being linked.
+
+           GROUP NOT FOUND  -  The group  name  specified  in
+           the  command  line  does  not  exist in any of the
+           files being linked.
+
+           SEGMENT NOT FOUND  -  The segment  name  specified
+           in  the  command line does not exist in any of the
+           files being linked.
+
+
+        LINK-86 now displays the  filename  and  module  name
+        indicating the location of an undefined symbol.
+
+        A new parameter has been added  to  the  MAP  option.
+        The  NOCOMMON  parameter  directs LINK-86 to suppress
+        the listing of common segment names in the MAP  file.
+
+        There are several new command-line options:
+
+           o $MY directs LINK-86 to send the MAP file to your
+             line printer.
+
+           o The options CUMULATIVE and NOCUMULATIVE give you
+             the  choice  of  whether  or not to overlay data
+             when creating overlays.
+
+
+
+
+                                1-3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        Programmer's Utilities                  Release Notes
+
+
+             The CUMULATIVE option tells the overlay  manager
+             not  to  overlay  data  when  loading an overlay
+             file.   In   this   case,   the   data   becomes
+             cumulative.
+
+             The  NOCUMULATIVE  option  tells   the   overlay
+             manager  to  overlay  both  code  and  data when
+             loading an overlay file.  In this case, the data
+             in  successive  overlays  is not cumulative, but
+             overwrites existing data.  Overlays on the  same
+             level share data areas.
+
+             You  can  abbreviate  CUMULATIVE  as   CUM   and
+             NOCUMULATIVE as NOCUM.
+
+
+        NOTE:  The Programmer's Utilities  package  does  not
+        include  an  overlay manager.  The overlay manager is
+        part of the run-time library that  is  packaged  with
+        your language software.
+
+
+        LINK-86  now  allows  a  limit  of  384  modules  per
+        library.  Previous versions of LINK-86 had a limit of
+        256 modules per library.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                1-4
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        Programmer's Utilities                  Release Notes
+
+
+                        *********************
+                        **  RASM-86 NOTES  **
+                        *********************
+
+
+
+        There are several  enhancements  to  RASM-86  Version
+        1.3:
+
+        A new command line  option  has  been  added  to  the
+        assembler.  The  $NC  option  directs  RASM-86 not to
+        convert letters in symbol names to  uppercase.   This
+        feature supports users of the C language.
+
+        RASM-86 now supports 8087 opcodes.  However,  RASM-86
+        does  not  allow  types  other  than  byte, word, and
+        double-word.  Therefore, in order to support the 8087
+        instructions,  the form of the RASM-86 instruction is
+        slightly different from the Intel convention.
+
+        All  8087  memory  reference  instructions  have  two
+        characters  appended  to  the end of the opcode name.
+        The two  characters  represent  the  number  of  bits
+        referenced by the instruction.  For example,
+
+           FADD64   byte ptr  my_var
+
+        This instruction assumes that my_var contains 64 bits
+        (4  bytes).  This  convention  applies  to  all  8087
+        instructions that reference user memory, except those
+        that  always  reference the same number of bits (i.e.
+        FSTCW).
+
+        Also, in the Intel convention, any  instruction  that
+        is followed by a P causes the stack to be popped.  In
+        RASM-86, the P  follows  the  number  of  bits.   For
+        example,
+
+           FSUB80P   byte ptr  my_var; sub and pop temp real
+
+
+
+
+                                1-5
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        Programmer's Utilities                  Release Notes
+
+
+        We recommend that you carefully study all  the  Intel
+        documentation  about  the  8087  coprocessor  and its
+        opcodes before using them in RASM-86.
+
+
+                         END OF READ.ME FILE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                1-6
+
+
+

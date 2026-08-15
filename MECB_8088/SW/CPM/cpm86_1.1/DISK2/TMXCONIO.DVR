@@ -1,0 +1,257 @@
+;
+DS0IO	EQU	Offset $
+    DSEG 0
+	ORG	DS0IO
+;************************************************
+;*	CONSOLE,READER,PUNCH,LIST ROUTINES	*
+;************************************************
+;
+IOBYTE	DB	10000001b	;Main I/O control byte
+IOCNTL	DB	00000101b	;Auxilary I/O control byte
+;
+CS0IO	EQU	Offset $
+    CSEG 0
+	ORG	CS0IO
+;--------------------------------
+;
+;	IOBYTE (and IOCNTL) GET AND PUT ROUTINES:
+;
+;Enter:	CL = IOBYTE value,
+;
+SETIOB:	MOV  Byte Ptr IOBYTE,CL	;Save both values from the "CX" word register
+	RET
+;
+;Exit:	AL = IOBYTE value,
+;	AH = IOCNTL value.
+;
+GETIOB:	MOV  AX,Word Ptr IOBYTE	;Get both values into the "AX" register pair
+	RET
+;
+	eject
+;****************************************
+;*	CONSOLE STATUS INPUT ROUTINE	*
+;****************************************
+;
+;Exit:	AL = 0 (zero), means no character currently ready to read.
+;	AL = FFh (255), means character currently ready to read.
+; IOBYTE selects device to use as follows:
+; 0 = TTY:,	1 = CRT:,	2 = BAT:,	3 = UC1:
+;    USER 6	    xxx		    xxx		   USER 7
+; -----	If CRT, secondary select done using IOCNTL byte:
+; 0 = USER 0,	1 = SysSup 1,	2 = IF1P0,	3 = Custom.
+; -----	If BAT, secondary select done using READER of IOBYTE:
+; 0 = USER 0	1 = USER 1,	2 = USER 2,	3 = USER 3
+;
+CONST:	MOV AL,Byte Ptr IOBYTE	;Get I/O Byte (0=TTY,1=CRT,2=BAT,3=UC1)
+	AND	AL,3		;Select console bits
+	JNZ	CONST1		;If not TTY, check for others
+;
+; T T Y -- Used by all six logical device vectors.
+TTYST:	MOV	AL,6		;TTY is always Interfacer 3,4 USER 6
+IF3STS:	OUT	IF3UX,AL	;Select mux
+	IN	AL,IF3US	;Get TTY status
+IFXST:	AND	AL,UDAV		;Mask data available
+XCRTST:	JZ	ZCRTST		;Show not ready
+	OR	AL,0FFh		;Show ready
+ZCRTST:	RET
+;
+CONST1:	DEC	AL		;See if CRT selected
+	JNZ	CONST2		;Check for UC1 or BATCH if not
+;
+; C R T -- Video Display Terminal.
+CRTST:	MOV  AL,Byte Ptr IOCNTL	;Get I/O control select byte
+	AND	AL,00000011b	;Check on CRT select bits  
+	JZ	IF3STS		;If zero, CRT is Interfacer 3,4 USER 0
+	DEC	AL		;See if System Support I UART
+	JNZ	CRTST2		;Try devices 2,3 if not
+	IN	AL,SS1US	;Get console status
+	JMPS	IFXST		;If I/O control was a "1", then use SS1 board
+;
+CRTST2:	DEC	AL		;See if UART 0 of IF 1,2
+	JNZ	CRTST3		;Use device 3 if not
+	IN	AL,IF1US0	;switch selects Interfacer I,II port at 00h
+	JMPS	IFXST		;All CompuPro input status masks are identical
+;
+; Custom CRT routine, initially set for Interfacer I,II UART 1.
+CRTST3:	IN	AL,IF1US1	;BUILD YOUR OWN CUSTOM CRT DRIVER HERE
+	AND	AL,UDAV		;Select status bit(s)
+	XOR	AL,0		;Optional compliment of data
+	JMPS	XCRTST		;Universal return from status check
+;
+; More checks on regular console devices.
+CONST2:	DEC	AL		;See if UC1 selected
+;
+; U C 1 -- Optional user console device.
+UC1ST:	MOV	AL,7		;Get optional user 7 console status
+	JNZ	IF3STS		;Complete status mask if not BATCH selected
+;
+; B A T -- BATCH Mode (use READER select bits to chose USER 0-3).
+	MOV AL,Byte Ptr IOBYTE	;Get I/O select byte
+	ROR AL,1!  ROR AL,1	;Put READER select bits in lower 2 bits
+	AND	AL,3		;To select low user #
+	JMPS	IF3STS		;And get IF3 status
+;
+	eject
+;****************************************
+;*	CONSOLE DATA INPUT ROUTINE:	*
+;****************************************
+;
+; Read the next character into the A register, clearing
+; the high order bit.  If no character currently ready to
+; read then wait for a character to arrive before returning.
+;
+; IOBYTE selects device to use as follows:
+; 0 = TTY:,	1 = CRT:,	2 = BAT:,	3 = UC1:
+;    USER 6	    xxx		    xxx		   USER 7
+;-----	If CRT, secondary select done using IOCNTL byte:
+; 0 = USER 0,	1 = SysSup 1,	2 = IF1P0,	3 = Custom.
+;-----	If BAT, secondary select done using READER of IOBYTE:
+; 0 = USER 0	1 = USER 1,	2 = USER 2,	3 = USER 3
+;
+;Exit:	A = character read from terminal.
+;
+READER:				;Not used in loader, returns same as console
+CONIN:	MOV  AL,Byte Ptr IOBYTE ;Get I/O Byte (0=TTY,1=CRT,2=BAT,3=UC1)
+	AND	AL,3		;Select console bits
+	JNZ	CONIN1		;If not TTY, check for others
+;
+; T T Y -- Used by all six logical device vecotrs.
+TTYIN:	MOV	AL,6		;TTY is always Interfacer 3,4 USER 6
+IF3IN:	OUT	IF3UX,AL	;Select mux
+IF3IN2:	IN	AL,IF3US	;Get TTY status
+	AND	AL,UDAV		;Mask data available
+	JZ	IF3IN2		;Loop until ready
+	IN	AL,IF3UD	;Get data
+	AND	AL,7Fh		;Strip out parity
+	RET
+;
+CONIN1:	DEC	AL		;See if CRT
+	JNZ	CONIN2		;Try UC1 or BATCH if not
+;
+; C R T -- Video Display Terminal.
+CRTIN:	MOV	AL,Byte Ptr IOCNTL;Get I/O control select byte
+	AND	AL,00000011b	;Check on CRT select bits  
+	JZ	IF3IN		;If zero, CRT is Interfacer 3,4 USER 0
+	DEC	AL		;See if System Support I UART
+	JNZ	CRTIN2		;Try devices 2,3 if not
+CRTIN1:	IN	AL,SS1US	;Get console status
+	AND	AL,UDAV
+	JZ	CRTIN1		;Loop if data not available
+	IN	AL,SS1UD	;Get data
+	AND	AL,7Fh		;Strip out parity
+	RET
+;
+CRTIN2:	DEC	AL		;See if Interfacer I,II UART 0
+	JNZ	CRTIN3		;Use alternate CRT device 3 if not
+CRTIN2X:IN	AL,IF1US0	;switch selects Interfacer I,II
+	AND	AL,UDAV
+	JZ	CRTIN2X		;Loop if data not available
+	IN	AL,IF1UD0	;Get data
+	AND	AL,7Fh		;Strip out parity
+	RET
+;
+; Custom CRT routine, initially set for Interfacer I,II UART 1.
+CRTIN3:	IN	AL,IF1US1	;BUILD YOUR OWN CUSTOM CRT INPUT ROUTINE
+	AND	AL,UDAV		;Strip out console status bits
+	XOR	AL,0		;Flip status bits as necessary
+	JZ	CRTIN3		;Loop if data not available
+	IN	AL,IF1UD1	;Get data
+	AND	AL,7Fh		;Strip out parity
+	RET
+;
+; Check for other console devices.
+CONIN2:	DEC	AL		;See if UC1 selected
+;
+; U C 1 -- Optional user console device.
+UC1CI:	MOV	AL,7		;Get optional user 7 console status
+	JNZ	IF3IN		;Complete data input if not BATCH selected
+;
+; B A T -- BATCH Mode (use READER select bits to chose USER 0-3).
+	MOV AL,Byte Ptr IOBYTE
+	ROR AL,1 ! ROR AL,1	;Put READER select bits in lower 2 bits
+	AND	AL,3		;To select low user #
+	JMPS	IF3IN		;And get IF3 data input
+;
+	eject
+;****************************************
+;*	CONSOLE DATA OUTPUT ROUTINE:	*
+;****************************************
+;
+; Send a character to the console.  If the console is not ready
+; to output a character, wait until it is, then do transmission.
+;
+; IOBYTE selects device to use as follows:
+; 0 = TTY:,	1 = CRT:,	2 = BAT:,	3 = UC1:
+;    USER 6	    xxx		    xxx		   USER 7
+;-----	If CRT, secondary select done using IOCNTL byte:
+; 0 = USER 0,	1 = SysSup 1,	2 = IF1-P0,	3 = Custom.
+;-----	If BAT, secondary select done using PUNCH of IOBYTE:
+; 0 = USER 0	1 = USER 1,	2 = USER 2,	3 = USER 3
+;
+;Entry:	C = ASCII character to output to console.
+;
+LISTST:	RET		;List Status not used in loader, returns nothing
+LISTOUT:		;List Output not used in loader, outputs as console
+PUNCH:			;Punch Output not used in loader, outputs as console
+CONOUT:	MOV  AL,Byte Ptr IOBYTE	;Get I/O Byte (0=TTY,1=CRT,2=BAT,3=UC1)
+	AND	AL,3		;Mask select bits
+	JNZ	CONOUT1		;If not TTY, check for others
+;
+; T T Y -- Used by all six logical device vectors.
+TTYOUT:	MOV	AL,6		;TTY is always Interfacer 3,4 USER 6
+IF3OUT:	OUT	IF3UX,AL	;Select mux
+IF3OUT2:IN	AL,IF3US	;Get TTY status
+	AND	AL,IF3TMSK	;Mask TBE, DSR bits
+	XOR	AL,IF3FMSK	;Flip status of both
+	JNZ	IF3OUT2		;Loop until ready
+	MOV	AL,CL
+	OUT	IF3UD,AL	;Xmit data
+	RET
+;
+CONOUT1:DEC	AL		;See if CRT
+	JNZ	CONOUT2		;Try UC1 or BATCH if not
+;
+; C R T -- Video Display Terminal.
+CRTOUT:	MOV  AL,Byte Ptr IOCNTL	;Get I/O control select byte
+	AND	AL,00000011b	;Check on CRT select bits  
+	JZ	IF3OUT		;If zero, CRT is Interfacer 3,4 USER 0
+	DEC	AL		;See if System Support I UART
+	JNZ	CRTOUT2		;Try devices 2,3 if not
+CRTOUT1:IN	AL,SS1US	;Get console status
+	XOR	AL,SS1FMSK	;Flip TBE status bit
+	AND	AL,SS1TMSK	;Mask data xmit flags
+	JNZ	CRTOUT1		;Loop if xmit buffer not empty
+	MOV	AL,CL		;Get char to xmit
+	OUT	SS1UD,AL	;Send it on it's way
+	RET
+;
+CRTOUT2:DEC	AL		;See if device 3 selected
+	JNZ	CRTOUT3		;Use custom CRT routine if so
+CRTO2LP:IN	AL,IF1US0	;Switch selects Interfacer I,II
+	AND	AL,IF1TMSK	;Mask data xmit flags
+	XOR	AL,IF1FMSK	;Flip TBE status bit
+	JZ	CRTO2LP		;Loop if xmit buffer not empty
+	MOV	AL,CL		;Get char to xmit
+	OUT	IF1UD0,AL	;Send it on it's way
+	RET
+;
+; Custom CRT routine, initially set for Interfacer I,II UART 1.
+CRTOUT3:IN	AL,IF1US1	;BUILD YOUR OWN CUSTOM CRT OUTPUT ROUTINE
+	AND	AL,IF1TMSK	;Mask data xmit flags
+	XOR	AL,IF1FMSK	;Flip TBE status bit
+	JZ	CRTOUT3		;Loop if xmit buffer not empty
+	MOV	AL,CL		;Get char to xmit
+	OUT	IF1UD1,AL	;Send it on it's way
+	RET
+;
+; Check for other console devices.
+CONOUT2:DEC	AL		;See if UC1 selected
+;
+; U C 1 -- Optional user console device.
+UC1CO:	MOV	AL,7		;Get USER 7 console if UC1 selected
+	JNZ	IF3OUT		;Complete data output if so
+;
+; B A T -- BATCH Mode (use PUNCH select bits to chose USER 0-3).
+	MOV	AL,0		;Get USER 0 console if BAT: selected
+	JMPS	IF3OUT
+

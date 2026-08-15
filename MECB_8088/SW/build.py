@@ -87,18 +87,21 @@ def bin2rom(f_bin, f_rom):
     fout.close()
 
 build_list = [
-    "test_int",
+    "load_cpm",
+#    "test_fn",
+#    "test_tint",
+#    "test_int",
     "monitor",
-    "test_load",
-    "mandel",
+#    "test_load",
+#    "mandel",
 ]
 for source in build_list:
  #   f_rom = f"SST39SF040_{source}.bin"
     cwd = os.getcwd()
     os.system(f"rm {source}.bin {source}.lst")
 #    os.system(f"rm {f_rom}")
-    os.system(f"nasm src/{source}.asm -l {source}.lst -o {source}.bin")
     os.system(f"nasm -f ith src/{source}.asm -l {source}.lst -o {source}.hex")
+    os.system(f"nasm -f bin src/{source}.asm -l {source}.lst -o {source}.bin")
 sys.exit(0)
 bin2rom(f"{source}.bin", f_rom)
 os.chdir(cwd)

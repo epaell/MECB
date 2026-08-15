@@ -1,0 +1,192 @@
+;* Read string for PASCAL/MT+86 I/O Module
+
+;* Last Update: 13-Jan-1986   by Gerhard Stegemann
+
+	NAME	READSTRING
+
+DATA	SEGMENT	PUBLIC
+
+	INCLUDE	'FIBDEF.I86'	; Def. of File Information Block
+
+bdos	EQU	224
+
+	EXTRN	@LFB : DWORD   	; ^FIB
+
+strbuffer 	DB	257 DUP(?)
+
+DATA	ENDS
+
+
+CODE	SEGMENT	PUBLIC
+
+	ASSUME	CS:CODE, DS:DATA
+
+	EXTRN	@RNC : NEAR
+	EXTRN	@STR : NEAR
+
+	PUBLIC	@RST, @CWT
+
+
+@RST	PROC	NEAR
+
+;    PRODEDURE @RST(VAR BUFFER : STRING, LENGTH : INTEGER);
+;
+;    BEGIN
+
+char_index	EQU	word ptr [BP-2]
+char_count	EQU	word ptr [BP-4]
+char		EQU	byte ptr [BP-5]
+
+	PUSH	BP
+	MOV	BP,SP
+	SUB	SP,5
+
+	XOR	AX,AX
+	MOV	char_index,AX
+	MOV	char_count,AX
+	LES	DI,DWORD PTR [BP+06]
+	MOV	ES:BYTE PTR [DI],AL	; reset length of string
+	LES	DI,@LFB
+	CMP	ES:BYTE PTR option[DI],frandom  ; check type of I/O
+	JG	L0010
+	JMP	L0236
+
+L0010:	CMP	ES:BYTE PTR option[DI],fconio
+	JNZ	L01D6                   ; is not console I/O
+
+	MOV	AX,WORD PTR [BP+04]     ; get length value
+	MOV	strbuffer[0],AL
+	MOV	CL,10                   ; read console buffer
+	MOV	DX,OFFSET strbuffer
+	INT	bdos
+	MOV	CL,2
+	MOV	DL,0AH                  ; output a linefeed
+	INT	bdos
+
+	PUSH	WORD PTR [BP+08]
+	PUSH	WORD PTR [BP+06]
+	PUSH	DS
+	MOV	AX,OFFSET strbuffer[1]
+	PUSH	AX
+	MOV	AL,strbuffer[1]
+	XOR	AH,AH
+	PUSH	AX
+	CALL	@STR
+	LES	DI,@LFB
+	MOV	ES:BYTE PTR feoln[DI],TRUE
+	MOV	ES:BYTE PTR fbuffer[DI],20H
+	CMP	strbuffer[1],1          ; number of read characters = 1?
+	JNZ	L01D0
+
+	XOR	AX,AX
+	CMP	strbuffer[2],1AH        ; is last character Ctrl-Z
+	JNZ	L01CB
+	INC	AX
+L01CB:	MOV	ES:BYTE PTR feof[DI],AL
+L01D0:	JMP	L02E5
+
+L01D6:  LES	DI,@LFB
+	TEST	ES:BYTE PTR feoln[DI],TRUE  ; Device I/O, EOL?
+	JNZ	L02BC
+
+	INC	char_count		; increment char. count
+	CALL	@RNC
+	MOV	char,AL
+	CMP	AL,08H               	; Backspace?
+	JNZ	L021E
+
+	CMP	char_count,1
+	JLE	L0216
+
+	DEC	char_count        	; remove character from buffer
+	DEC	char_count
+	JMP	SHORT L01D6
+
+L0216:  MOV	char_count,0
+	JMP	SHORT L01D6
+
+L021E:  LES	DI,DWORD PTR [BP+06]    ; copy character into callers buffer
+	MOV	BX,char_count
+	MOV	AL,char
+	MOV	ES:BYTE PTR [DI+BX],AL
+	JMP	SHORT L01D6
+
+L0236:  LES	DI,@LFB
+	TEST	ES:BYTE PTR feoln[DI],TRUE ; Disk I/O, EOL?
+        JNZ	L02BC
+
+	INC	char_count
+	CALL	@RNC
+	MOV	char,AL
+	CMP	AL,09H      		; Tab?
+	JZ	L027E
+
+	LES	DI,DWORD PTR [BP+06]    ; copy character to callers buffer
+	MOV	BX,char_count
+	MOV	AL,char
+	MOV	ES:BYTE PTR [DI+BX],AL
+	INC	char_index
+	JMP	SHORT L0236
+
+L027E:  LES	DI,DWORD PTR [BP+06]    ; replace tabs with spaces
+
+L027F:	MOV	BX,char_count
+	MOV	ES:BYTE PTR [DI+BX],20H
+	INC	char_count
+	INC	char_index
+	MOV	AX,char_index
+	MOV	BX,8
+	CWD	
+	IDIV	BX
+	CMP	DX,0           		; no remainder?
+	JNZ	L027F                   ; replace more, not 8 now
+
+	DEC	char_count        	; remove one increment
+	JMP	SHORT L0236
+
+L02BC:	CMP	ES:BYTE PTR option[DI],frandom
+	JLE	L02D4
+
+	DEC	char_count 		; remove device terminator
+
+L02D4:  LES	DI,DWORD PTR [BP+06]
+	MOV	AX,char_count
+	MOV	ES:BYTE PTR [DI],AL
+
+L02E5:	MOV	SP,BP
+	POP	BP
+	RET	6
+
+@RST	ENDP
+
+
+@CWT	PROC	NEAR
+
+;	PROCEDURE @CWT;
+;
+;    BEGIN                   Read until end of line
+
+	PUSH	BP                                 
+	MOV	BP,SP                              
+                         
+L0112:  LES	DI,@LFB                          
+	TEST	ES:BYTE PTR feoln[DI],TRUE                        
+	JNZ	L012F                               
+	CALL	@RNC		; Ignore read character
+	JMP	SHORT L0112
+                               
+L012F:	MOV	ES:BYTE PTR feoln[DI],FALSE                   
+	CMP	ES:BYTE PTR option[DI],fconio ; Console I/O?     
+	JZ	L0151           ; Yes, it is
+	CALL	@RNC            ; gobble LF        
+
+L0151:  MOV	SP,BP                              
+	POP	BP                                 
+	RET
+
+@CWT	ENDP
+
+CODE	ENDS
+
+	END
+

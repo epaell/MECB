@@ -1,0 +1,727 @@
+
+
+
+
+
+
+               These release notes  pertain  to  both  the  software  and  the
+          documentation  set  for the Digital Research product, PL/I-86.  They
+          provide the most current information regarding this product  in  two
+          areas:
+
+             o Sofware bugs that have been identified since  the  product  was
+               released.
+
+             o Errors or omissions in the documentation set that could not  be
+               corrected  because  of the lead time needed for typesetting and
+               printing.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                          1
+
+
+
+
+
+
+
+                                       SOFTWARE 
+
+
+          The following features are described in the documentaton  set  which
+          applies  to  both  PL/I-80  V1.4  and  PL/I-86  V1.0,  but  are  NOT
+          implemented in PL/I-86 V1.0:
+
+             o Double-precision floating-point arithmetic **
+
+             o File password protection in the ENVIRONMENT option
+
+             o File and record locking using  the  built-in  LOCK  and  UNLOCK
+               functions.
+
+
+               **  NOTE!!! NOTE!!! NOTE!!! NOTE!!! NOTE!!! NOTE!!! NOTE!!!
+
+               PL/I-86 uses the IEEE format  for  representing  floating-point
+               numbers.  This  means  there  is  a fundamental incompatibility
+               between PL/I-80 and PL/I-86.  A  PL/I-86  program  cannot  read
+               floating-point  DATA  written  to disk files with PL/I-80.  See
+               the  section  below  concerning  the   documentation   in   the
+               Programmer's Guide.
+
+                    To convert from PL/I-80 single precision  floating  point
+               format  to  PL/I-86 single precision floating point format, you
+               can use the following procedure:
+
+
+               SP80TO86: procedure(f) returns(float binary(24));
+               declare (f,r) float binary(24);
+               declare (fp,rp) pointer;
+               declare 1 f80 based(fp), 2 (word0,word1) bit(16);
+               declare 1 f86 based(rp), 2 (word0,word1) bit(16);
+               declare 1 f80over based(fp), 2 (byte0,byte1,byte2,byte3) fixed bin(7);
+               declare b fixed bin(7);
+
+               fp = addr(f);
+               rp = addr(r);
+
+               /* copy the whole source to target */
+               r = f;
+
+               /* copy exponent and adjust bias by 2: 1 for 127 vs 128, 1 for 1. not .1 */
+               b = byte3 - 2;
+               substr(rp->f86.word1,2,8) = unspec(b);
+
+               /* copy sign bit */
+               substr(rp->f86.word1,1,1) = substr(fp->f80.word1,9,1);
+
+               return(r);
+
+               end;
+
+
+
+
+
+                                          2
+
+
+
+
+
+
+
+          The following are known software bugs in version 1.0:
+
+             o A(constant-expression) = constant; gives a compile-time  error.
+               You can program around this using the following mechanism:
+
+                  i = constant-expression;
+                  A(i) = constant;
+
+
+             o A CALL statement cannot contain  a  null  argument  list.   For
+               example,
+
+                  CALL A();
+
+               You can program around this by always using
+
+                  CALL A;
+
+
+             o There is an  incorrect  string  assignment  if  the  right-hand
+               string  overlaps  the  left-hand  string.  The  example  in the
+               Language Reference Manual, page 71 is correct; the Compiler  is
+               not.
+
+             o The  RANK  built-in  function  doesn't  accept  SUBSTR  as   an
+               argument.  For  example,  RANK(SUBSTR(C,1,1))  gives a compile-
+               time error message.
+
+             o A statement in column 1 following a simple DO statement  causes
+               a syntax error.
+
+             o End-of-file is not noticed if  the  column  descriptor  in  the
+               format specifies a location past the actual end of the file.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                          3
+
+
+
+
+
+
+
+                                  DOCUMENTATION ERRATA
+
+
+
+               In the PL/I Language Reference Manual and the PL/I Programmer's
+          Guide, character and bit strings are denoted as:
+
+                 'string`  instead of 'string'
+
+               This is a  peculiarity  of  the  typeface  used  to  print  the
+               manuals.  You  should  never  use the reverse apostrophe (`) to
+               delimit a string.   Always  delimit  strings  with  the  single
+               apostrophe character (').
+
+
+
+                               PL/I Language Reference Manual
+
+
+             o Section 3.1.2, page 29, the last paragraph states
+
+                 Also, PL/I  signals  a  FIXED  OVERFLOW  error  if  a  value
+                 assigned  to the variable has more significant digits to the
+                 left of the decimal point than the declared precision of the
+                 variable allows.
+
+               Change this to read
+
+                 Also, PL/I signals a  FIXEDOVERFLOW  condition  if  a  value
+                 assigned  to the variable has more significant digits to the
+                 left of the decimal point than the declared precision of the
+                 variable allows.
+
+
+             o Section 3.1.3, page 30, Table 3-1 shows the range of a  single-
+               precision floating-point number as
+
+                 5.88*10**-39 <= |x| <= 3.40*10**38
+
+               This is correct for PL/I-80.  However, PL/I-86  uses  the  IEEE
+               floating-point format, so the range should be
+
+                 1.18*10**-38 <= |x| <= 3.40*10**38
+
+
+             o Section 3.6, page 37, the second paragraph states
+
+                 The  general  form  of  the  DECLARE  statement  for  scalar
+                 variables is:
+
+               Change this to read
+
+                 The  simple  form  of  the  DECLARE  statement  for   scalar
+                 variables is:
+
+
+
+
+                                          4
+
+
+
+
+
+
+
+             o Section  3.6,  page  38,  in  the  examples  of  PL/I   DECLARE
+               statements, delete the line that reads
+
+                 declare (first_name,last_name) character(20) varying;
+
+
+             o Section 7.2, page 79, after the examples of BASED variable declarations, add
+               the following
+
+                 Note:  You cannot declare a variable based on an pointer which is a member of
+                 a structure.  For example, given the structure declaration
+
+                      declare 1 my_structure,
+                                2 some_data fixed binary(7),
+                                2 p pointer;
+
+                 the following declaration is invalid:
+
+                      declare x float binary based(p);
+
+
+             o Section 8.1, page 87 states
+
+                 A DO-group can occur  in  one  of  two  forms:  the  simple,
+                 noniterative, DO, and the controlled, iterative, DO.
+
+               Change this sentence to read
+
+                 A DO-group can occur  in  one  of  two  forms:  the  simple,
+                 noniterative,  DO-group,  and the controlled, iterative, DO-
+                 group.
+
+
+             o Section 8.1, page 87 states
+
+                 where Statement-1 through Statement-n constitute the body of
+                 the group.
+
+               Change this to read
+
+                 where Statement-1 through Statement-n constitute the body of
+                 the DO-group.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                          5
+
+
+
+
+
+
+
+             o Section  8.2,  page  88  describes  the  syntax  of   the   do-
+               specification as
+
+                 [start-exp] [TO end-exp] [BY incr-exp]] [WHILE(condition)]
+                 [start-exp] [BY incr-exp] [TO end-exp]] [WHILE(condition)]
+                 [start-exp] [REPEAT repeat-exp]] [WHILE(condition)]
+
+               change this to read
+
+                 start-exp [TO end-exp] [BY incr-exp] [WHILE(condition)]
+                 start-exp [BY incr-exp] [TO end-exp] [WHILE(condition)]
+                 start-exp [REPEAT repeat-exp] [WHILE(condition)]
+
+
+             o Section 8.2, page 89, the first paragraph states
+
+                 PL/I evaluates the WHILE expression before executing the DO-
+                 group.
+
+               change this sentence to read
+
+                 PL/I  evaluates  the  WHILE  expression  each  time   before
+                 executing the DO-group.
+
+
+             o Section 8.2, page 89, the second paragraph states
+
+                 With the exception of  the  REPEAT  option,  PL/I  evaluates
+                 expressions  in  the  do-specification  before executing the
+                 loop, so that changes made to the start, end, or incremental
+                 values do not affect the number of times a loop executes.
+
+               change this paragraph to read
+
+                 With the exception of the REPEAT expression  and  the  WHILE
+                 expression,   PL/I   evaluates   expressions   in   the  do-
+                 specification before executing the  loop,  so  that  changes
+                 made  to the start, end, or incremental values do not affect
+                 the number of times a loop executes.
+
+
+             o Section 9.3, page 101, states
+
+                 Note: upon return from a  PROCEDURE  or  BEGIN  block,  PL/I
+                 automatically reverts any ON-units enabled within the block.
+
+               Change this to read
+
+                 Note: upon return from a PROCEDURE block, PL/I automatically
+                 reverts any ON-units enabled within the block.
+
+
+
+
+
+
+
+
+                                          6
+
+
+
+
+
+
+
+             o Section 9.5, page 104, Table 9-2.  Change the line reading
+
+                 Decimal Add, Multiply, or Store
+
+               to read
+
+                 Decimal Add, Subtract, Multiply, Divide, or Store
+
+
+             o Section  13.7,  page  154,  in  the  description  of  the  BOOL
+               function, change
+
+                 Examples:    BOOL('0011'B,'0101'B,'1001'B) returns '1001'B.
+                              BOOL('01011'B,'11','1001') returns '01100'.
+
+               to read
+
+                 Examples:    BOOL('0011'B,'0101'B,'1001'B) returns '1001'B
+                              BOOL('01011'B,'11'B,'1001'B) returns '01100'B
+
+
+             o Section 13.7, page 163, in the description of the MOD function,
+               change
+
+                 Result:    Returns the value of X module Y.
+
+               to read
+
+                 Result:    Returns the value of X modulo Y.
+
+
+             o Section 13.7, page 164, in the description of the MOD function,
+               change
+
+                 Examples:    MOD(7,3) returns 1
+                              MOD(-7,3) returns 2
+                              MOD(7,-3) returns 1
+                              MOD(-7,-3) returns 2
+
+               to read
+
+                 Examples:    MOD(7,3) returns 1
+                              MOD(-7,3) returns 2
+                              MOD(7,-3) returns -2
+                              MOD(-7,-3) returns -1
+
+
+             o Section 13.7, page 166, in the description of the MOD function,
+               delete the line that reads
+
+                 Note: unless Y=0,  MOD(X,Y)  always  returns  a  nonnegative
+                 value less than ABS(Y).
+
+
+
+
+
+
+                                          7
+
+
+
+
+
+
+
+             o Section 13.7,  page  166,  in  the  description  of  the  ROUND
+               function, change
+
+                 Examples:     ROUND(34567,12345,-3) returns 35000.00000
+
+               to read
+
+                 Examples:     ROUND(34567.12345,-3) returns 35000.00000
+
+
+             o Add the following items to the end of Appendix D, page 194
+
+                 The Compiler does not check the validity  of  the  precision
+                 given  in  a  DECLARE  statement.  For  example,  given  the
+                 following declaration
+
+                      declare x fixed binary(20);
+
+                 the Compiler will use the maximum  precision  (15),  without
+                 issuing a warning message.
+
+                 Subroutines called from a RECURSIVE  procedure  always  pass
+                 parameters by value.
+
+                 The Compiler doesn't create a dummy variable for a  constant
+                 argument.  You  can program around this by using parentheses
+                 around the constant argument to  force  the  creation  of  a
+                 dummy variable.
+
+                 The Compiler does not check a function procedure  to  verify
+                 that it contains a RETURN expression.
+
+                 The Compiler does not revert ON-units when exiting  a  BEGIN
+                 block.
+
+                 A DO-group cannot contain declarations.
+
+                 The third argument to SUBSTR of  a  bit  string  must  be  a
+                 constant.
+
+                 A = scalar; where A is an array is not implemented.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                          8
+
+
+
+
+
+
+
+                                   PL/I Programmer's Guide
+
+
+             o Section 6, page 53, in Figure 6-1 change
+
+                 &INCLUDE
+
+               to
+
+                 %INCLUDE
+
+
+             o Section 17.2, page 240, Figure  17-2  is  correct  for  PL/I-80
+               except 32 should be 31 as shown below
+
+                 -------------------------
+                 | exponent |s| mantissa |
+                 -------------------------
+                 31         23 22        0
+
+               However, PL/I-86 uses  the  IEEE  floating-point  format.   The
+               fields  are  the  same size, but the sign bit appears first, so
+               for PL/I-86, Figure 17-2 should appear as
+
+                 -------------------------
+                 |s| exponent | mantissa |
+                 -------------------------
+                 31 30      23 22        0
+
+
+               Also, in the  IEEE  floating-point  format,  the  bias  is  127
+               (decimal),  and  the  low-order  bit  of the exponent is in the
+               high-order  byte  of  the  mantissa.   Therefore,  change   the
+               hexadecimal values in the example on page 241 to
+
+                 ---------------------
+                 | 00 | 00 | C0 | 3F |
+                 ---------------------
+
+
+
+             o Section 17.4, page 244, states
+
+                 where b represents a blank, and x  represents  an  undefined
+                 character position.
+
+               Change this sentence to read
+
+                 where b represents a blank.
+
+               Also, change xxxx in both of the examples to bbbb.
+
+
+             o Section 17.5, page 245, Figure  17-4  shows  storage  for  bit-
+               strings incorrectly.  Figure 17-4 should be as follows:
+
+
+
+                                          9
+
+
+
+
+
+
+
+
+                                            low byte  high byte
+
+                     BIT(8)                 BIT(16)
+
+                     1000 0000              0000 0000 1000 0000
+
+                     BIT(8)                 BIT(16)
+
+                     1010 0000              0000 0000 1010 0000
+
+                     BIT(8)                 BIT(16)
+
+                     N/A                    0011 0100 0001 0010
+
+
+             o Section 18.2.2, page 254, the example of returning a  floating-
+               point  number  is  correct  for PL/I-80.  PL/I-86 uses the IEEE
+               floating-point standard, so change the  hexadecimal  values  in
+               the example to read
+
+                 ---------------------
+                 | 00 | 00 | C0 | 3F |
+                 ---------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                         10
+
+
+
+
+
+
+
+                              Programmer's Utilities Guide
+                      for the CP/M-86 Family of Operating Systems
+
+
+          RASM-86 V1.0
+
+             o Version 1.0 does not implement the Stack, Local,  and  Absolute
+               combine types (Section 3.2.3).**
+
+             o Version  1.0  does  not  implement  user-defined  class   names
+               (Section 3.2.4).**
+
+
+          LINK-86 V1.0
+
+             o Version 1.0 does not implement the Class,  Group,  Origin,  and
+               Segment command-line options (Sections 7.7.1 and 7.7.3).**
+
+             o The general-purpose overlay manager OVLMGR.OBJ is not  included
+               in  V1.0.  The  PL/I-86 Run-time Subroutine Library includes an
+               overlay manager.
+
+
+          ** The features that are not included in V1.0 have no impact on  the
+          PL/I-86 programmer.  They will be implemented in future versions.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                         11
+
+
+

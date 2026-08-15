@@ -1,0 +1,30 @@
+;* Definition of file info block for CP/M-86
+
+fname	EQU 	 0	; string[37] 0
+option	EQU	38	; (notopen,fwrite,frdwr,frandom,
+                        ;  fconio,ftrmio,flstout,fauxio)
+dummy   EQU 	39	; to align everything on word boundary
+buflen	EQU	40	; integer
+bufidx	EQU	42	; integer
+iosize	EQU	44	; integer
+feof  	EQU	46	; boolean
+feoln	EQU	47	; boolean
+fbufadr	EQU	48	; ^fibpaoc
+ftext 	EQU	52	; boolean
+nosectrs EQU	53	; boolean
+sysid	EQU	54	; integer
+fbuffer	EQU	56	; fibpaoc
+
+notopen	EQU	0	; FIB options
+fwrite	EQU	1
+frdwr	EQU	2
+frandom	EQU	3
+fconio	EQU	4
+ftrmio	EQU	5
+flstout	EQU	6
+fauxio	EQU	7
+
+FALSE	EQU	0
+TRUE	EQU	1
+
+

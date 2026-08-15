@@ -1,0 +1,416 @@
+;
+DS0X1	EQU	Offset $
+    DSEG 0
+	ORG	DS0X1
+;************************************************
+;*	DISK DATA CONSTANTS / STORAGE AREA	*
+;************************************************
+	noiflist
+;
+; Control Blocks (DPB's in CP/M-eze) for disk drives:
+;
+DPB8TBL	RS	0
+    if (FLOPPY8 and not LOADER) or (BOOT8X and LOADER)
+; 128 byte sectors, 26 by 1 side.
+DSM8S0	EQU	(1 * 26 * (77-2))/BZ1K	;Total Disk Size in Blocks
+ALV8S0	EQU	(DSM8S0 +7)/8		;Disk Allocation Vector Size
+CSV8S0	EQU	64 / 4			;Directory Checksum Vector Size
+	DB	0			;Type = 0
+DPBF8S0	DW	1 * 26			;128 byte Records/Track
+	DB	3, 00000111b, 0		;Block Extent Size, Mask, Extra Count 
+	DW	DSM8S0-1,	64 -1	;Drive, Directory size masks
+	DB	11000000b,00000000b	;Directory allocation vector bits
+	DW	CSV8S0,	2 * 1		;Checksum vector size, reserved tracks
+;
+; 128 byte sectors, 26 by 2 sides.
+DSM8S1	EQU	(2 * 26 * (77-2))/BZ2K
+ALV8S1	EQU	(DSM8S1 + 7) / 8
+CSV8S1	EQU	128 / 4
+	DB	1
+DPBF8S1	DW	1 * 26
+	DB	3, 00000111b, 0
+	DW	DSM8S1-1,	128 -1
+	DB	11000000b,00000000b
+	DW	CSV8S1, 2 * 2
+;
+; 256 byte sectors, 26 by 1 side.
+DSM8D2	EQU	(2 * 26 * (77-2))/BZ2K
+ALV8D2	EQU	(DSM8D2 + 7) / 8
+CSV8D2	EQU	128 / 4
+	DB	2
+DPBF8D2	DW	2 * 26
+	DB	4, 00001111b, 0
+	DW	DSM8D2-1,	128 -1
+	DB	11000000b,00000000b
+	DW	CSV8D2, 2 * 1
+;
+; 256 byte sectors, 26 by 2 sides.
+DSM8D3	EQU	(4 * 26 * (77-2))/BZ2K
+ALV8D3	EQU	(DSM8D3 + 7) / 8
+CSV8D3	EQU	256 / 4
+	DB	3
+DPBF8D3	DW	2 * 26
+	DB	4, 00001111b, 0
+	DW	DSM8D3-1,	256 -1
+	DB	11110000b,00000000b
+	DW	CSV8D3, 2 * 2
+;
+; 512 byte sectors, 15 by 1 side.
+DSM8D4	EQU	(4 * 15 * (77-2))/BZ2K
+ALV8D4	EQU	(DSM8D4 + 7) / 8
+CSV8D4	EQU	128 / 4
+	DB	4
+DPBF8D4	DW	4 * 15
+	DB	4, 00001111b, 0
+	DW	DSM8D4-1,	128 -1
+	DB	11000000b,00000000b
+	DW	CSV8D4, 2 * 1
+;
+; 512 byte sectors, 15 by 2 sides.
+DSM8D5	EQU	(8 * 15 * (77-2))/BZ2K
+ALV8D5	EQU	(DSM8D5 + 7) / 8
+CSV8D5	EQU	256 / 4
+	DB	5
+DPBF8D5	DW	4 * 15
+	DB	4, 00001111b, 0
+	DW	DSM8D5-1,	256 -1
+	DB	11110000b,00000000b
+	DW	CSV8D5, 2 * 2
+;
+; 1024 byte sectors, 8 by 1 side.
+DSM8D6	EQU	(8 * 8 * (77-2))/BZ2K
+ALV8D6	EQU	(DSM8D6 + 7) / 8
+CSV8D6	EQU	128 / 4
+	DB	6
+DPBF8D6	DW	8 * 8
+	DB	4, 00001111b, 0
+	DW	DSM8D6-1,	128 -1
+	DB	11000000b,00000000b
+	DW	CSV8D6, 2 * 1
+;
+; 1024 byte sectors, 8 by 2 sides.
+DSM8D7	EQU	(8 * 16 * (77-2))/BZ2K
+ALV8D7	EQU	(DSM8D7 + 7) / 8
+CSV8D7	EQU	256 / 4
+	DB	7
+DPBF8D7	DW	8 * 8
+	DB	4, 00001111b, 0
+	DW	DSM8D7-1,	256 -1
+	DB	11110000b,00000000b
+	DW	CSV8D7, 2 * 2
+;--------------------------------------
+      if (BOOT8X and LOADER) or not ((DISK2 or DISK3) and not LOADER)
+; Drive A: 8 inch floppy
+CSVZA	EQU	CSV8D7
+ALVZA	EQU	ALV8D7
+DRV_A	DB	00h		;Drive select
+	DW	XLT8D3		;Sector translation table vector
+	DW	0,0,0		;CP/M workspace
+	DW	DIRBUF,	DPBF8D7	;Directory buffer, Largest Disk Parameter Block
+	DW	CSVA,	ALVA	;Checksum, Allocation Vector pointers
+;
+; Drive B: 8 inch floppy
+CSVZB	EQU	CSV8D7
+ALVZB	EQU	ALV8D7
+DRV_B	DB	01h
+	DW	XLT8D3
+	DW	0,0,0
+	DW	DIRBUF,	DPBF8D7
+	DW	CSVB,	ALVB
+;
+	  if FPY8X4		;if 4 drives
+; Drive C: 8 inch floppy
+CSVZC	EQU	CSV8D7
+ALVZC	EQU	ALV8D7
+DRV_C	DB	02h		;Drive select
+	DW	XLT8D3		;Sector translation table vector
+	DW	0,0,0		;CP/M workspace
+	DW	DIRBUF,	DPBF8D7	;Directory buffer, Largest Disk Parameter Block
+	DW	CSVC,	ALVC	;Checksum, Allocation Vector pointers
+;
+; Drive D: 8 inch floppy
+CSVZD	EQU	CSV8D7
+ALVZD	EQU	ALV8D7
+DRV_D	DB	03h
+	DW	XLT8D3
+	DW	0,0,0
+	DW	DIRBUF,	DPBF8D7
+	DW	CSVD,	ALVD
+	  endif
+	  if not FPY8X4
+CSVZC	EQU	0
+ALVZC	EQU	0
+DRV_C	EQU	0
+;
+CSVZD	EQU	0
+ALVZD	EQU	0
+DRV_D	EQU	0
+	  endif
+      endif
+;---------------------------
+      if (DISK2 or DISK3) and not LOADER
+; Drive I: 8 inch floppy
+CSVZI	EQU	CSV8D7
+ALVZI	EQU	ALV8D7
+DRV_I	DB	00h		;Drive select
+	DW	XLT8D3		;Sector translation table vector
+	DW	0,0,0		;CP/M workspace
+	DW	DIRBUF,	DPBF8D7	;Directory buffer, Largest Disk Parameter Block
+	DW	CSVI,	ALVI	;Checksum, Allocation Vector pointers
+;
+; Drive J: 8 inch floppy
+CSVZJ	EQU	CSV8D7
+ALVZJ	EQU	ALV8D7
+DRV_J	DB	01h
+	DW	XLT8D3
+	DW	0,0,0
+	DW	DIRBUF,	DPBF8D7
+	DW	CSVJ,	ALVJ
+;
+	  if FPY8X4
+; Drive K: 8 inch floppy
+CSVZK	EQU	CSV8D7
+ALVZK	EQU	ALV8D7
+DRV_K	DB	02h
+	DW	XLT8D3
+	DW	0,0,0
+	DW	DIRBUF,	DPBF8D7
+	DW	CSVK,	ALVK
+;
+; Drive L: 8 inch floppy
+CSVZL	EQU	CSV8D7
+ALVZL	EQU	ALV8D7
+DRV_L	DB	03h
+	DW	XLT8D3
+	DW	0,0,0
+	DW	DIRBUF,	DPBF8D7
+	DW	CSVL,	ALVL
+	  endif
+      endif
+;***************************************
+DPB5TBL	RS	0
+    if (FLOPPY5 and not LOADER) or (BOOT5X and LOADER)
+; 128 byte sectors, 16 by 1 side.
+DSM5S0	EQU	(1 * 16 * (TRK5-2))/BZ1K ;Disk Total Size in Blocks
+ALV5S0	EQU	(DSM5S0 + 7) / 8	;Disk Allocation Vector Size
+CSV5S0	EQU	64 / 4			;Directory Checksum Vector Size
+	DB	BIAS5+0			;Type = 0
+DPBF5S0	DW	1 * 16			;Sectors/track
+	DB	3, 00000111b, 0		;Block Extent Size, Mask, Extra Count 
+	DW	DSM5S0-1,	64 -1	;Drive, Directory size
+	DB	11000000b,00000000b	;Directory allocation bits
+	DW	CSV5S0,	2 * 1		;Checksum vector size, reserved tracks
+;
+; 128 byte sectors, 16 by 2 sides.
+DSM5S1	EQU	(2 * 16 * (TRK5-2))/BZ2K
+ALV5S1	EQU	(DSM5S1 + 7) / 8
+CSV5S1	EQU	128 / 4
+	DB	BIAS5+1
+DPBF5S1	DW	1 * 16
+	DB	3, 00000111b, 0
+	DW	DSM5S1-1,	128 -1
+	DB	11000000b,00000000b
+	DW	CSV5S1, 2 * 2
+;
+; 256 byte sectors, 16 by 1 side.
+DSM5D2	EQU	(2 * 16 * (TRK5-2))/BZ2K
+ALV5D2	EQU	(DSM5D2 + 7) / 8
+CSV5D2	EQU	128 / 4
+	DB	BIAS5+2
+DPBF5D2	DW	2 * 16
+	DB	4, 00001111b, 0
+	DW	DSM5D2-1,	128 -1
+	DB	11000000b,00000000b
+	DW	CSV5D2, 2 * 1
+;
+; 256 byte sectors, 16 by 2 sides.
+DSM5D3	EQU	(4 * 16 * (TRK5-2))/BZ2K
+ALV5D3	EQU	(DSM5D3 + 7) / 8
+CSV5D3	EQU	256 / 4
+	DB	BIAS5+3
+DPBF5D3	DW	2 * 16
+	DB	4, 00001111b, 0
+	DW	DSM5D3-1,	256 -1
+	DB	11110000b,00000000b
+	DW	CSV5D3, 2 * 2
+;
+; 512 byte sectors, 8 by 1 side.
+DSM5D4	EQU	(4 * 8 * (TRK5-2))/BZ2K
+ALV5D4	EQU	(DSM5D4 + 7) / 8
+CSV5D4	EQU	128 / 4
+	DB	BIAS5+4
+DPBF5D4	DW	4 * 15
+	DB	4, 00001111b, 0
+	DW	DSM5D4-1,	128 -1
+	DB	11000000b,00000000b
+	DW	CSV5D4, 2 * 1
+;
+; 512 byte sectors, 8 by 2 sides.
+DSM5D5	EQU	(8 * 8 * (TRK5-2))/BZ2K
+ALV5D5	EQU	(DSM5D5 + 7) / 8
+CSV5D5	EQU	256 / 4
+	DB	BIAS5+5
+DPBF5D5	DW	4 * 15
+	DB	4, 00001111b, 0
+	DW	DSM5D5-1,	256 -1
+	DB	11110000b,00000000b
+	DW	CSV5D5, 2 * 2
+;
+; 1024 byte sectors, 5 by 1 side.
+DSM5D6	EQU	(8 * 5 * (TRK5-2))/BZ2K
+ALV5D6	EQU	(DSM5D6 + 7) / 8
+CSV5D6	EQU	128 / 4
+	DB	BIAS5+6
+DPBF5D6	DW	8 * 5
+	DB	4, 00001111b, 0
+	DW	DSM5D6-1,	128 -1
+	DB	11000000b,00000000b
+	DW	CSV5D6, 2 * 1
+;
+; 1024 byte sectors, 5 by 2 sides.
+DSM5D7	EQU	(16 * 5 * (TRK5-2))/BZ2K
+ALV5D7	EQU	(DSM5D7 + 7) / 8
+CSV5D7	EQU	256 / 4
+	DB	BIAS5+7
+DPBF5D7	DW	8 * 5
+	DB	4, 00001111b, 0
+	DW	DSM5D7-1,	256 -1
+	DB	11110000b,00000000b
+	DW	CSV5D7, 2 * 2
+;
+;---------------------------------
+      if not (DISK2 or DISK3)		;if no disk2 or disk3 active
+;
+; Drive E: 5 1/4 inch floppy
+CSVZE	EQU	CSV5D7
+ALVZE	EQU	ALV5D7
+DRV_E	DB	00h		;Drive select
+	DW	XLT5D3		;Sector translation table vector
+	DW	0,0,0		;CP/M workspace
+	DW	DIRBUF,	DPBF5D7	;Directory buffer, Largest Disk Parameter Block
+	DW	CSVE,	ALVE	;Checksum, Allocation Vector pointers
+;
+; Drive F: 5 inch floppy
+CSVZF	EQU	CSV5D7
+ALVZF	EQU	ALV5D7
+DRV_F	DB	01h
+	DW	XLT5D3
+	DW	0,0,0
+	DW	DIRBUF,	DPBF5D7
+	DW	CSVF,	ALVF
+;
+	  if FPY5X4		;if 4 drives
+;
+; Drive G: 5 inch floppy
+CSVZG	EQU	CSV5D7
+ALVZG	EQU	ALV5D7
+DRV_G	DB	02h		;Drive select
+	DW	XLT5D3
+	DW	0,0,0
+	DW	DIRBUF,	DPBF5D7
+	DW	CSVG,	ALVG
+;
+; Drive H: 5 inch floppy
+CSVZH	EQU	CSV5D7
+ALVZH	EQU	ALV5D7
+DRV_H	DB	03h
+	DW	XLT5D3
+	DW	0,0,0
+	DW	DIRBUF,	DPBF5D7
+	DW	CSVH,	ALVH
+	  endif
+;
+	  if not FPY5X4		;if not 4 drives
+CSVZG	EQU	0
+ALVZG	EQU	0
+DRV_G	EQU	0
+;
+CSVZH	EQU	0
+ALVZH	EQU	0
+DRV_H	EQU	0
+	  endif
+      endif
+;---------------------------
+      if (DISK2 or DISK3)
+;
+; Drive K: 5 inch floppy
+CSVZK	EQU	CSV5D7
+ALVZK	EQU	ALV5D7
+DRV_K	DB	00h		;Drive select
+	DW	XLT5D3		;Sector translation table vector
+	DW	0,0,0		;CP/M workspace
+	DW	DIRBUF,	DPBF5D7	;Directory buffer, Largest Disk Parameter Block
+	DW	CSVK,	ALVK	;Checksum, Allocation Vector pointers
+;
+; Drive L: 5 inch floppy
+CSVZL	EQU	CSV5D7
+ALVZL	EQU	ALV5D7
+DRV_L	DB	01h
+	DW	XLT5D3
+	DW	0,0,0
+	DW	DIRBUF,	DPBF5D7
+	DW	CSVL,	ALVL
+      endif
+    endif
+;---------------------------
+				;If neither Disk2 or Disk3 and...
+    if (BOOT8X and LOADER) or not ((DISK2 or DISK3) and not LOADER)
+      if (not FLOPPY5) or LOADER ;If not 5 1/4 inch drives
+CSVZE	EQU	0		;Drives E:, F:, G: and H: inactive
+ALVZE	EQU	0
+DRV_E	EQU	0
+;
+CSVZF	EQU	0
+ALVZF	EQU	0
+DRV_F	EQU	0
+;
+CSVZG	EQU	0
+ALVZG	EQU	0
+DRV_G	EQU	0
+;
+CSVZH	EQU	0
+ALVZH	EQU	0
+DRV_H	EQU	0
+      endif
+;
+CSVZI	EQU	0	;Drives I:, J:, K:, L: not used if no hard disks
+ALVZI	EQU	0
+DRV_I	EQU	0
+;
+CSVZJ	EQU	0
+ALVZJ	EQU	0
+DRV_J	EQU	0
+;
+CSVZK	EQU	0
+ALVZK	EQU	0
+DRV_K	EQU	0
+;
+CSVZL	EQU	0
+ALVZL	EQU	0
+DRV_L	EQU	0
+    endif
+;---------------------------
+    if ((DISK2 or DISK3) and not LOADER) ;Disk2 or disk3 active and...
+      if not FLOPPY8		; not 8" floppies
+CSVZI	EQU	0		;Drives I:, J: inactive
+ALVZI	EQU	0
+DRV_I	EQU	0
+;
+CSVZJ	EQU	0
+ALVZJ	EQU	0
+DRV_J	EQU	0
+      endif
+;
+      if not (FPY8X4 or FLOPPY5) ; neither extra 8" or any 5" drives
+CSVZK	EQU	0		;Drives K:, L: inactive
+ALVZK	EQU	0
+DRV_K	EQU	0
+;
+CSVZL	EQU	0
+ALVZL	EQU	0
+DRV_L	EQU	0
+      endif
+    endif
+;---------------------------
+;
+

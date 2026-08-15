@@ -1,0 +1,50 @@
+(*  VERSION 0001 *)
+
+MODULE CHAIN_ITF;
+
+(* CHAIN Interface to CP/M-86 for PASCAL/MT+86 *)
+
+(* COPYRIGHT 1981,1982,1983 BY DIGITAL RESEARCH, INC. *)
+(* ALL RIGHTS RESERVED *)
+
+(* Last Update: 14. Nov. 1985   by Gerhard Stegemann *)
+
+(* Update Summary: *)
+
+(*   - Written as single module *)
+
+(*$I FIBDEF.LIB *)
+(*$P*)
+CONST 
+      maxfcbs = 9;
+
+TYPE 
+     FCBLK = PACKED ARRAY [0..36] OF CHAR;
+     SECTOR = PACKED ARRAY [0..127] OF CHAR;
+     DUMMY = PACKED ARRAY[0..0] OF CHAR;
+     PTR = ^DUMMY;
+
+     FCBREC = RECORD
+                ACTIVE : BOOLEAN;
+                FCB    : FCBLK;
+                BUFIDX : INTEGER;
+                BUFFER : SECTOR;
+                ENDFILE: BOOLEAN;
+              END;
+
+(*$P*)
+
+VAR 
+    @FCBS : EXTERNAL ARRAY [0..maxfcbs] OF FCBREC;
+
+EXTERNAL PROCEDURE @CHN(P : PTR);
+
+PROCEDURE CHAIN(VAR F : FIB; SZ : INTEGER);
+
+BEGIN
+  @CHN(ADDR(@FCBS[F.SYSID].FCB));
+
+END; (* CHAIN *)
+
+MODEND.
+

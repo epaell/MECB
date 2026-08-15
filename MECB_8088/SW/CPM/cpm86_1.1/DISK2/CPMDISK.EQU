@@ -1,0 +1,74 @@
+;
+;	Disk and CP/M constants
+;
+BDOS	EQU	0224	;Basic Disk Operating System int vector
+TBUFF	EQU	80h	;Default disk buffer
+BUFF	EQU	80h
+TPA	EQU	100h	;Temporary Program Area
+;
+FCB	EQU	5Ch	;CP/M default FCB (starts with drive #)
+FCBFN	EQU	FCB+1	;File name
+FCBFT	EQU	FCB+9	;File type
+FCBRL	EQU	FCB+12	;Reel number (extension)
+FCBRC	EQU	FCB+15	;Last written record in reel
+FCBCR	EQU	FCB+32	;Current record count
+FCBRRCD	EQU	FCB+33	;Random access record number (3 bytes)
+;
+;	CBIOS Vector offsets (put in register "A" and call "CBIOS" routine).
+;
+CONSX	EQU	02	;Console status
+CONIX	EQU	03	;Console input
+CONOX	EQU	04	;Console output
+SELDDX	EQU	09	;Select drive
+SETTRK	EQU	10	;Set track
+SETSEC	EQU	11	;Set sector
+READSEC	EQU	13	;Read a sector
+WRTSEC	EQU	14	;Write a sector
+LISTSTA	EQU	15	;List output ready status
+XLSEC	EQU	16	;Translate logical to physical sector
+;
+; BDOS function call numbers (put in register "C")
+;
+WBOOTX	EQU	0	;Warm boot function through BDOS
+ECHOCI	EQU	1	;Console input with echo of character
+BDOSCO	EQU	2	;Console output with BDOS functions
+RDRIN	EQU	3	;Input from logical reader device
+PNCOUT	EQU	4	;Output to logical punch device
+LISTOUT	EQU	5	;Output to logical list device
+BDCICO	EQU	6	;Direct console input/output
+GETIOB	EQU	7	;Get I/O byte
+SETIOB	EQU	8	;Set I/O byte
+SENDSTR	EQU	9	;Output string to console
+READSTR	EQU	10	;Read string from console
+BDCISTA	EQU	11	;Get console input status
+GETVERS	EQU	12	;Get CP/M or MP/M version number
+DINIT	EQU	13	;Re-initialize disk system (only A: logged in)
+LOGIN	EQU	14	;Log-in specified drive
+OPENF	EQU	15	;Open file
+CLOSE	EQU	16	;Close file
+SCRH	EQU	17	;Search for file
+SCRHN	EQU	18	;Search for next file
+DELET	EQU	19	;Delete file
+RNEXT	EQU	20	;Read next record
+WNEXT	EQU	21	;Write next record
+MAKE	EQU	22	;Create file
+RENAM	EQU	23	;Rename file
+GLOGVEC EQU	24	;Get login vector
+GETDSK	EQU	25	;Get current disk # (Default drive in use)
+SETDMA	EQU	26	;Set direct memory access address
+ALLOC	EQU	27	;Get allocation vector (Disk usage bitmap)
+GETRO	EQU	28	;Get read only vector
+WRTPRO	EQU	29	;Write protect disk
+SETATTR	EQU	30	;Set file attributes
+GTDPB	EQU	31	;Get DPB (Disk Parameter Block) address
+USER	EQU	32	;Get/Set user #
+RDRAND	EQU	33	;Read random
+WRTRAND	EQU	34	;Write random
+CFILEZ	EQU	35	;Compute file size
+SETRAND	EQU	36	;Set random record number
+RESDRV	EQU	37	;Reset drive (for re-log without affecting "A:")
+WRTRAN0	EQU	40	;Write random with zero fill
+DIRBIOS	EQU	50	;Direct CBIOS call
+SETBASE	EQU	51	;Set DMA base register
+;
+

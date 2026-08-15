@@ -1,0 +1,100 @@
+;********************************
+;*	CP/M DISK WORK SPACE	*
+;********************************
+    DSEG 0
+	ORG  REUSE  ;Space recovered from code used only at cold boot time
+;
+ALV@A	RS	ALVZA		;Drive A: allocation vector reserved space
+ALV@B	RS	ALVZB		;Drive B:
+ALV@C	RS	ALVZC		;Drive C:
+ALV@D	RS	ALVZD		;Drive D:
+ALV@E	RS	ALVZE		;Drive E:
+ALV@F	RS	ALVZF		;Drive F:
+ALV@G	RS	ALVZG		;Drive G:
+ALV@H	RS	ALVZH		;Drive H:
+ALV@I	RS	ALVZI		;Drive I:
+ALV@J	RS	ALVZJ		;Drive J:
+ALV@K	RS	ALVZK		;Drive K:
+ALV@L	RS	ALVZL		;Drive L:
+ALV@M	RS	ALVZM		;Drive M:
+;
+CSV@A	RS	CSVZA		;Drive A: checksum vector reserved space
+CSV@B	RS	CSVZB		;Drive B:
+CSV@C	RS	CSVZC		;Drive C:
+CSV@D	RS	CSVZD		;Drive D:
+CSV@E	RS	CSVZE		;Drive E:
+CSV@F	RS	CSVZF		;Drive F:
+CSV@G	RS	CSVZG		;Drive G:
+CSV@H	RS	CSVZH		;Drive H:
+CSV@I	RS	CSVZI		;Drive I:
+CSV@J	RS	CSVZJ		;Drive J:
+CSV@K	RS	CSVZK		;Drive K:
+CSV@L	RS	CSVZL		;Drive L:
+CSV@M	RS	CSVZM		;Drive M:
+;
+;-------------------------------
+    if (DISK2 and not LOADER)	;Disk 2 controller storage containing
+RELTBL0	RS	D2_SCNT * 3	;Sector relocation tables for respective units
+      if DISK2X
+RELTBL1	RS	D2_SCNT * 3	;Unit 1
+      endif
+      if DISK2Y
+RELTBL2	RS	D2_SCNT * 3	;Unit 2
+      endif
+      if DISK2Z
+RELTBL3	RS	D2_SCNT * 3	;Unit 3
+      endif
+    endif
+;
+CIOPL	EQU	9
+CIOPB	RS	CIOPL	;Disk command buffer
+TEMPBF	RS	8	;Result status cells
+;
+ENDWORK	RS	0	;End of workspace below block buffers
+DIRBUF	RS	128	;Directory buffer
+;
+BUFPAGE EQU  ((Offset $)+255)/256 ;Place directory, host buffer on page
+	ORG	BUFPAGE * 256	;-- fixed 256 byte boundary
+;
+; Host buffer for TRACK blocking/deblocking area.
+TRKBUF	RS  8 * 1024	;Maximum sectors * maximum sector size = track
+			; buffer of 8K for 8 inch floppy disk
+;
+    if LOADER
+SECBUF	EQU	TRKBUF	;Sector buffer area for Hard Disk blocking/deblocking
+    endif
+    if ((DISK2 or DISK3) and not LOADER)
+SECBUF	RS  1 * 1024	;Sector buffer area for Hard Disk blocking/deblocking
+    endif
+;
+XDIRBUF	EQU  (offset $)
+	RS	128	;Initial stack area (used only for cold boot)
+ISTACK	RS	0	;Stack pointer starts here
+;
+	ORG  XDIRBUF
+    if (FDXBUF and not LOADER)
+      if FLOPPY8
+DIRFD0	RS  8 * 1024	;Directory track buffering for floppy unit #0
+DIRFD1	RS  8 * 1024	;Directory track buffering for floppy unit #1
+      endif
+      if FLOPPY5
+DIRFD2	RS  5 * 1024	;Directory track buffering for floppy unit #2
+DIRFD3	RS  5 * 1024	;Directory track buffering for floppy unit #3
+      endif
+    endif
+;
+    if (LOADER or not HDXBUF)
+ENDBIOS	EQU  (Offset $)/16	;End of BIOS memory segment value
+    endif
+    if (HDXBUF and not LOADER)
+ENDBIOS	EQU  (Offset $)/16 + (32 * 1024)/16 ;End of BIOS memory segment value
+HDDSBUF	RS  32 * 1024	;Directory buffering for Hard Disk drive A:
+    endif
+;
+    if LOADER
+      if (ENDCODE lt offset BIOS + (18 * 128))
+	ORG	(offset BIOS + (18 * 128) - 1)
+	DB	0	;Force Loader BIOS to correct size
+      endif
+    endif
+

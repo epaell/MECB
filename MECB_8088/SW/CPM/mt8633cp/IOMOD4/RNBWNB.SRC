@@ -1,0 +1,161 @@
+MODULE RNBWNB;
+
+(* @RNB and @WNB for PASCAL/MT+86 I/O Module *)
+
+(* Last Update: 03.10.85   by Gerhard Stegemann *)
+
+(* Update Summary: *)
+
+(*   - File access optimized *)
+
+(*$I FIBDEF.LIB *)
+(*$P*)
+CONST 
+      maxfcbs = 9;
+
+TYPE 
+     FPTR = ^FIB;
+     FCBLK = PACKED ARRAY [0..36] OF CHAR;
+     SECTOR = PACKED ARRAY [0..127] OF CHAR;
+     DUMMY = PACKED ARRAY[0..0] OF CHAR;
+     PTR = ^DUMMY;
+
+     FCBREC = RECORD
+                ACTIVE : BOOLEAN;
+                FCB    : FCBLK;
+                BUFIDX : INTEGER;
+                BUFFER : SECTOR;
+                ENDFILE: BOOLEAN;
+              END;
+
+     PTRIX = RECORD
+               CASE BOOLEAN OF
+                 TRUE : (LO_VAL : INTEGER;
+                         HI_VAL : INTEGER);
+                 FALSE: (P : PTR);
+             END;
+
+VAR 
+    @LFB : FPTR;
+    RESULTI : INTEGER;
+
+    @FCBS : ARRAY [0..maxfcbs] OF FCBREC;
+    (* Allows 10 simultaneously open files. *)
+    (* The console takes two file slots *)
+    (* for CON: as input and CON: as output. *)
+
+EXTERNAL FUNCTION  GETBYTE(I : INTEGER; VAR ENDFIL : BOOLEAN) : BYTE;
+EXTERNAL PROCEDURE PUTBYTE(B : BYTE; I : INTEGER);
+
+EXTERNAL FUNCTION @BDOS86(FUNC : INTEGER; PARM : PTR) : BYTE;
+EXTERNAL FUNCTION @BDOS86A(FUNC : INTEGER; FIRST, SECOND : INTEGER) : BYTE;
+(* @BDOS86A will resolve to @BDOS86 at link time but use different parms *)
+EXTERNAL PROCEDURE @BDOSX(FUNC : INTEGER; CH : CHAR);
+
+(*$P*)
+(*$E+*)
+PROCEDURE @RNB;
+
+VAR 
+    I : INTEGER;
+    J : INTEGER;
+    CH : CHAR;
+    ENDFILE : BOOLEAN;
+
+BEGIN
+  RESULTI := 0;
+
+  WITH @LFB^ DO
+    CASE OPTION OF
+    
+      FCONIO:                 (* Read console not a disk file *)
+        BEGIN
+          CH := @BDOS86(1, NIL); (* Second parm is a dummy *)
+          IF CH = CHR(8) THEN
+            BEGIN             (* Backspace entered *)
+              @BDOSX(2, ' ');
+              @BDOSX(2, CHR(8));
+            END
+          ELSE
+            IF CH = CHR($0D) THEN
+              @BDOSX(2, CHR($0A));
+          FBUFFER[0] := CH;
+          FEOF := (CH = CHR($1A));
+        END;
+    
+      FTRMIO:
+        BEGIN
+          REPEAT
+            CH := @BDOS86A(6, $FFFF, $FFFF);
+          UNTIL CH <> CHR(0);
+          FBUFFER[0] := CH;
+        END;
+    
+      FLSTOUT:
+        BEGIN
+          RESULTI := 255;     (* Illegal call *)
+          FEOF := TRUE;
+        END;
+    
+      FAUXIO:
+        BEGIN
+          CH := @BDOS86(3, NIL);
+          FBUFFER[0] := CH;
+        END;
+    
+      ELSE                    (* Else non-console, read using GETBYTE *)
+        BEGIN
+          I := SYSID;
+          ENDFILE := FEOF;
+          J := 1;
+          WHILE (J <= BUFLEN) AND NOT ENDFILE DO
+            BEGIN
+              FBUFFER[J - 1] := GETBYTE(I, ENDFILE);
+              J := J + 1;
+            END;
+          FEOF := ENDFILE;
+          IOSIZE := J - 1;    (* This is so GNB can tell the difference *)
+                              (* between a partially full buffer and true EOF. *)
+        END;
+    END;
+
+END; (* @RNB *)
+
+(*$P*)
+PROCEDURE @WNB;
+
+VAR 
+    I : INTEGER;
+    J : INTEGER;
+
+BEGIN
+  RESULTI := 0;
+
+  WITH @LFB^ DO
+    CASE OPTION OF
+    
+      FCONIO:                 (* Write to the console *)
+        @BDOSX(2, FBUFFER[0]);
+    
+      FTRMIO:                 (* Use function 6 *)
+        @BDOSX(6, FBUFFER[0]);
+    
+      FLSTOUT:                (* Use function 5 *)
+        @BDOSX(5, FBUFFER[0]);
+    
+      FAUXIO:                 (* Use Function 4 *)
+        @BDOSX(4, FBUFFER[0]);
+    
+      ELSE                    (* Else non-console, write using PUTBYTE *)
+        BEGIN
+          I := SYSID;
+          FOR J := 1 TO BUFLEN DO
+            PUTBYTE(FBUFFER[J - 1], I);
+          BUFIDX := 0;        (* So close on a WNB file works properly *)
+        END;
+    END;
+
+END; (* @WNB *)
+
+MODEND.
+

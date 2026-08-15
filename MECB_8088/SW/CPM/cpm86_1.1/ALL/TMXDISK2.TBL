@@ -1,0 +1,319 @@
+;****************************************
+DS0D2	EQU	Offset $
+    DSEG 0
+	ORG	DS0D2
+;
+;	Disk 2 track location storage (not retained by controller).
+;
+HD2CYL	DB	-1,-1,-1,-1	;Show all 4 possible drives in unknown
+;			positions to begin with (force home operation).
+;
+;	Disk 2 error messages.
+;
+D2_MSG	DB	CR,LF,'DISK2 Unit #'
+D2_MSGX	DB	'x Not Ready',0
+;
+;****************************************
+      if D2M10 		;------	Memorex 10 Mbyte drive
+;   First 5 Mbytes
+DSMH20	EQU (4 * 11 * 8 * (123-1))/BZ4K	;Disk Total Size in blocks
+ALVH20	EQU	(DSMH20 + 7) / 8	;Disk Allocation Vector Size
+	DB	43h			;Type
+DPB_H20	DW	4 * 11			;Sectors/track
+	DB	5, 00011111b, 1		;Block Extent Size, Mask, Extra Count 
+	DW   DSMH20-1, 1024-1, 0FFFFh	;Drive, Directory size, allocation bits
+	DW	0000h,   1 * 4		;Checksum vector size, reserved tracks
+;   Second 5M
+DSMH21	EQU	(4 * 11 * 8 *(243-123))/BZ4K
+ALVH21	EQU	(DSMH21 + 7) / 8
+	DB	43h
+DPB_H21	DW	4 * 11
+	DB	5, 00011111b, 1
+	DW   DSMH21-1, 1024-1, 0FFFFh
+	DW	0000h, 123 * 4
+;========================================
+D2UNIT0	EQU	'A'-'A'		;Disk Unit selector
+; Drive A: 8 inch hard disk, select #1, 5M
+CSVZA	EQU	0
+ALVZA	EQU	ALVH20
+DRV_A	DB	10h		;Drive select
+	DW	0		;Sector translation table vector
+	DW	0,0,0		;CP/M workspace
+	DW	DIRBUF,	DPBH20	;Directory buffer, Largest Disk Parameter Block
+	DW	CSVA,	ALVA	;Checksum, Allocation Vector pointers
+; Drive B: 8 inch hard disk, select #1, 5M
+CSVZB	EQU	0
+ALVZB	EQU	ALVH21
+DRV_B	DB	10h		;Drive select
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH21
+	DW	CSVB,	ALVB
+;------------------------
+DRV_C	EQU	0
+CSVZ_C	EQU	0		;No checksum vector size
+ALVZ_C	EQU	0		;No allocation vector size
+;
+DRV_D	EQU	0
+CSVZ_D	EQU	0		;No checksum vector size
+ALVZ_D	EQU	0		;No allocation vector size
+;
+DRV_E	EQU	0
+CSVZ_E	EQU	0
+ALVZ_E	EQU	0
+;
+DRV_F	EQU	0
+CSVZ_F	EQU	0
+ALVZ_F	EQU	0
+;
+DRV_G	EQU	0
+CSVZ_G	EQU	0
+ALVZ_G	EQU	0
+;
+DRV_H	EQU	0
+CSVZ_H	EQU	0
+ALVZ_H	EQU	0
+;
+      endif
+;****************************************
+      if D2M20 		;------	Memorex 20 Mbyte drive
+;   First 8Mbytes
+DSMH20	EQU  (8 * 11 * 8 * (94-1))/BZ4K	;Disk Total Size in blocks
+ALVH20	EQU	(DSMH20 + 7) / 8	;Disk Allocation Vector Size
+	DB	43h			;Type
+DPB_H20	DW	8 * 11			;Sectors/track
+	DB	5, 00011111b, 1		;Block Extent Size, Mask, Extra Count 
+	DW   DSMH20-1, 1024-1, 0FFFFh	;Drive, Directory size, allocation bits
+	DW	0000h,   1 * 8		;Checksum vector size, reserved tracks
+;   Second 8M
+DSMH21	EQU	(8 * 11 * 8 *(187-94))/BZ4K
+ALVH21	EQU	(DSMH21 + 7) / 8
+	DB	43h
+DPB_H21	DW	8 * 11
+	DB	5, 00011111b, 1
+	DW   DSMH21-1, 1024-1, 0FFFFh
+	DW	0000h,  94 * 8
+;   Third 4M+
+DSMH22	EQU	(8 * 11 * 8 *(243-187))/BZ4K
+ALVH22	EQU	(DSMH22 + 7) / 8
+	DB	43h
+DPB_H22	DW	8 * 11
+	DB	5, 00011111b, 1
+	DW   DSMH22-1, 1024-1, 0FFFFh
+	DW	0000h, 187 * 8
+      endif
+;========================================
+      if D2F20B		;------	Fujitsu 20 Mbyte drive
+;   First 8Mbytes
+DSMH20	EQU  (4 * 22 * 8 * (94-1))/BZ4K	;Disk Total Size in blocks
+ALVH20	EQU	(DSMH20 +7) / 8		;Disk Allocation Vector Size
+	DB	43h			;Type
+DPB_H20	DW	4 * 22			;Sectors/track
+	DB	5, 00011111b, 1		;Block Extent Size, Mask, Extra Count 
+	DW   DSMH20-1, 1024-1, 0FFFFh	;Drive, Directory size, allocation bits
+	DW	0000h,   1 * 4		;Checksum vector size, reserved tracks
+;   Second 8M
+DSMH21	EQU	(4 * 22 * 8 *(187-94))/BZ4K
+ALVH21	EQU	(DSMH21 + 7) / 8
+	DB	43h
+DPB_H21	DW	4 * 22
+	DB	5, 00011111b, 1
+	DW   DSMH21-1, 1024-1, 0FFFFh
+	DW	0000h,  94 * 4
+;   Third 4M+
+DSMH22	EQU	(4 * 22 * 8 *(243-187))/BZ4K
+ALVH22	EQU	(DSMH22 + 7) / 8
+	DB	43h
+DPB_H22	DW	4 * 22
+	DB	5, 00011111b, 1
+	DW   DSMH22-1, 1024-1, 0FFFFh
+	DW	0000h, 187 * 4
+      endif
+;========================================
+      if (D2M20 or D2F20B)
+D2UNIT0	EQU	'A'-'A'		;Disk Unit selector
+; Drive A: 8 inch hard disk, select #1, 8M
+CSVZA	EQU	0
+ALVZA	EQU	ALVH20
+DRV_A	DB	10h		;Drive select
+	DW	0		;Sector translation table vector
+	DW	0,0,0		;CP/M workspace
+	DW	DIRBUF,	DPBH20	;Directory buffer, Disk Parameter Block
+	DW	CSVA,	ALVA	;Checksum, Allocation Vector pointers
+; Drive B: 8 inch hard disk, select #1, 8M
+CSVZB	EQU	0
+ALVZB	EQU	ALVH21
+DRV_B	DB	10h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH21
+	DW	CSVB,	ALVB
+; Drive C: 8 inch hard disk, select #1, 4M
+CSVZC	EQU	0
+ALVZC	EQU	ALVH22
+DRV_C	DB	10h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH22
+	DW	CSVC,	ALVC
+;--------------------------------
+	  if DISK2X	;If second drive set present
+D2UNIT1	EQU	'D'-'A'		;Disk Unit selector
+; Drive D: 8 inch hard disk, select #1, 8M
+CSVZD	EQU	0
+ALVZD	EQU	ALVH20
+DRV_D	DB	21h		;Drive select
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH20
+	DW	CSVD,	ALVD
+; Drive E: 8 inch hard disk, select #1, 8M
+CSVZE	EQU	0
+ALVZE	EQU	ALVH21
+DRV_E	DB	21h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH21
+	DW	CSVE,	ALVE
+; Drive F: 8 inch hard disk, select #1, 4M
+CSVZF	EQU	0
+ALVZF	EQU	ALVH22
+DRV_F	DB	21h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH22
+	DW	CSVF,	ALVF
+	  endif
+;------------------------
+	  if not DISK2X	;If no second drive present
+DRV_D	EQU	0
+CSVZ_D	EQU	0		;No checksum vector size
+ALVZ_D	EQU	0		;No allocation vector size
+;
+DRV_E	EQU	0
+CSVZ_E	EQU	0
+ALVZ_E	EQU	0
+;
+DRV_F	EQU	0
+CSVZ_F	EQU	0
+ALVZ_F	EQU	0
+	  endif		;--------------------
+DRV_G	EQU	0
+CSVZ_G	EQU	0
+ALVZ_G	EQU	0
+;
+DRV_H	EQU	0
+CSVZ_H	EQU	0
+ALVZ_H	EQU	0
+      endif
+;****************************************
+      if D2F40B		;------	Fujitsu 40 Mbyte drive
+;   First 8 Mbytes
+DSMH20	EQU  (8 * 22 * 8 * (47-1))/BZ4K	;Disk Total Size in blocks
+ALVH20	EQU	(DSMH20 + 7) / 8	;Disk Allocation Vector Size
+	DB	43h			;Type
+DPB_H20	DW	8 * 22			;Sectors/track
+	DB	5, 00011111b, 1		;Block Extent Size, Mask, Extra Count 
+	DW   DSMH20-1, 1024-1, 0FFFFh	;Drive, Directory size, allocation bits
+	DW	0000h,   1 * 8		;Checksum vector size, reserved tracks
+;   Second 8M
+DSMH21	EQU	(8 * 22 * 8 * (93-47))/BZ4K
+ALVH21	EQU	(DSMH21 + 7) / 8
+	DB	43h
+DPB_H21	DW	8 * 22
+	DB	5, 00011111b, 1
+	DW   DSMH21-1, 1024-1, 0FFFFh
+	DW	0000h,  47 * 8
+;   Third 8M
+DSMH22	EQU	(8 * 22 * 8 *(139-93))/BZ4K
+ALVH22	EQU	(DSMH22 + 7) / 8
+	DB	43h
+DPB_H22	DW	8 * 22
+	DB	5, 00011111b, 1
+	DW   DSMH22-1, 1024-1, 0FFFFh
+	DW	0000h,  93 * 8
+;   Fourth 8M
+DSMH23	EQU	(8 * 22 * 8 *(185-139))/BZ4K
+ALVH23	EQU	(DSMH23 + 7) / 8
+	DB	43h
+DPB_H23	DW	8 * 22
+	DB	5, 00011111b, 1
+	DW   DSMH23-1, 1024-1, 0FFFFh
+	DW	0000h, 139 * 8
+;   Fifth 8M
+DSMH24	EQU	(8 * 22 * 8 *(241-185))/BZ4K
+ALVH24	EQU	(DSMH24 + 7) / 8
+	DB	43h
+DPB_H24	DW	8 * 22
+	DB	5, 00011111b, 1
+	DW   DSMH24-1, 1024-1, 0FFFFh
+	DW	0000h, 185 * 8
+;========================================
+D2UNIT0	EQU	'A'-'A'		;Disk Unit selector
+; Drive A: 8 inch hard disk, select #1, 8M
+CSVZA	EQU	0
+ALVZA	EQU	ALVH20
+DRV_A	DB	10h		;Drive select
+	DW	0		;Sector translation table vector
+	DW	0,0,0		;CP/M workspace
+	DW	DIRBUF,	DPBH20	;Directory buffer, Disk Parameter Block
+	DW	CSVA,	ALVA	;Checksum, Allocation Vector pointers
+; Drive B: 8 inch hard disk, select #1, 8M
+CSVZB	EQU	0
+ALVZB	EQU	ALVH21
+DRV_B	DB	10h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH21
+	DW	CSVB,	ALVB
+; Drive C: 8 inch hard disk, select #1, 8M
+CSVZC	EQU	0
+ALVZC	EQU	ALVH22
+DRV_C	DB	10h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH22
+	DW	CSVC,	ALVC
+; Drive D: 8 inch hard disk, select #1, 8M
+CSVZD	EQU	0
+ALVZD	EQU	ALVH23
+DRV_D	DB	10h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH23
+	DW	CSVD,	ALVD
+; Drive E: 8 inch hard disk, select #1, 8M
+CSVZE	EQU	0
+ALVZE	EQU	ALVH24
+DRV_E	DB	10h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH24
+	DW	CSVE,	ALVE
+;
+   if not DISK2X
+DRV_F	EQU	0
+CSVZ_F	EQU	0		;No checksum vector size
+ALVZ_F	EQU	0		;No allocation vector size
+;
+DRV_G	EQU	0
+CSVZ_G	EQU	0
+ALVZ_G	EQU	0
+;
+DRV_H	EQU	0
+CSVZ_H	EQU	0
+ALVZ_H	EQU	0
+      endif
+   endif
+    if not (D2F40B and DISK2X)
+;
+DRV_N	EQU	0
+CSVZ_N	EQU	0
+ALVZ_N	EQU	0
+;
+DRV_O	EQU	0
+CSVZ_O	EQU	0
+ALVZ_O	EQU	0
+    endif
+;****************************************
+

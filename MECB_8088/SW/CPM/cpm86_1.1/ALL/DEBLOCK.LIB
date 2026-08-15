@@ -1,0 +1,349 @@
+;*****************************************************
+;*                                                   *
+;*         Sector Blocking / Deblocking              *
+;*                                                   *
+;* This algorithm is a direct translation of the     *
+;* CP/M-80 Version, and is included here for refer-  *
+;* ence purposes only.  The file DEBLOCK.LIB is in-  *
+;* cluded on your CP/M-86 disk, and should be used   *
+;* for actual applications.  You may wish to contact *
+;* Digital Research for notices of updates.          *
+;*                                                   *
+;*****************************************************
+;
+;*****************************************************
+;*                                                   *
+;*         CP/M to host disk constants               *
+;*                                                   *
+;* (This example is setup for CP/M block size of 16K *
+;* with a host sector size of 512 bytes, and 12 sec- *
+;* tors per track.  Blksiz, hstsiz, hstspt, hstblk   *
+;* and secshf may change for different hardware.)    *
+;*****************************************************
+una	equ	byte ptr [BX]	;name for byte at BX
+;
+blksiz	equ	16384		;CP/M allocation size
+hstsiz	equ	512		;host disk sector size
+hstspt	equ	12		;host disk sectors/trk
+hstblk	equ	hstsiz/128	;CP/M sects/host buff
+;
+;*****************************************************
+;*                                                   *
+;* secshf is log2(hstblk), and is listed below for   *
+;* values of hstsiz up to 2048.                      *
+;*                                                   *
+;*           hstsiz    hstblk    secshf              *
+;*              256         2         1              *
+;*              512         4         2              *
+;*             1024         8         3              *
+;*             2048        16         4              *
+;*                                                   *
+;*****************************************************
+secshf	equ	2		;log2(hstblk)
+cpmspt	equ	hstblk * hstspt	;CP/M sectors/track
+secmsk	equ	hstblk-1	;sector mask
+;
+;*****************************************************
+;*                                                   *
+;*        BDOS constants on entry to write           *
+;*                                                   *
+;*****************************************************
+wrall	equ	0		;write to allocated
+wrdir	equ	1		;write to directory
+wrual	equ	2		;write to unallocated
+;
+;*****************************************************
+;*                                                   *
+;*	The BIOS entry points given below show the   *
+;*      code which is relevant to deblocking only.   *
+;*                                                   *
+;*****************************************************
+seldsk:
+	;select disk
+	;is this the first activation of the drive?
+	test DL,1		;lsb = 0?
+	jnz selset
+	;this is the first activation, clear host buff
+	mov hstact,0
+	mov unacnt,0
+selset:
+	mov al,cl ! cbw		;put in AX
+	mov sekdsk,al		;seek disk number
+	mov cl,4 ! shl al,cl	;times 16
+	add ax,offset dpbase
+	mov bx,ax
+	ret
+;
+home:
+	;home the selected disk
+	mov al,hstwrt		;check for pending write
+	test al,al
+	jnz homed
+	mov hstact,0		;clear host active flag
+homed:
+	mov cx,0		;now, set track zero
+;	(continue HOME routine)
+	ret
+;
+settrk:
+	;set track given by registers CX
+	mov sektrk,CX		;track to seek
+	ret
+;
+setsec:
+	;set sector given by register cl
+	mov seksec,cl		;sector to seek
+	ret
+;
+setdma:
+	;set dma address given by CX
+	mov dma_off,CX
+	ret
+;
+setdmab:
+	;set segment address given by CX
+	mov dma_seg,CX
+	ret
+;
+sectran:
+	;translate sector number CX with table at [DX]
+	test DX,DX	;test for hard skewed
+	jz notran	;(blocked must be hard skewed)
+	mov BX,CX
+	add BX,DX
+	mov BL,[BX]
+	ret
+no_tran:
+	;hard skewed disk, physical = logical sector
+	mov BX,CX
+	ret
+;
+read:
+	;read the selected CP/M sector
+	mov unacnt,0		;clear unallocated counter
+ 	mov readop,1		;read operation
+	mov rsflag,1		;must read data
+	mov wrtype,wrual	;treat as unalloc
+	jmp rwoper		;to perform the read
+;
+write:
+	;write the selected CP/M sector
+	mov readop,0		;write operation
+	mov wrtype,cl
+	cmp cl,wrual		;write unallocated?
+	jnz chkuna		;check for unalloc
+;
+;	write to unallocated, set parameters
+;
+	mov unacnt,(blksiz/128)	;next unalloc recs
+	mov al,sekdsk		;disk to seek
+	mov unadsk,al		;unadsk = sekdsk
+	mov ax,sektrk
+	mov unatrk,ax		;unatrk = sektrk
+	mov al,seksec
+	mov unasec,al		;unasec = seksec
+;
+chkuna:
+	;check for write to unallocated sector
+;
+	mov bx,offset unacnt	;point "UNA" at UNACNT
+	mov al,una ! test al,al	;any unalloc remain?
+	jz alloc		;skip if not
+;
+;	more unallocated records remain
+	dec al			;unacnt = unacnt-1
+	mov una,al
+	mov al,sekdsk		;same disk?
+	mov BX,offset unadsk
+	cmp al,una		;sekdsk = unadsk?
+	jnz alloc		;skip if not
+;
+;	disks are the same
+	mov AX, unatrk
+	cmp AX, sektrk
+	jnz alloc		;skip if not
+;
+;	tracks are the same
+	mov al,seksec		;same sector?
+;
+	mov BX,offset unasec	;point una at unasec
+;
+	cmp al,una		;seksec = unasec?
+	jnz alloc		;skip if not
+;
+;	match, move to next sector for future ref
+	inc una			;unasec = unasec+1
+	mov al,una		;end of track?
+	cmp al,cpmspt		;count CP/M sectors
+	jb noovf		;skip if below
+;
+;	overflow to next track
+	mov una,0		;unasec = 0
+	inc unatrk		;unatrk=unatrk+1
+;
+noovf:
+	;match found, mark as unnecessary read
+	mov rsflag,0		;rsflag = 0
+	jmps rwoper		;to perform the write
+;
+alloc:
+	;not an unallocated record, requires pre-read
+	mov unacnt,0		;unacnt = 0
+	mov rsflag,1		;rsflag = 1
+				;drop through to rwoper
+;
+;*****************************************************
+;*                                                   *
+;*	Common code for READ and WRITE follows       *
+;*                                                   *
+;*****************************************************
+rwoper:
+	;enter here to perform the read/write
+	mov erflag,0		;no errors (yet)
+	mov al, seksec		;compute host sector
+	mov cl, secshf
+	shr al,cl
+	mov sekhst,al		;host sector to seek
+;
+;	active host sector?
+	mov al,1
+	xchg al,hstact  	;always becomes 1
+	test al,al		;was it already?
+	jz filhst		;fill host if not
+;
+;	host buffer active, same as seek buffer?
+	mov al,sekdsk
+	cmp al,hstdsk		;sekdsk = hstdsk?
+	jnz nomatch
+;
+;	same disk, same track?
+	mov ax,hsttrk
+	cmp ax,sektrk 		;host track same as seek track
+	jnz nomatch
+;
+;	same disk, same track, same buffer?
+	mov al,sekhst
+	cmp al,hstsec		;sekhst = hstsec?
+	jz match		;skip if match
+nomatch:
+	;proper disk, but not correct sector
+	mov al,	hstwrt
+	test al,al		;"dirty" buffer ?
+	jz filhst		;no, don't need to write
+	call writehst		;yes, clear host buff
+;	(check errors here)
+;
+filhst:
+	;may have to fill the host buffer
+	mov al,sekdsk ! mov hstdsk,al
+	mov ax,sektrk ! mov hsttrk,ax
+	mov al,sekhst ! mov hstsec,al
+	mov al,rsflag
+	test al,al		;need to read?
+	jz filhst1
+;
+	call readhst		;yes, if 1
+;	(check errors here)
+;
+filhst1:
+	mov hstwrt,0		;no pending write
+;
+match:
+	;copy data to or from buffer depending on "readop"
+	mov al,seksec		;mask buffer number
+	and ax,secmsk		;least signif bits are masked
+	mov cl,	7 ! shl ax,cl	;shift left 7 (* 128 = 2**7)
+;
+;	ax has relative host buffer offset
+;
+	add ax,offset hstbuf	;ax has buffer address
+	mov si,ax		;put in source index register
+	mov di,dma_off		;user buffer is dest if readop
+;
+	push DS ! push ES	;save segment registers
+;
+	mov ES,dma_seg		;set destseg to the users seg
+				;SI/DI and DS/ES is swapped
+				;if write op
+	mov cx,128/2		;length of move in words
+	mov al,readop
+	test al,al		;which way?
+	jnz	rwmove		;skip if read
+;
+;	write operation, mark and switch direction
+	mov hstwrt,1		;hstwrt = 1 (dirty buffer now)
+	xchg si,di		;source/dest index swap
+	mov ax,DS
+	mov ES,ax
+	mov DS,dma_seg  	;setup DS,ES for write
+;
+rwmove:
+	cld ! rep movs AX,AX	;move as 16 bit words
+	pop ES ! pop DS		;restore segment registers
+;
+;	data has been moved to/from host buffer
+	cmp wrtype,wrdir	;write type to directory?
+	mov al,erflag		;in case of errors
+	jnz return_rw		;no further processing
+;
+;	clear host buffer for directory write
+	test al,al		;errors?
+	jnz return_rw		;skip if so
+	mov hstwrt,0		;buffer written
+	call writehst
+	mov al,erflag
+return_rw:
+	ret
+;
+;*****************************************************
+;*                                                   *
+;* WRITEHST performs the physical write to the host  *
+;* disk, while READHST reads the physical disk.      *
+;*                                                   *
+;*****************************************************
+writehst:
+	ret
+;
+readhst:
+	ret
+;
+;*****************************************************
+;*                                                   *
+;* Use the GENDEF utility to create disk def tables  *
+;*                                                   *
+;*****************************************************
+dpbase	equ	offset $
+;	disk parameter tables go here
+;
+;*****************************************************
+;*                                                   *
+;* Uninitialized RAM areas follow, including the     *
+;* areas created by the GENDEF utility listed above. *
+;*                                                   *
+;*****************************************************
+sek_dsk	rb	1		;seek disk number
+sek_trk	rw	1		;seek track number
+sek_sec	rb	1		;seek sector number
+;
+hst_dsk	rb	1		;host disk number
+hst_trk	rw	1		;host track number
+hst_sec	rb	1		;host sector number
+;
+sek_hst	rb	1		;seek shr secshf
+hst_act	rb	1		;host active flag
+hst_wrt	rb	1		;host written flag
+;
+una_cnt	rb	1		;unalloc rec cnt
+una_dsk	rb	1		;last unalloc disk
+una_trk	rw	1		;last unalloc track
+una_sec	rb	1		;last unalloc sector
+;
+erflag	rb	1		;error reporting
+rsflag	rb	1		;read sector flag
+readop	rb	1		;1 if read operation
+wrtype	rb	1		;write operation type
+dma_seg	rw	1		;last dma segment
+dma_off	rw	1		;last dma offset
+hstbuf	rb	hstsiz		;host buffer
+	end
+

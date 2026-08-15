@@ -1,0 +1,49 @@
+MODULE GETREC;
+
+(* CP/M-86 version *)
+
+(*$I FIBDEF.LIB *)
+
+VAR 
+    @LFB : EXTERNAL ^FIB;
+
+EXTERNAL PROCEDURE @RNB;
+
+(*$P*)
+PROCEDURE GET(VAR F : FIB; SZ : INTEGER);
+
+VAR 
+    IS_EOLN : BOOLEAN;
+
+BEGIN
+  @LFB := ADDR(F);
+
+  F.FEOLN := FALSE;     (* Default is that we reset it *)
+  IF F.FEOF THEN
+    BEGIN
+      F.FEOLN := TRUE;
+      EXIT;
+    END;
+
+  @RNB;                 (* Go read from the file/console *)
+
+  IF F.FTEXT THEN       (* Text file, EOLN/EOF must be set *)
+    BEGIN
+      IF F.FBUFFER[0] = CHR($1A) THEN
+        F.FEOF := TRUE;
+      IS_EOLN := (F.FBUFFER[0] = CHR($0D)); (* $0D for CP/M-86 *)
+      IF IS_EOLN OR F.FEOF THEN
+        F.FEOLN := TRUE;
+
+      IF IS_EOLN THEN
+        IF F.OPTION = FRDWR THEN (* Gobble LF *)
+          @RNB;
+
+      IF F.FEOLN THEN
+        F.FBUFFER[0] := ' ';
+    END;
+
+END;
+
+MODEND.
+

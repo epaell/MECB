@@ -1,0 +1,595 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   Digital Research FORTRAN-77 tm
+
+             for the CP/M-86 Family of Operating Systems
+
+
+                         READ.ME File Notes
+
+                            - June 1984 -
+
+
+                        Digital Research Inc.
+                            P.O. Box 579
+                      Pacific Grove, CA. 93950
+
+
+
+
+        This file describes  modifications  and  enhancements
+        made to Digital Research FORTRAN-77 compiler software
+        Version  4.0   and   the   accompanying   "FORTRAN-77
+        Reference Manual", First Edition: November 1983.
+
+        Note: This file has been formatted so you  can  print
+        it using 8 by 11 inch paper with the printer set to 6
+        lines per inch, then cut the pages to size (6 1/2 x 8
+        1/2) and place them in your manual.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                1-1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        DR FORTRAN-77 SYSTEM FILES
+
+        Table 16-1 on page 16-2 of the Reference Manual lists
+        the  files  you  should  receive  with  this product.
+        There have been several  changes  to  the  names  and
+        content  of  the distribution files.  The table below
+        shows the correct filenames and their contents.
+
+
+            Table 16-1.  DR FORTRAN-77 Product Disk Files
+
+           Filename           Content
+
+         F77.CMD       compiler root module
+         CODEGEN.CMD   code generator and interlist
+                       facility
+
+         F77.ERS       compiler error messages
+         F77IO.ERR     run-time error messages
+
+         8087.SIM      8087 coprocessor emulation routines
+
+         CLEAR87.CMD   8087 emulator reset routine
+
+         CLEARL.L86    large model library
+         CLEARS.L86    small model library
+
+         F32L.OBJ      single-precision intrinsics (large)
+         F32S.OBJ      single-precision intrinsics (small)
+
+         LINK86.CMD    8086/8088 linkage editor
+         LIB86.CMD     librarian
+
+         SIEVE.F77     test program - Sieve of Eratosthenes
+         PKMEM.F77     FORTRAN module to test assembly language
+                       interfacing
+         PKMEMRAS.A86  RASM-86 interface test program
+
+         TRYF77.SUB    sample submit program
+
+         READ.ME       latest information
+
+
+                                1-2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        Note: F77COMM.OVR, F77FRONT.OVR, and F77CUBE.OVR  are
+        now   combined   into  CODEGEN.CMD.  F77.ERR  is  now
+        F77.ERS, and there is a separate  file  for  run-time
+        errors named F77IO.ERR.
+
+        The single-precision library F32.OBJ is  now  divided
+        into  F32S.OBJ  (small  model)  and  F32L.OBJ  (large
+        model).
+
+        There are also two programs that demonstrate  how  to
+        interface   FORTRAN-77  code  with  assembly-language
+        code.   PKMEMRAS.A86  is  written  for  the   Digital
+        Research  RASM-86  assembler,  and  PKMEM.F77  is the
+        FORTRAN  program  that  calls  the  assembly  module.
+        There  are self-explanatory comments in the assembly-
+        language code.
+
+        Note: The Digital Research RASM-86 assembler  is  NOT
+        supplied with DR FORTRAN-77.
+
+
+        USING THE COMPILER OPTIONS
+
+        Table 17-1 on page 17-2 of the Reference Manual lists
+        the various compiler command-line options.  There are
+        several changes to this table, and it does  not  show
+        the default values for some options.  The table below
+        shows the options correctly and lists the defaults.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                1-3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+             Table 17-1.  Compiler Command Line Options
+
+         Option      Description                     Default
+
+          -A   Abbreviate source code listing      Listing shows
+               by omitting %INCLUDE files.         %INCLUDE files
+               Note: Using -A automatically
+               invokes -L.
+
+          -C   Source program is in column-based   Card image
+               (card image) format.                format
+
+          -D   Execute DO loops through at least   Zero-trip DO
+               one iteration.  (Conforms to 1966   loops (1977
+               ANSI standard.)                     ANSI standard)
+
+          -F   Source program is in free-field     Card image
+               format.                             format
+
+          -I   Generate source code/machine code   No listing
+               interlisting file (filename.LIS)
+
+          -L   Generate source code listing        No listing
+               at console
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                1-4
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+             Table 17-1.  Compiler Command Line Options
+
+         Option      Description                     Default
+
+          -Mn  Specify n bytes for implicit        2 byte
+               memory allocation for integers.     integers
+
+                 -M2  for 2 byte integers
+                 -M4  for 4 byte integers
+
+          -S   Compile program according to small  large model
+               memory model
+
+          -U   Convert source program to upper     no conversion
+               case (except inside literal
+               strings).
+
+          -V   Verify array subscript values are   no checking
+               within range.
+
+          -W   Generate warning messages.          no warnings
+
+        Note that the -X option as described on page 17-5  of
+        the  Reference  Manual is NOT implemented, but the -U
+        (upper case) option has been added.
+
+        The explanation of the -I and -L options on page 17-4
+        of  the  Reference Manual is incorrect.  When you use
+        the -I option, the compiler creates  an  interlisting
+        file with the same name as the source program and the
+        filetype .LIS.
+
+        When you use the -L  option,  the  compiler  sends  a
+        listing  of  the source program to the default output
+        file, which is the console.
+
+        Also, the description of the -W option is  incorrect.
+        It is OFF by default, not ON.
+
+
+
+
+
+                                1-5
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        You can place compiler options in your program  using
+        a percent sign in column 1.  For example, the command
+        line
+
+          A>F77 SIEVE -S -A
+
+        is equivalent to the source code
+
+          %-S
+          %-A
+            .... rest of source program ....
+
+          ^
+          Column 1
+
+
+        MEMORY REQUIREMENTS
+
+        When running under CP/M-86, DR FORTRAN-77 requires  a
+        minimum of 192K bytes of RAM (including the operating
+        system).  When running under Concurrent CP/M, you can
+        compile  small programs (approximately 100-200 lines)
+        in 256K bytes, but larger programs will require  512K
+        bytes.
+
+
+        CARRIAGE RETURN AT END OF SOURCE CODE
+
+        Always remember to place a carriage return at the end
+        of  your  source  code file.  Otherwise, the compiler
+        cannot detect the end of the file and it  reports  an
+        error.
+
+
+        USING THE CLEAR LIBRARY
+
+        When you create an executable file,  LINK86  and  the
+        appropriate    run-time    library   (CLEARL.L86   or
+        CLEARS.L86) should be on the SAME disk.
+
+
+
+
+                                1-6
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        Note that you do not need to specify which library to
+        use  at  link  time,  because the compiler determines
+        which library to  use  when  it  creates  the  object
+        module at compile time.
+
+        Note:  CLEARS.L86   and   CLEARL.L86   are   mutually
+        exclusive.  That  is,  you  cannot mix object modules
+        created using the large  model  with  object  modules
+        created using the small model.
+
+
+        ERROR MESSAGES
+
+        If  you  want  the   full   error   message   display
+        capability,   the   files   F77.ERS,   F77.CMD,   and
+        CODEGEN.CMD must be on the SAME disk.
+
+        If you want the full run-time error  message  display
+        capability (this is optional), F77IO.ERR should be on
+        the SAME disk as the load module.
+
+
+        USING CLEAR87.CMD
+
+        With some early versions of Concurrent  CP/M,  it  is
+        possible for the 8087 simulator to "lock up" when two
+        or more programs  require  simulation  routines.   If
+        this  occurs,  you  can free the simulator by running
+        the program CLEAR87.CMD.
+
+
+        USING THE F32 (32-BIT MATH) LIBRARIES
+
+        The F32 libraries only provide  support  for  single-
+        precision  variables.  Do  not  use  any  COMPLEX  or
+        DOUBLE  PRECISION  variables  with  either   of   the
+        libraries, F32S.OBJ or F32L.OBJ.
+
+
+
+
+
+
+                                1-7
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        If you mistakenly use  COMPLEX  or  DOUBLE  PRECISION
+        data   with   the  F32  libraries  in  certain  cases
+        (depending on which routines are called), LINK-86 may
+        report the error message
+
+          MULTIPLE DEFINITION
+
+        In any case however, LINK-86 will correctly create an
+        executable  file, but the results returned by the F32
+        routines will be unpredictable.
+
+        When using F32S.OBJ or F32L.OBJ, you must  link  your
+        program using the LINK86 option [SIM8087].
+
+        On page D-4  of  the  Reference  Manual,  change  the
+        example to read as follows:
+
+           A>LINK86 FOO[SIM], F32S
+
+
+        READ STATEMENT WITHOUT AN I/O LIST
+
+        Be aware that the run-time  system  does  not  detect
+        end-of-file  when  you use the READ statement without
+        an I/O list.  This  can  sometimes  cause  unexpected
+        results.  For example,
+
+              DO 20 I = 1,100
+                 READ (18,*,END=100)
+                 IREC = IREC + 1
+           20 CONTINUE
+              STOP
+          100 PRINT *,' Total records = ',IREC
+
+
+        This code  appears  to  count  the  total  number  of
+        records  in  a file, but in fact does nothing.  Since
+        there is no I/O list, no data is transferred  by  the
+        READ   statement,   and   the  end-of-file  is  never
+        detected.
+
+
+
+                                1-8
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                         END OF READ.ME FILE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                1-9
+
+
+

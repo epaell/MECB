@@ -1,0 +1,1117 @@
+; LAST UPDATED ON:	16 FEB 84 Ver 1.1R 
+; REASON FOR UPDATE:  Production release, clean up DISK3 	
+;
+;  10 JAN 84 -- Ver 1.1g -- Add directory buffering for floppies, 
+;                                                  hard disk A:.            aep
+;  31 DEC 83 -- Ver 1.1f -- Add Disk 1A driver code.			    aep
+;  18 DEC 83 -- Ver 1.1e -- Add interrupt code for console I/O using System
+;	Support I UART, automatic PIC clearing if interrupts not used.	    aep
+;  16 DEC 83 -- Ver 1.1d -- Rearrange to permit easier Loader generation.   aep
+;  12 DEC 83 -- Ver 1.1c -- Add track buffering for floppy disks only.	    aep
+;  30 NOV 83 -- Ver 1.1b -- Disk 2, Disk 3 alteration - more debugging.	    aep
+;  05 JUN 83 -- Ver 1.1a -- Convert CP/M-80 CBIOS code to CP/M-86 with all
+;		the new device drivers.					    aep
+;
+; PROGRAM NAME:	TMXBIOS.A86	-- Customized BIOS for CP/M-86 version 1.1 and
+;	CP/M 8-16, developed for use with CompuPro Systems Components.
+;
+;	==========================	Copyright 1983, CompuPro
+;	||			||	A division of Godbout Electronics.
+;	||     TMXBIOS.A86	||
+;	||			||
+;	==========================
+;
+;	This product is a copyrighted program product of CompuPro and is
+;	supplied for use with the CompuPro Computer Systems.
+;
+; CONSTANTS:
+VERS	EQU	11	;CP/M-86 version number
+CBIOSV	EQU	'R'	;BIOS revision level (2.2x)
+BDOSINT	EQU	224	;Reserved BDOS software interrupt "call"
+INTBASE	EQU	 64	;Base interrupt number used by the BIOS
+;
+RCDZ	EQU	128	;Record size (CP/M 1.4 sector size)
+BZ1K	EQU  1024/RCDZ	;1K Block size in records
+BZ2K	EQU  2048/RCDZ	;2K Block size in records
+BZ4K	EQU  4096/RCDZ	;4K Block size in records
+;
+; LIBRARY CONSTANTS:
+	nolist	;	COMPUPRO.EQU
+    INCLUDE	COMPUPRO.EQU	;Disk and Serial/Parallel interface constants
+	list
+;
+; Active device assignments -- determines the construction of INCLUDE code by
+; "direction" flags for the various CompuPro products to "customize" this BIOS.
+    INCLUDE	ACTIVE.EQU
+;
+LOADER	EQU	FALSE	;Always NOT assembling BIOS for LDBIOS (Load BIOS)
+SYSSEG	EQU	410h/16	;System segment for both CP/M-86 and CP/M 8-16
+CCP_SIZE   EQU	0B00h	;Length of CCP part of CP/M	- 2.75K CCP
+    if CPM816		;If custom BDOS for CP/M-816
+BDOS_SIZE  EQU	1D00h	;Length of BDOS for this use	- 7.25K BDOS
+    endif
+    if not CPM816	;Standard loader BDOS code size for CP/M-86
+BDOS_SIZE  EQU	1A00h	;Standard size for BDOS		- 6.5K  BDOS
+    endif
+;
+	eject
+;-------------------------------
+;	CP/M operating system memory usage.
+;
+; PROGRAM:
+    CSEG 0		;Used Digital Research ASM86 assembler
+	ORG	0000h	;Set zero segment address
+CCP:
+WARMCCP EQU CCP + 6	;Re-entry point for warm boot
+	RS   CCP_SIZE	;CCP storage allocation
+BDOS:
+BDOSVEC	EQU  BDOS + 6	;BDOS entry address
+	RS   BDOS_SIZE	;BDOS storage allocation
+;
+;	CBIOS operating address, fixed function vectors.
+; Function vectors are 3 byte jumps, and cannot be relocated or altered.
+;
+COLD_BOOT  RS	0	;Cold boot vector "plug" address (see end of CBOOT)
+BIOS:	JMP	CBOOT	;+00h	Cold boot: sign-on, initialize all I/O devices
+	JMP	WBOOT	;+03h	Warm boot: flush any unwritten disk records
+CIS:	JMP	CONST	;+06h	Console status (of input character ready)
+CI:	JMP	CONIN	;+09h	Console input character
+CO:	JMP	CONOUT	;+0Ch	Console output character
+	JMP	LISTOUT	;+0Fh	List output character
+	JMP	AUXOUT	;+12h	Auxilary (formerly Punch) output character
+	JMP	AUXIN	;+15h	Auxilary (formerly Reader) input character
+	JMP	HOME	;+18h	Set track to zero after flushing host buffer
+	JMP	SELDSK	;+1Bh	Select drive unit, determine disk type
+	JMP	SETTRK	;+1Eh	Set track number
+	JMP	SETSEC	;+21h	Set sector number
+	JMP	SETDMA	;+24h	Set Direct Memory Address
+	JMP	READ	;+27h	Read record (sector) from disk
+	JMP	WRITE	;+2Ah	Write record into sector buffer or onto disk
+	JMP	LISTST	;+2Dh	List status (output transmission ready)
+	JMP	SECTRN	;+30h	Translate logical to physical sector number
+	JMP	SETXAD	;+33h	Set extended address to segment value
+	JMP	GETMRT	;+36h	Return base address of the memory region table
+	JMP	GETIOB	;+39h	Get value of local I/O BYTE (and IOCNTL)
+	JMP	SETIOB	;+3Ch	Set value of local I/O BYTE (direction control)
+;
+J_CPM: ;JMPF CS:SYSSEG	;+3Fh	Long Jump to re-establish CP/M, MP/M operation
+	DB	0EAh		;Long Jump
+	DW	0,SYSSEG	;to base of segment automatically at cold start
+;
+	eject
+;-------------------------------
+; Warm boot routine.
+WBOOT:	CALL	HOME		;Insure write buffer flush
+	JMP	WARM_CCP	;Return to CP/M skipping the autovector
+;
+;-------------------------------
+; Wild Interrupt Handler.
+ITRAP:	CLI			;Clear all interrupt sources
+	MOV	AX,CS		;Get code segment
+	MOV	DS,AX		;Fix Data Segment to current
+	MOV  BX,offset TRAPMSG	;Trapped wild interrupt message
+	CALL	PRINT		;Print message
+ITRAPX:	HLT			;Wait for interrupt (shouldn't be any)
+	JMPS	ITRAPX		;Infinite loop
+;
+;-------------------------------
+; Get memory segmentation table vector.
+GETMRT:	MOV  BX,offset MEMTBL	;Get base address in "BX"
+	RET
+;
+;****************************************
+;*	GENERAL UTILITY ROUTINES	*
+;****************************************
+;
+;	PRINT -- Print message terminated by zero byte:
+;
+;Entry:	BX = Message pointer, terminated by NULL character.
+;Exit:	BX = Zero byte + 1.
+;
+PRINT1:	PUSH	BX		;Save string pointer
+	CALL	CO		;Output character to console
+	POP	BX		;Recover string pointer
+PRINT:	MOV	CL,[BX]		;Get a character in "CL"
+	INC	BX		;Point to next character to xmit
+	OR	CL,CL		;See if current is a NULL
+	JNZ	PRINT1		;Continue sending if not
+	RET			;If zero (NULL), then terminate
+;
+	eject
+;********************************************************
+;*	BASIC CHARACTER INPUT/OUTPUT DEVICE DRIVERS	*
+;********************************************************
+	noiflist
+  if not INTRACT
+     INCLUDE	TMXDEVIO.DVR	;Console, list device I/O drivers
+  endif
+  if INTRACT
+     INCLUDE	TMXINTIO.DVR	;Interrupt driven Console, list and auxilary
+  endif				; device I/O drivers
+;
+	eject
+;********************************************************
+;*	BASIC DISK SETUP INPUT/OUTPUT ROUTINES		*
+;********************************************************
+;
+;	SELECT DISK DRIVE:
+;
+; Select the disk drive for subsequent disk transfers and return the
+; appropriate DPB address.   This routine diverges from the normal CP/M
+; implementation of just saving the disk selection value until the
+; transfer is performed.  This divergence is required because floppy
+; disks are a removable media and come in more than on format.  This
+; routine determines the correct format and initializes the DPH with
+; the appropriate values in agreement with the format type.
+;
+;Entry:	CL = Disk selection value.
+;	DX and 1 = 0, ==> Must determine disk type,
+;  else	         = 1, ==> Drive type has been determined.
+;
+;Exit:	BX = 0, If drive not selectable,
+;	BX = DPH address if drive is selectable, and is initialized for the
+;		appropriate floppy disk format if DX = 0,
+;  else the DPH pointed to contains data about the last disk accessed.
+;
+SELDSK:	MOV	BX,0		;Indicate not found or drive not active
+	CMP	CL,16		;See if drive number greater than 16 (0-15)
+	JNC	SELDRET		;Done if invalid drive specified
+	MOV	BL,CL		; and move into "BX" for indexing
+	SHL	BX,1		;Drive offset times 2 (word pointers)
+	MOV	BX,DSKTBL[BX]	;Get DPH pointer from offset in master table
+	OR	BX,BX		;Test DPH pointer for non-zero (existance)
+	JZ	SELDRET		;Done if invalid drive (no DPH from table)
+;
+; Establish the drive's active parameters for later operations.
+	MOV	AL,[BX]		;Get disk selection mask byte (DPH prefix)
+	INC	BX		;Point to true DPH (returned value)
+	MOV	SI,10[BX]	;Put start of associated DPB in "SI"
+	DEC	SI		;Back up one to point at it's type
+	MOV	AH,[SI]		;Get disk type for this DPB in "AH"
+	MOV  Word ptr SEKDSK,AX	;Save desired disk mask, type bytes
+	MOV  Word ptr ACTDSK,AX	;Save active disk mask, type bytes
+	CMP	AH,D2_TYPE	;See if fixed media (starting hard disk type)
+	JNC	SELHDSK		;Return with correct DPH pointer in "BX" if so
+	MOV	AL,AH		;Duplicate drive type in "AL"
+	JMP	SELFPPY		;Select appropriate floppy format
+    if not HDXBUF
+SELHDSK:			;Hard disk handled as done
+SELDRET:RET
+    endif
+;
+    if HDXBUF
+; Special handling when using Hard Disk directory buffering.
+;
+SELHDSK:AND	DL,1		;See if this drive previously selected
+	OR	DL,CL		; or any drive other than A:
+	JNZ	SELDRET		;Done if either were true
+	PUSH	BX		;Save the DPH pointer
+	CALL	LHDDBUF		;Re-load the Drive A: directory buffer area
+	POP	BX		;Recover DPH pointer
+SELDRET:RET
+;
+;----------------------------------------
+;
+;	HARD DISK DIRECTORY BUFFERING INITIAL LOAD ROUTINE:
+;
+;Exit:	HDDSECS storage loaded with Track, Sector pairs of directory sectors,
+;	DIRHARD directory storage buffer loaded with corresponding data.
+;
+LHDDBUF:PUSH	BUFSEG		;Save the current buffer DMA values
+	PUSH	BUFADR
+	MOV	AX,HDDBUFS	;Get base segment address of buffer
+	MOV	BUFSEG,AX	;Save as active DMA segment
+	MOV  Word ptr BUFADR,0	;Start offset at zero
+	MOV  Byte ptr HDDBACT,0	;Set directory buffering to "inactive"
+	MOV  BX,offset HDDSECS+(31*2) ;Start pointer at end of sector list
+	MOV	CX,32		;32 physical sectors to load
+LHDDBX1:PUSH	BX!	PUSH CX
+	MOV	AX,[BX]		;Get current track, sector pair
+	MOV	ACTSEC,AL	;Set current sector number
+	MOV  AL,AH  !	CBW	;Move track to lower byte, clear upper
+	MOV	ACTTRK,AX	;Set current track number
+	MOV  Byte ptr CIOPB,FD_RDAT ;Set to a read operation
+	CALL	HDXFNL		;Transfer one sector to RAM
+	POP	CX!	POP BX
+	JNZ	LHDDBX3		;Leave directory buffering disabled if error
+	ADD  Word ptr BUFADR,1024 ;Set DMA to next location
+	SUB	BX,2		;Point to next track, sector pair down the list
+	LOOP	LHDDBX1		;Loop until all sectors read
+	MOV  Byte ptr HDDBACT,1	;Set directory buffering to "active" if valid
+LHDDBX3:POP	BUFADR		;Recover original host buffer DMA values
+	POP	BUFSEG
+	RET
+    endif
+;
+	eject
+;----------------------------------------
+;
+;	HOME ROUTINE:
+;
+; Return disk to home.  This routine sets the track number to zero.
+; The current host disk buffer is flushed to the disk, and made inactive.
+;
+HOME:	PUSH	ES!	PUSH DS	;Save entering extra, data segment values
+	CALL	FLUSH		;Flush host buffer if incomplete write
+	CALL	HSTOFF		;Clear host active flag
+	POP	DS!	POP ES	;Recover entering data, extra segments
+	MOV	CX,0		;Init to track 0 (theoretical position)
+;	JMPS	SETTRK
+;
+;----------------------------------------
+;
+;	SET TRACK ROUTINE:
+;
+; Set track number.  The track number is saved for later use during
+; a disk transfer operation.
+;
+;Entry:	CX = Track number.
+;
+SETTRK:	MOV	SEKTRK,CX	;Save desired track number
+	RET
+;
+	eject
+;----------------------------------------
+;
+;	SECTOR TRANSLATION ROUTINE:
+;
+; Translate sector number from logical to physical.
+;
+;Entry:	DX = 0, then no translation required,
+; else:	DX = translation table address and
+;	CX = sector number to translate.
+;
+;Exit:	BX = translated sector number (this will always be less than 256 in
+;	     this CBIOS due to some anomalies in the way the "BH" register
+;	     is handled by some programs or perhaps CP/M as well).
+;
+SECTRN:	MOV	BX,CX		;Put sector offset in "BX" to translate
+	OR	DX,DX		;See if translation table address is zero
+	JZ	SECTRN0		;Done if so
+	ADD	BX,DX		;Add sector offset to table base
+	MOV	BL,[BX]		;Get sector translated into "BL"
+	MOV	BH,0		;Zero upper byte of sector number
+SECTRN0:RET
+;
+;----------------------------------------
+;
+;	SET SECTOR ROUTINE:
+;
+; Set the sector for later use in the disk transfer.  No
+; actual disk operations are perfomed.
+;
+;Entry:	CX = sector number (sometimes "CH" contains an invalid number
+;		if less than 256 sectors used for selected drive).
+;
+SETSEC:	MOV	SEKSEC,CL	;Sector to seek
+	MOV	SAVSEC,CX	;Special save area for blocking/deblocking
+	RET
+;
+	eject
+;----------------------------------------
+;
+;	SET DIRECT MEMORY ACCESS (Lower 2 bytes):
+;
+; Set Direct Memory Address (DMA) for subsequent disk read or
+; write routines.  This is the place the actual requested 128
+; byte record (CP/M 1.4 sector) goes.
+;
+;Entry:	CX = Disk memory address.
+;
+SETDMA:	MOV	DMAADR,CX	;Save Direct Memory Access start byte
+	RET
+;
+;----------------------------------------
+;
+;	SET DIRECT MEMORY ACCESS SEGMENT ( of 24 bit address):
+;
+; Set extended bank address of DMA as above, but contains the "segment"
+; offset to use to construct the full 24 bit address from.
+;
+;Entry:	CX = Segment for extended bank address byte.
+;
+SETXAD:	MOV	DMASEG,CX	;Save Direct Memory Access start segment
+	RET
+;
+;----------------------------------------
+;
+;	Routine to get 3 byte (24 bit) DMA address from current BUFSEG, BUFADR
+;	addresses (converts segment offset, 16 bit address into 24 bit value).
+;
+;Exit:	AL = High byte of 24 bit address corresponding to current BUF address,
+;	BX = Mid, Low bytes of 24 bit address,
+;	CX,DX Unchanged.
+;
+GETDMA:	PUSH	CX		;Save entering "CX" value
+	MOV	AX,BUFSEG	;Get buffer segment for DMA xfer
+	MOV	CL,4		;4 bit shift to get high byte
+	ROL	AX,CL
+	MOV	BX,AX		;Duplicate in "BX"
+	AND	AL,0Fh		;Get upper nibble only in "AX"
+	AND	BX,0FFF0h	;Get lower 12 bits in upper "BX"
+	ADD	BX,BUFADR	;Add in offset address
+	ADC	AL,0		;Add any overflow to upper byte of DMA
+	POP	CX		;Recover entering "CX" value
+	RET
+;
+	eject
+;----------------------------------------
+;
+;	READ SECTOR ROUTINE:
+;
+; Read a CP/M 128 byte sector (also known as a "record").
+;
+;Exit:	AL = 0, Z flag set for successful read operation.
+;	AL = non-zero value if unsucessful read operation.
+;
+READ:				;Disk read, not always a media operation
+    if HMDRIVE
+	MOV	AL,SEKTYP	;Get type of device in use
+	CMP	AL,MEMTYPE	;See if Memory drive
+	JC	READ1		;Read in and deblock the sector if necessary
+READHMD:MOV	BX,SEKTRK	;Place requested track number in "BX"
+	PUSH	BX		;Save entering track
+	MOV	CL,7		;Multiply by 128 to get offset in bank
+	SHL	BX,CL		;32 Pseudo cylinders max (32 * 128 = 4K)
+	MOV	AL,SEKSEC	;Get requested sector number in "AL"
+	PUSH	AX		;Save sector number on stack
+	MOV	DX,HM_CNTL	;Point to M-Drive/H control register
+	OUT	DX,AL		;Set high order pseudo sector byte
+	MOV	AL,BH		;Use upper 8 bits of track as middle select
+	OUT	DX,AL		; (or low order byte of pseudo sector number)
+	MOV	AL,BL		;Least significant bit of track number is now
+	OUT	DX,AL		;the "record" 1 or 0 ID in final byte setup
+	MOV	CX,128		;128 bytes to move
+	DEC	DX		;Use "DX" to point to data transfer port
+	MOV	BL,80h		;Start parity ("BL")
+	PUSH	ES		;Save current extra segment pointer
+	LES DI,Dword ptr DMAADR ;Get buffer address and segment	
+READHM1:IN	AL,DX		;Get data byte from "drive"
+	STOSB			;Plage in memory at [ES+DI], point to next
+	ADD	BL,AL		;Accumulate parity byte
+	LOOP	READHM1		;If done, point to stored disk parity byte
+	POP	ES		;Restore ES register
+	POP	AX		;Recover old sector number into "AL"
+	INC	DX		;Point back to control port number
+	OUT	DX,AL		;Set high order byte of track
+	POP	CX		;Recover entering track
+	MOV	AL,CH		;Use unshifted track number to identify byte
+	OUT	DX,AL		; for parity
+	MOV	AL,CL
+	OUT	DX,AL		;Use byte of track to find single byte
+	IN	AL,HM_DATA	
+	SUB	AL,BL		;Get it and see if parity matches
+	RET			;Return with error status
+    endif
+READ1:	PUSH	ES!	PUSH DS	;Save entering extra, data segments
+	CALL	FILL		;Fill buffer with data (clears direction flag)
+	MOV  DX,CS ! MOV  DS,DX	;Set data segment to same as code segment
+	LES DI,Dword ptr DMAADR ;Destination segment, offset for DMA
+	LDS SI,Dword ptr RCDADR	;Source segment, offset in host buffer area
+	MOV	CX,128/2	;Move 128 bytes
+	CLD			;Clear direction
+	REP	MOVSW		;Block move
+	POP	DS!	POP ES	;Recover entering data, extra segments
+	OR	AL,AL		;Set error status flag
+	JNZ	HSTOFF		;Turn off host active flag if error
+	RET			;Done if no error
+;
+;	HSTOFF - Turn off host active to prevent write to host.
+; Used if error on fill to write buffer and if HOME command issued.
+;
+HSTOFF:	MOV  Byte ptr HSTACT,0	;Clear host active flag
+	OR	AL,1		;Indicate error condition
+	RET
+;
+	eject
+;----------------------------------------
+;
+;	WRITE SECTOR ROUTINE:
+;
+; Write the selected 128 byte CP/M sector.
+;
+;Entry:	CL = 0, write to a previously allocated block.
+;	CL = 1, write to the directory.
+;	CL = 2, write to the first sector of unallocated data block.
+;
+;Exit:	AL = 0, Z-flag set for successful write operation.
+;	AL = non-zero value if unsucessful write operation.
+;
+WRITE:				;Disk write, not always a media operation
+    if HMDRIVE
+	MOV	AL,SEKTYP	;Get type of device in use
+	CMP	AL,MEMTYPE	;See if Memory drive
+	JC	WRITE1		;Continue with blocking/deblocking if so
+WRITHMD:MOV	BX,SEKTRK	;Place requested track number in "BX"
+	PUSH	BX		;Save entering track
+	MOV	CL,7		;Multiply by 128 to get offset in bank
+	SHL	BX,CL		;32 Pseudo cylinders max (32 * 128 = 4K)
+	MOV	AL,SEKSEC	;Get requested sector number in "AL"
+	PUSH	AX		;Save sector number on stack
+	MOV	DX,HM_CNTL	;Point to M-Drive/H control register
+	OUT	DX,AL		;Set high order pseudo sector byte
+	MOV	AL,BH		;Use upper 8 bits of track as middle select
+	OUT	DX,AL		; (or low order byte of pseudo sector number)
+	MOV	AL,BL		;Least significant bit of track number is now
+	OUT	DX,AL		;the "record" 1 or 0 ID in final byte setup
+	MOV	CX,128		;128 bytes to move
+	DEC	DX		;Use "DX" to point to data transfer port
+	MOV	BL,80h		;Start parity ("BL")
+	PUSH	DS		;Save current data segment pointer
+	LDS SI,Dword ptr DMAADR ;Get transfer buffer address and segment
+WRITHM1:LODSB			;Get data byte from [DS+SI] in memory
+	OUT	DX,AL		;Xmit to "drive"
+	ADD	BL,AL		;Accumulate parity byte
+	LOOP	WRITHM1		;If done, point to storage for parity byte
+	POP	DS		;Restore data segment register
+	POP	AX		;Recover old sector number into "AL"
+	INC	DX		;Point back to control port number
+	OUT	DX,AL		;Set high order byte of track
+	POP	CX		;Recover entering track
+	MOV	AL,CH		;Use unshifted track number to identify byte
+	OUT	DX,AL		; for parity
+	MOV	AL,CL
+	OUT	DX,AL		;Use byte of track to find single byte
+	MOV	AL,BL		;Send accumulated parity byte
+	OUT	HM_DATA,AL	; in memory "drive" reserved area
+	XOR	AL,AL		;Show valid write operation completed
+	RET
+    endif
+WRITE1:	PUSH	CX		;Save write type
+	PUSH	ES!	PUSH DS	;Save entering extra, data segment values
+	CALL	FILL		;Fill buffer with data (clears direction flag)
+	MOV  DX,CS ! MOV  DS,DX	;Set data segment to same as code segment
+	LES DI,Dword ptr RCDADR	;Destination segment, offset in host buffer
+	LDS SI,Dword ptr DMAADR ;Source segment, record address for DMA
+	MOV	CX,128/2	;Move 128 bytes
+	CLD			;Clear direction
+	REP	MOVSW		;Block move
+	POP	DS!	POP ES	;Recover entering data, extra segments
+	POP	CX		;Recover write type
+	OR	AL,AL		;Set status flag
+	JNZ	HSTOFF		;Abort if any errors occurred
+	MOV  Byte ptr HSTWRT,1	;HSTWRT = 1 (active for next query)
+	CMP	CL,1		;"CL" = 1 if write to directory
+	JNZ	NOFLUSH		;Done if not
+	PUSH	ES!	PUSH DS	;Save entering extra, data segment values
+	CALL	FLUSH		;Flush holding buffer to physical storage
+	POP	DS!	POP ES	;Recover entering data, extra segments
+	RET
+;
+NOFLUSH:XOR	AL,AL		;Show no error
+	RET
+;
+;----------------------------------------
+;
+;	FLUSH - Write out active host buffer onto disk.
+;
+FLUSH:	CMP  Byte ptr HSTWRT,0	;See if host write flag is active
+	JZ	NOFLUSH		;Done if host buffer already on disk
+	MOV  Byte ptr HSTWRT,0	;Mark inactive for next query
+	MOV  DX,DS ! MOV  ES,DX	;Set extra segment to same as data segment
+	MOV  SI,offset HSTSEC	;Transfer host to active parameter list
+	MOV  DI,offset ACTSEC
+	MOV	CX,7		;7 bytes to move
+	CLD			;Clear direction
+	REP	MOVSB		;Block move
+				; BUFADR, BUFSEG remain as last set during FILL
+				; along with the Host parameters.
+	MOV  Byte ptr CIOPB,FD_WRT ;Floppy Write command set up
+	JMP	FINAL		;Perform physical disk write operation
+;
+	eject
+;----------------------------------------
+;
+;	FILL - Fill host buffer with approprite host sector (hard disks),
+;		or host track (floppy disks).
+;
+;Entry:	AL = current SEKTYP for host.
+;
+;Exit:	AL = 0, Z-flag set if no errors occurred,
+;	RCDSEG	= Host buffer segment address,
+;	RCDADR	= Host buffer offset address of the data record,
+;	(Host buffer loaded with the appropriate sector or track data.)
+;
+FILL:	MOV  DX,DS ! MOV  ES,DX	;Set extra segment to same as data segment
+	MOV  Byte ptr SEKSEC,0	;Track buffer desired sector = 0 (don't care)
+    if (DISK2 or DISK3)
+	CMP	AL,D2_TYPE	;See if hard disk type
+	JC	FILL1		;Test for disk flush if not
+	MOV  AL,Byte ptr SAVSEC	;Get logical sector within track buffer
+	SHR AL,1 ! SHR AL,1 ! SHR AL,1	;2 ** 3 = 8 records/physical sector
+	MOV	SEKSEC,AL	;Save for comparison
+    endif
+;
+; See if a sector write (flush) might be necessary.
+FILL1:	MOV  SI,offset HSTSEC	;Compare host values with desired
+	MOV  DI,offset SEKSEC	; including sectors
+	MOV	CX,5		;5 bytes to compare
+	CLD			;Clear direction
+	REPE	CMPSB		;Compare all bytes
+	JE	FILL3		;Flush (possibly fill) unnecessary if all match
+;
+; Flush write buffer, if active.
+	MOV  Byte ptr RFLAG,1	;Indicate physical read (fill) necessary
+	CALL	FLUSH		;See if need to flush buffer, do it if so
+	MOV	DX,CS		;Use current code segment to reset
+	MOV  DS,DX ! MOV  ES,DX	; the data segment, extra segment
+	JZ	FILL4		;Continue if no irrecoverable error
+	RET			;Abort if error, show in "AL"
+;
+FILL3:	MOV  Byte ptr RFLAG,0	;Indicate no physical read is necessary
+FILL4:
+    if (DISK2 or DISK3)
+	CMP  Byte ptr SEKTYP,D2_TYPE	;See if hard disk type
+	JC	FILLFD1		;Use floppy track buffering if not
+;
+;--------------------------------
+; Fill Host Sector Buffer if Hard Disk.
+;
+; Determine record offset amount within host SECTOR buffer if hard disk.
+FILLHD1:MOV  AL,Byte ptr SAVSEC	;Get logical sector (desired)
+	AND	AX,111b		;Mask bits controlling record number in sector
+	MOV	CL,7		;2 ** 7 = 128 byte records to offset
+	SHL	AX,CL		;Shift record number by record size for offset
+	MOV	RCDADR,AX	;Save record offset amount within a sector
+      if HDXBUF
+;
+; Directory Buffering for Hard Disk.
+	MOV  DI,offset HDDSECS	;Point to list of sectors in directory buffer
+	MOV  AX,Word ptr SEKSEC	;Get current Sector, Track values
+	CMP	[DI],AX		;See if current Track, Sector in range
+	JC	FILLHD2		;Normal sector operation if not
+	CMP  Byte ptr SEKTRK+1,0 ;Make sure upper byte of track number is zero
+	JNZ	FILLHD2		;Normal sector operation if not
+	TEST Byte ptr SEKDSK,11b ;See if desired unit number = 0
+	JNZ	FILLHD2		;Normal sector operation if not
+	MOV	CX,32		;1024 entries = 32K to store
+	CLD			;Clear direction
+	REPNZ	SCASW		;See if the pair matches any in list
+	JNZ	FILLHD2		;Perform normal transfer operation if not
+	CMP  Byte ptr HDDBACT,0	;See if hard disk directory buffering active
+	JZ	FILLHD2		;Do nothing special if not
+	MOV  Byte ptr RFLAG,0	;Indicate no physical read is necessary
+	MOV  Byte ptr HSTACT,1	;Force current host active flag to be set
+	MOV	AX,HDDBUFS	;Point to directory buffer area base segment
+	MOV	BUFSEG,AX	;Set segment for physical disk data transfer
+	MOV	RCDSEG,AX	;Set segment for record within host buffer area
+	MOV AH,CL !  MOV AL,CH	;Sector number times 256 in "AX"
+	SHL AX,1  !  SHL AX,1	; times 4 = 1024 bytes times sector number
+	JMPS	FILLHD5		;Place segment, offset addresses on stack
+      endif
+;
+; Physical Disk Read to Fill Sector Buffer if Hard Disk.
+FILLHD2:MOV	BUFSEG,CS	;Set segment for physical disk data transfer
+	MOV	RCDSEG,CS	;Set segment for record within host buffer area
+	MOV  AX,offset SECBUF	;Point to base address of sector buffer
+FILLHD5:MOV	BUFADR,AX	;Set DMA offset address of sector buffer
+	ADD	RCDADR,AX	;Add sector to record offsets for record addr
+	JMPS	FILL6		;Proceed with flush, fill status checks
+    endif
+;
+;--------------------------------
+; Fill Host Track Buffer if Floppy Disk.
+;
+; Determine record offset amount within host TRACK buffer if floppy disk.
+FILLFD1:MOV  AL,Byte ptr SAVSEC	;Get logical sector within track buffer
+	CBW			;Clear upper byte of sector number
+	MOV	CL,7		;2 ** 7 = 128 byte records to use in offset
+	SHL	AX,CL		;Shift sector number by record size for offset
+	MOV	RCDADR,AX	;Save record offset amount within track buffer
+	MOV	RCDSEG,CS	;Set segment for record within host buffer area
+	MOV	BUFSEG,CS	;Set segment for physical disk data transfer
+    if FDXBUF
+;
+; Directory Buffering for Floppy Disk.
+	MOV	CL,SEKTYP	;See if single or double sided disk
+	AND	CL,1		;Select "sidedness" bit from disk type
+	MOV	AX,2		;Directory is track 2 for single sided
+	SHL	AX,CL		;Change to track 4 if disk is double sided
+	CMP	SEKTRK,AX	;See if specified track is directory area
+	JNZ	FILLFD2		;Normal operation if not
+	MOV	BL,SEKDSK	;Get desired drive unit to select
+	AND	BX,3		;Make into 0-3 offset
+	SHL  BX,1  !  SHL  BX,1	;4 bytes per control entry
+	MOV  AX,offset FDDBUFS+2[BX] ;Get base address of directory buffer
+	CMP  Byte ptr FDDBUFS[BX],0 ;See if "directory active" status is zero
+	MOV  Byte ptr FDDBUFS[BX],1 ; which always becomes 1 (active)
+	JZ	FILLFD5		;Physical disk track read needed if inactive
+	MOV  Byte ptr RFLAG,0	;Indicate no physical read is necessary
+	JMPS	FILLFD5		;Place segment, offset addresses on stack
+    endif
+;
+; Fill the Normal Host Track Buffer if Floppy Disk.
+FILLFD2:MOV  SI,offset FDTSEC+1	;Compare host floppy values with desired
+	MOV  DI,offset SEKTRK	; excluding sectors
+	MOV	CX,4		;4 bytes to compare
+	CLD			;Clear direction
+	REPE	CMPSB		;Compare all bytes
+	JNE	FILLFD3		;Fill necessary if mismatch
+	MOV  Byte ptr RFLAG,0	;Indicate no physical read is necessary
+	JMPS	FILLFD4
+;
+FILLFD3:MOV  DI,offset FDTSEC+1	;Update floppy disk parameter list
+	MOV  SI,offset SEKTRK	; from desired (SEK) parameter list
+	MOV	CX,4		;4 bytes to move
+	REP	MOVSB		;Block move to update floppy disk host
+FILLFD4:MOV  AX,offset TRKBUF	;Point to base address of track buffer
+FILLFD5:MOV	BUFADR,AX	;Set DMA offset address of directory buffer
+	ADD	RCDADR,AX	;Add track to record offsets for record addr
+;
+FILL6:	MOV  SI,offset SEKSEC	;Transfer desired (SEK) parameter list
+	MOV  DI,offset ACTSEC	; to ACTive, HoST parameter lists
+	MOV	CX,7 * 2	;7 bytes to move, twice for both lists
+	CLD			;Clear direction
+	REP	MOVSB		;Block move
+	CMP  Byte ptr HSTACT,0	;Test if current Host active flag is zero
+	JZ	FILL7		;If host buffer was inactive, do a forced read
+	CMP  Byte ptr RFLAG,0	;See if forced read indicator flag set
+	JNZ	FILL8		;If active, physical data transfer needed
+FILLOK:	XOR	AL,AL		;Show no error
+	RET
+;
+; Perform a track or sector read to fill the buffer.
+FILL7:	MOV  Byte ptr HSTACT,1	;Host active control always becomes 1 (active)
+FILL8:	MOV  Byte ptr CIOPB,FD_RDAT ;Floppy Disk Read command
+;	JMPS	FINAL		;Finish with disk read operation
+;
+	eject
+;********************************************************
+;*	BASIC DISK BUFFER INPUT/OUTPUT DEVICE DRIVERS	*
+;********************************************************
+;
+;	FINAL  --  Perform final transfer processing, actual data
+;	moved from/to memory to/from storage device.
+;
+;Entry:	CIOPB = Command, either floppy READ or WRITE.
+;
+;Exit:	AL = 0, Z-flag set if no errors occured during transfer with
+;	   a possibility of "MRTRY" retries at the transfer.
+;	AL = non-zero, Z-flag reset if errors occurred on all "MRTRY"
+;	   efforts at a transfer.
+;
+FINAL:	MOV	AL,ACTTYP	;Get drive type
+  if (DISK2 or DISK3)
+	CMP	AL,D2_TYPE	;See if Hard disk type
+	JC	FINAL3		;Continue if not
+    if (DISK2 and DISK3)
+	JZ	D2XFNL		;Finish using DISK2 routine if type matches
+    endif
+HDXFNL:
+    if DISK3
+	JMP	D3_FNL		;Finish with DISK3 routine
+    endif
+    if DISK2
+D2XFNL:	JMP	D2_FNL		;Finish with DISK2 routine
+    endif
+FINAL3:
+  endif
+;---------------------------------
+; DISK 1 Floppy Disk driver.
+	noiflist		;Don't display any inactive code
+  if DISK1
+    INCLUDE	TMXDISK1.DVR	;DISK 1 device specific driver code
+	eject
+    INCLUDE	TMXXLATE.TBL	;Sector translation, format tables
+	eject
+    INCLUDE	TMXDISK1.TBL	;DPB and DPH tables for floppies
+  endif
+;---------------------------------
+; DISK 1A Floppy Disk driver.
+  if DISK1A
+    INCLUDE	TMXDSK1A.DVR	;DISK 1A device specific driver code
+	eject
+    INCLUDE	TMXXLATE.TBL	;Sector translation, format tables
+	eject
+    INCLUDE	TMXDSK1A.TBL	;DPB and DPH tables for floppies
+  endif
+;---------------------------------
+; DISK 2 Hard Disk driver.
+	noiflist		;Don't display any inactive code
+  if DISK2
+	eject
+    INCLUDE	TMXDISK2.DVR	;DISK 2 device specific driver code
+	eject
+    INCLUDE	TMXDISK2.TBL	;DPB and DPH tables for Disk 2 drives
+  endif
+;---------------------------------
+; DISK 3 Hard Disk driver.
+	noiflist		;Don't display any inactive code
+  if DISK3
+	eject
+    INCLUDE	TMXDISK3.DVR	;DISK 3 device specific driver code
+	eject
+    INCLUDE	TMXDISK3.TBL	;DPB and DPH tables for Disk 3 drives
+  endif
+;
+	eject
+;---------------------------------
+DS00Z	EQU	offset $
+    DSEG 0
+	ORG	DS00Z
+  if HMDRIVE
+;
+; Memory Drive (M-Drive/H) Disk Parameter Header.
+DRV_M	DB	0		;False DPH start, drive select
+	DW	0		;Sector translation table address
+	DW	0, 0, 0		;CP/M workspace
+	DW	DIRBUF, DPBHMD	; DPB pointer
+	DW	CSVM,   ALVM	;Checksum, Allocation vectors
+;
+; Memory Drive (M-Drive/H) Disk Parameter Block.
+DSM_M	EQU	HM_NUM * 0FFh	;Drive size (bit/block)
+ALVZ_M	EQU	(DSM_M + 7) / 8	;Allocation vector size
+CSVZ_M	EQU	0		;Checksum vector size
+	DB	HMDTYPE		;Drive type
+DPBHMD	DW  8 * HM_NUM * 1	;Sectors per track
+	DB	04h, 0Fh, 0	;BSF, SIB-1, EXTMSK deblocking masks
+	DW	DSM_M-1, 256-1	;Allocation size, directory count
+	DB	0F0h,000h	;Directory allocation vectors
+	DW	0,	4	;Checked entries, reserved tracks
+  endif
+  if not HMDRIVE
+;
+; Memory Drive (M-Drive/H) Disk Parameter Block, Header set to non-existant.
+DRV_M	EQU	0
+CSVZ_M	EQU	0
+ALVZ_M	EQU	0
+  endif
+;************************************************
+;*	INITIALIZED VARIABLES / CONSTANTS	*
+;************************************************
+;	----------
+; MRT:	| Count  | (byte)		<< MEMORY REGION TABLE STRUCTURE >>
+;	-------------------+-------------------
+;   0:	| Base Region Para | Length Paragraph |
+;	-------------------+-------------------
+;   1:	| Base Region Para | Length Paragraph |
+;	-------------------+-------------------
+;	. . .	(word)		(word)
+;	-------------------+-------------------
+;   n:	| Base Region Para | Length Paragraph |
+;	-------------------+-------------------
+;
+MEMTBL	DB	1		;Number of memory regions allocated
+	DW	0000h,	0000h	;Paragraph 0 start, length initialized
+;-------------------------------
+; Wild interrupt message.
+TRAPMSG	DB	CR,LF,'Wild Interrupt!! -- HALT',NULL
+	eject
+;----------------------------------------
+; Create disk drive "existance" table to the actual drives presesnt.
+;	(This makes a list of the relative DBH's for individual logical drives
+;	which occupy absolute letter identifications)
+;
+DSKTBL	DW	DRV_A	;Drive A: --	Disk Parameter Header address
+	DW	DRV_B	;Drive B:	(set to zero if not valid drive)
+	DW	DRV_C	;Drive C:
+	DW	DRV_D	;Drive D:
+	DW	DRV_E	;Drive E:
+	DW	DRV_F	;Drive F:
+	DW	DRV_G	;Drive G:
+	DW	DRV_H	;Drive H:
+	DW	DRV_I	;Drive I:
+	DW	DRV_J	;Drive J:
+	DW	DRV_K	;Drive K:
+	DW	DRV_L	;Drive L:
+	DW	DRV_M	;Drive M:
+  if D3Q540X
+	DW	DRV_N	;Drive N:
+	DW	DRV_O	;Drive O:
+  endif
+  if not D3Q540X
+	DW	0	;Drive N:
+	DW	0	;Drive O:
+  endif
+	DW	0	;Drive P: 
+;
+;-------------------------------
+;
+;	BIOS blocking / deblocking flags.
+;
+HSTACT	DB	0	;Host active flag
+HSTWRT	DB	0	;Host written (must follow host active flag)
+RFLAG	DB	1	;Indicates a physical read is necessary
+;
+; User Data Buffer Address.
+DMAADR	DW	0	;Lower 16 bits (least, middle)
+DMASEG	DW	0	;Extended address segment
+;
+; Physical Data Buffer Address (Host).
+BUFADR	DW	0	;Lower 16 bits (least, middle)
+BUFSEG	DW	0	;Extended address segment
+;
+; Record within Host Buffer Address.
+RCDADR	DW	0	;Lower 16 bits (least, middle)
+RCDSEG	DW	0	;Extended address segment
+;
+    if HDXBUF
+HDDBACT	DB	0		;Directory buffering for hard disk active flag
+HDDBUFS	DW  offset HDDSBUF/16	;Segment base of hard disk directory buffer
+HDDSECS	RS	32 * 2		;Directory buffer sector, track pairs
+    endif
+;
+	eject
+;-------------------------------
+; Disk access information.
+; This area is organized into the following groups:
+;	  1) Sector number,
+;	2,3) Track number,
+;	  4) Disk drive selection number,
+;	  5) Drive type identification number,
+;	6,7) Floppy disk Gap Length, End of Track sector number.
+; Each of these groups has three cells for the current disk request,
+; ACTual disk transfer, and active HoST disk.  The order of these variables
+; must not be changed due to optimization in the code.
+;
+SAVSEC	DW	0	;Special storage for record in use (see FILL routine)
+;
+SEKSEC	DB	0	;Current sector request
+SEKTRK	DW	0	;Current track request
+SEKDSK	DB	0	;Current disk number request
+SEKTYP	DB	0	;Current disk's type
+SEKGPL	DB	0	;Current gap length
+SEKEOT	DB	0	;Current final sector number of an entire track
+;
+ACTSEC	DB	0	;Actual transfer operation
+ACTTRK	DW	0	;Actual transfer operation
+ACTDSK	DB	0	;Actual transfer operation
+ACTTYP	DB	0	;Actual disk's type
+ACTGPL	DB	0	;Actual gap length
+ACTEOT	DB	0	;Actual final sector number of an entire track
+;
+HSTSEC	DB	0	;Host buffer disk sector number
+HSTTRK	DW	0	;Host buffer disk track number
+HSTDSK	DB	0	;Host buffer disk selection
+HSTTYP	DB	0	;Host buffer disk type
+HSTGPL	DB	0	;Host buffer disk gap length
+HSTEOT	DB	0	;Host buffer final sector number of an entire track
+;
+FDTSEC	DB     0, 0, 0	;Floppy disk as host last used these parameters
+	DB  0, 0, 0, 0
+;
+	eject
+REUSE	EQU	offset $
+    CSEG 0
+	ORG	REUSE		;Reusable code area
+;************************************************
+;*	COLD BOOT INITIALIZATION ROUTINES	*
+;************************************************
+;
+CBOOT:	XOR	BX,BX		;Clear "BX"
+	MOV	DS,BX		; to get data in segment zero
+	MOV  SI,offset BOOTSW	;Use source index to point to boot switch value
+	MOV	BL,[SI]		;Get boot switch value from there
+	MOV  DX,CS ! MOV  DS,DX	;Recover active data segment from code segment
+	SHL	BX,1		;Two bytes per boot switch value
+	MOV  AX,offset BIOTBL[BX] ;Get 2 bytes for I/O control from table
+	MOV  Word ptr IOBYTE,AX	;Save in appropriate control storage
+;
+	XOR	SI,SI		;Source index points to first vector address
+	MOV  ES,SI ! MOV DS,SI	; get data in segment zero (interrupt area)
+	MOV  0[SI],offset ITRAP	;Save interrupt trap at first word
+	MOV  2[SI],CS		;Save current code segment at second word
+	MOV	DI,4		;Load destination index with next vector addr
+	MOV	CX,(2 * 255)	;Replicate for all 256 vectors (2 words)
+	CLD			;Clear direction flag
+	REP	MOVSW		;Load all the vectors with the trap address
+	MOV	SI,(4 * BDOSINT)
+	MOV  [SI],offset BDOSVEC ;Load the BDOS interrupt with it's vector
+;
+	MOV	AX,CS		;Recover active code segment
+	ADD  AX,offset ENDBIOS	;Add BIOS end to code segment base
+	MOV  CS:Word ptr MEMTBL+1,AX ;And store in memory region table
+	XOR	BX,BX		;Clear offset pointer
+	MOV	CX,BX		; and data byte to store for test
+MSIZE1:	MOV	DS,AX		;Update new segment value
+	XCHG	CL,[BX]		;Get byte and put 0 in it's place
+	XCHG	[BX],CL		;Restore byte and get 0 back
+	INC	AX		;Bump test segment value, see if at top
+	JZ	MSIZE2		;Done if all memory (1 meg) exists
+	JCXZ	MSIZE1		;Loop for next segment if tested memory existed
+MSIZE2:	MOV  DX,CS ! MOV  DS,DX	;Recover active data segment from code segment
+	SUB  AX,Word ptr MEMTBL+1 ;Get segment length for available memory
+	DEC	AX		;Less one for overshoot on increment
+	MOV  Word ptr MEMTBL+3,AX ;Save as usable memory length in region table
+	MOV	SS,DX		;Initialize stack segment
+	MOV  SP,offset ISTACK	;Temp stack for cold boot
+	MOV	DMASEG,DX	;Set up initial DMA segment
+;
+    if HMDRIVE
+;
+; "Size" the M-Drive/H by counting active boards in use.
+	MOV  DMAADR,offset DIRBUF ;Set directory buffer area as DMA base
+	MOV	SEKTRK,0004h	;Track number = 4 (directory), all operations
+	MOV	SEKSEC,-8	;Sector number = (-8) ==> 0 to start
+	MOV	BX,-((512-4)/2)	;Init the disk size (blocks=4K phys/2K logical)
+HMDTEST:INC	Byte ptr HM_MSG	;Bump ASCII board count in Sign-on message
+	ADD	BX,(512-4)/2	;Add in more 4K blocks for each new board
+	ADD	SEKSEC,8	;Bump sector count by 8 (1 board)
+	CMP	SEKSEC,64	;See if maximum count reached
+	JZ	HMDZEND		;Done if so
+HMDTST0:PUSH	BX		;Save the current disk size in blocks
+	CALL	READHMD		;Read a sector into the directory buffer
+	CALL	WRITHMD		;Write it back out again
+	CALL	READHMD		;Read back, should now report no errors
+	POP	BX		;Recover current disk size
+	JZ	HMDTEST		;Test for next board if no errors
+	MOV	AL,SEKSEC	;Get last sector tried (unsuccessfully)
+	MOV  Byte ptr DPBHMD,AL	;Save sector count in Disk Parameter Block
+	CMP	AL,0		;See if no boards present
+	JZ	HMDZERO		;Disable M-Drive/H selection if so
+	CMP	AL,32		;See if 2 Mbytes or more
+	JGE	HMD4K		;Use 4K blocks if so, rest of DPB is set
+	CMP	AL,8		;See if just one board present
+	JNE	HMD1		;Don't set extent mask if not
+	MOV  Byte ptr DPBHMD+4,1  ;Set extent mask to 1, (less than 256 blocks)
+HMD1:	MOV  Byte ptr DPBHMD+7,128-1	;Set directory count to 128
+	MOV  Byte ptr DPBHMD+9,0C0h	;Set directory allocation to match
+HMD4K:	DEC	BX		;Adjust disk allocation to match CP/M
+	MOV  Word ptr DPBHMD+5,BX ;Save corrected disk size allocation
+	JMPS	HMDZEND
+;
+HMDZERO:MOV  Word ptr DSKTBL+2*('M'-'A'),0 ;Disable M-drive selection
+HMDZEND:			;Was done if all 8 boards present
+    endif
+;
+  if not INTRACT
+    INCLUDE	TMXDEVIO.INI	;Initialize the interrupt controllers
+  endif
+  if INTRACT
+    INCLUDE	TMXINTIO.INI	;Initialize the interrupt vectors, controllers
+  endif
+;
+; Print the corrected sign-on message to the default console.
+	MOV  BX,offset SIGNON	;Show outside world that we're alive
+	CALL	PRINT		;Output Banner
+	PUSH	BX		;Save pointer to next message
+	MOV  AX,Word ptr MEMTBL+3 ;Get length of available space
+	ADD  AX,Word ptr MEMTBL+1 ;Add to end of BIOS 
+	ROR	AX,1		;Shift right recovering overflow bit (carry)
+	MOV	CL,5		;1 + 5 = 6 bit shift (1024/16) to get "K"
+	SHR	AX,CL		;(1K = (2 ** 6) *16)
+	CALL	CNVDEC		;Convert number to decimal and xmit it
+	POP	BX		;Next string of signon message
+	CALL	PRINT		;Displayed at default console
+	PUSH	BX		;Save pointer to next message
+	MOV  AX,Word ptr MEMTBL+1 ;Get base segment of TPA
+	MOV	BX,16		;Base 16 (hexdecimal) conversion
+	CALL	CNV1		;Convert number to hexadecimal and xmit
+	POP	BX		;Next string of signon message
+	CALL	PRINT		;Displayed at default console
+;
+  if DISK1			;Initialize Disk 1 (8 and 5 1/4 inch floppy).
+    INCLUDE	TMXDISK1.INI
+  endif
+  if DISK1A			;Initialize Disk 1A (8 and 5 1/4 inch floppy).
+    INCLUDE	TMXDSK1A.INI
+  endif
+;
+  if DISK2			;Initialize Disk 2 sector relocation tables.
+    INCLUDE	TMXDISK2.INI
+  endif
+;
+  if (DISK3 and not D3BOOT)	;Initialize the Disk 3 controller if needed.
+    INCLUDE	TMXDISK3.INI
+  endif
+;
+    if HDXBUF
+;
+; Set up the hard disk directory "sector, track" pair table.
+	MOV	AX,CS		;Get current code segment
+	ADD	HDDBUFS,AX	;Set hard disk directory buffer segment value
+	MOV	BX,DSKTBL	;Get A: DPH pointer from drive select table
+	MOV	BX,11[BX]	;Get pointer to DPB from DPH
+	MOV	DH,13[BX]	;Get reserved tracks from it
+	MOV	DL,0		;Start sector number at zero
+	MOV	AX, 0[BX]	;Get number of records/track
+	MOV	CL,3		;Divide by 8 to get physical sectors/track
+	SHR	AX,CL		;2 ** 3 = 8 (128 byte records) = 1K sector size
+	MOV  BX,offset HDDSECS+30 ;Start pointer at directory sector list end
+	MOV	CX,32/2		;32 sectors to determine, store
+LHDINIT:MOV	32[BX],DX	;Save sector, track pair at end
+	CALL	LHDNXT1		;Get next pair to use
+	MOV	 0[BX],DX	;Save this pair at middle (stagger sectors)
+	CALL	LHDNXT1		;Get next pair to use
+	SUB	BX,2		;Back down sector list towards start
+	LOOP	LHDINIT		;Loop until all 32 sectors saved
+    endif
+;--------------------------------
+; Final setup prior to entry into CCP of CP/M.
+;
+	MOV	AX,CS		;Recover active code segment
+	MOV  ES,AX ! MOV  DS,AX	;Use 8080 model for extra, data segments
+	MOV  AX,offset WBOOT	;Use the warm boot routine to plug cold boot
+	MOV  CS:Word ptr COLD_BOOT+1,AX	; vector against accidental re-entry
+	MOV	CL,0		;Always set the default disk to drive A:
+				; on boot entry to CP/M (or SUBMIT won't work)
+	JMP	CCP 		;Go to CP/M, Execute anything in CCP buffer
+;
+;================================
+;
+    if HDXBUF
+LHDNXT1:INC	DL		;Bump sector number
+	CMP	DL,AL		;See if at maximum
+	JNZ	LHDNXT2		;Continue as is if not
+	MOV	DL,0		;Start at sector zero
+	INC	DH		; on the next track
+LHDNXT2:RET
+    endif
+;
+;----- cold boot subroutines -----
+;
+; Routine to convert and display a number in base 10 or 16.
+CNVDEC:	MOV	BX,10		;Base 10 (decimal) conversion
+CNV1:	MOV	DX,0		;Init for division
+	DIV	BX		;Perform division
+	PUSH	DX		;Save modulo result
+	OR	AX,AX		;See if any digits remaining
+	JZ	OUT1		;Begin printing if not
+	CALL	CNV1		;Do another if so
+OUT1:	POP	CX		;Recover digit
+	ADD	CL,'0'		;Add ASCII bias for numbers
+	CMP	CL,'9'+1	;See if decimal
+	JC	OUTDIG		;Print it if so
+	ADD	CL,7		;Put value in hex letter range
+OUTDIG:	JMP	CO		;Xmit digit
+;
+;================================
+DSXXX	EQU	offset $
+    DSEG 0
+	ORG	DSXXX
+;
+; Sign on message -- must be terminated by a "NULL" byte.
+SIGNON	DB	CR,LF,LF,LF
+COMPUPRO DB	'CompuPro Systems '	;Value for Disk 3 initialization
+    if CPM816
+	DB	'CP/M 8-16  vers '	;Dual Processor (85/88) CP/M
+    endif
+    if not CPM816
+	DB	'CP/M-86  vers '	;CP/M for CPU 86/87 or 85/88(/87)
+    endif
+	DB	VERS/10+'0','.',VERS mod 10 + '0'
+	DB	CBIOSV,CR,LF,LF		;CBIOS version letter
+	DB	'   System Memory:  ',NULL	;Indicate active "core" memory
+	DB	'K',CR,LF
+	DB	'   TPA Base = ',NULL
+	DB	':0000',CR,LF,LF
+  if INTRACT
+	DB	'Interrupt Driven, '
+  endif
+	DB	'  Configured for ...',CR,LF
+  if not HMDRIVE
+	DB	'Disk type; active letter x:';Show active drives
+  endif
+  if HMDRIVE
+HM_MSG	DB	'0'-1
+	DB	' M-Drive/H, active as   M:';Show active M-DRIVE/H boards
+  endif
+	DB	CR,LF,NULL		;End of sign-on message
+;
+ENDCODE	EQU  $	;End of active code
+	eject
+;-------------------------------
+    INCLUDE	TMXALLOC.TBL	;Un-initialized Storage allocation tables
+;
+	END
+

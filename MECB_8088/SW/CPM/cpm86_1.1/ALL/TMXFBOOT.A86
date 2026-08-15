@@ -1,0 +1,203 @@
+; LAST UPDATED:		15 FEB 84
+; REASON FOR UPDATE: Redone to boot up CP/M 86 or MP/M 8-16 w/ a CPU 8086/87
+;                                                                        llo
+;  	Reorganized structure of BOOT and BIOS routines so that
+;		a portion of the cold boot initialization takes place in the
+;		boot loader.  This facilitates modification of Input/Output
+;		initialization by placing the most common tables in a smaller
+;		program and at fixed locations.				aep
+;
+; PROGRAM NAME:		xxxFBOOT.ASM, where "xxx" identifies the relationship
+;		of the revision level to it's corresponding BIOS source.
+;
+; PURPOSE:	Floppy Disk (either 8 inch or 5 1/4 inch drives) boot loader
+;		for CP/M or MP/M.
+;
+;	==========================	Copyright 1982, CompuPro Corporation,
+;	||			||	A Godbout Company
+;	||  FLOPPY BOOT LOADER	||	Hayward, CA 94545 
+;	||			||
+;	==========================
+;
+;	This product is a copyright program product of CompuPro and is
+;	supplied for use with the CompuPro Disk controllers.
+;
+; EQUATED CONSTANTS
+   INCLUDE COMPUPRO.EQU
+   INCLUDE ACTIVE.EQU
+; 		
+LDRBIOS	EQU	1200H
+;
+    if BOOT5X		;If 5 1/4 inch drive used during cold boot 
+FDPORT	EQU	FD5PORT	;Normal controller port is 5 1/4 inch
+FDXPORT	EQU	FD8PORT	;Auxiliary controller port is 8 inch
+    endif
+    if BOOT8X
+FDPORT	EQU	FD8PORT	;Defaults to using 8 inch controller to boot
+FDXPORT	EQU	FD5PORT	;Auxiliary controller port is 5 1/4 inch
+    endif
+;
+; PROGRAM:
+	CSEG	0
+	ORG	100h		;Base address of bootstrap load
+;
+;********************************************************
+;*	CHARACTER INPUT / OUTPUT INITIALIZATION		*
+;********************************************************
+;
+;Entry:	CL = Board switches from ROM (0 .. 3)
+;
+START:	NOP ! NOP ! NOP ! NOP 	;A few NOPs to let prefetcher catch up
+ 	NOP ! NOP ! NOP ! NOP
+	MOV	AX,CS		;Set all segment registers same as current
+	MOV	DS,AX		; code segment (8080 model)
+	MOV	ES,AX
+	MOV	SS,AX
+	MOV	SP,100H		;Initialize top of stack
+	MOV Byte Ptr .BOOTSW,CL	;Save board options (boot switch selected) 
+;                               ;In CBIOS reserved area at low memory      
+;************************************************
+;*	BOOTSTRAP LOAD FROM FLOPPY DISK		*
+;************************************************
+;
+; Load Specify Command for boot controller (usually 8 inch) floppy drives.
+SPECIFY:MOV	BX,Offset SPEC	;Start of specification table
+	MOV	CX,3		;3 Byte length in "CX"
+	CALL	PUTDATA		;Put specification in boot controller
+;
+;
+; The drive is already known to be positioned on track 0 (done to load this
+; routine), and therefore a seek is not necessary.  The routine will loop on
+; error back to this point.
+;
+RETRY:	MOV	BX,Offset DATA	;DMA data pointer
+	CALL	READDISK	;Read in LOADER group header (sector 26)
+	JNZ	RETRY		;Loop on error to re-issue command
+	MOV  AX,Word Ptr RGHBUF+3	;Get loader segment
+	MOV	XFER+2,AX	;Save new segment in transfer point
+	MOV	CL,4
+	ROL	AX,CL		;Put upper nibble into lower nibble
+	MOV	DX,AX		;Save a copy in "DX"
+	AND	AL,0FH		;Isolate uppermost nibble
+	AND	DX,0FFF0H	;Remove upper nibble
+	ADD	DX,LDRBIOS	;Add BIOS offset in 
+	ADC	AL,0		;Add any carry in
+	MOV  Byte Ptr LDRDMA,AL	;Save extended address byte
+	XCHG	DH,DL		;Swap high and low bytes for store 
+	MOV  Word Ptr LDRDMA+1,DX ;Save dma offset
+	CALL	READDISK	;Read the loader bios directly into its load address
+	JNZ	RETRY
+	JMPF  Dword Ptr XFER	;Jump into loader bios		
+;
+;****************************************************************
+;*	LOAD DMA REGISTERS AND EXECUTE FLOPPY READ COMMAND	*
+;****************************************************************
+;
+READDISK:  ; Output beginning DMA address.
+	MOV	CX,3		;3 Bytes of DMA data
+ADDR:	MOV	AL,[BX]		;Get byte of extended address
+	OUT	FDPORT+FDMA,AL	;Send to DMA port of DISK 1
+	INC	BX		;Next byte to xfer
+	LOOP	ADDR		;Loop until all 3 bytes loaded
+;
+; Read the remainder of track 0 in as the CBIOS to execute the cold boot.
+	MOV	CX,9		;Load "CX" with command length (9 Bytes)
+	CALL	PUTDATA		;Wait until controller ready to accept data
+READ1:	IN	AL,FDPORT+INTS	;See if interrupt active (command complete)
+	OR	AL,AL
+	JNS	READ1		;Loop until so
+	CALL	GETDATA		;Get a result status byte from controller
+	XOR	AL,40h		;Test for "abnormal ending" status bit only
+	MOV	DL,AL		;Put result in "DL"
+	CALL	GETDATA		;Get second result status byte from controller
+	XOR	AL,FD_EOC	;Flip status of "End Of Cylinder" bit
+	MOV	DH,AL		;Put result in "DH"
+	MOV	CX,7-2		;Count of remaining status bytes (ignored)
+READ2:	CALL	GETDATA		;Get next result status byte from controller
+	LOOP	READ2		;Bump remaining count
+	MOV AL,DL !  OR AL,DH	;Combine the two significant status bytes
+	RET			;Return with zero if successful read operation
+;
+;
+; Routine to load controller with command and data bytes.
+PUTDATA:IN	AL,FDPORT+FDCS	;Get controller status
+	OR	AL,AL
+	JNS	PUTDATA		;Wait until controller ready for another byte
+	MOV	AL,[BX]		;load command byte
+	OUT 	FDPORT+FDCD,AL	; to controller
+	INC	BX		;Point to next byte to load
+	LOOP	PUTDATA		;Bump command load count
+	RET			;Return if all data loaded in controller
+;
+; Routine to get a command result status byte from controller.
+GETDATA:IN	AL,FDPORT+FDCS	;See if ready to read status
+	OR	AL,AL
+	JNS	GETDATA		;Wait if not
+	IN	AL,FDPORT+FDCD	;Get resulting status of read operation
+	RET
+;
+;------------------------------------------------
+DSSEG	EQU	Offset $
+	DSEG	
+	ORG	DSSEG
+;************************************************
+;*	FIXED STORAGE FOR 8086 JUMP             *
+;************************************************
+;
+XFER	DW	LDRBIOS
+	DW	0
+;
+;************************************************
+;*	FIXED STORAGE FOR DISK SPECIFICATIONS	*
+;************************************************
+;
+;
+SPEC	RS 	0 ;	FLOPPY Specification sequences (loaded only once).
+    if BOOT5X
+	DB  03		;5 1/4 inch drive specifications
+	DB  (SRT5 SHL 4) + HUT5
+	DB  HDLT5 SHL 1
+    endif
+    if BOOT8X	
+	DB	03		;8 inch drive specifications
+	DB	(SRT8 SHL 4) + HUT8
+	DB	HDLT8 SHL 1
+    endif
+;
+;************************************************
+;*	FIXED STORAGE FOR DISK READ OPERATIONS	*
+;************************************************
+;
+; Function data for controller to boot.
+DATA	DB	0		;Extended Address
+ENTRY	DB	Offset RGHBUF shr 8	;Base address of CBIOS
+	DB	Offset RGHBUF and 0FFH
+READ	DB	06		;Read sector(s) command for 8272 controller
+	DB	0		;Head select, Drive select = 0
+	DB	0		;Cylinder #0
+	DB	0		;Head #0
+	DB	25		;Starting Record (sector
+	DB	0		;"N" parameter (128 byte sectors)
+	DB	25		;Read just one sector
+	DB	7		;GPL (Gap length)
+	DB	128		;DTL (Data length)
+;
+LDRDMA	DB	0,52H,0		;3 bytes of the DMA to setup for 8088
+	DB	6		;Read sector(s) command for 8272 controller
+	DB	0		;Head select, Drive select = 0
+	DB	0		;Cylinder #0
+	DB	0		;Head #0
+	DB	5		;Starting Record (sector)
+	DB	0		;"N" parameter (128 byte sectors)
+	DB	24		;Read entire LDRBIOS
+	DB	7		;GPL (Gap length)
+	DB	128		;DTL (Data length)
+;
+;
+;
+RGHBUF	RS	128		;Buffer to read the group header into
+FILL	EQU	280h - Offset $ + 100H
+	RS	FILL
+	DB	0
+	END
+

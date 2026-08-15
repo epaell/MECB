@@ -1,0 +1,333 @@
+; LAST UPDATED:	10 JAN 84	-- No version numbers given to libraries.
+; REASON FOR UPDATE:	Add 80130, Disk 1A special port values.		aep
+;
+; PROGRAM NAME:	COMPUPRO.EQU	-- Data constants common to all programs
+;		developed CompuPro Systems Components.
+;
+;	==========================	Copyright 1982, CompuPro
+;	||			||	A division of Godbout Electronics.
+;	|| 	COMPUPRO.EQU	||
+;	||			||
+;	==========================
+;
+;	This product is a copyright program product of CompuPro and is
+;	supplied for use with the CompuPro Computer Systems.
+;
+; COMMONLY USED CONSTANTS:
+FALSE	EQU	0
+TRUE	EQU	NOT FALSE
+;
+;************************************************
+;*	RAM STORAGE LOCATION ASSIGNMENTS:	*
+;************************************************
+;
+; Page Zero Definitions:
+BOOTSW	EQU	40h	;Boot switch value location
+;
+;************************************************
+;
+; DUAL CPU 8085/8088 SWAPOUT CONTROL PORT:
+SWAPP	EQU	0FDh	;Dual Processor SWAP Port
+;
+;************************************************
+;*	DISK INPUT/OUTPUT PORT ASSIGNMENTS:	*
+;************************************************
+;
+MRTRY	EQU	10	;Maximum retry count
+;
+;	Drive "types" used to identify the active driver to use
+;	for disk Read/Write operations.
+;
+FD8TYPE	EQU	00h	;DISK 1 -- 8 inch disk type base value
+FD5TYPE	EQU	20h	;DISK 1 -- 5 1/4 inch disk type base value
+D2_TYPE	EQU	40h	;DISK 2 controller disk type base value
+D3_TYPE	EQU	50h	;DISK 3 controller disk type base value
+D4_TYPE	EQU	60h	;DISK 4 controller disk type base value
+MEMTYPE	EQU	80h	;M-DRIVE / 8088 used as "DMA controller"
+HMDTYPE	EQU	81h	;Separate drive type for M-DRIVE/H
+;
+;	Memory Drive (M-Drive/H) ports:
+;
+HM_BASE	EQU	0C6h	;Base port of all M-Drive/H boards
+HM_DATA	EQU  HM_BASE	;Data port address
+HM_CNTL	EQU  HM_BASE+1	;Data select control port
+;
+;	Floppy Disk (DISK 1) controller and drive constants:
+;
+FD8PORT	EQU	0C0h	;Base port address for Controller
+FD5PORT	EQU	0CCh	;Base port address for 5 inch drives
+FDCS	EQU	0	;FDC Status register offset (read only)
+FDDRS	EQU	0	;Drive Select control port (write only - Disk 1A)
+FDCD	EQU	1	;FDC Data register offset (r/w)
+FDMA	EQU	2	;DMA address offset (write only)
+INTS	EQU	2	;Status Register offset (read only)
+FDON	EQU	3	;Motor "on" control port offset (write only)
+;
+; Floppy Disk (DISK1) Controller Function Definitions:
+FD_SPEC	EQU	03	;Specify
+FD_DSTS	EQU	04	;Drive status
+FD_WRT	EQU	05	;Write data
+FD_RDAT	EQU	06	;Read data
+FD_RECA	EQU	07	;Recalibrate
+FD_RSTS	EQU	08	;Read status
+FD_DRID	EQU	10	;Read ID
+FD_FMT	EQU	13	;Format a track
+FD_SEEK	EQU	15	;Seek cylinder
+FD_MFM	EQU  01000000b	;MFM recording set bit
+;
+; Floppy Disk (DISK1) Controller Main Status Register bit definitions:
+FD@RQM	EQU  10000000b	;Request for Master data transfer (command/status)
+FD@DIO	EQU  01000000b	;Data Input (0) / Output (1) data transfer mode
+FD@NDM	EQU  00100000b	;Controller in non-DMA mode
+FDCBUSY	EQU  00010000b	;Controller Busy (read/write command active)
+FDD3SK	EQU  00001000b	;Drive #3 is in seek mode
+FDD2SK	EQU  00000100b	;Drive #2 is in seek mode
+FDD1SK	EQU  00000010b	;Drive #1 is in seek mode
+FDD0SK	EQU  00000001b	;Drive #0 is in seek mode
+;
+; DISK1 Result Status Register 0 bits:
+FDC_IC	EQU  11000000b	;Interrupt Completion Code bits
+FDC_SKE	EQU  00100000b	;Seek End
+FDC_CHK	EQU  00010000b	;Equipment Check failure
+FD_NRDY	EQU  00001000b	;Drive not ready
+; These are specified in other status bytes, and second byte of some commands.
+FD_HDS	EQU  00000100b	;Head Select (0/1) of cylinder
+FD_DRVS	EQU  00000011b	;Drive Select (0-3)
+;
+; DISK1 Result Status Register 1 bits:
+FD_EOC	EQU  10000000b	;End of Cylinder
+FD_HDRR	EQU  00100000b	;Header Data Error (CRC error)
+FD_OVR	EQU  00010000b	;Data xfer overrun error
+FD_NDAT	EQU  00000100b	;No data error, sector not found
+FD_NWRT	EQU  00000010b	;Data was not written, protected diskette
+FD_MDAM EQU  00000001b	;Missing Data Address Marker error
+;
+; DISK1 Result Status Register 2 bits:
+FD_CMRK	EQU  01000000b	;Control Marker (DDAM found during scan)
+FD_DATR	EQU  00100000b	;Data error in sector (CRC error)
+FD_XCYL	EQU  00010000b	;Wrong cylinder encountered
+;
+; DISK1 Result Status Register 3 bits:
+FD_DFLT	EQU  10000000b	;Drive Fault status indicated
+FD_WRTP	EQU  01000000b	;Drive Write Protected
+FD_RDY	EQU  00100000b	;Drive Ready status
+FD_CYL0	EQU  00010000b	;Drive Cylinder 0 indicated
+FD2SIDE	EQU  00001000b	;Diskette is 2 sided
+;FD_HDS, FD_DRVS = 111b
+;
+; DISK1A (only) Drive Select Control Port bits:
+FD5SL	EQU  00100000b	;Select 5-1/4 inch data rate (4 MHz clock)
+FDXUS	EQU  00010000b	;Select "manual" control of unit select, head load bits
+FDF2S	EQU  00001000b	;Force "two-sided" control bit (for 5 inch floppies)
+FDHDL	EQU  00000100b	;Force head load control bit
+;FDUS1	EQU  00000010b	;Unit select 1
+;FDUS0	EQU  00000001b	;Unit select 0
+;------------------------
+;
+;	CompuPro DISK 2 Equates:
+;
+D2_PORT	EQU	0C8h	;Base port address
+D2_CNTL	EQU  D2_PORT	;Control port
+D2_STAT	EQU  D2_PORT	;Status port is same as control
+D2_DATA	EQU  D2_PORT+1	;Data port (I/O)
+;
+; Disk 2 Commands:
+D2_READ	EQU  11001000b	;Read data command
+D2_WRT	EQU  11010000b	;Write data command
+D2_TIME	EQU  00000110b	;Time out
+D2_STRB	EQU  10000000b	;Drive strobe
+D2_HEAD	EQU  10010000b	;Head register
+D2_CYL	EQU  10001000b	;Cylinder register
+D2_SEC	EQU  10011000b	;Sector register
+D2_SIN	EQU  10100000b	;Step in
+D2_SOU	EQU  10000000b	;Step out
+D2_RST	EQU  00000100b	;Reset drive command bit
+D2_ATTN	EQU  10000000b	;Acknowledge end of state machine sequence (interrupt)
+;
+; Disk 2 Status Bits:
+;  ATTN	EQU  10000000b	;State machine activity bit
+D2_TOUT	EQU  01000000b	;Timeout error bit
+D2_CRC	EQU  00100000b ;CRC error on data sector bit
+D2_OVR	EQU  00010000b	;Overrun on data transfer error bit
+D2_NRDY	EQU  00001000b	;Drive not ready status bit
+D2_SEKD	EQU  00000100b	;Seek done status bit
+D2_WRTF EQU  00000010b	;Write fault (negative true status)
+D2_CYL0	EQU  00000001b	;Cylinder 0 status bit (negative true status)
+;
+; Selector Channel:
+SELCHAN	EQU	0F0h	;Selector channel port
+SELPRI	EQU	10	;Disk priority (as a DMA device, switches set)
+SELBYT	EQU  2Fh-SELPRI	;Selector channel command byte
+;
+;------------------------
+;
+;	CompuPro DISK 3 Equates:
+;
+D3_PORT	EQU	90h	;Single port to initiate commands
+D3RESET	EQU	01h	;Reset controller master command
+D3_ATTN	EQU	00h	;Normal attention master command
+;
+; Disk 3 Command Input/Output Parameter Block offsets.
+D3_CMD	EQU	0	;Command byte
+D3_STAT	EQU	1	;Status byte
+D3_DRVS	EQU	2	;Drive select byte
+D3_ARG	EQU	3	;Argument parameter area
+D3_DMA	EQU	10	;3 byte DMA
+D3_LINK	EQU	13	;3 byte linkage to next command parameter block
+;
+; Disk 3 Commands:
+D3_NOOP	EQU	0	;No-operation (only link address processed)
+D3_VERS	EQU	1	;Return version number
+D3_GLBL	EQU	2	;Set global parameters
+D3_SPEC	EQU	3	;Specify drive format
+D3_MAP	EQU	4	;Set "bad sector map" into controller
+D3_HOME	EQU	5	;Home selected drive (cylinder 0)
+D3_SEEK	EQU	6	;Seek to selected cylinder
+D3RDHDR	EQU	7	;Read header at current cylinder
+D3_XFER	EQU	8	;Read/Write sector
+D3RELOC	EQU	9	;Relocate bad sector (using "bad sector map")
+D3_FMT	EQU	10	;Format selected track
+D3_FMTB	EQU	11	;Format track as "bad" (un-readable)
+D3PSTAT	EQU	12	;Read Disk 3 physical status port
+D3PSEL	EQU	13	;Set Disk 3 physical drive select port
+D3_XAMN	EQU	14	;Transfer Disk 3 local memory to processor memory
+D3_MOD	EQU	15	;Modify Disk 3 local memory from processor memory
+;
+;****************************************************************
+;*	INPUT/OUTPUT PHYSICAL DEVICE PORT, MASK ASSIGNMENTS	*
+;****************************************************************
+;
+;	CompuPro Interfacer 1,2 board equates.
+;
+IF1P0	EQU	00h	;Serial port zero
+IF1P1	EQU	02h	;Serial port one
+IF1P2	EQU	04h	;Serial port two
+IF2PP	EQU	08h	;Parallel ports base address
+IF1UD	EQU	 0	;Data on even I/O unit
+IF1US	EQU	 1	;Status on odd I/O unit
+;
+IF1US0	EQU IF1P0+IF1US	;Interfacer I status UART 0
+IF1US1	EQU IF1P1+IF1US	;Interfacer I status UART 1
+IF1US2	EQU IF1P2+IF1US	;Interfacer II status UART 2
+;
+IF1UD0	EQU IF1P0+IF1UD	;Interfacer I data UART 0
+IF1UD1	EQU IF1P1+IF1UD	;Interfacer I data UART 1
+IF1UD2	EQU IF1P2+IF1UD	;Interfacer II data UART 2
+;
+; Control Port bits:
+IF1NBI	EQU  10000000b	;Number of bits/character (7/8)
+IF1EPS	EQU  01000000b	;Even parity/ odd parity
+IF1NP	EQU  00100000b	;No parity / parity bit generated
+IF1TSB	EQU  00010000b	;Number of stop bits (1/2)
+IF1CA	EQU  00001000b	;RS 232 CA output (Request to Send)
+IF1CD	EQU  00000100b	;RS 232 CD output (Data Terminal Ready)
+IF1TIE	EQU  00000010b	;Transmitter interrupt enable
+IF1RIE	EQU  00000001b	;Receiver interrupt enable
+; Status Port bits:
+IF1CB	EQU  10000000b	;RS 232 CB input
+IF1CC	EQU  01000000b	;RS 232 CC input
+IF1FE	EQU  00100000b	;Framing error
+IF1OR	EQU  00010000b	;Overrun error
+IF1PE	EQU  00001000b	;Parity error
+IF1OPT	EQU  00000100b	;Optional status line
+IF1DAV	EQU  00000010b	;Data available
+IF1TBE	EQU  00000001b	;Transmit buffer empty
+;
+;	CompuPro System Support 1 equates.
+;
+SS1B	EQU	50h	;System Support starting port
+;
+; Priority Interrupt Controller (8259A) Ports:
+SS1MP0	EQU	SS1B+0	;Master PIC port 0
+SS1MP1	EQU	SS1B+1	;Master PIC port 1
+SS1SP0	EQU	SS1B+2	;Slave PIC port 0
+SS1SP1	EQU	SS1B+3	;Slave PIC port 1
+; PIC Commands:
+EOI	EQU  00100000b	;Non-specific End Of Interrupt
+SEOI	EQU  01100000b	;Specific End Of Interrupt
+SETPRI	EQU  11000000b	;Set Priority command
+READISR	EQU  00001011b	;Read IS register (interrupts being serviced)
+SMMON	EQU  01101000b	;Special mask mode on
+SMMOFF	EQU  01001000b	;Special mask mode off
+;
+; Timer/Counter (8253) Ports:
+SS1T0	EQU	SS1B+4	;Timer number 0
+SS1T1	EQU	SS1B+5	;Timer number 1
+SS1T2	EQU	SS1B+6	;Timer number 2
+SS1TC	EQU	SS1B+7	;Timer control port
+;
+; Floating Point Processor (8231, 8232, 9511, 9512) Ports:
+SS1FPPD	EQU	SS1B+8	;Floating point processor data port
+SS1FPPC	EQU	SS1B+9	;Floating point processor command port
+;
+; Battery backed-up Real Time Clock (OKI) Ports:
+SS1CLKC	EQU	SS1B+10	;Clock command port
+SS1CLKD	EQU	SS1B+11	;Clock data port
+; RTC Control Bits:
+RTC_HLD	EQU  01000000b	;Hold clock value control bit
+RTC_WRT	EQU  00100000b	;Write to clock chip control bit
+RTC_READ EQU 00010000b	;Read clock chip control bit
+;
+; System Support I UART Ports:
+SS1UD	EQU	SS1B+12	;Uart data port
+SS1US	EQU	SS1B+13	;Uart status port
+SS1UM	EQU	SS1B+14	;Uart modem port
+SS1UC	EQU	SS1B+15	;Uart command port
+; System Support Uart Active Commands:
+SS1TENB	EQU  00100111b	;Enable transmission control byte
+SS1TDIS	EQU  00000110b	;Disable transmission control byte
+; UART status bits:
+SS1DAV	EQU  00000010b	;System Support Data Available
+SS1TBE	EQU  00000001b	;System Support Transmit Buffer Empty
+SS1DSR	EQU  10000000b	;System Support Data Set Ready input status
+;
+;	CompuPro Interfacer 3,4 Port Equates
+;
+IF3B	EQU	10h	;Interfacer 3,4 Base address
+IF3UD	EQU	IF3B+0	;Uart data location
+IF3US	EQU	IF3B+1	;Uart status
+IF3UM	EQU	IF3B+2	;Uart mode register
+IF3UC	EQU	IF3B+3	;Uart command register
+IF3IT	EQU	IF3B+4	;Transmit Interrupt control/status register
+IF3IR	EQU	IF3B+5	;Receive Interrupt control/status register
+IF3UX	EQU	IF3B+7	;Uart select register
+;
+IF3DAV	EQU  00000010b	;Interfacer 3,4 Data Available
+IF3TBE	EQU  00000001b	;Interfacer 3,4 Transmit Buffer Empty
+IF3DSR	EQU  10000000b	;Interfacer 3,4 Data Set Ready input status
+;
+;	For all CompuPro UART interfacer boards:
+;
+UDAV	EQU  00000010b	;Universal UART Data Available
+UTBE	EQU  00000001b	;Universal UART Transmit Buffer Empty
+;
+;	CPU 86/87 Special On-Board Device Ports:
+;
+I80130	EQU	0FFF0h	;Base address of 80130 Multi-function controller
+I86MP0	EQU  I80130+0	; PIC port 0
+I86MP1	EQU  I80130+2	; PIC port 1
+I86T0	EQU  I80130+8	;Timer number 0
+I86T1	EQU  I80130+10	;Timer number 1
+I86T2	EQU  I80130+12	;Timer number 2
+I86TC	EQU  I80130+14	;Timer control port
+;
+;======	end of general device specifications ======
+;
+;	ASCII Contol Code Definitions:
+;
+NULL	EQU	00h	;Null character -- has no effect, used as string end
+ETX	EQU	03h	;End of Transmission
+ACK	EQU	06h	;Acknowledge (transmission buffer empty)
+BS	EQU	08h	;Backspace (Format Effector Backspace)
+LF	EQU	0Ah	;Line Feed
+FF	EQU	0Ch	;Form Feed (new page)
+CR	EQU	0Dh	;Carriage Return
+XON	EQU	11h	;(DC1) Control to turn on transmission
+XOFF	EQU	13h	;(DC3) Control to turn off transmission
+EOF	EQU	1Ah	;End of file marker (indicates text end).
+ESC	EQU	1Bh	;Escape
+SPACE	EQU	20h	;Space
+DEL	EQU	7Fh	;Delete (backspace delete)
+;
+;======	end of CompuPro related "fixed" port and mask assigments ======
+

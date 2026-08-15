@@ -1,0 +1,81 @@
+        NAME    BDOSCALL
+        ASSUME  CS:CODE,DS:DATA
+DATA    SEGMENT PUBLIC
+DATA    ENDS
+
+CODE    SEGMENT PUBLIC
+;
+;       @HLT FOR CP/M-86 ... ALSO INCLUDES @BDOS
+;
+;       MODIFIED 12-11-81 BY MGL TO SAVE/RESTORE BP AROUND A SYSTEM CALL
+;
+
+        PUBLIC  @HLT
+        PUBLIC  @BDOS86
+        PUBLIC  @BDOSX
+
+@HLT    PROC    NEAR
+        XOR     AX,AX
+        PUSH    AX
+        PUSH    AX
+        PUSH    AX
+        CALL   @BDOS86
+@HLT    ENDP
+;
+;       NEVER RETURNS
+;
+
+@BDOS86 PROC    NEAR
+        ;(FUNC:INTEGER; PARM:PTR):INTEGER;
+        POP     BX              ;RETADR
+        POP     DX              ;LO WORD OF PARM
+        POP     ES              ;HI WORD OF PARM
+        POP     CX
+        CMP     CX,26           ;SET DMA FUNCTION?
+        JZ      SETDMA          ;IF SO, HANDLE SPECIAL
+        PUSH    BX
+        PUSH    DS
+        MOV     AX,ES
+        MOV     DS,AX
+        PUSH    BP              ;ADDED 12-11-81 MGL
+        INT     224             ;CALL CP/M-86 BDOS VIA AN INTERRUPT
+        POP     BP              ;ADDED 12-11-81 MGL
+        XOR     AH,AH           ;ZERO HI BYTE
+; RETURN VALUE IS IN AX, AS PASCAL/MT+86 WANTS IT
+        POP     DS
+        RET
+
+SETDMA:
+        PUSH    BX              ;SAVE RET ADR
+        PUSH    DX              ;SAVE LO WORD OF PARM
+        PUSH    CX
+        MOV     DX,ES           ;GET HI WORD OF PARM TO DX
+        MOV     CX,33H          ;SET DMA BASE
+        PUSH    BP
+        INT     224
+        POP     BP
+        POP     CX
+        POP     DX
+        PUSH    BP
+        INT     224             ;NOW SET DMA OFFSET
+        POP     BP
+        RET
+@BDOS86 ENDP
+
+@BDOSX  PROC    NEAR
+        ;(FUNC:INTEGER; CH:CHAR) - NO RETURN VALUE, USED FOR CONSOLE OUT
+        POP     BX              ;RET ADR
+        POP     DX
+        POP     CX
+        PUSH    BX
+        PUSH    BP
+        INT     224
+        POP     BP
+        RET
+@BDOSX  ENDP
+
+CODE    ENDS
+
+
+        END
+

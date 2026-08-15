@@ -1,0 +1,270 @@
+;* Get and Put Byte for PASCAL/MT+86 I/O Module
+
+;* Last Update: 24.10.85   by Gerhard Stegemann
+
+;* Update Summary:
+
+;*   - Optimize byte level file access
+
+
+	NAME	GETPUTBYTE
+
+DATA	SEGMENT	PUBLIC
+
+;    TYPE
+;         FCBLK = PACKED ARRAY [0..36] OF CHAR;
+;         SECTOR = PACKED ARRAY [0..127] OF CHAR;
+
+SECTORSIZE	EQU	128
+
+ACTIVE	EQU	  0	;BOOLEAN
+FCB	EQU	  1	;FCBLK
+BUFIDX	EQU	 38	;INTEGER
+BUFFER 	EQU	 40	;SECTOR
+ENDFILE	EQU	168	;BOOLEAN
+FCBSIZE	EQU	169
+
+BDOS	EQU	224
+
+	EXTRN	RESULTI : WORD
+	EXTRN	@FCBS : WORD	;ARRAY [0..maxfcbs] OF FCBREC
+
+DATA	ENDS
+
+CODE	SEGMENT	PUBLIC
+
+	ASSUME	CS:CODE, DS:DATA
+
+	PUBLIC	GETBYTE, PUTBYTE, GETSECT, PUTSECT
+
+fcbaddr	EQU	WORD PTR [BP-2]
+       
+PUTSECT PROC	NEAR
+
+;    PROCEDURE PUTSECTOR(I : INTEGER);   
+
+;    BEGIN   
+
+	PUSH 	BP
+	MOV 	BP,SP
+	SUB 	SP,2
+
+;      WITH @FCBS[I] DO   
+
+	MOV 	AX,WORD PTR 4[BP]
+	MOV 	BX,FCBSIZE
+	MUL 	BX
+    	LEA	BX,OFFSET @FCBS
+	ADD 	AX,BX
+	MOV 	fcbaddr,AX
+
+;        BEGIN   
+;          @BDOS86(26, ADDR(BUFFER));   
+
+	MOV 	CL,26
+	MOV 	DX,fcbaddr
+	ADD 	DX,BUFFER
+	INT 	BDOS
+	MOV 	CL,51
+	MOV 	DX,DS
+	INT 	BDOS
+
+;          RESULTI := @BDOS86(21, ADDR(FCB));   
+
+	MOV 	CL,21
+	MOV 	DX,fcbaddr
+	ADD 	DX,FCB
+	INT 	BDOS
+	XOR	AH,AH
+	MOV 	RESULTI,AX
+
+;        END;   
+;       
+;    END; (* PUTSECTOR *)   
+
+	MOV 	SP,BP
+	POP 	BP
+	RET 	2
+
+PUTSECT	ENDP
+
+GETSECT	PROC 	NEAR
+
+;    FUNCTION GETSECTOR(I : INTEGER) : BOOLEAN;   
+        
+;    BEGIN   
+
+	PUSH 	BP
+	MOV 	BP,SP
+	SUB 	SP,2
+
+;      WITH @FCBS[I] DO   
+
+	MOV 	AX,WORD PTR 4[BP]
+	MOV 	BX,FCBSIZE
+	MUL 	BX
+    	LEA	BX,OFFSET @FCBS
+	ADD 	AX,BX
+	MOV 	fcbaddr,AX
+
+;        BEGIN   
+;          @BDOS86(26, ADDR(BUFFER));   
+
+	MOV 	CL,26
+	MOV 	DX,fcbaddr
+	ADD 	DX,BUFFER
+	INT	BDOS
+	MOV 	CL,51
+	MOV 	DX,DS
+	INT	BDOS
+
+;          RESULTI := @BDOS86(20, ADDR(FCB));   
+
+	MOV 	CL,20
+	MOV 	DX,fcbaddr
+	ADD 	DX,FCB
+	INT 	BDOS
+	XOR	AH,AH
+	MOV 	RESULTI,AX
+
+;          GETSECTOR := (RESULTI = 0); (* FALSE means EOF *)   
+
+	XOR	AX,AX 
+	CMP 	RESULTI,0
+	JNZ 	L00A4
+	INC 	AX
+
+;        END;   
+;       
+;    END; (* GETSECTOR *)   
+
+L00A4:	MOV 	SP,BP
+	POP 	BP
+	RET 	2
+
+GETSECT	ENDP
+
+
+GETBYTE	PROC	NEAR
+
+;    FUNCTION GETBYTE(I : INTEGER; VAR ENDFIL : BOOLEAN) : BYTE;
+ 
+;    BEGIN
+
+	PUSH 	BP
+	MOV 	BP,SP
+	SUB 	SP,2
+
+;      WITH @FCBS[I] DO
+
+	MOV 	AX,WORD PTR 8[BP]
+	MOV 	BX,FCBSIZE
+	MUL 	BX
+    	LEA	BX,OFFSET @FCBS
+	ADD 	AX,BX
+	MOV 	fcbaddr,AX
+
+;        BEGIN
+;          IF BUFIDX >= SIZEOF(SECTOR) THEN (* Got to go read some data *)
+
+	MOV 	DI,fcbaddr
+	CMP 	WORD PTR BUFIDX[DI],SECTORSIZE
+	JNGE 	L0057
+
+;            BEGIN
+;              ENDFIL := NOT GETSECTOR(I);
+
+	PUSH 	WORD PTR 8[BP]
+	CALL 	GETSECT
+	NOT	AX
+	LES 	DI,DWORD PTR 4[BP]
+	MOV 	ES:BYTE PTR [DI],AL
+
+;              BUFIDX := 0;
+
+	MOV 	DI,fcbaddr
+	MOV 	WORD PTR BUFIDX[DI],0
+
+;            END;
+;          GETBYTE := BUFFER[BUFIDX];
+
+L0057:	MOV 	BX,WORD PTR BUFIDX[DI]
+	MOV 	AL,BYTE PTR BUFFER[DI+BX]
+
+;          BUFIDX := BUFIDX + 1;
+
+	INC 	WORD PTR BUFIDX[DI]
+
+;        END;
+;
+;    END; (* GETBYTE *)
+
+	XOR 	AH,AH
+	MOV 	SP,BP
+	POP 	BP
+	RET 	6
+
+GETBYTE	ENDP
+
+PUTBYTE	PROC	NEAR
+
+;    PROCEDURE PUTBYTE(B : BYTE; I : INTEGER);
+ 
+;    BEGIN
+
+	PUSH 	BP
+	MOV 	BP,SP
+	SUB 	SP,2
+
+;      WITH @FCBS[I] DO
+
+	MOV 	AX,WORD PTR 4[BP]
+	MOV 	BX,FCBSIZE
+	MUL	BX
+	LEA	BX,OFFSET @FCBS
+	ADD 	AX,BX
+	MOV 	fcbaddr,AX
+
+;        BEGIN
+;          IF BUFIDX >= SIZEOF(SECTOR) THEN
+
+	MOV 	DI,fcbaddr
+	CMP 	WORD PTR BUFIDX[DI],SECTORSIZE
+	JNGE 	L00D7
+
+;            BEGIN
+;              PUTSECTOR(I);
+
+	PUSH 	WORD PTR 4[BP]
+	CALL 	PUTSECT
+
+;              BUFIDX := 0;
+
+	MOV 	DI,fcbaddr
+	MOV 	WORD PTR BUFIDX[DI],0
+
+;            END;
+;          BUFFER[BUFIDX] := B;
+
+L00D7:	MOV 	BX,WORD PTR BUFIDX[DI]
+	MOV 	AL,BYTE PTR 6[BP]
+	MOV 	BYTE PTR BUFFER[DI+BX],AL
+
+;          BUFIDX := BUFIDX + 1;
+
+	INC 	WORD PTR BUFIDX[DI]
+
+;        END;
+;
+;    END; (* PUTBYTE *)
+
+	MOV 	SP,BP
+	POP 	BP
+	RET 	4
+
+PUTBYTE	ENDP
+
+CODE	ENDS
+
+	END
+

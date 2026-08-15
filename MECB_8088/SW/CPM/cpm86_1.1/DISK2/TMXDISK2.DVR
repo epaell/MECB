@@ -1,0 +1,302 @@
+;
+CS0D2	EQU	Offset $
+    CSEG 0
+	ORG	CS0D2
+;****************************************************************
+;*	FINAL PROCESSING FOR HARD DISK DRIVES (DISK 2)		*
+;****************************************************************
+;
+;	Routines for driving the DISK2 controller and corresponding SELECTOR
+;	CHANNEL boards in conjunction with one to four hard disk drives.
+;
+;Entry:	ACTTRK = Track number (Cylinder, Head combined),
+;	ACTSEC = Sector number,
+;	CIOPB  = Pointer to floppy Read/Write command byte.
+;
+D2FNL:	MOV	AX,ACTTRK	;Get combined cylinder, head value
+      if (D2M20 or D2F40B or D2M26)	;8 heads
+	MOV	CL,5		;Shift left 5 bits to get cylinder
+	MOV	DL,00000111b	;Select head value (0-7)
+      endif
+      if (D2M10 or D2F20B)		;4 heads
+	MOV	CL,6		;Shift left 6 bits to get cylinder
+	MOV	DL,00000011b	;Select head value (0-3) 
+      endif
+	AND	DL,AL		;Put head value in "DL"
+	SHL	AX,CL		;Shift track bits to place cylinder value
+	MOV	DH,AH		; in "DH"
+	MOV	CL,ACTSEC	;Get sector number in "CL"
+	TEST Byte Ptr CIOPB,01h	;Select Read/Write bit from floppy command
+	MOV  Byte Ptr CIOPB,D2_READ	;Replace with hard disk read if so
+	JZ	D2FNL1
+	MOV  Byte Ptr CIOPB,D2_WRT	;Use hard disk write command
+D2FNL1:	MOV  Byte Ptr RTRY,MRTRY;Load max retry count
+D2FNLP:	DEC  Byte Ptr RTRY	;Bump retry count
+	JS	D2FNLRR		;Abort if all attempts failed
+	CALL	D2SELECT	;(Re-)select appropriate drive, verify ready
+	JNZ	D2FNLRR		;Abort if not
+	CALL	D2XFER		;Seek to proper cylinder, perform data transfer
+	JZ	D2FNL0		;Done if no errors
+	TEST	AL,D2_TOUT	;See if timeout error (header not found)
+	JZ	D2FNLP		;Loop in case of soft error (not timeout)
+;
+	eject
+;
+;	D2RELOCATE -- Search relocation table for matching sector ID, load
+;	corresponding relocated sector values if found and try transfer
+;	again using alternate sector.
+;
+D2RELOC:AND	AL,D2_OVR	;See if overrun was cause of timeout
+	JNZ	D2FNLP		;Treat as soft error if so
+	LEA  BX,RELTBL0 - 3*(D2SCNT+1) ;Point to base of relocation tables
+D2REL1:	ADD	BX,3 * D2_SCNT	;Add faulty sector table size for correct unit
+	DEC	CH		;Bump unit number count
+	JNS	D2REL1		;Loop until pointer at this unit's table
+;
+; Loop entry points -- if no match found, skip other tests for match of
+; current head, sector and advance to next 3 byte entry in table.
+D2REL3:	ADD	BX,3		;Point to next cylinder, head, sector group
+	INC	CH		;Bump count of table entries
+	CMP	CH,D2_SCNT	;See if all available spare sectors checked
+	JZ	D2FNLRR		;Irrecoverable error if no entries match
+	CMP	0[BX],DH	;See if CYLINDER matches table
+	JNE	D2REL3		;Skip head, sector check if not
+	CMP	1[BX],DL	;See if HEAD number matches table
+	JNE	D2REL3		;Skip sector check if not
+	CMP	2[BX],CL	;See if SECTOR matches table
+	JNE	D2REL3		;See if scan next triplet if not
+;
+; Place new values in the registers to correspond with the relocated sector,
+; and continue with the Disk 2 read/write operation using the "spare" storage.
+	MOV	CL,CH		;Corresponding sector number counted in "CH"
+	MOV	DX,2		;Relocated sectors are all on cylinder 0, HD#2
+	JMPS	D2FNLP		;Continue with execution using new values
+;
+D2FNLRR:OR	AL,0FFh		;Set error flag
+D2FNL0:	RET			;Return showing error flags, if any
+;
+	eject
+;
+;	D2SELECT -- Select appropriate DISK 2 hard disk drive.
+;
+;Entry:	ACTDSK set to current active drive to get ready status.
+;
+;Exit:	B = Lower nibble of drive select (0-3) from ACTDSK value,
+;	Zero bit set if drive is ready.
+;
+D2SELECT:CALL	D2READY		;See if drive is ready, ignore first if not
+	JZ	D2SEL0
+	CALL	D2READY		;Reset drive fault bit, again check drive ready
+	JZ	D2SEL0		;Return valid if so
+D2SELX:	PUSH CX! PUSH DX! PUSH BX ;Save desired positions
+	MOV  BX,offset D2_MSG	;Show unit not ready
+	CALL	PRINT
+D2SEL1:	CALL	CIS		;See if character from console
+	JNZ	D2SEL2		;Return with zero bit reset (error) if so
+	CALL	D2READY		;See if drive is ready
+	JNZ	D2SEL1		;Keep trying until so or console abort
+D2SEL2:	POP BX!	POP DX!	POP CX	;Recover desired positions
+D2SEL0:	RET
+;
+; Routine to get the drive ready status of the active hard disk.
+D2READY:MOV	AL,ACTDSK	;Get unit select (upper and lower nibbles set)
+	AND	AL,3		;Select lower nibble in range 0-3, save in "CH"
+	MOV	CH,AL		;Save in "CH" for other operations
+	OR   AL,(D2STRB+D2RST)	;Add in drive strobe, fault clear bits
+	OUT	D2_CNTL,AL	;Set drive select register
+	ADD  AL,'0'-(D2STRB+D2RST) ;Add bias and save as drive ASCII ID
+	MOV  Byte Ptr D2MSGX,AL	;in error message
+	MOV	AL,ACTDSK	;Get unit select (upper and lower nibbles set)
+	AND	AL,11110000b	;Use only upper nibble single select 
+	OUT	D2_DATA,AL	;Set up DISK 2 with drive select
+	IN	AL,D2_STAT	;Get status byte
+	AND  AL,D2_ATTN+D2_NRDY	;Strip out attention, drive ready bits
+	XOR  AL,D2_ATTN		;Flip status of attention bit
+	RET			;Return with drive ready status
+;
+	eject
+;
+;	DISK 2 DATA TRANSFER (TO/FROM HARD DISK) OPERATION:
+;
+; Two part transfer (with optional "triggered" seek to home position) --
+;	First the command sequence is given to seek correct cylinder, and
+;	for drives having automatic settling time delays, the concurrent
+;	loading of the controller to execute the actual data transfer.  For
+;	drives not having an automatic settling time delay, the No-op command
+;	is issued after a seek, which allows between 1 and 2 extra revolutions
+;	of the disk to allow the heads to settle.
+;
+;Entry:	CIOPB = Hard disk command, (read or write)
+;	DH = Desired cylinder to seek,
+;	DL = Desired head of cylinder,
+;	CL = Desired sector of track,
+;	CH = Actual disk unit in use.
+;
+;Exit:	CH,CL,DH,DL unaltered,
+;	BX = Pointer to current cylinder table storage,
+;	   Zero Flag set if no errors occurred.
+;
+; Part 1 -- DISK 2 Seek to specified cylinder.
+;
+D2XFER:	MOV  BX,offset HD2CYL	;Base address of last known cylinder positions
+	ADD	BL,CH		;Add in disk unit number (0-3) offset value
+	ADC	BH,0		; into high order byte if overflow
+	MOV	AL,[BX]		;Get last position for active unit
+	CMP	AL,-1		;Minus one indicates unknown -- seek home
+	JNZ	D2XFER1		;Proceed normally if home not required
+	CALL	D2HOME		;Execute sequence if "forced" home
+;
+; Current cylinder again (after home) in "AL"
+D2XFER1:SUB	AL,DH		;Get the difference of desired and current
+	JZ	D2XFER2		;No seek necessary if at desired cylinder
+	CALL	D2SEEK		;If current not at desired cylinder, seek to it
+;
+; Part 2 -- DISK 2 Transfer data to/from hard disk.
+;
+D2XFER2:PUSH	BX		;Save cylinder pointer
+	MOV	AL,D2_STRB	;Add drive select command
+	OR	AL,CH		;to unit desired
+	OUT	D2_CNTL,AL	;Output to DISK 2 control register
+	MOV	AL,ACTDSK	;Get active drive number
+	AND	AL,11110000b	;Mask single select bits (high nibble) 
+	OR	AL,DL		;Add in desired head number
+	OUT	D2_DATA,AL	;Select drive, head
+	MOV	AL,D2_CYL	;Select cylinder number storage
+	OUT	D2_CNTL,AL
+	MOV	AL,DH		;Get desired Cylinder number
+	OUT	D2_DATA,AL
+	MOV	AL,D2_HEAD	;Select head number storage
+	OUT	D2_CNTL,AL
+	MOV	AL,DL		;Get the desired Head number
+	OUT	D2_DATA,AL
+	MOV	AL,D2_SEC	;Select sector storage
+	OUT	D2_CNTL,AL
+	MOV	AL,CL		;Load desired sector
+	OUT	D2_DATA,AL
+;
+; Set up selector channel to correspond, with desired DMA value ready.
+	IN	AL,SELCHAN	;Initialize selector channel to accept data
+	CALL	GETDMA		;Get 24 bit DMA into "AL,BX"
+	OUT	SELCHAN,AL	;High order byte out
+	MOV	AL,BH
+	OUT	SELCHAN,AL	;Mid byte out
+	MOV	AL,BL
+	OUT	SELCHAN,AL	;Low byte out
+	CMP  Byte Ptr CIOPB,D2_READ ;See if hard disk read operation command
+	MOV	AL,SELBYT+00h	;Upper bit not set if write operation
+	JNE	D2XFER4
+	MOV	AL,SELBYT+80h	;Set up selector channel to correspond
+D2XFER4:OUT	SELCHAN,AL	;Last byte of 4 in sequence
+	MOV	AL,CIOPB	;Get hard disk Read/Write command to execute
+	OR	AL,CH		;Add in drive select for begin transfer command
+	OUT	D2_CNTL,AL	;Send to controller to begin execution
+	CALL	D2DELAY		;Let the state machine start it's sequence
+	POP	BX		;Recover table pointer for cylinder updates
+; Loop until command completed.
+D2XFER5:IN	AL,D2_STAT	;Get status of controller
+	TEST	AL,80h		;See if command still in process
+	JNZ	D2XFER5		;Loop until transfer complete
+	AND	AL,01111110b	;Mask timeout, CRC, overrun, etc. bits 
+	XOR	AL,D2_WRTF	;Flip status of write fault bit for final
+	PUSH	AX		;Save result status byte
+	MOV	AL,D2_STRB	;Reset interrupt status bit to inactive state
+	OUT	D2_CNTL,AL
+	MOV	AL,00010000b	;Reselect Unit #0 to execute command 
+	OUT	D2_DATA,AL
+	JZ	D2XFER8		;Done if no errors from transfer operation
+	MOV  Byte Ptr [BX],0FFh	;Show drive at unknown position, force home
+D2XFER8:POP	AX		;Recover result status byte in "AL"
+	RET			;Return with error flag, type status set
+;
+; Delay routine to permit the Disk 2 controller to stabilize after setup.
+D2DELAY:MOV	AL,10		;Init delay count
+D2DELYX:DEC	AL		;Bump delay count
+	PUSH	AX!	POP AX	;Context switch stops pre-fetcher
+	JNZ	D2DELYX		;Loop until delay complete
+	RET
+;
+	eject
+;
+; -- DISK 2 Execute seek to desired cylinder position.
+;
+;Entry:	BX = Pointer to current cylinder table storage,
+;	DH = Desired cylinder to seek,
+;	DL = Desired head of cylinder,
+;	CL = Desired sector of track,
+;	CH = Actual disk unit in use.
+;
+;Exit:	BX,DH,DL,CH,CL unaltered, return when desired cylinder reached.
+;	Storage for unit positioner [BX] updated, indicating new location.
+;
+D2SEEK:	PUSH	DX		;Save entering cylinder, head
+	MOV	DL,D2_SOU	;Seek outward control byte
+	JNC	D2SEEKO		;If seek outward
+	MOV	DL,D2_SIN	;Seek inward control byte
+	NEG	AL		;Two's compliment count to make positive
+D2SEEKO:MOV	DH,AL		;Move number of tracks
+	MOV	AL,CH		;Get selected drive number
+	OR	AL,DL		; add in step direction
+	OUT	D2_CNTL,AL	;Send to DISK2
+	CALL	D2DELAY		;Allow the direction bit to settle
+D2STEP1:IN	AL,D2_DATA	;Activate a step
+      if (D2M10 or D2M20 or D2F20B or D2F40B);All steps accumulated by drive
+	DEC	DH		;Bump step counter
+	JNZ	D2STEP1		;If not all steps sent
+      endif
+      if D2M26		;Steps are issued individually issued
+D2SEEK2:IN	AL,D2_STAT	;Get drive status
+	AND	AL,D2_SEKD	;See if seek complete
+	JNZ	D2SEEK2		;Wait until so
+	DEC	DH		;Bump step counter
+	JNZ	D2STEP1		;Loop for another if not all steps sent
+	MOV	AL,D2_TIME	;Issue a NO-OP command to get settling delay
+	OR	AL,CH		;Add in selected unit control bits
+	OUT	D2_CNTL,AL	;Send to controller, use next instructions for
+				; command settling delay (no interrupt active)
+D2SKDLY:IN	AL,D2_STAT	;Get controller status byte
+	AND	AL,D2_TOUT	;Mask timeout bit (1-2 index pulse delay)
+	JZ	D2SKDLY		;Loop for settling time (approx.) till timeout
+      endif
+	POP	DX		;Recover entering cylinder, head
+	MOV	[BX],DH		;Set current cylinder storage = desired
+	RET
+;
+	eject
+;
+; -- DISK 2 Execute seek to Home position (cylinder #0).
+;	This routine is called when the actual position of a drive unit (as
+;	measured by it's cylinder number) is in doubt.  It returns the
+;	positioner to the special "known" place at the outermost cylinder.
+;
+;Entry:	BX = Pointer to current cylinder table storage,
+;	CH = Actual disk unit in use.
+;
+;Exit:	BX,CX,DX unaltered, return when cylinder 0 has been reached,
+;	AL = 0, and storage for unit (BX pointer) reset, indicating proper
+;	   location of positioner.
+;
+D2HOME:	INC	Byte Ptr [BX]	;Mark current with proper "home" value (zero)
+	PUSH	CX		;Save sector, unit numbers
+	MOV	CL,[BX]		; use 256 count in "C"
+D2HOME0:IN	AL,D2_STAT	;Get drive status
+	AND	AL,D2_CYL0	;See if cylinder 0 has been reached
+	JZ	D2HOME3		;Done with seek operation if so
+	MOV	AL,CH		;Get active drive unit
+	OR  AL,(D2_SOU + D2_RST);Add in step out command, reset fault bit
+	OUT	D2_CNTL,AL	;Send to DISK2
+	CALL	D2DELAY
+D2HOME1:IN	AL,D2_DATA	;Cause a step to be activated
+	DEC	CL		;Bump step counter
+      if (D2M10 or D2M20 or D2F20B or D2F40B)	;Fujitsu drives accept all
+	JNZ	D2HOME1		;Loop if not done with steps
+      endif
+D2HOME2:IN	AL,D2_STAT	;Get drive status
+	AND	AL,D2_SEKD	;See if seek complete
+	JNZ	D2HOME2		;Wait until so
+      if D2M26			;Shugart drives require separate pulses
+	JMPS	D2HOME0		;Loop if not done with steps
+      endif
+D2HOME3:POP	CX		;Recover desired sector, active unit
+	MOV	AL,[BX]		;Get current cylinder again (after home) in "A"
+	RET
+

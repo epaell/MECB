@@ -1,0 +1,288 @@
+;
+;****************************************************
+;*                                                  *
+;*    Sample Random Access Program for CP/M-86      *
+;*                                                  *
+;****************************************************
+;
+;    BDOS Functions
+;
+coninp  equ     1       ;console input function
+conout  equ     2       ;console output function
+pstring equ     9       ;print string until '$'
+rstring equ     10      ;read console buffer
+version equ     12      ;return version number
+openf   equ     15      ;file open function
+closef  equ     16      ;close function
+makef   equ     22      ;make file function
+readr   equ     33      ;read random
+writer  equ     34      ;write random
+;
+;   Equates for non graphic characters
+cr      equ     0dh     ;carriage return
+lf      equ     0ah     ;line feed
+;
+;
+;  load SP, ready file for random access    
+;
+	cseg
+	pushf			;push flags in CCP stack
+	pop	ax		;save flags in AX
+	cli			;disable interrupts
+	mov	bx,ds		;set SS register to base of DATA group
+	mov	ss,bx		;set SS, SP with interrupts disabled 
+	mov	sp,offset stack	;    for 80888
+	push	ax		;restore the flags
+	popf
+;
+;	CP/M-86 initial release returns the file
+;	system version number of 2.2:  check is
+;	shown below for illustration purposes.
+;
+	mov	cl,version
+        call    bdos
+	cmp	al,20h		;version 2.0 or later?
+        jnb     versok
+	;       bad version, message and go back
+	mov	dx,offset badver
+        call    print
+        jmp     abort
+;
+versok:
+;       correct version for random access
+	mov	cl,openf	;open default fct
+	mov	dx,offset fcb
+        call    bdos
+        inc     al       	;err 255 becomes zero
+        jnz     ready
+;
+;       cannot open file, so create it
+	mov	cl,makef
+	mov	dx,offset fcb
+        call    bdos
+        inc     al       	;err 255 becomes zero
+        jnz     ready
+;
+;       cannot create file, directory full
+	mov	dx,offset nospace
+        call    print
+	jmp	abort		;back to ccp
+;
+;   loop back to "ready" after each command         
+;
+ready:
+;       file is ready for processing
+;
+	call	readcom		;read next command
+	mov	ranrec,dx	;store input record#
+	mov	ranovf,0h	;clear high byte if set
+	cmp	al,'Q'		;quit?
+        jnz     notq
+;
+;       quit processing, close file
+	mov	cl,closef
+	mov	dx,offset fcb
+        call    bdos
+	inc	al	;err 255 becomes 0
+        jz      error   ;error message, retry
+	jmps	abort	;back to ccp
+;
+;
+;  end of quit command, process write   
+;
+;
+notq:
+;       not the quit command, random write?
+	cmp	al,'W'
+        jnz     notw
+;
+;       this is a random write, fill buffer until cr
+	mov	dx,offset datmsg
+	call	print		;data prompt
+	mov	cx,127		;up to 127 characters
+	mov	bx,offset buff	;destination
+rloop:  ;read next character to buff
+	push	cx		;save loop conntrol
+	push	bx		;next destination
+        call    getchr  	;character to AL
+	pop	bx		;restore destination
+	pop	cx		;restore counter
+	cmp	al,cr		;end of line?
+        jz      erloop
+;       not end, store character
+	mov	byte ptr [bx],al
+	inc	bx		;next to fill
+	loop	rloop		;decrement cx ..loop if not 0
+erloop:
+;       end of read loop, store 00
+	mov	byte ptr [bx],0h
+;
+;       write the record to selected record number
+	mov	cl,writer
+	mov	dx,offset fcb
+        call    bdos
+	or	al,al		;error code zero?
+	jz	ready	;for another record
+        jmps     error   ;message if not
+;
+;
+;
+;  end of write command, process read    
+;
+;
+notw:
+;       not a write command, read record?
+	cmp	al,'R'
+	jz	ranread
+        jmps     error   ;skip if not
+;
+;       read random record
+ranread:
+	mov	cl,readr
+	mov	dx,offset fcb
+        call    bdos
+	or	al,al		;return code 00?
+	jz	readok
+        jmps     error
+;
+;       read was successful, write to console
+readok:
+	call	crlf		;new line
+	mov	cx,128		;max 128 characters
+	mov	si,offset buff	;next to get
+wloop:
+	lods	al		;next character
+	and	al,07fh		;mask parity
+	jnz	wloop1
+	jmp	ready		;for another command if 00
+wloop1:
+	push	cx		;save counter
+	push	si		;save next to get
+	cmp	al,' '		;graphic?
+	jb	skipw		;skip output if not graphic
+	call	putchr		;output character
+skipw:
+	pop	si
+	pop	cx
+	loop	wloop		;decrement CX and check for 00
+        jmp     ready
+;
+;
+;  end of read command, all errors end-up here     
+;
+;
+error:
+	mov	dx,offset errmsg
+        call    print
+        jmp     ready
+;
+;  BDOS entry subroutine
+bdos:
+	int	224		;entry to BDOS if by INT 224
+	ret
+;
+abort:				;return to CCP
+	Mov	Dl, 0
+	mov	cl,0
+	call 	bdos		;use function 0 to end execution
+;
+;  utility subroutines for console i/o       
+;
+getchr:
+        ;read next console character to a
+	mov	cl,coninp
+        call    bdos
+        ret
+;
+putchr:
+        ;write character from a to console
+	mov	cl,conout
+	mov	dl,al		;character to send
+        call    bdos    	;send character
+        ret
+;
+crlf:
+        ;send carriage return line feed
+	mov	al,cr		;carriage return
+        call    putchr
+	mov	al,lf		;line feed
+        call    putchr
+        ret
+;
+print:
+        ;print the buffer addressed by dx until $
+        push    dx
+        call    crlf
+	pop	dx		;new line
+	mov	cl,pstring
+        call    bdos    	;print the string
+        ret
+;
+readcom:
+        ;read the next command line to the conbuf
+	mov	dx,offset prompt
+	call	print		;command?
+	mov	cl,rstring
+	mov	dx,offset conbuf
+        call    bdos    	;read command line
+;       command line is present, scan it
+	mov	ax,0		;start with 0000
+	mov	bx,offset conlin
+readc:	mov	dl,[bx]		;next command character
+	inc	bx		;to next command position
+	mov	dh,0		;zero high byte for add
+	or	dl,dl		;check for end of command
+	jnz	getnum
+	ret
+;       not zero, numeric?
+getnum:
+	sub	dl,'0'
+	cmp	dl,10		;carry if numeric
+	jnb	endrd
+	mov	cl,10
+	mul	cl		;multipy accumulator by 10
+	add	ax,dx		;+digit
+        jmps     readc   	;for another char
+endrd:
+;       end of read, restore value in a and return value in bx
+	mov	dx,ax		;return value  in DX
+	mov	al,-1[bx]
+	cmp	al,'a'		;check for lower case
+	jnb	transl
+	ret
+transl:	and	al,5fH	;translate to upper case
+        ret
+;
+;
+; Template for Page 0 of Data Group
+;   Contains default FCB and DMA buffer
+;
+	dseg
+	org	05ch
+fcb	rb	33 		;default file control block
+ranrec	rw	1		;random record position
+ranovf	rb	1		;high order (overflow) byte
+buff	rb	128		;default DMA buffer
+;
+;  string data area for console messages           
+badver        db      'sorry, you need cp/m version 2$'
+nospace       db      'no directory space$'
+datmsg        db      'type data: $'
+errmsg        db      'error, try again.$'
+prompt        db      'next command? $'
+;
+;
+;    fixed and variable data area
+;
+conbuf db      conlen  ;length of console buffer
+consiz rs      1       ;resulting size after read
+conlin rs      32      ;length 32 buffer
+conlen equ     offset $ - offset consiz
+;
+        rs      31      ;16 level stack
+stack	rb	1
+	db	0	;end byte for GENCMD
+        end
+x,ax		;return value  in DX
+	mov	al,-1[bx]
+	cmp	

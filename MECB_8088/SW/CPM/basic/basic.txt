@@ -1,0 +1,1524 @@
+
+
+
+
+
+
+									   :
+									   :
+									   :
+									   :
+                        ========================================           :
+                        |                                      |           :
+                        |                                      |           :
+                        |            Personal BASIC            |           :
+                        |                                      |           :
+                        |                                      |           :
+                        |          READ.ME File Notes          |           :
+                        |                                      |           :
+                        |             August  1983             |           :
+                        |                                      |           :
+                        |                                      |           :
+                        |           Digital Research           |           :
+                        |      Pacific Grove, California       :           :
+                        :______________________________________:           :
+									   :
+									   :
+									   :
+                   This file contains notes regarding changes made to      :
+                   Personal BASIC Version 1.1.  Changes documented in      :
+                   this file supersede existing product documentation.     :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+                 .---------------------------------------------------.     :
+                 | The notes in this file are organized so that when |     :
+                 | printed  on  paper  that is 11-inches long at six |     :
+                 | lines per inch,  they can be trimmed on the indi- |     :
+                 | cated lines and placed in your product documenta- |     :
+                 | tion binder.                                      |     :
+                 |___________________________________________________|     :
+									   :
+									   :
+									   :
+									   :
+									   :
+          ------------------------------------------------------------------
+
+Š
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              READ.ME File Notes                                           :
+									   :
+									   :
+                                   TABLE OF CONTENTS                       :
+                   ==================================================      :
+									   :
+                   Carets in a PRINT USING statement   . . . . . .  1      :
+                   CHAIN MERGE Executed in Subroutines . . . . . .  2      :
+		   Edit Subcommand Additions . . . . . . . . . . .  3	   :
+                   Evaluation of Logical Expressions . . . . . . .  4      :
+		   Further Explanation of FIELD Statement  . . . .  5	   :
+                   INKEY$ Function . . . . . . . . . . . . . . . .  7      :
+                   Machine-Language Linking Conventions  . . . . .  8      :
+                   Miscellaneous Changes . . . . . . . . . . . . .  9      :
+		   RENUM Command Revisited . . . . . . . . . . . . 14      :
+                   USR Function  . . . . . . . . . . . . . . . . . 15      :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :Š									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+              Personal BASIC                                 Page  i       :
+									   :
+          ------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              READ.ME File Notes                                           :
+									   :
+									   :
+                   Carets in a PRINT USING String                          :
+                   ==================================================      :
+									   :
+                   Any  number   of   carets   following   a  numeric      :
+                   specification in a PRINT USING  string  will cause      :
+                   the  number  to  be  printed  in exponential form.      :
+                   If you wish  to  specify  that a caret is to print      :
+                   immediately after a number,  use  the literalising      :
+                   character (_) before the first caret.  For example,     :
+									   :
+                        PRINT USING "###.##_^"; 79.5                       :
+									   :
+                   prints as 79.50^.                                       :
+									   :
+                     Note also the  following  concerning PRINT USING:     :
+                   The TAB and SPC statements are allowed in the print     :
+                   list and have the normal effect.                        :
+									   :
+									   :
+									   :
+									   :
+									   :Š									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+              Personal BASIC                                 Page  1       :
+									   :
+          ------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              READ.ME File Notes                                           :
+									   :
+									   :
+                   CHAIN MERGE                                             :
+                   ==================================================      :
+									   :
+                   If  you  execute  a  CHAIN  MERGE in a subroutine,      :
+                   the    subroutine   stack   is    preserved.     A      :
+                   RETURN  after  the  CHAIN  MERGE  has the expected      :
+                   effect unless the CHAIN MERGE replaced  one of the      :
+                   lines to which you expect to RETURN at some point.      :
+                   If you  do  this,  the  results are unpredictable.      :
+  									   :
+									   :Š									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+								  	   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+              Personal BASIC                                 Page  2       :
+									   :
+          ------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Š              READ.ME File Notes                                           :
+									   :
+                   Edit Subcommand Additions                               :
+                   ==================================================      :
+								  	   :
+                   Add the following  subcommands  to Tables 1-2  and      :
+                   5-1.  These  subcommands  deal  with program lines      :
+                   that  span  two  or  more physical lines, although      :
+                   they come under one line number and are considered      :
+                   one logical line.				           :
+                        					           :
+                        B     Brings the cursor to the beginning of a      :
+                              logical line.                                :
+                        					           :
+                        <LF>  To edit succeeding lines of  multi-line      :
+                              statements, press <LF> before  entering      :
+                              insert mode.  This brings  you  down to      :
+                              the next physical line.                      :
+                        					           :
+                        U     Moves the  cursor  back  to the previous     :
+                              physical line.                               :
+                        					           :
+                        Z     Deletes a <LF>. Merges 2 physical lines.     :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+              Personal BASIC                                   Page  3     :
+                                                                           :
+              --------------------------------------------------------------
+
+
+
+
+
+Š
+
+
+
+
+
+
+              READ.ME File Notes                                           :
+									   :
+									   :
+									   :
+                   Evaluation of Logical Expressions                       :
+                   ===================================================     :
+									   :
+                   The logical expression                                  :
+									   :
+                       IF <logical expression> THEN                        :
+									   :
+                   should be evaluated only so far as is necessary to      :
+                   determine  the  result of  the expression.  In the      :
+                   following example,                                      :
+									   :
+                       IF A% > 0 AND A% <= 10 AND B(A%) > 5 THEN ...       :
+									   :
+                   array  elements  outside the limits 1 to 10 should      :
+                   never be accessed, because if A% <= 0,  the  whole      :
+                   expression is known to be false.                        :
+									   :
+                        However,  this  is  not  the  case.  All  the      :
+                   subexpressions in a  logical expression are always      :
+                   evaluated, which  could  give  rise  to  an "Array      :
+                   element out-of-bounds" error in the above example.      :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+								   	   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+                  Personal BASIC                                 Page  4   :Š									   :
+          ------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              READ.ME File Notes                                           :
+									   :
+                   Further Explanation of FIELD Statement                  :
+                   ==================================================      :
+									   :
+		   In  a  file  buffer,  there  can be many fields of      :
+                   characters.  The arrangement of variable fields in      :
+                   buffer constitutes a map.  Fields have a  starting	   :
+	           point in the buffer, and length, in bytes.		   :
+									   :
+                   P$ is a string variable:          P$                    :
+                                                     |                     :
+         				             V		   	   :
+                   The map created by      --------------------            :
+                   the FIELD statement:    | start  | length  |            :
+                                           ----|--------|------            :
+                                               V _______V_______           :
+                   This is part   /-------------/---------------\-----\    :
+                   of a file      \            |                 |    /    :
+                   buffer:        /            |                 |    \    :
+                                  \-----------------------------------/    :
+                                                                           :
+                   The starting place is where the first character of      :
+	           a field variable is mapped. The starting place for      :
+                   each  variable  depends  on its place in the FIELD      :
+                   list.  It is the sum of the variable lengths  that      :
+                   came before it.   The  first  variable  in  a list      :
+                   starts at the beginning of the buffer.  		   :
+ 			In  line   110 of  the   example below, X$ is	   : 
+		   allocated bytes 1 to 20.  Z$, the second variable,	   :
+                   is allotted bytes  21 to  60.  The third variable,      :
+                   Y$, takes bytes 61-70.   Although  the  total size 	   :
+		   of the record is 128 bytes, the total space mapped 	   :
+                   is 70  bytes.   					   :
+			You  can  have any number of FIELD statements      :Š		   for the same file number.   A  second mapping does      :
+                   does not  cancel  the  first.    See  the  example      :
+                   mapping and its depiction below:        		   :
+									   :
+                        100  OPEN "R", #10, "TAXES", 128                   :
+                        110  FIELD #10, 20 AS X$, 40 AS Z$, 10 AS Y$       :
+                        120  FIELD #10, 50 AS P$, 20 AS Q$		   :
+                                                                           :
+									   :
+              Personal BASIC                                   Page  5     :
+                                                                           :
+              --------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              READ.ME File Notes                                           :
+									   :
+                   FIELD Statement, continued                    	   :
+                   ==================================================      :
+		               						   :
+                   Depiction of the above mapping:			   :
+		 						   	   :
+ 		            50 bytes as P$    20 bytes as Q$		   :
+					^		  ^		   :
+					|		  |		   :
+		       /----------------^---------\   /---^---\    	   :
+	 	      /	   		           \ /         \           :
+                      |     X$  	     Z$	    |        Y$ |          :
+		      |	 ____^___   __________^_____|__      ^	|          :
+                      | /  20    \ /    40          |   \  /10 \|          :
+         	      /-----------V-----------------|-----V-----\---\	   :
+		      |		  |		    |     |     |   /	   :
+		      |	 F I L E  | B U	F F E R     |     |     |   \      :
+		      +-----+-----+-----+-----+-----+-----+-----+---/	   :
+                      0     10    20    30    40    50    60    70         :
+		   start-----------128 total bytes --------------------->  :
+									   :
+		   							   :
+		      Notice that you don't have to map all the space	   :
+                   in a record; you can allocate fewer bytes than are      :
+                   available to you.   However,  the  total number of      :
+	           bytes you allocate cannot exceed the length of the      :Š                   record  when you  opened  it, or an error occurs. 	   :
+                          		           	   		   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+		      						    	   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+									   :
+                                                                           :
+                                                                           :
+              Personal BASIC                                   Page  6     :
+                                                                           :
+              -------------------------------------------------------------:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              READ.ME File Notes                                           :
+									   :
+                   INKEY$ Function                                         :
+                   ==================================================      :
+								  	   :
+                   Add the function on the following page to your list     :
+                   of  Personal  BASIC  statements  and  functions  in     :
+                   Section 5.  The page size fits in your binder.  Use     :
+                   the lines on this page as a pattern for cutting the     :
+                   pages that follow.                                      :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :Š                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+              Personal BASIC                                   Page  7     :
+                                                                           :
+              --------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          Personal BASIC Reference Manual        INKEY$ Function
+
+
+            INKEY$ FunctionŠ
+
+            The INKEY$ function reads a character from the  keyboard
+            if one is waiting.
+
+            Syntax:
+
+            X$ = INKEY$
+
+
+            Explanation:
+
+            INKEY$ scans the keyboard to detect whether you hit a key.
+            If you do, INKEY$ returns the character.  If  you  don't,  
+            INKEY$ returns a null string.   INKEY$  stores  only  one
+            character at a time, namely, the  last character entered; 
+            the previous keystroke is replaced and lost.
+
+            Unlike the INPUT statement, which suspends program execu-
+            tion until you respond, INKEY$ does not wait for your in-
+            put.  You can write a WHILE/WEND loop that runs until you      
+            enter a character.  In this case, INKEY$ constantly scans    
+            for the character and the program is continuously looping;    
+            it has not halted for your input.
+
+            You can test INKEY$ for a particular  character.   INKEY$ 
+            reads  each  character  from the keyboard  buffer.  Which 
+            character is there can determine  program  flow.  For ex-
+            ample, INKEY$ can check a program to see whether you  en-
+            tered an interrupt signal; the program jumps to  an  exit 
+            routine if so, or continues if not.
+
+            None of  the  characters  returned by INKEY$ print on the 
+            screen  unless  you  print  them  with a subsequent PRINT 
+            statement.  All characters pass on to the program  except
+            CTRL-C, CTRL-S, and  CTRL-Q, which  might  or might  not,
+            depending upon the exact timing of your entry.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Š
+
+
+
+
+
+
+          Personal BASIC Reference Manual        INKEY$ Function
+
+
+
+            Notice the example program below.  It constructs a WHILE/
+            WEND loop in which INKEY$ reads and stores  a  keystroke,
+            the  current  value  of INKEY$ is assigned to a variable, 
+            the ASCII value of the character is printed, and the pro-
+            gram loops back to the start.  If  you enter CTRL-C while 
+            the program is on line 30, the CTRL-C  is read  by INKEY$ 
+            and passed on to the program; the program is  not  inter-
+            rupted.  If you  enter the CTRL-C while the program is on 
+            any other line, however, it interrupts the  loop  just as 
+            it  would in any other Personal BASIC program. It is pos-
+            sible to disable CTRL-C's ability to break a program. See 
+            Appendix E, option 1 for more information on CTRL-C.
+
+
+            Example:
+
+                 Ok 10 I$ = ""
+                 Ok 20 WHILE I$ = ""
+                 Ok 30 I$ = INKEY$
+                 Ok 40 WEND
+                 Ok 50 PRINT ASC(I$)
+                 Ok 60 GOTO 10
+                 Ok RUN
+                 53    ("5" was hit)
+                 27    ("ESC" was hit)
+                 76    ("L" was hit)
+                 65    ("A" was hit)
+                 104   ("h" was hit)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Š
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              READ.ME File Notes                                           :
+									   :
+                   Machine-Language Linking Conventions                    :
+                   ==================================================      :
+									   :
+                   Add the following four pages as Appendix F of your      :
+                   Personal BASIC Language Reference Manual. Use this      :
+                   page as a pattern for  cutting Appendix F  to  fit      :
+                   your binder.                                            :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :Š                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+              Personal BASIC                                   Page  8     :
+                                                                           :
+              --------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                      Appendix F
+
+                      Machine-Language Linking Conventions
+
+
+
+            The linkage used for CALL statements and USR functions is
+            identical. Before the new routine is called, the  expres-
+            sions in the argument list are  evaluated  and  placed on 
+            the  Personal  BASIC  (soft) stack, in the order in which 
+            they appear in  the  argument list.   All  parameters are 
+            passed  by value; if you want to access  a  variable, the 
+            appropriate parameter is VARPTR(<variable>), not the var-
+            iable name itself.
+
+            The address of the base of the argument list is placed in
+            BX  and Personal BASIC executes a Far Call (Callf) to the
+            offset specified by the Call variable or USR  definition,  
+            in the segment defined by the most recent DEF SEG  state-
+	    ment.
+
+            Any expressions are allowed in the argument list,  but it
+            is the user's responsbility to ensure that  the  argument
+            types correspond to the types the  machine-language func-
+	    tion is expecting. In particular, note that an expressionŠ            involving only integers might result in a  floating-point
+            result.  For example,
+
+               A% * B%
+
+            gives a floating-point result.
+
+            If you want to pass the result of an expression as an in-
+            teger, it is safest to use CINT to force the result to an
+            integer.  For example,
+
+               CINT(A% * B%)
+
+            will generate an integer or an error.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          Personal BASIC Manual        F Machine-Language Linking 
+
+
+
+            The user routine must preserve the data-segment  register 
+            (DS) over the call, and would normally return control via 
+	    a far return  (RETF),  which  restores  Personal  BASIC's  
+	    code segment register.
+
+            On return from  a  call  to a user routine called in  the 
+            context of a USRn function, the resulting value  is taken 
+            from the first argument area of the soft stack;  that is, 
+	    the user function is assumed to have  replaced  the first 
+	    argument (pointed directly to by BX)  with  the  function 
+	    result.
+Š            Argument Types
+
+            o Integers are stored in 2 bytes.
+
+            o Single-precision floating-point numbers are stored in 4
+               bytes.
+
+            o Double-precision floating-point numbers are stored in 8
+               bytes.
+
+            o String descriptors are stored in 6 bytes.
+
+          All  numbers  are  stored  in  the  following  order: least
+          significant byte first, most significant byte last.
+
+
+                      Integer Format
+
+               a               a + 1
+               ----------------------------------
+               :               :                :
+               :    LSB        :    MSB         :
+               ----------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          Personal BASIC Manual        F Machine-Language Linking 
+
+
+                             Single-Precision Format
+Š               a           a + 1      a + 2      a + 3
+               -----------------------------------------------
+               :           :          :        : :           :
+               :  LSB      :          : MSB    : :           :
+               :           :          :        : :           :
+               -----------------------------------------------
+               \                              / | \          /
+                \\\\\\\\\\\\\\  //////////////  |  \\\\  ////
+                              \/                V      \/
+                           mantissa           sign   exponent
+
+
+
+                             Double-Precision Format
+
+               a     a+1   a+2   a+3   a+4   a+5   a+6   a+7
+               ---------------------------------------------------
+               :     :     :     :     :     :     :     :     : :
+               :LSB  :     :     :     :     :     :MSB  :     : :
+               :     :     :     :     :     :     :     :     : :
+               ---------------------------------------------------
+               \                                      /\        /|
+                \\\\\\\\\\\\\\\\  ////////////////////  \\\\  // V
+                                \/                          \/  sign
+                              mantissa,                  exponent,
+                               53 bits                    11 bits
+
+
+
+                                  String Format
+
+               -----------------------------------------------------
+               :   :       :       :       :       :       :       :
+               : 4 :  12   :       :       :       :       :       :
+               :   :       :       :       :       :       :       :
+               -----------------------------------------------------
+                 : \               /\              /\              /
+                 :  \\\\\\\  //////  \\\\\\  //////  \\\\\\  /////
+                 V         \/              \/              \/
+                type,    length,        address1        address2
+               4 bits    12 bits
+
+
+
+
+
+
+
+
+
+
+
+
+
+Š
+
+
+
+
+          Personal BASIC Manual        F Machine-Language Linking 
+
+
+            Type is a 4-bit code, as follows:
+
+             0 = short string
+  
+                 Up to 4  bytes in  length, the characters are in the
+                 address1 and address2 fields.
+
+             1 = variable
+
+                 Address1  and  address2 combined give the address of 
+                 the  first  byte  in  the  string.  Address1 must be 
+	         shifted left one before being added to address2.
+
+             2 = field
+
+                 Address1 is composed of a 4-bit file number and  12-
+		 bit offset into the file user's buffer.  Address2 is 
+		 used for other purposes.
+
+             3 = constant
+
+                 Address1  and  address2  are combined as for type 1.
+                 The result address may point at  program text, so do 
+		 not change the string to which this points.
+
+             4 is not used
+
+             5 and 6 as for type 1.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Š
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              READ.ME File Notes                                           :
+									   :
+									   :
+                   Miscellaneous Changes                                   :
+                   ===================================================     :
+									   :
+                   o  Page 4-12 might lead you to assume that Personal     :
+                   BASIC allows concurrent access to a file.  This  is     :
+                   not the case.                                           :
+									   :
+                   o  REPLACE is a command.                                :
+                                                                           :
+                   o  Loading large programs:  after you  load a pro-      :
+                   gram, you  must  have  at  least  1K bytes free in      :
+                   order to RUN it.  Find the  number  of  free bytes      :
+ 	           with the FRE(0) function.                               :
+                        					           :
+                   o Change the VAL function example as follows:           :
+                                                                           :   
+                   Ok  10 INPUT "ENTER ID NUMBER, 0 TO STOP: ",ID$         :
+                   Ok  15 IF ID$ = "0" THEN END                            :
+                   Ok  20 IF VAL(ID$) <= 300 THEN <LF>		           :
+                          EXPIRATION$ = "JAN 1, 1985"                      :
+                   Ok  30 IF VAL(ID$) > 300 THEN <LF>                      :
+               	          EXPIRATION$ = "JAN 1, 1990"                      :
+                   Ok  40 PRINT EXPIRATION$ : GOTO 10                      :
+               	   Ok  RUN                                                 :
+               	   ENTER ID NUMBER, 0 TO STOP: 3443475949876               :
+               	   JAN 1, 1990                                             :
+               	                                                           :
+               	   o  Page 4-6. In the example under +, line 10 should     :
+               	   say Y = -234.5 and the result should say +765.432.      :
+               							           :
+               	   o  In Listing  4-1, page  4-12, replace DATE$; with     :
+               	   with DATE$, on line 60.			           :
+               	           					       	   :
+               	   o  Page 4-15, line  100.  Replace "R": with "R",.       :
+								   	   :Š                   o  Page 4-16, listing 4-4, line 500.  Add ,45  to       :
+		   end of line.                    			   :
+               					                           :
+                   o  Page 5-22, line 10.   Insert  commas  after "R"      :
+                   and #1.                                                 :
+									   :
+									   :
+               							           :
+		                                  			   :
+		                                                           :
+									   :
+              Personal BASIC                                  Page  9      :
+									   :
+              --------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              READ.ME File Notes                                           :
+									   :
+									   :
+                   Miscellaneous Changes, cont.                            :
+                   ==================================================      :
+									   :
+                   o  Page 5-33.   The  DIM  statement  syntax  is as      :
+                   follows:                                                :
+									   :
+                        DIM <array name>(<subscript>{,<subscript>})        :
+		           {,<array name>(<subscript>{,<subscript>})}      :
+									   :
+		   o  Page 5-45. The example for direct mode is miss-      :
+		   ing. Insert "Ok ERROR 55". The error message, "You      :
+                   cannot KILL or OPEN a file already open" results.       :
+                              					           :
+                   o  Page 5-50.  The  FOLLOW    command  traces only      :
+		   simple variables--that is, not array variables.	   :
+			                                                   :
+        	   o  Page 5-61. Add the following to the explanation      :
+		   of the INPUT statement: if you include a semicolon	   :
+		   after  INPUT  in  the  statement line pressing the      :
+		   carriage return after your response  does not skip      :
+		   you down to the next line.                              :
+									   :Š		   o  Page 5-64: the open mode in the  example  should     :
+                   be "I".  In line 20, #1 should be #10.                  :
+									   :
+                   o  Page 5-65, line 10.  Change INPUT to PRINT.  In      :
+	           example, change DANIEL FOLTZ to DANIEL.	           :
+   									   :
+         	   o  Page 5-66, 1st line, 2nd paragraph should read,      :
+                   "You  can  specify a character as a starting point      :
+                   in  a string by giving its ordinal  value  in  the      :
+                   string."                                                :
+									   :
+		   o  Page 5-67. The one-line description at the  top	   :
+		   of the page should say, "The INT function  returns      :
+		   the integer portion of a number as a real number."      :
+		   Put # signs after the X variables in the example.       :
+                                                                           :
+                   o  Page 5-71.  Delete the second : in line 90.          :
+ 							  	           :
+									   :
+									   :
+              Personal BASIC                                  Page  10     :
+                                                                           :
+----------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              READ.ME File Notes                                           :
+									   :
+									   :
+                   Miscellaneous Changes, cont.                            :
+                   ==================================================      :
+                                           				   :
+		   o  Page 5-72.  The syntax should read as follows:       :
+									   :
+                   LINE INPUT[;] [<"prompt"><, or ;>]<string variable>.    :
+									   :
+		   Prompts are string constants. Put them in quotes.       :
+									   :
+                   o  Page 5-77.  Delete the # sign from the example.      :
+		     							   :
+		   o  Page 5-80.  Syntax  is  LPOS(<dummy argument>).      :Š		   A dummy argument is a "stand-in" argument and can 	   :
+                   be any number.					   :
+									   :
+		   o  Page 5-81.  Change "STYLE$" to &######.              :
+								           :
+		   o  Page 5-82.  A better example is                  	   :
+                           Ok  10 A$ = STRING$(20,"X")                     :
+                           Ok  20 INPUT "REPLACE"; B$                      :
+			   Ok  30 PRINT A$			           :
+                           Ok  40 LSET A$ = B$                             :
+		           Ok  50 PRINT A$                                 :
+ 			   Ok  60 GOTO 10				   :
+		           Ok  RUN                                         :
+		           REPLACE? 3434DfrE~%^                            :
+                           XXXXXXXXXXXXXXXXXXXX                            :
+  		           343DfrE~%^					   :
+                           REPLACE? 7474747474747474747474747474747        :
+		           XXXXXXXXXXXXXXXXXXXX                  	   :
+			   74747474747474747474                            :
+									   :
+		   o  Replace the example on p. 85 with the following:	   :
+		   Ok  10 DAY$ = "MONWEDFRI"                               :
+		   Ok  20 RESCHEDULE$ = "TUE"                              :
+                   Ok  30 INPUT "COURSE NUMBER";C$                         :
+		   Ok  40 IF RIGHT$(C$,3) ="003" THEN <LF>                 :
+                          MID$(DAY$,4,3) = RESCHEDULE$                     :
+                   Ok  50 PRINT DAY$                                       :
+                   Ok  RUN                                                 :
+                   COURSE NUMBER? 53-003                                   :
+                   MONTUEFRI                                               :
+            					                           :
+                 Personal BASIC                             Page 11        :
+                                                                           :
+----------------------------------------------------------------------------
+                                                        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              READ.ME File Notes                                           :
+									   :
+									   :
+                   Miscellaneous Changes, cont.                            :Š                   ==================================================      :
+									   :
+                   o For the following commands, the filetype .BAS is      :
+                   the default. The filetype .BAS can be omitted when      :
+		   using these commands.				   :
+                          MERGE             REPLACE         STEP           :
+                          OLD               RUN 			   :
+		          NEW               SAVE                      	   :
+                                                                           :
+		   o Page 5-95, line 20:  insert ", 10" (without  the      :
+		   quotes) after #1.  When you open a file for output      :
+                   in "O" mode, if the file did not exist already, it      :
+		   is created.  If it did exist, the existing file is      :
+		   erased, and a new file by that name is created. In	   :
+                   "I" mode, the file must exist, or an error results.     :
+		   In "R" mode,  if  the  file  doesn't  exist, it is      :
+		   created.			                  	   :
+            					                           :
+	           o Page 5-99,  lines  100,  120.  Change OUT,MSG to      :
+                   OUT.MSG.						   :
+									   :  
+                   o Page 5-102, line 30.  Put quotes around ONE, TWO      :
+       	           and THREE; these are all string constants.              :
+                                     					   :
+		   o Page 5-104.  Change  the  semicolon  in the last      :
+       		   example to a comma.		                           :
+		                                                           :
+		   o Page 5-118, line 30. Insert a quote before the T.     :
+                                                                           :
+  		   o Page 5-119.  Delete line after RUN.  Call "heads"     :
+                   to win.					           :
+                              					           :
+                   o Page 5-120, line 10.  Insert a comma after "R".       :
+									   :
+		   o Page 5-126.  Insert ALPHABET, followed by a blank     :
+		   line, under RUN, in the example.                        :
+			   						   :
+		   o Page 5-135.  Change -.6235017 to -.62351.	           :
+						  		           :
+                         						   :
+                                                                           : 
+              Personal BASIC                                    Page 12    :
+                                                                           :
+---------------------------------------------------------------------------:
+                                                        
+
+
+
+
+
+
+
+
+
+Š
+
+
+
+
+
+              READ.ME File Notes                                           :
+									   :
+									   :
+                   Miscellaneous Changes, cont.                            :
+                   ==================================================      :
+							                   :
+                    o Page 5-128, example.  The <cr>'s should follow       :
+ 	              the Br's.      					   :
+		                                                           :
+                    o Page 5-134, output: move SUMMER one line down.       :
+		                                                           :
+                    o Page 5-151.  Change B$  to  KWH  in  the   last      :
+		      example.                                             :
+		                                                           :
+                    o Appendix B.  Insert  a  tilde, ~, after decimal      :
+		      126.					           :
+		   							   :
+		    o  Tutorial, Page 2-14.  ERA example should read,      :
+		       "Ok ERA CARDS.BAS"			           :
+									   :
+                                                                           :
+                                                                           :
+                                                                           : 
+									   :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+                                                                           :
+       								  	   :
+                                                                           :
+                                                                           :
+       		   						   	   :
+                                                                           :
+       	                                                      	  	   :
+                                                                           :
+       	                                                                   :
+                                                                           :
+                                                                           :
+                                                                           :
+									   :
+                                                                           : 
+              Personal BASIC                                    Page 13    :Š                                                                           :
+---------------------------------------------------------------------------:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              READ.ME File Notes                                           :
+									   :
+									   :
+                   RENUM Command Revisited                                 :
+                   ==================================================      :
+                                                                           :
+                   When you RENUMber programs,  you  must have enough      :
+		   free space in memory.   The  amount of free  space      :
+                   you need is two bytes per  numbered  program line.      :
+                   For example,  a  program  with  1200 program lines      :
+                   needs at least 2400 bytes of free memory for RENUM      :
+                   to work.  Use the FRE function to find  the  bytes      :
+                   available.  Note that RENUM is a command.               :
+ 									   :
+                   You   can   now   re-order  lines and move program      :
+                   blocks with RENUM.  The new  syntax is as follows:      :
+                                                                           :
+                   RENUM <new line><,increment><,start line><,end line>    :
+                                              	                           :
+                        Notice  the  first two parameters refer to the     :
+		   new line numbers, the second two to the old.    The     :
+		   new first line number is the new number you give an     :
+            	   old line. The default is 10. For the increment, the     :
+		   default is also 10.  The  start  line  is where you     :
+                   want renumbering to begin.  The  default is line 0.     :
+		   The end line is the  line  where renumbering stops.     :
+                   The default is the end  of the program--take  care      :
+                   not to renumber your  whole  program  accidentally.     :
+		   RENUM with no arguments or only the new first  line     :
+		   number behaves  as before.     		           :
+		          Useful hint:  you can use RENUM with SAVE to     :
+                   duplicate line numbers, as follows:                     :
+		        					           :
+                        SAVE CALC, 100-200                                 :
+		        RENUM 1000,,100,200                                :Š		        MERGE CALC                                         :
+		        					           :
+		   This will result in lines 100-200 repeated both  in     :
+		   their original positions and as lines 1000-1100. BE     :
+		   CAREFUL: new line numbers overwrite  old  identical     :
+		   line numbers.  You might lose a line you wanted.        :
+									   :
+									   :
+                                                                           :
+									   :
+                                                                           :
+              Personal BASIC                                    Page 14    :
+                                                                           :
+---------------------------------------------------------------------------:
+
+
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+               READ.ME File Notes                                         :
+                                                                          :
+                                                                          :
+                  The USR Function Call                                   :
+                  ==================================================      :
+                                                                          :
+                  The  USR  function  calls  a machine-language sub-      :
+                  routine, passing arguments values on the stack.         :
+     	                                                                  :
+                  Syntax:                                                 :
+                                                                          :
+        	  X<type>=USR[<digit>](arg1<type>[,arg2,..arg15])         :
+       		               					          :
+                  The  type  of the  result  variable  and the first      :
+        	  argument  must  be  the  same (string or numeric).      :
+                  Up  to  15  arguments  can  be specified.  The USR      :
+                  function returns a value that BASIC assumes is the      :
+	          same type as the first argument.                        :
+                                                                          :
+        	  If you use USR with small numeric  constants  from      :
+	          0 to 15, BASIC returns system error 3.    You  can      :
+                  correct  this  by  forcing  the  constants to type      :
+        	  integer with  CINT.  For example, 			  :Š      								          :
+                       A% = USR(CINT(0))                                  :
+      								   	  :
+	          For variables and  constants  greater than 15, USR      :
+                  performs as documented.   You  can also solve this      :
+	          problem by  assigning  small  numeric constants to      :
+                  variables and using the variables with USR.             :
+        	                                                          :
+                  Delete the $ from C$ on line 20.                        :
+                	                                                  :
+                        	                                          :
+                                	                                  :
+                                        	                          :
+                                                	                  :
+                                                        	          :
+                                                                	  :
+                                                                          :
+                                                                  	  :
+                                                                          :
+                                                                          :
+                                                                          :
+                                                                          :
+             Personal BASIC                                  Page  15     :
+                                                                          :
+         ------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                      VVVVVVVVV
+                                       VVVVVVV
+                                        VVVVV
+                                         VVV
+                                         VVV
+                                         VVV
+                                         VVV
+                                  VVVVVVVVVVVVVVVVVŠ                                   VVVVVVVVVVVVVVV
+                                    VVVVVVVVVVVVV
+                                     VVVVVVVVVVV
+                                      VVVVVVVVV
+                                       VVVVVVV
+                                        VVVVV
+                                         VVV
+                                          V
+                                          
+
+                         End of Personal BASIC Read.Me File
+
+

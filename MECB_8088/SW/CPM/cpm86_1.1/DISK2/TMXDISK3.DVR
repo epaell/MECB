@@ -1,0 +1,105 @@
+;
+CS0D3	EQU	Offset $
+    CSEG 0
+	ORG	CS0D3
+;********************************************************
+;*	FINAL PROCESSING FOR DISK 3 HARD DISK DRIVES	*
+;********************************************************
+;
+;	Routines for driving the Disk 3 hard disk controller in conjunction
+;	with one to four ST506 compatible disk drives.
+;
+;Entry:	CIOBP = Floppy Read/Write command byte,
+;	ACTDSK = Drive unit select,
+;	ACTTRK = Track number (cylinder, head combined),
+;	ACTSEC = Sector number.
+;
+D3FNL:	MOV  Byte Ptr D3NRDYL,'x' ;Clear drive letter in not ready message
+	MOV  SI,offset D3CIOPB	;Point to Disk 3 command parameter block
+	MOV	AL,ACTDSK	;Get current active disk
+	MOV  D3_DRVS[SI],AL	;Save in Disk 3 command block as disk to use
+	MOV	AL,CIOPB	;Get current active floppy command
+	NOT  AL  !   AND  AL,1	;Flip and Mask floppy Read/Write status
+	MOV	3[SI],AL	;Save zero or one corresponding to Read/Write
+	MOV	AL,ACTSEC	;Get active sector number
+	CBW			;Sector upper half is always zero
+	MOV	4[SI],AX	;Set up sector to xfer
+	MOV	AX,ACTTRK	;Get active track number
+	MOV	6[SI],AX	;Set up track to xfer
+	MOV  Word ptr 8[SI],1	;Set for one sector to xfer
+	CALL	GETDMA		;Get DMA 24 bit address in "AL, BX"
+	MOV  D3_DMA+0[SI],BX	;Set up 24 bit DMA in parameter block
+	MOV  D3_DMA+2[SI],AL	; (low byte, mid byte, high byte)
+;
+; Execute the disk data transfer.
+D3FNL1:	MOV  BX,offset D3CIOPB	;Point to Disk 3 command parameter block
+	MOV  Byte ptr 0[BX],D3_XFER ;Set up xfer data command in first byte
+	MOV  Byte ptr 1[BX],0	;Indicate Disk 3 command begin execution
+	MOV	AL,D3_ATTN	;Xmit Disk 3 attention to begin operation
+	OUT	D3_PORT,AL
+D3EXEC3:MOV	AL,D3_STAT[BX]	;Get disk 3 status
+	OR	AL,AL		;See if command has been accepted
+	JZ	D3EXEC3		;Wait until it has if not
+	SUB	AL,0FFh		;See if valid completion indicated
+	JNZ	D3EXEC4		;Check for possible track relocation if not
+	RET			;Return showing no error
+;
+; If the returned error status permits, relocate the invalid track's data.
+D3EXEC4:CMP	AL,3 - 0FFh	;See if header not found
+	JE	D3EXEC5		;Relocate track if so
+	CMP	AL,4 - 0FFh	;See if data CRC error
+	JE	D3EXEC5		;Relocate track if so
+	CMP	AL,7 - 0FFh	;See if header CRC error
+	JE	D3EXEC5		;Go print error message if any other error
+	CMP	AL,2 - 0FFH	;See if drive not ready
+	JNE	D3EXEC		;Go show error message if any other error
+	CALL	D3NORDY		;Go print disk3 not ready message
+	JMPS	D3FNL1		;Go retry last command 
+D3EXEC5:MOV	AL,D3RELOC	;Try to relocate the track
+	CALL	D3EXEC		;Call execute routine to do relocation
+	JNZ	D3ERRET		;Return with error if unable to relocate 
+	CMP  Byte Ptr 3[BX],1	;See if command was a read
+	JE	D3ERRET		;Return with error if command was a read
+D3EXEC6:RET			;If command was write & reloc was ok show no error  
+;
+; General callable entry point, also used for track relocation.
+D3EXEC:	MOV  BX,offset D3CIOPB	;Point to Disk 3 command parameter block
+D3EXEC0:MOV	[BX],AL		;Place Disk 3 command in parameter block
+	MOV  Byte ptr 1[BX],0	;Indicate Disk 3 command begin execution
+	MOV	AL,D3_ATTN	;Xmit Disk 3 attention to begin operation
+	OUT	D3_PORT,AL
+D3EXEC1:MOV	AL,D3_STAT[BX]	;Get disk 3 status
+	OR	AL,AL		;See if command has been accepted
+	JZ	D3EXEC1		;Wait until it has if not
+	SUB	AL,0FFh		;See if valid completion indicated
+	JZ	D3EXEC6		;Exit with no error if so
+	CMP	AL,2 - 0FFH	;See if error was drive not ready
+	JNE	D3EXEC2		;Go print error number if any other error
+	CALL	D3NORDY		;Print disk3 not ready message
+	MOV  AL,Byte Ptr D3CIOPB ;Get orginal command back
+	JMPS	D3EXEC		;Go retry command
+;
+;Show drive unit not ready
+D3NORDY:MOV	AH,ACTDSK	;Get current active disk
+	ADD	AH,'0'		;Add ASCII offset for numbers
+	CMP  Byte Ptr D3_NRDYL,AH ;See if not ready message printed yet
+	JE	D3EXEC9		;Don't print message again
+	MOV  Byte Ptr D3_NRDYL,AH ;Save drive number in not ready message
+	MOV  BX,offset D3NRDYM	;Point to start of not ready message
+	CALL	PRINT		;Send it to console
+D3EXEC9:CALL	CIS		;See if abort desired
+	JNZ	D3EXEC7		;Abort with error, clear character
+	RET
+;
+; Show returned error number, and the drive unit affected.
+D3EXEC2:ADD	AL,'0'-1	;Add ASCII offset to indicate error number
+	MOV  Byte Ptr D3_MSG2,AL ;Save error number in message to send
+	MOV  AH,Byte Ptr ACTDSK	;Get current disk
+	ADD	AH,'0'		;Add ascii bias in
+	MOV  Byte ptr D3_MSG3,AH;Save drive specification in error message
+	MOV  BX,offset D3MSG	;Point to start of error message
+	CALL	PRINT		;Send it to console
+D3EXEC7:CALL	CI		;Get any character from console
+D3ERRET:OR	AL,0FFh		;Indicate error condition to calling routine
+	RET			;Return with error condition set
+

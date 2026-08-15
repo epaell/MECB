@@ -1,0 +1,88 @@
+Link/MT+86  F:TEST.CMD
+
+Processing file-    F:TEST.R86
+ Module: TEST     Offset/Size  Code: 0000H/0190H   Data: 0100H/0020H
+Processing file-    PASLIB.R86
+ Module: OPENSTU  Offset/Size  Code: 0190H/003CH  
+ Module: @INITI   Offset/Size  Code: 01CCH/016FH   Data: 0120H/00B6H
+ Module: INIT3    Offset/Size  Code: 033BH/0038H  
+ Module: STR      Offset/Size  Code: 0373H/0036H  
+ Module: FILERES  Offset/Size  Code: 03A9H/01DFH  
+ Module: FILECLO  Offset/Size  Code: 0588H/012BH  
+ Module: IOMODUL  Offset/Size  Code: 06B3H/0E79H   Data: 01D6H/06A0H
+ Module: DONEWLI  Offset/Size  Code: 152CH/0020H  
+ Module: WAITFOR  Offset/Size  Code: 154CH/0051H  
+ Module: STRDEL   Offset/Size  Code: 159DH/006BH  
+ Module: ENDFIL   Offset/Size  Code: 1608H/0038H  
+ Module: GETREC   Offset/Size  Code: 1640H/0126H  
+ Module: KILLFIL  Offset/Size  Code: 1766H/001FH  
+ Module: IONUM    Offset/Size  Code: 1785H/001BH  
+ Module: CHAINMO  Offset/Size  Code: 17A0H/006FH  
+ Module: READCHA  Offset/Size  Code: 180FH/0021H  
+ Module: FREWRIT  Offset/Size  Code: 1830H/01C4H  
+ Module: READSTR  Offset/Size  Code: 19F4H/01E4H   Data: 0876H/0052H
+ Module: SETMEMB  Offset/Size  Code: 1BD8H/0053H  
+ Module: STRINGC  Offset/Size  Code: 1C2BH/024FH  
+ Module: WSTRING  Offset/Size  Code: 1E7AH/0030H  
+ Module: WCHARAR  Offset/Size  Code: 1EAAH/00BDH  
+ Module: WRNXCH   Offset/Size  Code: 1F67H/0066H  
+ Module: PUTREC   Offset/Size  Code: 1FCDH/0024H  
+ Module: RDNXCH   Offset/Size  Code: 1FF1H/00A3H  
+ Module: SETADD   Offset/Size  Code: 2094H/0021H  
+ Module: MOVES    Offset/Size  Code: 20B5H/0071H  
+ Module: BSR      Offset/Size  Code: 2126H/0046H  
+ Module: SHIFT_A  Offset/Size  Code: 216CH/002CH  
+ Module: SETLOAD  Offset/Size  Code: 2198H/0018H  
+ Module: BUILDSU  Offset/Size  Code: 21B0H/002BH  
+ Module: BDOSCAL  Offset/Size  Code: 21DBH/003BH  
+ Module: CHRFIL   Offset/Size  Code: 2216H/0017H  
+ Module: SETNAME  Offset/Size  Code: 222DH/0035H  
+ Module: LONGCOM  Offset/Size  Code: 2262H/0061H  
+ Module: LONGART  Offset/Size  Code: 22C3H/0109H  
+ Module: LOADSTO  Offset/Size  Code: 23CCH/0042H  
+ Module: DIOMOD   Offset/Size  Code: 240EH/0008H  
+ Module: ATDS     Offset/Size  Code: 2416H/0003H  
+ Module: RTPLAST  Offset/Size  Code: 2419H/0001H   Data: 08C8H/0002H
+
+RTPLAST 2419  ATDS    2416  DIOMOD  240E  @LI4    23E0
+@LI2    23D7  @LI1    23CC  @SI2    23F7  @SI1    23EE
+LOADSTO 23CC  @DVL    22DB  @MDL    22CE  @NGL    23BB
+LONGART 22C3  @SBL    22C3  @EQL    2262  @GTL    2287
+@LSL    2297  @GEL    22A3  @LEL    22B3  LONGCOM 2262
+SETNAME 222D  CHRFIL  2216  BDOSCAL 21DB  BUILDSU 21B0
+SETLOAD 2198  SHL     2173  SHIFT_A 216C  BSR     2126
+@MVR    20E8  MOVELE  20D0  MOVERI  2107  MOVES   20B5
+SETADD  2094  @GETCH  240E  RDNXCH  1FF1  PUTREC  1FCD
+@PUTCH  2412  @NEL    2278  WRNXCH  1F67  WCHARAR 1EAA
+@WCH    1EB0  WSTRING 1E7A  @LED    1C43  @GED    1C40
+@LSD    1C3D  @GTD    1C3A  @NED    1C37  STRINGC 1C2B
+SHR     216C  SETMEMB 1BD8  READSTR 19F4  FREWRIT 1830
+READCHA 180F  CHAINMO 17A0  IONUM   1785  KILLFIL 1766
+GETREC  1640  ENDFIL  1608  STRDEL  159D  @RNC    1FF4
+WAITFOR 154C  @WNC    1F6A  DONEWLI 152C  DELETE  15A0
+FILLCH  2216  @CHN    17CF  @BDOSX  220D  @BDOS8  21E3
+@SLD    2198  @SST    217A  @EQD    1C34  @BSR    2126
+CHAIN   06EC  @UNLIN  06D7  @CREAT  06D4  @INI2   06CE
+@PARSE  06CB  @FCBS   01DC  IOMODUL 06B3  @CLOSE  06DA
+@WNB    06E9  PURGE   1769  @BSS    21B0  @SIN    1BDB
+@SAD    2094  CLOSED  058E  FILECLO 0588  @OPEN   06D1
+@RNB    06E6  @LFB    01D6  RESULTI 01DA  @MVL    20B5
+FILERES 03A9  STR     0373  INIT3   033B  MOVE    20CD
+REWRIT  1833  @DS     2416  @INI3   033B  GET     1643
+PUT     1FD0  SYSMEM  08C8  @STR    0373  @SI4    2400
+@SYSOU  01AE  @SYSIN  01AA  @TFN    01A6  @FRL    0120
+@INITI  01CC  ASSIGN  2230  RESET   03AC  OPENSTU 0190
+CLOSE   058B  EOF     160B  INPUT   0165  IORESU  1788
+OPEN    0193  OUTPUT  0124  @RST    19F7  @HLT    21DB
+@WRS    1E7D  @INI    01CF  @SFB    06DD  @CWT    154F
+@CRL    152F  @RCH    1812  @CHW    1EAD  TEST    0013
+TEST    0000
+
+ -- No Undefined Symbols --
+
+
+Total Data: 07CAH
+Total Code: 241AH
+
+1099 Symbols remaining
+

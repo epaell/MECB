@@ -1,0 +1,65 @@
+;	        DISKS 2
+dpbase	equ	$		;Base of Disk Parameter Blocks
+dpe0	dw	xlt0,0000h	;Translate Table
+	dw	0000h,0000h	;Scratch Area
+	dw	dirbuf,dpb0	;Dir Buff, Parm Block
+	dw	csv0,alv0	;Check, Alloc Vectors
+dpe1	dw	xlt1,0000h	;Translate Table
+	dw	0000h,0000h	;Scratch Area
+	dw	dirbuf,dpb1	;Dir Buff, Parm Block
+	dw	csv1,alv1	;Check, Alloc Vectors
+;	        DISKDEF 0,1,26,6,1024,243,64,64,2
+;
+;	 1944:	128 Byte Record Capacity
+;	  243:	Kilobyte Drive  Capacity
+;	   64:	32 Byte Directory Entries
+;	   64:	Checked Directory Entries
+;	  128:	Records / Extent
+;	    8:	Records / Block
+;	   26:	Sectors / Track
+;	    2:	Reserved  Tracks
+;	    6:	Sector Skew Factor
+;
+dpb0	equ	offset $	;Disk Parameter Block
+	dw	26		;Sectors Per Track
+	db	3		;Block Shift
+	db	7		;Block Mask
+	db	0		;Extnt Mask
+	dw	242		;Disk Size - 1
+	dw	63		;Directory Max
+	db	192		;Alloc0
+	db	0		;Alloc1
+	dw	16		;Check Size
+	dw	2		;Offset
+xlt0	equ	offset $	;Translate Table
+	db	1,7,13,19
+	db	25,5,11,17
+	db	23,3,9,15
+	db	21,2,8,14
+	db	20,26,6,12
+	db	18,24,4,10
+	db	16,22
+als0	equ	31		;Allocation Vector Size
+css0	equ	16		;Check Vector Size
+;	        DISKDEF 1,0
+;
+;	Disk 1 is the same as Disk 0
+;
+dpb1	equ	dpb0		;Equivalent Parameters
+als1	equ	als0		;Same Allocation Vector Size
+css1	equ	css0		;Same Checksum Vector Size
+xlt1	equ	xlt0		;Same Translate Table
+;	        ENDEF
+;
+;	Uninitialized Scratch Memory Follows:
+;
+begdat	equ	offset $	;Start of Scratch Area
+dirbuf	rs	128		;Directory Buffer
+alv0	rs	als0		;Alloc Vector
+csv0	rs	css0		;Check Vector
+alv1	rs	als1		;Alloc Vector
+csv1	rs	css1		;Check Vector
+enddat	equ	offset $	;End of Scratch Area
+datsiz	equ	offset $-begdat	;Size of Scratch Area
+	db	0		;Marks End of Module
+

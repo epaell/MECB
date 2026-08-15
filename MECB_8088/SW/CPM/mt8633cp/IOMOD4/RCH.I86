@@ -1,0 +1,104 @@
+;* Character I/O for PASCAL/MT+86 I/O Module
+
+;* Last Update: 13-Jan-1986   by Gerhard Stegemann
+
+	NAME	CHARACTERIO
+
+DATA	SEGMENT	PUBLIC
+
+	INCLUDE	'FIBDEF.I86'	; Def. of File Information Block
+
+	EXTRN	@LFB : DWORD   	; ^FIB
+	EXTRN 	@SYSIN : WORD   ; Pointer I/O redirection
+
+DATA	ENDS
+
+
+CODE	SEGMENT	PUBLIC
+
+	ASSUME	CS:CODE, DS:DATA
+
+	EXTRN	@GETCH : NEAR
+	EXTRN	@RNB : NEAR
+	EXTRN	GET : NEAR
+
+	PUBLIC	@RCH, @RNC
+
+
+@RCH	PROC	NEAR
+
+;    PROCEDURE @RCH(VAR CH : CHAR);
+;
+;    BEGIN
+
+	PUSH 	BP
+	MOV 	BP,SP
+
+;      CH := @RNC;
+
+	CALL	@RNC
+	LES	DI,DWORD PTR 4[BP]
+	MOV	ES:BYTE PTR [DI],AL
+
+	MOV 	SP,BP
+	POP 	BP
+	RET 	4
+
+@RCH	ENDP
+
+
+@RNC	PROC	NEAR
+
+;	FUNCTION @RNC : CHAR;
+;
+;    BEGIN                   Read next character
+
+	PUSH	BP                                 
+	MOV	BP,SP                              
+
+	MOV	AX,CS:WORD PTR GETCALL+1 ; Read jmp operand 
+	ADD	AX,OFFSET GETCALL+3 ; Calculate offset
+	CMP	AX,@SYSIN
+	JNZ	L0135		; I/O redirected
+	MOV	AX,CS
+	CMP	AX,@SYSIN+2
+	JZ	L013E                               
+
+L0135:  CALL	@GETCH          ; Call user routine
+	JMP	L01A4                               
+
+L013E:  LES	DI,@LFB                          
+	CMP	ES:BYTE PTR option[DI],frandom
+	JLE	L017B           ; Disk I/O required
+
+	PUSH	ES              ; Do character device I/O
+	PUSH	DI                                 
+	MOV	AX,ES:WORD PTR buflen[DI]                            
+	PUSH	AX  
+
+GETCALL:
+	CALL	GET                               
+	LES	DI,@LFB                          
+	MOV	AL,ES:BYTE PTR fbuffer[DI]                            
+	JMP	L01A4                               
+
+L017B:  MOV	AL,ES:BYTE PTR fbuffer[DI]                            
+	PUSH	AX		; Save character
+	PUSH	ES                                 
+	PUSH	DI                                 
+	MOV	AX,ES:WORD PTR buflen[DI]                            
+	PUSH	AX                                 
+	CALL	GET             ; Read next one
+	POP	AX
+
+L01A4:  XOR	AH,AH 		; Return read character 
+	MOV	SP,BP                              
+	POP	BP                                 
+	RET	                                   
+
+@RNC	ENDP
+
+CODE	ENDS
+
+	END
+

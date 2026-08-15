@@ -1,0 +1,75 @@
+	nolist
+;LAST UPDATED:	11 JUN 83	-- no version number on libraries.
+;REASON FOR UPDATE:	To bring usage of control character names into
+;		general uniform structure, facilitating updates.	aep
+;
+; LIBRARY NAME:		ASCII.EQU, a compilation of ANSI control characters.
+;
+; The "C0" (7 bit) ASCII control codes and other special characters:
+;	DC = Device Control function, should not be text data.
+;	CC = Communications Control function, definitely should not be
+;		transmitted without full knowledge of its usage.
+;	FE = Format Effector function, alters the display format of
+;		transmitted text, fairly safe for external commumication.
+;	IC = Information Separator, acts in much the same manner as the
+;		"space" character -- it takes up a variable amount of
+;		of space in a display but generally has no effect on a
+;		communications hookup.  More complete definitions are
+;		usually context defined, but the larger the numeric value
+;		of a separator, the larger it's significance should be.
+;
+;	The above comes to you courtesy of the ANSI standards manual on
+;	ASCII -- X3.4-1979 and its extensions: X3.41-1977 and X3.64-1979.
+;
+; NOTE:	Those characters having a double asterisk in their function ID field
+;	are strongly recommended by ANSI to not be used for any purpose except
+;	those defined in various commumication protocols.  If you ever hope
+;	to get connected into any large network of computers or data bases,
+;	there is more than fair chance that these rules will be strictly
+;	adheared to.
+;
+NULL	EQU	00h	; DC**	;Null, tape feed.
+SOH	EQU	01h	;CC **	;Start of heading.
+STX	EQU	02h	;CC **	;Start of text.
+ETX	EQU	03h	;CC **	;End of text.
+EOT	EQU	04h	;CC **	;End of transmission.
+ENQ	EQU	05h	;CC **	;Enquiry, also WRU.
+ACK	EQU	06h	;CC **	;Acknowledge, also RU.
+BEL	EQU	07h	;	;Rings bell.
+BS	EQU	08h	;FE	;Backspace, also FEB.
+HT	EQU	09h	;FE	;Horizontal tab.
+LF	EQU	0Ah	;FE	;Line feed.
+VT	EQU	0Bh	;FE	;Vertical tab.
+FF	EQU	0Ch	;FE	;Form feed to top of new page.
+CR	EQU	0Dh	;FE	;Carriage return to beginning of line.
+sSO	EQU	0Eh	;   **	;Shift out.
+sSI	EQU	0Fh	;   **	;Shift in.
+DLE	EQU	10h	;CC **	;Data line escape.
+DC1	EQU	11h	; DC	;Device control 1, (XON).
+DC2	EQU	12h	; DC	;Device control 2.
+DC3	EQU	13h	; DC	;Device control 3, (XOFF).
+DC4	EQU	14h	; DC	;Device control 4.
+NAK	EQU	15h	;CC **	;Negative acknowledge, also ERR (error).
+SYN	EQU	16h	;CC **	;Synchronous idle (SYNC).
+ETB	EQU	17h	;CC **	;End of transmission block.
+CAN	EQU	18h	;   **	;Cancel current escape sequence.
+EM	EQU	19h	;	;End of medium.
+SUBs	EQU	1Ah	;   **	;Substitute.
+ESC	EQU	1Bh	;   **	;Escape.
+iFS	EQU	1Ch	;IS	;File separator.
+iGS	EQU	1Dh	;IS	;Group separator.
+iRS	EQU	1Eh	;IS	;Record separator.
+iUS	EQU	1Fh	;IS	;Unit separator.
+SPACE	EQU	20h	;IS	;Space character.
+DEL	EQU	7Fh	; DC	;Rubout or Delete character, also a null.
+;
+; Special CP/M characters:
+CNTLC	EQU	03h	;Control C (^C)
+BELL	EQU	07h	;Rings bell or beeper
+XON	EQU	11h	;(DC1) Control to turn on transmission
+XOFF	EQU	13h	;(DC3) Control to turn off transmission
+EOF	EQU	1Ah	;End of file marker (indicates text end).
+;
+;========= end of common ANSI control codes ==========
+	list
+

@@ -1,0 +1,392 @@
+;* @RNB and @WNB for PASCAL/MT+86 I/O Module
+
+;* Last Update: 12-Jan-1986   by Gerhard Stegemann
+
+;* Update Summary:
+
+;*   - File access optimized
+
+	NAME	RNBWNB
+
+DATA	SEGMENT	PUBLIC
+
+	INCLUDE	'FIBDEF.I86'
+
+bdos	EQU	224
+
+	EXTRN	@LFB : DWORD   	;^FIB
+	EXTRN	RESULTI : WORD
+
+DATA	ENDS
+
+
+CODE	SEGMENT	PUBLIC
+
+	ASSUME	CS:CODE, DS:DATA
+
+	EXTRN 	GETBYTE : NEAR
+	EXTRN 	PUTBYTE : NEAR
+
+	PUBLIC	@RNB, @WNB
+
+@RNB	PROC	NEAR
+
+;    PROCEDURE @RNB;
+;
+;    VAR
+;        I : INTEGER;
+;        J : INTEGER;
+;        CHAR : CHAR;
+;        ENDFILE : BOOLEAN;
+
+i	equ	word ptr [bp-2]
+j	equ	word ptr [bp-4]
+char	equ	byte ptr [bp-6]
+endfile	equ	byte ptr [bp-7]
+
+;    BEGIN
+
+	PUSH 	BP
+	MOV 	BP,SP
+	SUB 	SP,7
+
+;      RESULTI := 0;
+
+	MOV 	RESULTI,0
+
+;
+;      WITH @LFB^ DO
+
+	LES 	DI,@LFB
+
+;        CASE OPTION OF
+
+	MOV 	AL,ES:BYTE PTR option[DI]
+	AND	AX,07H
+	SHL	AX,1
+	MOV	SI,AX
+	MOV	AX,CS:RCASE[SI]
+	JMP 	AX
+
+RCASE	DW	L01E5		;notopen
+	DW	L0144
+	DW	L0144
+	DW	L0144
+	DW	L0034
+	DW	L00C9
+	DW	L0108
+	DW	L011B
+	
+;          FCONIO:                 (* Read console not a disk file *)
+;            BEGIN
+;              CHAR := @BDOS86(1, NIL); (* Second parm is a dummy *)
+
+L0034:	MOV 	CL,1
+	INT 	bdos
+	MOV 	char,AL
+
+;              IF CHAR = CHR(8) THEN
+
+	CMP 	AL,8
+	JNZ 	L0075
+
+;                BEGIN             (* Backspace entered *)
+;                  @BDOSX(2, ' ');
+
+	MOV 	CL,2
+	MOV 	DL,20H
+	INT 	bdos
+
+;                  @BDOSX(2, CHR(8));
+
+	MOV 	CL,2
+	MOV 	DL,8
+	INT 	bdos
+	JMP 	L0096
+
+;                END
+;              ELSE
+;                IF CHAR = CHR($0D) THEN
+
+L0075:	CMP 	AL,0DH
+	JNZ 	L0096
+
+;                  @BDOSX(2, CHR($0A));
+
+	MOV 	CL,2
+	MOV 	DL,0AH
+	INT 	bdos
+
+;              FBUFFER[0] := CHAR;
+
+L0096:	LES 	DI,@LFB
+	MOV 	al,char
+	MOV 	ES:BYTE PTR fbuffer[DI],AL
+
+;              FEOF := (CHAR = CHR($1A));
+
+	XOR	AX,AX
+	CMP 	char,1AH
+	JNZ 	L00C4
+	INC	AX
+L00C4:	MOV 	BYTE PTR feof[DI],AL
+	JMP 	L01E5
+
+;            END;
+;
+;          FTRMIO:
+;            BEGIN
+;              REPEAT
+;                CHAR := @BDOS86A(6, $FFFF, $FFFF);
+
+L00C9:	MOV 	CL,6
+	MOV 	DL,0FFH
+	INT 	bdos
+
+;              UNTIL CHAR <> CHR(0);
+
+	CMP 	AL,0
+	JZ	L00C9
+
+;              FBUFFER[0] := CHAR;
+
+	LES 	DI,@LFB
+	MOV 	ES:BYTE PTR fbuffer[DI],AL
+	JMP 	L01E5
+
+;            END;
+;
+;          FLSTOUT:
+;            BEGIN
+;              RESULTI := 255;     (* Illegal call *)
+
+L0108:	MOV 	RESULTI,255
+
+;              FEOF := TRUE;
+
+	MOV 	ES:BYTE PTR feof[DI],01
+	JMP 	L01E5
+
+;            END;
+;
+;          FAUXIO:
+;            BEGIN
+;              CHAR := @BDOS86(3, NIL);
+
+L011B:	MOV 	CL,3
+	INT	bdos
+
+;              FBUFFER[0] := CHAR;
+
+	LES 	DI,@LFB	
+	MOV 	ES:BYTE PTR fbuffer[DI],AL
+	JMP 	L01E5
+
+;            END;
+;
+;          ELSE                    (* Else non-console, read using GETBYTE *)
+;            BEGIN
+;              I := SYSID;
+
+L0144:	MOV 	AX,ES:WORD PTR sysid[DI]
+	MOV 	i,AX
+
+;              ENDFILE := FEOF;
+
+	MOV 	AL,ES:BYTE PTR feof[DI]
+	MOV 	endfile,AL
+
+;              J := 1;
+
+	MOV 	j,1
+
+;              WHILE (J <= BUFLEN) AND NOT ENDFILE DO
+
+L0161:	LES 	DI,@LFB
+	MOV	AX,ES:WORD PTR buflen[DI]
+	CMP	j,AX
+	JG	L01B2
+
+	TEST 	endfile,01
+	JNZ 	L01B2
+
+;                BEGIN
+;                  FBUFFER[J - 1] := GETBYTE(I, ENDFILE);
+
+	PUSH 	i
+	PUSH 	SS
+	LEA 	AX,endfile
+	PUSH 	AX
+	CALL 	GETBYTE
+	LES 	DI,@LFB
+	MOV 	BX,j
+	DEC 	BX
+	MOV 	ES:BYTE PTR fbuffer[DI+BX],AL
+
+;                  J := J + 1;
+
+	INC 	j
+	JMP	SHORT L0161
+
+;                END;
+
+;              FEOF := ENDFILE;
+
+L01B2:	MOV 	AL,endfile
+	MOV 	ES:BYTE PTR feof[DI],AL
+
+;              IOSIZE := J - 1;    (* This is so GNB can tell the difference *)
+
+	MOV 	AX,j
+	DEC 	AX
+	MOV 	ES:WORD PTR iosize[DI],AX
+
+;                                  (* between a partially full buffer and true EOF. *)
+;            END;
+;        END;
+;
+;    END; (* @RNB *)
+
+L01E5:	MOV 	SP,BP
+	POP 	BP
+	RET
+
+@RNB	ENDP
+
+
+@WNB	PROC	NEAR
+
+;    PROCEDURE @WNB;
+;
+;    VAR
+;        I : INTEGER;
+;        J : INTEGER;
+
+ii	equ	word ptr[bp-2]
+jj	equ	word ptr[bp-4]
+last	equ	word ptr[bp-6]
+
+;    BEGIN
+
+	PUSH	BP
+	MOV	BP,SP
+	SUB	SP,6
+
+;      RESULTI := 0;
+
+	MOV 	RESULTI,0
+
+;
+;      WITH @LFB^ DO
+
+	LES	DI,@LFB
+
+;        CASE OPTION OF
+
+	MOV 	AL,ES:BYTE PTR option[DI]
+	AND	AX,07H
+	SHL	AX,1
+	MOV	SI,AX
+	MOV	AX,CS:WCASE[SI]
+	JMP 	AX
+
+WCASE	DW	L02FE		;notopen
+	DW	L028C
+	DW	L028C
+	DW	L028C
+	DW	L0214
+	DW	L0232
+	DW	L0250
+	DW	L026E
+	
+;
+;          FCONIO:                 (* Write to the console *)
+;            @BDOSX(2, FBUFFER[0]);
+
+L0214:	MOV 	CL,2
+	MOV 	DL,ES:BYTE PTR fbuffer[DI]
+	INT 	bdos
+	JMP 	L02FE
+
+;
+;          FTRMIO:                 (* Use function 6 *)
+;            @BDOSX(6, FBUFFER[0]);
+
+L0232:	MOV 	CL,6
+	MOV 	DL,ES:BYTE PTR fbuffer[DI]
+	INT 	bdos
+	JMP 	L02FE
+
+;
+;          FLSTOUT:                (* Use function 5 *)
+;            @BDOSX(5, FBUFFER[0]);
+
+L0250:	MOV 	CL,5
+	MOV 	DL,ES:BYTE PTR fbuffer[DI]
+	INT 	bdos
+	JMP 	L02FE
+
+;
+;          FAUXIO:                 (* Use Function 4 *)
+;            @BDOSX(4, FBUFFER[0]);
+
+L026E:	MOV 	CL,4
+	MOV 	DL,ES:BYTE PTR fbuffer[DI]
+	INT 	bdos
+	JMP 	L02FE
+
+;
+;          ELSE                    (* Else non-console, write using PUTBYTE *)
+;            BEGIN
+;              I := SYSID;
+
+L028C:	MOV 	AX,ES:WORD PTR sysid[DI]
+	MOV 	ii,AX
+
+;              FOR J := 1 TO BUFLEN DO
+
+	MOV	AX,1
+	MOV 	jj,AX
+	DEC 	jj
+	MOV 	BX,ES:WORD PTR buflen[DI]
+	SUB 	BX,AX
+	INC 	BX
+	MOV 	last,BX
+
+L02B4:	INC 	jj
+	DEC 	last
+	JNGE	L02DF
+
+;                PUTBYTE(FBUFFER[J - 1], I);
+
+	LES 	DI,@LFB
+	MOV 	BX,jj
+	DEC 	BX	
+	MOV 	AL,ES:BYTE PTR fbuffer[DI+BX]
+	XOR 	AH,AH
+	PUSH	AX
+	PUSH 	ii
+	CALL 	PUTBYTE
+	JMP	SHORT L02B4
+
+;              BUFIDX := 0;        (* So close on a WNB file works properly *)
+
+L02DF:	LES 	DI,@LFB
+	MOV 	ES:WORD PTR bufidx[DI],0
+
+;            END;
+;        END;
+;
+;    END; (* @WNB *)
+
+L02FE:	MOV 	SP,BP
+	POP 	BP
+	RET
+
+@WNB	ENDP
+
+CODE	ENDS
+
+	END
+
+

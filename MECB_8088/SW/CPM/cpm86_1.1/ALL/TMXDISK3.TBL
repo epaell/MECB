@@ -1,0 +1,327 @@
+;****************************************
+DS0D3	EQU	Offset $
+    DSEG 0
+	ORG	DS0D3
+;
+D3CIOPB	RS	16	;Disk 3 command input/output parameter block
+;
+;	Disk 3 error messages.
+D3_MSG	DB	CR,LF,'DISK3 Error #'
+D3_MSG2	DB	'x, unit #'
+D3_MSG3	DB	'0',0
+;
+D3NRDYM	DB	CR,LF,'Waiting for ready on DISK3 Unit #'
+D3NRDYL	DB	'x.',0
+;
+;****************************************
+      if D3ST506	;	Basic ST506  5 Mbyte drive
+;   5 Mbytes
+DSMH30	EQU  (4 * 9 * 8 * (153-1))/BZ4K	;Disk Total Size in blocks
+ALVH30	EQU	(DSMH30 + 7) / 8	;Disk Allocation Vector Size
+	DB	53h			;Type
+DPB_H30	DW	8 * 9			;Sectors/track
+	DB	5, 00011111b, 1		;Block Extent Size, Mask, Extra Count 
+	DW   DSMH30-1, 1024-1, 0FFFFh	;Drive, Directory size, allocation bits
+	DW	0000h,   1 * 4		;Checksum vector size, reserved tracks
+;========================================
+; Drive A: 5 inch hard disk, select #0, 5M
+CSVZA	EQU	0
+ALVZA	EQU	ALVH30
+DRV_A	DB	00h		;Drive select
+	DW	0		;Sector translation table
+	DW	0,0,0		;CP/M workspace
+	DW	DIRBUF,	DPBH30	;Directory buffer, largest Disk Parameter Block
+	DW	CSVA,	ALVA	;Checksum, Allocation Vector pointers
+	  if NDISK3 gt 1
+; Drive B: 5 inch hard disk, select #1, 5M
+CSVZB	EQU	0
+ALVZB	EQU	ALVH30
+DRV_B	DB	01h		;Drive select
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH30
+	DW	CSVB,	ALVB
+	  endif
+	  if NDISK3 lt 2
+DRV_B	EQU	0
+CSVZ_B	EQU	0		;No checksum vector size
+ALVZ_B	EQU	0		;No allocation vector size
+	  endif
+;------------------------
+DRV_C	EQU	0
+CSVZ_C	EQU	0		;No checksum vector size
+ALVZ_C	EQU	0		;No allocation vector size
+;
+DRV_D	EQU	0
+CSVZ_D	EQU	0
+ALVZ_D	EQU	0
+;
+DRV_E	EQU	0
+CSVZ_E	EQU	0
+ALVZ_E	EQU	0
+;
+DRV_F	EQU	0
+CSVZ_F	EQU	0
+ALVZ_F	EQU	0
+;
+DRV_G	EQU	0
+CSVZ_G	EQU	0
+ALVZ_G	EQU	0
+;
+DRV_H	EQU	0
+CSVZ_H	EQU	0
+ALVZ_H	EQU	0
+;
+DRV_N	EQU	0
+CSVZ_N	EQU	0
+ALVZ_N	EQU	0
+;
+DRV_O	EQU	0
+CSVZ_O	EQU	0
+ALVZ_O	EQU	0
+      endif
+;****************************************
+      if D3M15 
+;   First 5Mbytes
+DSMH30	EQU  (6 * 9 * 8 * (103-1))/BZ4K	;Disk Total Size in blocks
+ALVH30	EQU	(DSMH30 + 7) / 8	;Disk Allocation Vector Size
+CSVH30	EQU	 512 / 4		;Directory Checksum Vector Size
+	DB	53h			;Type
+DPB_H30	DW	8 * 9			;Sectors/track
+	DB	5, 00011111b, 1		;Block Extent Size, Mask, Extra Count 
+	DW   DSMH30-1, 1024-1, 0FFFFh	;Drive, Directory size, allocation bits
+	DW	0000h,   1 * 6 		;Checksum vector size, reserved tracks
+;   Second 5M
+DSMH31	EQU	(6 * 9 * 8 *(205-103))/BZ4K
+ALVH31	EQU	(DSMH31 + 7) / 8
+	DB	53h
+DPB_H31	DW	8 * 9
+	DB	5, 00011111b, 1
+	DW   DSMH31-1,  512-1, 0FFFFh
+	DW	0000h,  6*(103)
+;   Third 5M
+DSMH32	EQU	(6 * 9 * 8 *(307-205))/BZ4K
+ALVH32	EQU	(DSMH32 + 7) / 8
+	DB	53h
+DPB_H32	DW	8 * 9
+	DB	5, 00011111b, 1
+	DW   DSMH32-1,  512-1, 0FFFFh
+	DW	0000h, 6*(205)
+;   Fourth 700K
+DSMH33	EQU	(6 * 9 * 8 *(320-307))/BZ4K
+ALVH33	EQU	(DSMH33 + 7) / 8
+	DB	53h
+DPB_H33	DW	8 * 9
+	DB	5, 00011111b, 1
+	DW   DSMH33-1,  512-1, 0FFFFh
+	DW	0000h, 6*(307)
+;========================================
+; Drive A: 5 inch hard disk, select #0, 5M
+CSVZA	EQU	0
+ALVZA	EQU	ALVH30
+DRV_A	DB	00h		;Drive select
+	DW	0		;Sector translation table vector
+	DW	0,0,0		;CP/M workspace
+	DW	DIRBUF,	DPBH30	;Directory buffer, largest Disk Parameter Block
+	DW	CSVA,	ALVA	;Checksum, Allocation Vector pointers
+; Drive B: 5 inch hard disk, select #0,5M
+CSVZB	EQU	0
+ALVZB	EQU	ALVH31
+DRV_B	DB	00h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH31
+	DW	CSVB,	ALVB
+; Drive C: 5 inch hard disk, select #0,5M
+CSVZC	EQU	0
+ALVZC	EQU	ALVH32
+DRV_C	DB	00h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH32
+	DW	CSVC,	ALVC
+; Drive D: 5 inch hard disk, select #0,700k
+CSVZD	EQU	0
+ALVZD	EQU	ALVH33
+DRV_D	DB	00h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH33
+	DW	CSVD,	ALVD
+;
+DRV_E	EQU	0
+CSVZ_E	EQU	0		;No checksum vector size
+ALVZ_E	EQU	0		;No allocation vector size
+;
+DRV_F	EQU	0
+CSVZ_F	EQU	0		;No checksum vector size
+ALVZ_F	EQU	0		;No allocation vector size
+;
+DRV_G	EQU	0
+CSVZ_G	EQU	0
+ALVZ_G	EQU	0
+;
+DRV_H	EQU	0
+CSVZ_H	EQU	0
+ALVZ_H	EQU	0
+;
+DRV_N	EQU	0
+CSVZ_N	EQU	0
+ALVZ_N	EQU	0
+;
+DRV_O	EQU	0
+CSVZ_O	EQU	0
+ALVZ_O	EQU	0
+      endif
+;
+      if D3Q540		;Quantum Q540, 40 Mbyte drive
+;   First 5Mbytes
+DSMH30	EQU    ((8 * 9 * 8)/BZ4K) * 72	;Disk Total Size in blocks
+ALVH30	EQU	(DSMH30 + 7) / 8	;Allocation Vector Size
+	DB	53h			;Type
+DPB_H30	DW	8 * 9			;Sectors/track
+	DB	5, 00011111b, 1		;Block Extent Size, Mask, Extra Count 
+	DW   DSMH30-1, 1024-1, 0FFFFh	;Drive, Directory size, allocation bits
+	DW	0000h,   2		;Checksum vector size, reserved tracks
+;   Second 10
+DSMH31	EQU    ((8 * 9 * 8)/BZ4K)*(212-72)
+ALVH31	EQU	(DSMH31 + 7 ) / 8
+	DB	53h
+DPB_H31	DW	8 * 9
+	DB	5, 00011111b, 1
+	DW   DSMH31-1, 1024-1, 0FFFFh
+	DW	0000h,  2+8*72
+;   Third 10M
+DSMH32	EQU    ((8 * 9 * 8)/BZ4K)*(352-212)
+ALVH32	EQU	(DSMH32 + 7) / 8
+	DB	53h
+DPB_H32	DW	8 * 9
+	DB	5, 00011111b, 1
+	DW   DSMH32-1, 1024-1, 0FFFFh
+	DW	0000h, 2+8*212
+;   Fourth 10M
+DSMH33	EQU    ((8 * 9 * 8)/BZ4K)*(492-352)
+ALVH33	EQU	(DSMH33 + 7) / 8
+	DB	53h
+DPB_H33	DW	8 * 9
+	DB	5, 00011111b, 1
+	DW   DSMH33-1, 1024-1, 0FFFFh
+	DW	0000h, 2+8*352
+;   Fifth 800K
+DSMH34	EQU    ((8 * 9 * 8)/BZ2K)*(508-492)
+ALVH34	EQU	(DSMH34 + 7) / 8
+	DB	53h
+DPB_H34	DW	8 * 9
+	DB	4, 00001111b, 0
+	DW   	DSMH34-1, 256-1
+	DB	11110000B,00000000B
+	DW	0000h, 2+8*492
+;========================================
+; Drive A: 5 inch hard disk, select #0, 5M
+CSVZA	EQU	0
+ALVZA	EQU	ALVH30
+DRV_A	DB	00h		;Drive select
+	DW	0		;Sector translation table vector
+	DW	0,0,0		;CP/M workspace
+	DW	DIRBUF,	DPBH30	;Directory buffer, largest Disk Parameter Block
+	DW	CSVA,	ALVA	;Checksum, Allocation Vector pointers
+; Drive B: 5 inch hard disk, select #0,10M
+CSVZB	EQU	0
+ALVZB	EQU	ALVH31
+DRV_B	DB	00h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH31
+	DW	CSVB,	ALVB
+; Drive C: 5 inch hard disk, select #0,10M
+CSVZC	EQU	0
+ALVZC	EQU	ALVH32
+DRV_C	DB	00h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH32
+	DW	CSVC,	ALVC
+; Drive D: 5 inch hard disk, select #0,10M
+CSVZD	EQU	0
+ALVZD	EQU	ALVH33
+DRV_D	DB	00h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH33
+	DW	CSVD,	ALVD
+; Drive E: 5 inch hard disk, select #0, 800K
+CSVZE	EQU	0
+ALVZE	EQU	ALVH34
+DRV_E	DB	00h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH34
+	DW	CSVE,	ALVE
+;
+   if D3Q540X
+; Drive F: 5 inch hard disk, select #1, 5M
+CSVZF	EQU	0
+ALVZF	EQU	ALVH30
+DRV_F	DB	01h		;Drive select
+	DW	0		;Sector translation table vector
+	DW	0,0,0		;CP/M workspace
+	DW	DIRBUF,	DPBH30	;Directory buffer, largest Disk Parameter Block
+	DW	CSVF,	ALVF	;Checksum, Allocation Vector pointers
+; Drive B: 5 inch hard disk, select #1,10M
+CSVZG	EQU	1
+ALVZG	EQU	ALVH31
+DRV_G	DB	01h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH31
+	DW	CSVG,	ALVG
+; Drive H: 5 inch hard disk, select #1,10M
+CSVZH	EQU	0
+ALVZH	EQU	ALVH32
+DRV_H	DB	01h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH32
+	DW	CSVH,	ALVH
+; Drive N: 5 inch hard disk, select #1,10M
+CSVZN	EQU	0
+ALVZN	EQU	ALVH33
+DRV_N	DB	01h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH33
+	DW	CSVN,	ALVN
+; Drive O: 5 inch hard disk, select #1, 800K
+CSVZO	EQU	0
+ALVZO	EQU	ALVH34
+DRV_O	DB	01h
+	DW	0
+	DW	0,0,0
+	DW	DIRBUF,	DPBH34
+	DW	CSVO,	ALVO
+;
+   endif
+   if (NDISK3 lt 2)
+DRV_F	EQU	0
+CSVZ_F	EQU	0		;No checksum vector size
+ALVZ_F	EQU	0		;No allocation vector size
+;
+DRV_G	EQU	0
+CSVZ_G	EQU	0
+ALVZ_G	EQU	0
+;
+DRV_H	EQU	0
+CSVZ_H	EQU	0
+ALVZ_H	EQU	0
+;
+DRV_N	EQU	0
+CSVZ_N	EQU	0
+ALVZ_N	EQU	0
+;
+DRV_O	EQU	0
+CSVZ_O	EQU	0
+ALVZ_O	EQU	0
+    endif 
+   endif
+;****************************************
+

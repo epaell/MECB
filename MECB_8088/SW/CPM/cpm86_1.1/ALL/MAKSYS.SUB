@@ -1,0 +1,6 @@
+; Make CPM.SYS file for System 8-16
+ASM86 TMXBIOS $$$1
+PIP CPMX.H86=CPM.H86,TMXBIOS.H86
+GENCMD CPMX 8080 code[A41]
+PIP CPM.SYS=CPMX.CMD
+

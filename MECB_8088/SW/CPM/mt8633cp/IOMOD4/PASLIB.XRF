@@ -1,0 +1,363 @@
+--------------------------------------------------
+NM - List external names.  MT+86       Version 3.3
+Serial. No. 3030-0000-003397   All Rights Reserved
+Copyright (C) 1982-1985     Digital Research, Inc.
+--------------------------------------------------
+
+
+@:PASLIB.R86:
+
+
+Module name: RNGCHK  
+
+E @CHK    
+
+Module name: OVERLAY 
+
+E @OVS      |  E @OVL    
+
+Module name: NEWSTUF 
+
+E @RLS      |  E @MRK      |  E @NEW      |  E MEMAVA  
+
+Module name: GETPARM 
+
+E @CMD    
+
+Module name: OPENSTU 
+
+E OPEN      |  X RESET     |  X ASSIGN    |  X IORESU  
+
+Module name: SYSTEME 
+
+E @ERR      |  X @RCH      |  X @CRL      |  X @XJP    
+X @SFB      |  X @WRS      |  X @HLT      |  X OUTPUT  
+X INPUT   
+
+Module name: RWHEXDA 
+
+E READHE    |  E WRITEH    |  E LWRITE    |  X @MVL    
+X @ADL      |  X @MUL      |  X @LFB      |  X @RNC    
+X @WNC      |  X MOVE    
+
+Module name: READLON 
+
+E @S2L      |  E @RDL      |  X @LI4      |  X @CRL    
+X @NEL      |  X @SI4      |  X @ADL      |  X @MUL    
+X @NGL      |  X @SFB      |  X @WRS      |  X @STR    
+X @SAD      |  X @SSB      |  X @SIN      |  X @BSS    
+X @BSR      |  X @LSB      |  X @ISB      |  X @CNC    
+X @CCH      |  X @SST      |  X @SLD      |  X GET     
+X @LFB      |  X @SYSIN    |  X @RNC      |  X OUTPUT  
+
+Module name: WRITELO 
+
+E @L2S      |  E @RTL      |  X @EQL      |  X @LSL    
+X @MVL      |  X @DVL      |  X @MDL      |  X @NGL    
+X @STR      |  X @LSB      |  X @ISB      |  X @CNC    
+X @WRS      |  X INSERT  
+
+Module name: SPECIAL 
+
+E @SGT      |  E @SPT      |  X PUT       |  X GET     
+X @LFB      |  X MOVE    
+
+Module name: WRITEBO 
+
+E @WRB      |  X @WRS    
+
+Module name: WRITENE 
+
+E WNB       |  X RESULTI   |  X @LFB      |  X @WNB    
+X IORESU  
+
+Module name: FORMFEE 
+
+E PAGE      |  X @CHW      |  X @CRL      |  X @SFB    
+X OUTPUT  
+
+Module name: @INITIA 
+
+E @FRL      |  E OUTPUT    |  E INPUT     |  E @TFN    
+E @SYSIN    |  E @SYSOU    |  E @INI      |  X @SI4    
+X @STR      |  X SYSMEM    |  X PUT       |  X GET     
+X @INI3     |  X @DS       |  X RESET     |  X REWRIT  
+X MOVE      |  X ASSIGN  
+
+Module name: INIT3   
+
+E @INI3   
+
+Module name: STR     
+
+E @STR    
+
+Module name: FILERES 
+
+E RESET     |  X @CRL      |  X @MVL      |  X @SFB    
+X @WRS      |  X RESULTI   |  X GET       |  X @LFB    
+X @RNB      |  X CLOSE     |  X @OPEN     |  X @HLT    
+X OUTPUT  
+
+Module name: FILECLO 
+
+E CLOSE     |  E CLOSED    |  X @SAD      |  X @SIN    
+X @BSS      |  X RESULTI   |  X PURGE     |  X @LFB    
+X @WNB      |  X @CLOSE  
+
+Module name: IOMODUL 
+
+E @LFB      |  E RESULTI   |  E @FCBS     |  E @PARSE  
+E @INI2     |  E @OPEN     |  E @CREAT    |  E @UNLINK 
+E @CLOSE    |  E @SFB      |  E @RNB      |  E @WNB    
+E CHAIN     |  X @CRL      |  X @MVL      |  X @SFB    
+X @WRS      |  X @SAD      |  X @SIN      |  X @BSS    
+X @BSR      |  X @EQD      |  X @SST      |  X @SLD    
+X @HLT      |  X @BDOS86   |  X @BDOS86   |  X @BDOSX  
+X @CHN      |  X OUTPUT    |  X MOVE      |  X FILLCH  
+X DELETE  
+
+Module name: BLOCKIO 
+
+E BLOCKW    |  E BLOCKR    |  X @FCBS     |  X @BDOS86 
+X SHR     
+
+Module name: STRCOPY 
+
+E COPY      |  X MOVE    
+
+Module name: DONEWLI 
+
+E @CRL      |  X @WNC    
+
+Module name: WAITFOR 
+
+E @CWT      |  X @LFB      |  X @RNC    
+
+Module name: STRDEL  
+
+E DELETE    |  X MOVE    
+
+Module name: ENDFIL  
+
+E EOF       |  X INPUT   
+
+Module name: ENDLIN  
+
+E EOLN      |  X INPUT   
+
+Module name: GETREC  
+
+E GET       |  X @LFB      |  X @RNB    
+
+Module name: GETNEXT 
+
+E GNB       |  X @LFB      |  X @RNB    
+
+Module name: STRPOS  
+
+E POS       |  X @NEA      |  X @STR    
+
+Module name: KILLFIL 
+
+E PURGE     |  X RESULTI   |  X @UNLINK 
+
+Module name: IONUM   
+
+E IORESU    |  X RESULTI 
+
+Module name: CHAINMO 
+
+E @CHN    
+
+Module name: READCHA 
+
+E @RCH      |  X @RNC    
+
+Module name: FREWRIT 
+
+E REWRIT    |  X @SI4      |  X @STR      |  X RESULTI 
+X @LFB      |  X @TFN      |  X ASSIGN    |  X @CREAT  
+X MOVE    
+
+Module name: READINT 
+
+E @H2I      |  E @RIB      |  E @RIN      |  X @CRL    
+X @NEL      |  X @SFB      |  X @WRS      |  X @STR    
+X @SAD      |  X @SSB      |  X @SIN      |  X @BSS    
+X @BSR      |  X @LSB      |  X @ISB      |  X @CNC    
+X @CCH      |  X @SST      |  X @SLD      |  X GET     
+X @LFB      |  X @SYSIN    |  X @S2I      |  X @RNC    
+X OUTPUT  
+
+Module name: WRITEIN 
+
+E @I2S      |  E @WIN      |  X @MVL      |  X @STR    
+X @LSB      |  X @ISB      |  X @CNC      |  X @WRS    
+X INSERT  
+
+Module name: SETCOMP 
+
+E @EQS      |  E @NES      |  E @GES      |  E @LES    
+X @SSB      |  X @BSR      |  X @NES      |  X @SST    
+X @SLD      |  X @EQA      |  X @NEA    
+
+Module name: READSTR 
+
+E @RST      |  X @STR      |  X @LFB      |  X @RNC    
+X @BDOS86   |  X @BDOSX  
+
+Module name: STR2I   
+
+E @S2I      |  X @SAD      |  X @SIN      |  X @BSS    
+X @H2I    
+
+Module name: SETMEMB 
+
+E @SIN      |  X @SST      |  X @SLD      |  X SHR     
+
+Module name: STRINGC 
+
+E @EQD      |  E @NED      |  E @GTD      |  E @LSD    
+E @GED      |  E @LED    
+
+Module name: WSTRING 
+
+E @WRS      |  X @WCH    
+
+Module name: WCHARAR 
+
+E @CHW      |  E @WCH      |  X @WNC    
+
+Module name: WRNXCH  
+
+E @WNC      |  X @NEL      |  X PUT       |  X @LFB    
+X @SYSOU    |  X @PUTCH  
+
+Module name: PUTREC  
+
+E PUT       |  X @LFB      |  X @WNB    
+
+Module name: ARRAY_C 
+
+E @LEA      |  E @GEA      |  E @LSA      |  E @GTA    
+E @NEA      |  E @EQA    
+
+Module name: CONCATS 
+
+E @LSB      |  E @ISB      |  E @CCH      |  E @CNC    
+X @STR      |  X MOVE    
+
+Module name: RDNXCH  
+
+E @RNC      |  X @NEL      |  X GET       |  X @LFB    
+X @SYSIN    |  X @GETCH  
+
+Module name: SETMUL  
+
+E @SML    
+
+Module name: SETADD  
+
+E @SAD    
+
+Module name: MOVES   
+
+E MOVERI    |  E MOVELE    |  E MOVE      |  E @MVR    
+E @MVL    
+
+Module name: BSR     
+
+E @BSR    
+
+Module name: SHIFT_A 
+
+E @SST      |  E SHR       |  E SHL     
+
+Module name: SETLOAD 
+
+E @SLD    
+
+Module name: BUILDSU 
+
+E @BSS    
+
+Module name: CASEJUM 
+
+E @XJP    
+
+Module name: STRINS  
+
+E INSERT    |  X @STR      |  X MOVE      |  X MOVERI  
+
+Module name: SWAPIT  
+
+E SWAP    
+
+Module name: BDOSCAL 
+
+E @BDOSX    |  E @BDOS86   |  E @HLT    
+
+Module name: SETSUB  
+
+E @SSB    
+
+Module name: CHRFIL  
+
+E FILLCH  
+
+Module name: SETNAME 
+
+E ASSIGN    |  X @STR      |  X FILLCH  
+
+Module name: LONG_MU 
+
+E @MUL    
+
+Module name: LONGCOM 
+
+E @LEL      |  E @GEL      |  E @LSL      |  E @GTL    
+E @NEL      |  E @EQL      |  X @SBL    
+
+Module name: LONGART 
+
+E @NGL      |  E @MDL      |  E @DVL      |  E @SBL    
+X @GEL    
+
+Module name: LONGART 
+
+E @ADL    
+
+Module name: LOADSTO 
+
+E @SI1      |  E @SI2      |  E @SI4      |  E @LI1    
+E @LI2      |  E @LI4    
+
+Module name: BITPROC 
+
+E SETBIT    |  E CLRBIT    |  E TSTBIT  
+
+Module name: REDIREC 
+
+E @SIA      |  E @SOA      |  E @DIO      |  X PUT     
+X @SYSOU    |  X GET       |  X @SYSIN  
+
+Module name: DIOMOD  
+
+E @PUTCH    |  E @GETCH    |  X @SYSOU    |  X @SYSIN  
+
+Module name: ATDS    
+
+E @DS     
+
+Module name: WORDIOM 
+
+E OUTPRTW   |  E INPORTW 
+
+Module name: LS810   
+
+E @SIT      |  E @LIT      |  E @SI8      |  E @LI8    
+
+Module name: RTPLAST 
+
+E SYSMEM  

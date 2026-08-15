@@ -1,0 +1,173 @@
+	nolist
+; LAST UPDATED:		31 DEC 83  -- No version numbers given to libraries.
+; REASON FOR UPDATE:	Add interrupt handler code switches, default boot disk
+;	selection, correct 5-1/4 inch parameter calculations, add switch for
+;	CP/M-86 or CP/M 8-16 BDOS.					    aep
+;
+; PROGRAM NAME:	 ACTIVE.EQU	-- Control variables common to most programs
+;	developed for CompuPro Systems Components, and their status is set
+;	according to the particular configuration desired.  The only real
+;	constraints that exist arise from having too many devices active in
+;	a system in a single software construct.  Error messages may appear
+;	during assemble of these to indicate that some hardware limit has
+;	been reached (no disk or RAM space available for the entire mess).
+;
+;	==========================	Copyright 1983, CompuPro Corporation.
+;	||			||
+;	|| 	ACTIVE.EQU	||
+;	||			||
+;	==========================
+;
+;	This product is a copyright program product of CompuPro and is
+;	supplied for use with the CompuPro Computer Systems.
+;--------------------------------------
+	list
+CPUSPD	EQU	8		;CPU speed factor delay for "x" MHz processor
+I8086	EQU	FALSE		;CPU 86/87 processor board present
+I8087	EQU	FALSE		;8087 coprocessor present
+I8088	EQU	TRUE 		;8088 present (dual processor board)
+I80286	EQU	FALSE		;CPU 286 processor board present
+;--------------------------------------
+;	SYSTEM CONSTANTS AND EQUATES:
+;
+CPM816	EQU	FALSE           ;Select CP/M-86 or CP/M 8-16 BDOS in use
+AUTOSUB	EQU	TRUE		;Begin automatic execution of the command in
+; the CCP  buffer area immediately following a cold boot.  The command is not 
+; executed after any warm boot operations.
+;--------------------------------------
+; MEMORY DRIVE (M-Drive/H) activity indicators:
+;
+HMDRIVE EQU	TRUE 		;M-DRIVE/H memory drive
+HM_NUM	EQU	8		;Total number of boards (may be reduced to save
+;	    RAM if fewer boards than this maximum are ever to be utilized)
+XMDRIVE	EQU	FALSE		;Extended system memory drive
+;--------------------------------------
+; CompuPro Floppy Disk (DISK 1 or DISK 1A) controller and drive constants:
+;
+; 8 inch drive characteristics:
+FLOPPY8	EQU	TRUE         	;8 inch floppy disk system (Disk 1) present
+FPY8X4	EQU	TRUE 		;4 drives present (2 is default)
+STEPR8	EQU	3		;8 inch drive step rate in milliseconds
+ULOAD8	EQU	240		;Head unload time delay in milliseconds
+HDLT8	EQU	35		;Head load settling time in milliseconds
+;
+; 5 1/4 inch drive inclusion and characteristics:
+FLOPPY5	EQU	FALSE 		;5 1/4 inch floppy controller (Disk1-5) present
+FPY5X4	EQU	FALSE		;4 drives present (2 is default)
+TRK5	EQU	80		;Tracks on 5 inch drive
+HEADS5	EQU	2		;Number of heads on 5-1/4 inch drive
+STEPR5	EQU	3 		;5 1/4 inch drive step rate in milliseconds
+ULOAD5	EQU	240		;Head unload time delay in milliseconds
+HDLT5	EQU	15		;Head load settling time in milliseconds
+;
+DISK1	EQU  (FLOPPY8 or FLOPPY5) ;and FALSE	;Disk 1 controller active
+DISK1A	EQU  (FLOPPY8 or FLOPPY5) and not DISK1	;Disk 1A controller active
+FDXBUF	EQU	TRUE 		;Floppy disk "extra" directory track buffering
+;	(requires additional storage of 8K/8 inch or 5K/5 inch per drive)
+FDBOOST	EQU	FALSE		;Floppy disk directory buffering booster ---
+; NOTE:  The directory booster defeats the normal directory reload during DIR
+; commands to previously logged-in floppies.  To read the directory of a new
+; disk, type ^C (control "C") after changing disks.  This MUST be done whenever
+; the booster has been enabled.  Also note that a few programs that permit you
+; to change disks while executing may not run correctly (most will, however).
+;
+; Determined constants from above information:
+SRT8	EQU  16-STEPR8		;Step rate for Controller value
+HUT8	EQU  ULOAD8/16		;Head unload delay time in milliseconds
+SRT5	EQU (31-STEPR5)/2	;Step rate for Controller value
+HUT5	EQU  ULOAD5+1/32	;Head unload delay time in milliseconds
+    if TRK5 eq 40
+      if HEADS5 eq 1
+BIAS5	EQU	20h	;Bias for DPB type determination
+      endif
+      if HEADS5 eq 2
+BIAS5	EQU	28h	;Bias for DPB type determination
+      endif
+    endif
+    if TRK5 eq 80
+      if HEADS5 eq 1
+BIAS5	EQU	30h	;Bias for DPB type determination
+      endif
+      if HEADS5 eq 2
+BIAS5	EQU	38h	;Bias for DPB type determination
+      endif
+    endif
+;--------------------------------------
+; CompuPro DISK 2 Equates:
+;
+D2M10	EQU	FALSE		;Memorex 10 megabyte
+D2M20	EQU	FALSE 		;Memorex 20 megabyte
+D2M26	EQU	FALSE		;Shugart 26 megabyte
+D2F20B	EQU	FALSE		;Fujitsu 20 megabyte, type B
+D2F40B	EQU	FALSE		;Fujitsu 40 megabyte, type B
+;  DISK 2 code active control:
+DISK2	EQU (D2M10 or D2M20 or D2M26 or D2F20B or D2F40B)
+DISK2X	EQU	FALSE		;Second drive on line
+DISK2Y	EQU	FALSE		;Third drive on line
+DISK2Z	EQU	FALSE		;Fourth drive on line
+;
+    if (D2M10 or D2M20)
+D2SCNT	EQU	11	;11 sectors per head per cylinder
+    endif
+    if D2M26
+D2SCNT	EQU	16	;16 sectors per head per cylinder
+    endif
+    if (D2F20B or D2F40B)
+D2SCNT	EQU	22	;22 sectors per head per cylinder
+    endif
+;--------------------------------------
+; CompuPro DISK 3 Equates:
+;
+D3ST506	EQU	FALSE		; 5 megabyte
+D3M10	EQU	FALSE		;10 megabyte
+D3M15	EQU	FALSE		;15
+D3M20	EQU	FALSE		;20 megabyte
+D3Q540	EQU	FALSE		;40 megabyte Quantum Q540
+D3Q540X	EQU	FALSE		;Second 40 megabyte Quantum Q540
+DISK3	EQU (D3Q540 or D3ST506 or D3M10 or D3M15 or D3M20) ;DISK 3 code active
+NDISK3	EQU	1		;Number of Disk 3 drives on line
+;-------------------------------------
+; For Disk 2 or Disk 3 controllers, optional RAM buffering of "A:" directory.
+HDXBUF	EQU	TRUE  and (DISK2 or DISK3)
+; Hard disk "extra" directory buffering utilizes additional 32K storage area.
+;-------------------------------------
+; Boot Disk Determination equates for LOADER:
+;
+BOOT5X	EQU	FALSE		;Set to true if 5 1/4 inch drive used to boot
+D2BOOT	EQU	FALSE		;Disk 2 unit #0 drive used as boot disk
+D3BOOT	EQU	FALSE		;Disk 3 unit #0 drive used as boot disk
+BOOT8X	EQU not (BOOT5X or D2BOOT or D3BOOT) ;8 inch floppy cold boot
+;--------------------------------------
+; Interfacer I,II composit status masks:
+;
+IF1TMSK	EQU  IF1TBE+IF1CB+IF1CC ;Xmit ready mask
+IF1FMSK	EQU	IF1TBE		;Xmit buffer empty flip bit mask
+;--------------------------------------
+; Interfacer 3,4 composite status masks and activity indicators:
+;
+INTERFACER3	EQU	TRUE	;Interfacer 3 board is present
+INTERFACER4	EQU	TRUE	;Interfacer 4 board is present
+;
+IF3TMSK	EQU  IF3TBE ;+ IF3DSR	;Xmit ready mask (for either board)
+IF3FMSK	EQU  IF3TBE ;+ IF3DSR	;Xmit buffer empty flip bit mask
+;--------------------------------------
+; System Support I setup characteristics:
+SYSUP1	EQU	TRUE		;System Support board is present
+;
+; System Support Uart Active Status Masks:
+SS1TMSK	EQU  SS1TBE ;+ SS1DSR	;Transmit Ready Mask
+SS1FMSK	EQU  SS1TBE ;+ SS1DSR	;Transmit Ready Bit Flip Mask
+;
+; Timer/Counter Commands and Values:
+TIMEBASE EQU	10000	;Divide 2MHz clock for other clock/timers
+			; (as a more reasonable time base -- 5 millisec).
+TIME1	EQU	20	;Real Time Clock interval (not active now)
+TIME2	EQU	200	; 1 sec interrupt to read clock
+;
+; Interrupt controller Commands and Masks:
+INTRACT	EQU	FALSE		;Interrupts active if true
+MMASK	EQU	01111111b	;Master Priority Interrupt Controller bit mask
+SMASK	EQU	01111111b	;Slave Priority Interrupt Controller bit mask
+;
+;=========== end of specifications ============
+

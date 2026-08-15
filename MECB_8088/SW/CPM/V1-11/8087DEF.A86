@@ -1,0 +1,165 @@
+	nolist
+;
+;	This include file must be included to use the 8087 opcodes with RASM86.
+;	Future versions of RASM86 will eliminate the need for this file.
+;
+st	equ	0
+st0	equ	0
+st1	equ	1
+st2	equ	2
+st3	equ	3
+st4	equ	4
+st5	equ	5
+st6	equ	6
+st7	equ	7
+;
+;M	equ	word ptr 0[bp]	; Define a memory reference example.
+;
+;	RASM86 now implements the following opcodes.  The operations on
+;	the 8087 stack have the same mnemonics as Intel uses, with one
+;	addition.  Intel uses FXCH for 8087 exchanges, and XCHG for 8086
+;	exchanges.  This is confusing, so we defined both FXCH and FXCHG.
+;
+;	For the memory reference opcodes, we include the length (16, 32, 64, 80)
+;	right in the opcode.  In spite of this, RASM86 still requires that you
+;	use 'byte pointer' or 'word pointer' on the memory operand if it is not
+;	already defined to have an alignment attribute.  We'll fix it someday.
+;	By contrast, the Intel assembler picks up the length from the operand
+;	definition.  This leads to the anomaly that there are valid 8087 opcodes
+;	that the Intel assembler cannot produce, since it cannot define memory
+;	operands of the appropriate length.  We think our approach is better.
+;
+;	Here are the 8087 opcode formats.  Remove the semicolons to produce a
+;	complete test case.
+;
+;	f2xm1
+;	fabs
+;	fadd
+;	fadd	st,st1
+;	fadd	st1,st
+;	fadd32	M
+;	fadd64	M
+;	faddp	st1,st0
+;	fbld	M
+;	fbstp	M
+;	fchs
+;	fclex
+;	fcom
+;	fcom	st1
+;	fcom32	M
+;	fcom64	M
+;	fcomp
+;	fcomp	st1
+;	fcom32p	M
+;	fcom64p	M
+;	fcompp
+;	fdecstp
+;	fdisi
+;	fdiv
+;	fdiv	st,st1
+;	fdiv	st1,st
+;	fdiv32	M
+;	fdiv64	M
+;	fdivp	st1,st0
+;	fdivr
+;	fdivr	st,st1
+;	fdivr	st1,st
+;	fdivr32	M
+;	fdivr64	M
+;	fdivrp	st1,st
+;	feni
+;	ffree	st1
+;	fiadd16	M
+;	fiadd32	M
+;	ficom16	M
+;	ficom32	M
+;	ficom16p M
+;	ficom32p M
+;	fidiv16 M
+;	fidiv32	M
+;	fidivr16 M
+;	fidivr32 M
+;	fild16	M
+;	fild32	M
+;	fild64	M
+;	fimul16	M
+;	fimul32	M
+;	fincstp
+;	finit
+;	fist16	M
+;	fist32	M
+;	fist16p	M
+;	fist32p	M
+;	fisub16	M
+;	fisub32	M
+;	fisubr16 M
+;	fisubr32 M
+;	fld	st1
+;	fld32	M
+;	fld64	M
+;	fld80	M
+;	fld1
+;	fldcw	word ptr [bp]
+;	fldenv	word ptr 6[bp]
+;	fldl2e
+;	fldl2t
+;	fldlg2
+;	fldln2
+;	fldpi
+;	fldz
+;	fmul
+;	fmul	st1,st
+;	fmul	st,st1
+;	fmul32	M
+;	fmul64	M
+;	fmulp	st1,st
+;	fnclex
+;	fndisi
+;	fneni
+;	fninit
+;	fnop
+;	fnsave	M
+;	fnstcw	M
+;	fnstenv	M
+;	fnstsw	M
+;	fpatan
+;	fprem
+;	fptan
+;	frndint
+;	frstor	M
+;	fsave	M
+;	fscale
+;	fsqrt
+;	fst	st1
+;	fst32	M
+;	fst64	M
+;	fstcw	M
+;	fstenv	M
+;	fstp	st1
+;	fst32p	M
+;	fst64p	M
+;	fst80p	M
+;	fstsw	M
+;	fsub
+;	fsub	st,st1
+;	fsub	st1,st
+;	fsub32	M
+;	fsub64	M
+;	fsubp	st1,st
+;	fsubr
+;	fsubr	st,st1
+;	fsubr	st1,st
+;	fsubr32	M
+;	fsubr64	M
+;	fsubrp	st1,st
+;	ftst
+;	fwait
+;	fxam
+;	fxch
+;	fxch	st1
+;	fxtract
+;	fyl2x
+;	fyl2xp1
+;
+	end
+

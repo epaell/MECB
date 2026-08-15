@@ -1,0 +1,56 @@
+
+Usage: DISK2 {options}
+
+Aô  leasô  onå optioî musô bå specifieä sucè aó thå  drivå  type®  
+Yoõ caî miø anù oæ thå options®  DISK2.CMÄ requireó aô leasô 128ë 
+system.
+
+Options consist of:
+
+     m10            Set drive type to Fujitsu 10 Mbyte
+
+     m20            Set drive type to Fujitsu 20 Mbyte
+     
+     m26            Set drive type to Shugart 26 Mbyte
+     
+     m10m           Set drive type to Memorex 10 Mbyte
+
+     drive #        Format selected drive
+
+     format         Format headers
+
+     data           Write out data fields with E5H
+     
+     test           Perform a data field test
+
+     seek           Perform a seek test
+
+     all            Perform format, data test, seek test
+
+     skew #         Set skewing of disk to specified number
+
+                    Thió   optioî   goeó  alonç   witè   hardwarå 
+                    settings.
+
+     
+Defaults:
+     
+Iæ  aî  optioî ió noô specifieä theî thå followinç  defaultó 
+are used:
+
+     M20
+     skew of 2
+     sector size 1024
+     drive 0
+     no tests or formatting
+
+Examples:
+     
+     disk²  formaô datá
+
+     disk2 m20 all
+
+     disk2 data
+          
+     disk2 format data drive 1 skew 3 m10    Š                                   
+                              

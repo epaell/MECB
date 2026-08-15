@@ -5,6 +5,8 @@ ROMCS       equ     0F000h
 INIT_SS     equ     07000h
 INIT_SP     equ     0FFF0h
 STACK_SIZE  equ     0100h
+SYSSEG      equ     410h/16  ; System segment for CP/M-86 (BS=0041h)
+
 ;
 ; ASCII control characters
 BS          equ     08h               ; backspace
@@ -36,18 +38,24 @@ section  .text
          
 start:
          cli
-; Set up the Stack Segment (SS)
-         mov   ax, stack_group            ; Load the address of 'stack_group' into AX
-         mov   ss, ax                     ; Move the address from AX to SS
-         mov   sp, tos                    ; Set the stack pointer (SP) to the top of the stack
+         mov   ax, INIT_SS                ; set up the stack
+         mov   ss, ax
+         mov   sp, INIT_SP                ; Set the stack pointer (SP) to the top of the stack
 ;
 ; Initialise the ACIA / Serial interface
 ; Default character output device is the serial port.
 ;
          call  init_acia
-;
          mov   si, str_welcome
          call  puts
+         call  skipmem
+;
+warm_start:
+         cli
+         mov   ax, INIT_SS                ; set up the stack
+         mov   ss, ax
+         mov   sp, INIT_SP                ; Set the stack pointer (SP) to the top of the stack
+         jmp   skipmem
 ;
 ; ------------------------------------------------------------------------------
 ; Test the 512K of RAM. (0000:0000-7000:FFFF)
@@ -57,7 +65,7 @@ start:
 lower_ram_test:
          xor   si,si
          mov   ds, si
-         xor   bx, bx                     ; Amount of memory detected in KB
+         xor   bx, bx            ; Amount of memory detected in KB
 test_segment:
          xor   si,si
          xor   di,di
@@ -84,11 +92,11 @@ test_segment:
          jne   .fail
          loop  .2
 ;
-         cmp   bx,0            ; Check if this is the first segment i.e. nothing written yet
+         cmp   bx,0              ; Check if this is the first segment i.e. nothing written yet
          jz    .3
-         mov   si, str_bs6     ; Go back to overwrite previous output
+         mov   si, str_bs6       ; Go back to overwrite previous output
          call  puts
-.3       mov   ax, 064h        ; Add another 64 KB to counter
+.3       mov   ax, 064h          ; Add another 64 KB to counter
          add   al, bl
          daa
          mov   bl, al
@@ -107,15 +115,15 @@ test_segment:
 ;
          mov   ax, ds
          add   ax, 1000h
-         jo    ram_test_end   ; ram test ends once 0x8000 is reached
+         jo    ram_test_end      ; ram test ends once 0x8000 is reached
          mov   ds, ax
          jmp   test_segment
 .fail:
-         in    al,ACIA         ; Check if read to transmit
-         and   al,02h          ; 
-         jz    putch1          ; Loop until ready
-         mov   al,'X'          ; Output a "X" to show failure
-         out   ACIA+1,al       ; Output the character
+         in    al,ACIA           ; Check if read to transmit
+         and   al,02h            ; 
+         jz    putch1            ; Loop until ready
+         mov   al,'X'            ; Output a "X" to show failure
+         out   ACIA+1,al         ; Output the character
 
          mov   bx,si
          mov   si,str_mem_fail
@@ -139,6 +147,7 @@ ram_test_end2:
 
 ;
 ; Load the interrupt vector table.
+skipmem:
          cld
          mov   si, initial_ivt            ; source: initial vector table in ROM
          mov   ax, cs
@@ -152,29 +161,39 @@ ram_test_end2:
          mov   si, reg_init
          mov   di, uax
          mov   cx, 14                     ; initialise all 14 16-bit registers
-         rep movsw
+movereg:
+         lodsw
+         mov   ss:[di],ax
+         inc   di
+         inc   di
+         loop  movereg
          
          mov   si, bp_init                ; initialise breakpoint table
          mov   di, bptab
          mov   cx, 16
-         rep movsw
+movebp:
+         lodsw
+         mov   ss:[di],ax
+         inc   di
+         inc   di
+         loop  movebp
 
          mov   ax,BASE_SEG                ; Get Default Base segment
          mov   ss:[baseseg],ax            ; Initialise base segment
          mov   es,ax
 
          ; Set up the Data Segment (DS)
-         mov ax, stack_group              ; Load the address of 'data_group' into AX
+         mov ax, INIT_SS                  ; Set up segment where monitor variables are kept
          mov ds, ax                       ; Move the address from AX to DS
 ;
          sti                              ; interrupts enabled! we're live!
          
 command:                                  ; Re-establish initial conditions
 ; Set up the Stack Segment (SS)
-         mov   ax, stack_group            ; Load the address of 'stack_group' into AX
-         mov   ss, ax                     ; Move the address from AX to SS; stack segment points to monitor variable space
+         mov   ax, INIT_SS                ; set up the stack
+         mov   ss, ax
+         mov   sp, INIT_SP                ; Set the stack pointer (SP) to the top of the stack
          mov   es, ss:[baseseg]           ; Extra segment points to base segment
-         mov   sp, tos                    ; Set the stack pointer (SP) to the top of the stack
 ;
          mov   ax, cs                     ; Data segment points to in-ROM data
          mov   ds, ax
@@ -239,6 +258,7 @@ endtab1  dw    ' '
 
 cmdtab2  dw    "FM",fillmem                ; Double char Command Jump Table
          dw    'DM',dumpmem            
+         dw    'BO',boot                   ; Boot CPM
          dw    'BP',setbreakp              ; Set Breakpoint
          dw    'CB',clrbreakp              ; Clear Breakpoint
          dw    'DB',dispbreakp             ; Display Breakpoint
@@ -328,6 +348,42 @@ inportw:
          call    puthex4
          jmp     command                     ; Next Command  
 ;
+; Boot CP/M-86
+;
+boot:
+            push  ds
+            mov   ax,SYSSEG                  ; start cpm/bios just above interrupt vectors
+            mov   es,ax
+            mov   ax,0f800h                  ; segment where CPM (CCP/BDOS/BIOS) is stored
+            mov   ds,ax
+            mov   si,00000h                  ; start location for CPM
+            mov   di,00000h                  ; destination location for CPM
+            mov   cx,4000h
+            rep   movsb                      ; copy CPM (CCP/BDOS/BIOS) to its final location
+;
+            mov   di,0                       ; overwrite the jump locations at the start of bios
+            mov   ax,SYSSEG                  ; destination is where CCP is
+            mov   es,ax
+            mov   ax,cs                      ; source is in monitor
+            mov   ds,ax
+            mov   si,patch
+            mov   cx,9
+            rep   movsb
+            pop   ds
+;
+            mov   ax,SYSSEG                  ; set up segment registers for start
+            mov   ds,ax
+            mov   es,ax
+            mov   bp,ax
+            jmp   0041h:2500h                ; jump to BIOS cold start
+;
+; Not sure why these are missing from the start of the original CPM binary data
+;
+patch       db    0E9h, 2Ah, 03h
+            db    0E9h, 21h, 03h
+            db    0E9h, 02h, 03h
+
+;
 ;----------------------------------------------------------------------
 ; Display Memory    
 ;----------------------------------------------------------------------
@@ -359,7 +415,7 @@ dispbyte:
                 
 loopdmp1:   
          mov     al,es:[bx]                  ; Get Byte and display it in HEX
-         mov     ds:[si],al                  ; Save it
+         mov     ss:[si],al                  ; Save it
          call    puthex2
          mov     al,SPACE
          call    putch
@@ -385,7 +441,7 @@ showrem: mov     si,dumpmems                 ; Stored ASCII values
          mov     cl,ah
          xor     ch,ch
          mov     al,' '                      ; Clear non displayed values
-nextclr: mov     ds:[si],al                  ; Save it
+nextclr: mov     ss:[si],al                  ; Save it
          inc     si
          loop    nextclr
          call    wrnspace                    ; Write AH spaces
@@ -403,7 +459,8 @@ putsdmp: mov     si,dumpmems                 ; Stored ASCII values
          call    wrnspace                    ; Write AH spaces
          mov     cx,16
          sub     cl,ah                       ; Adjust if not started at xxx0
-nextch:  lodsb                               ; Get character AL=DS:[SI++]
+nextch:  mov     al,ss:[si]                  ; Get character AL=SS:[SI++]
+         inc     si
          cmp     AL,01Fh                     ; 20..7E printable
          jbe     printdot
          cmp     AL,07Fh
@@ -464,15 +521,15 @@ setbreakp:
          shl     al,1                        ; *4 to get offset
          shl     al,1                        
          add     bx,ax                       ; point to table entry 
-         mov     byte es:[bx+3],1            ; Enable Breakpoint
+         mov     byte ss:[bx+3],1            ; Enable Breakpoint
          mov     al,SPACE
          call    putch
          call    gethex4                     ; Get Address
-         mov     es:[bx],ax                  ; Save Address
+         mov     ss:[bx],ax                  ; Save Address
 
          mov     di,ax
          mov     al,es:[di]                  ; Get the opcode
-         mov     es:[bx+2],al                ; Store in table
+         mov     ss:[bx+2],al                ; Store in table
                      
          jmp     dispbreakp                  ; Display Enabled Breakpoints  
 
@@ -487,7 +544,7 @@ clrbreakp:
          shl     al,1                        ; *4 to get offset
          shl     al,1                        
          add     bx,ax                       ; point to table entry 
-         mov     byte es:[bx+3],0            ; Clear Breakpoint
+         mov     byte ss:[bx+3],0            ; Clear Breakpoint
                                  
          jmp     dispbreakp                  ; Display Remaining Breakpoints
 
@@ -504,18 +561,18 @@ dispbreakp:
 nextcbp: mov     ax,8
          sub     al,cl
 
-         test    byte es:[bx+3],1            ; Check enable/disable flag
+         test    byte ss:[bx+3],1            ; Check enable/disable flag
          jz      nextdbp
 
          call    puthex1                     ; Display Breakpoint Number
          mov     al,SPACE
          call    putch
-         mov     ax,es:[bx]                  ; Get Address
+         mov     ax,ss:[bx]                  ; Get Address
          call    puthex4                     ; Display it
          mov     al,SPACE
          call    putch
 
-         mov     ax,es:[bx]                  ; Get Address
+         mov     ax,ss:[bx]                  ; Get Address
 ;         call    disasm_ax                  ; Disassemble instruction & Display it
          call    newline
 
@@ -536,7 +593,7 @@ dispreg: call    newline
 
          mov     cx,8
          push    es
-         mov     ax,stack_group
+         mov     ax,INIT_SS
          mov     es,ax
 nextdr1: call    puts                        ; Point to first "AX=" string
          mov     ax,[es:di]                  ; DI points to AX value
@@ -557,7 +614,7 @@ nextdr2: call    puts                        ; Point to first "DS=" string
          mov     si,str_flag
          call    puts
          mov     si,flag_valid               ; String indicating which bits to display
-         mov     bx,[es:di]                     ; get flag value in BX
+         mov     bx,[es:di]                  ; get flag value in BX
          
          mov     cx,8                        ; Display first 4 bits
 nextbit1:
@@ -666,23 +723,23 @@ tracentry:
 TRACNENTRY: 
          mov     ax,ss
          mov     es,ax
-         mov     ax,es:[uax]                    ; Restore User Registers
-         mov     bx,es:[ubx]
-         mov     cx,es:[ucx]
-         mov     dx,es:[udx]
-         mov     bp,es:[ubp]
-         mov     si,es:[usi]
-         mov     di,es:[udi]
+         mov     ax,ss:[uax]                    ; Restore User Registers
+         mov     bx,ss:[ubx]
+         mov     cx,ss:[ucx]
+         mov     dx,ss:[udx]
+         mov     bp,ss:[ubp]
+         mov     si,ss:[usi]
+         mov     di,ss:[udi]
 
-         mov     ds,es:[uds]
+         mov     ds,ss:[uds]
          cli                                    ; User User Stack!!
-         mov     ss,es:[uss]
-         mov     sp,es:[usp]
+         mov     ss,ss:[uss]
+         mov     sp,ss:[usp]
          
-         push    word es:[ufl]
-         push    word es:[ucs]                  ; Push CS (Base Segment) 
-         push    word es:[uip]
-         mov     es,es:[ues]
+         push    word ss:[ufl]
+         push    word ss:[ucs]                  ; Push CS (Base Segment) 
+         push    word ss:[uip]
+         mov     es,ss:[ues]
          iret                                   ; Execute!
 
 
@@ -861,7 +918,7 @@ cmpreg:  mov     ax,[bx]
 
          push    es
          push    ax
-         mov     ax,stack_group
+         mov     ax,INIT_SS
          mov     es,ax
          pop     ax
          lea     di,uax                      ; Point to User Register Storage            
@@ -1041,6 +1098,7 @@ str_help:
          db    CR,LF,"G  {Address}          : Execute, example G 0100"
 ;         db    CR,LF,"T  {Address}          : Trace from address, example T 0100"
 ;         db    CR,LF,"N                     : Trace Next"
+         db    CR,LF,"BO                    : Boot CP/M"
          db    CR,LF,"BP {bp} {Address}     : Set BreakPoint, bp=0..7, example BP 0 2344"
          db    CR,LF,"CB {bp}               : Clear Breakpoint, example BS 7 8732"
          db    CR,LF,"DB                    : Display Breakpoints"
@@ -1082,8 +1140,10 @@ str_ld_ok:
 str_term:
          db  CR,LF,"Program Terminated with exit code ",EOT
 ; Mess+18=? character, change by bp number
-str_breakp:
-         db  CR,LF,"**** BREAKPOINT ? ****",CR,LF,EOT
+str_breakp1:
+         db  CR,LF,"**** BREAKPOINT ",EOT
+str_breakp2:
+         db  " ****",CR,LF,EOT
 str_memtest:
          db  "Testing memory: ",EOT
 str_mem_OK:
@@ -1100,13 +1160,13 @@ reg_init:
          dw      01h                         ; BX
          dw      02h                         ; CX
          dw      03h                         ; DX
-         dw      0100h                       ; SP
+         dw      INIT_SP                     ; SP
          dw      05h                         ; BP
          dw      06h                         ; SI
          dw      07h                         ; DI
          dw      BASE_SEG                    ; DS
          dw      BASE_SEG                    ; ES
-         dw      BASE_SEG                    ; SS
+         dw      INIT_SS                     ; SS
          dw      BASE_SEG                    ; CS
          dw      0100h                       ; IP
          dw      0F03Ah                      ; flags
@@ -1121,9 +1181,7 @@ times    ROMSIZE-16-($-$$) db 0FFh
 times    ROMSIZE-($-$$) db 0x90
 ;
 section  .bss
-stack_group:
 ;
-vectors: resw    512                     ; reserve space for 256 vectors (ip + seg)
 baseseg: resw    1                       ; space for base segment
 ;----------------------------------------------------------------------
 ; Save Register values
@@ -1156,7 +1214,4 @@ dumpmems resb  16                        ; Stored memdump read values
 ; Breakpoint Table, Address(2), Opcode(1), flag(1) enable=1, disable=0
 ;----------------------------------------------------------------------
 bptab    resb   32                      ; 8 breakpoints
-;
-         resb  STACK_SIZE               ; Reserve space for the stack
-tos      resb  1                        ; top of stack
 ;

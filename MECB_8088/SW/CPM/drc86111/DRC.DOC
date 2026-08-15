@@ -1,0 +1,113 @@
+/****************************************************************************
+          DRC compatibilty headers for CP/M-86 & the IBM-PC family.
+
+	        (C)1998-1999 Ken Mauro, All rights reserved.
+                        Free for non-commercial use.
+****************************************************************************/
+
+                            August 12, 1999
+
+
+This package of modified DRC header files was created to ease the porting of 
+dos based programs to the cp/m-86 environment for the IBMPC and compatibles.
+
+Some knowledge of C and DRI programming tools is required and assumed here.
+
+Several usefull samples originally written in Turbo C for dos are included.
+Some of the graphic display programs will conditionally compile for both 
+DRC (cp/m-86) or DOS (Turbo C 1.5 or above). The examples contain comments,
+conditionals and hints for accomodating common graphic display cards.
+
+They should also (with minor modification) compile under the DOS version of 
+DRC recently uploaded to the internet. 
+
+
+PCBIOS.A86 (in RASM86) is provided in source to simulate common features found 
+in many dos C compilers, but not available in the DRC C 1.11 compiler.
+
+This module is currently only available for the large model library.
+
+One feature of this module is to return IBMPC fkey and keypad special keys
+regardless of the cp/m-86 implementation via direct port access.  
+
+
+
+Use of cp/m-86 emulator (DOS) may require ANSI.SYS support for terminal codes
+to work correctly (refer to your dos manual for ansi.sys and config.sys info). 
+
+If using the cp/m-86 emulator under dos, a ramdisk is strongly recommended as
+crashes caused by programming errors and DRI tools may cause lost chains and
+clusters. Interrupting link86 may also cause this problem. 
+
+I for example, use a batch file to save (zip) everything up between sessions.
+
+
+While these files have not been tested on every cp/m-86 variation, 
+feel free to modify or improve the header and assembler sources as required. 
+
+
+Features
+--------
+
+* Version independant console input from cpm86, ccpm86, dosplus & cdos etc.    
+* Pfkeys available at the ccp prompt will be ignored during program execution.
+* See pcbios.a86 for additional Dos / Turbo C compatible functions available.
+* project batch files for use under cp/m-86 emulator. re-write as needed.
+* DRC header files re-written to save some space in the executable (*.CMD)  
+
+
+Example use of batch compile under DOS cp/m-86 emulator
+-------------------------------------------------------
+drcfig img16    (full name (img16.c) not required. 
+e		(e.bat calls your favorite text editor) 
+m		(to compile calls all required files, compiler, rasm86)
+
+
+Soucre Editing
+--------------
+
+DRC has many undocumented flakies under the dos emulator.
+
+Sometimes addtional parens will be required to group expressions or nested
+expressions, otherwise erroneous compile errors may occur.
+
+A more common one is the requirement of esc chars padded out at the end of your
+source files. when editing (*.h) files, notice the esc's embedded at the file's
+end - do not remove them. (This is not an issue under real cp/m-86.)
+
+C source files do not require this eof padding as I have compensated by adding
+them in via an intermediate file during compile. (batch file)
+
+ie:  copy /b source.c+cpmeof = srcfile.c  (actual file to be compiled by DRC )
+
+Note: the orginal name is then added back in the actual *.cmd executable. 
+
+While the simple text editors like TED.COM (TED.CMD under real cp/m-86) allow 
+the addition of embedded escapes (press esc to try it), other editors such as
+the Turbo C IDE will strip them out while saving.
+
+
+
+Source acknowledgments.
+-----------------------
+Addtional tools and emulators may be currently found on Tim Olmstead's 
+Un-Official CPM Website and mirror sites at various places on the Internet.
+
+The cp/m-86 emulator used to test this package (by John Lopushinky) is also 
+available on this site. Clearly the best one for the job. 
+
+*.img files may be directly prepared using GEM Paint under the GEM system.
+
+
+Color and B/W *.pcx and *.img formats for the graphics examples may be prepared 
+using Alchemy Mindworks excelent Graphic Workshop program (dos or windows) 
+available on the Internet. 
+
+I am not the originator of all of the information provided in all of the 
+source examples provided, and as such acknowledge here. Thanks.
+
+Once again, a special thanks to Kirk Lawrence:)
+
+
+Enjoy -Ken.
+

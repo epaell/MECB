@@ -1,0 +1,60 @@
+;   VERSION 0002
+        NAME    INIT3
+        
+        ASSUME  CS:CODE,DS:DATA
+        
+DATA    SEGMENT PUBLIC
+DATA    ENDS
+
+CODE    SEGMENT PUBLIC
+        PUBLIC  @INI3
+        
+@INI3   PROC    NEAR
+
+        MOV     AX,DS
+        MOV     ES,AX   ;NOW ES:0 IS START OF DATA AREA
+        MOV     DI,6    ;6 IS OFFSET OF DSEG LENGTH
+        MOV     CX,ES:WORD PTR [DI]
+;* these two instructions must be modified to pass data through chaining *)
+;* please see your user's guide for details *)
+        SUB     CX,100H ;SEGMENT LENGTH IS IN BYTES
+        MOV     DI,100H ;START ADDRESS OF FILL
+;* end of instructions to modify for chaining *)
+        XOR     AX,AX   ;DATA TO FILL WITH
+        REP
+        STOSB           ;ZERO IT ALL
+        
+;
+;       NOW IF OVERLAYS ARE LINKED INTO THE ROOT ZERO THE FIRST
+;       BYTE OF THE OVERLAY AREAS
+;
+        MOV     AX,CS
+        MOV     ES,AX   ;NOW CS:0 IS START OF CODE
+        MOV     DI,0CH  ;0C IS OFFSET OF NAME CONTROL BLOCK
+        MOV     AX,ES:WORD PTR [DI]
+        MOV     BX,ES:WORD PTR 2[DI]
+;
+;       IF AX=BX THEN OVERLAYS WERE NOT LINKED INTO THIS PROGRAM
+;
+        CMP     AX,BX
+        JZ      XIT
+        
+        MOV     DI,BX   ;ELSE EI:DI NOW POINTS TO OVERLAY AREA TABLE
+        MOV     CX,16   ;NUMBER OF ENTRIES IN THE TABLE
+
+LP:     MOV     SI,ES:WORD PTR [DI] ;GET OFFSET OF OVERLAY AREA
+        MOV     ES:BYTE PTR [SI],0  ;PUT A ZERO THERE
+        INC     DI                  ;AND BUMP TO NEXT OFFSET IN TABLE
+        INC     DI
+        LOOP    LP                  ;DO IT 16 TIMES
+
+XIT:    RET
+        
+@INI3   ENDP
+
+CODE    ENDS
+
+        END
+        
+
+

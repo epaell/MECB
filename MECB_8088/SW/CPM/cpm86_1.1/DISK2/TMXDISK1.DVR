@@ -1,0 +1,391 @@
+;================================
+    if (FLOPPY5 and not LOADER) or (BOOT5X and LOADER)
+	CALL	FIX58		;Switch drive ports
+    endif
+;
+; Set up Command Input/Output Parameter Block for floppy disk data transfer.
+	MOV  SI,offset CIOPB	;Point to parameter block for loading
+	MOV	DX,ACTTRK	;Get combined head, cylinder value
+	AND	AL,07h		;Remove mini-floppy select
+	RCR	AL,1		;Get N (sector size), reset carry if 1 sided
+	MOV	5[SI],AL	;+5 = Set N field
+	JNC	FPYFNL0		;Skip head conversion if single sided
+	SHR	DL,1		;Convert to head and cylinder (CY becomes head)
+	RCL	DH,1		;Set head number bit from CY
+FPYFNL0:MOV	3[SI],DH	;+3 = Set head
+	SHL  DH,1  !  SHL DH,1	;Set head bit in drive # field
+	OR	DH,ACTDSK	;Combine head with drive(0 0 0 0 0 HDS DS1 DS0)
+	MOV	1[SI],DH	;+1 = Set value of head, drive
+	MOV	2[SI],DL	;+2 = Set cylinder number
+	MOV  Byte ptr 4[SI],1	;+4 = Start from first sector on this track
+	OR	AL,AL		;See if single density sector type
+	MOV  AX,Word ptr ACTGPL	;Get selected disk active gap length (in "AL),
+				; End Of Track sector (in "AH") for active type
+	JZ	FPYFNL1		;Continue with single density parameters if so
+    if (FLOPPY5 and not LOADER) or (BOOT5X and LOADER)
+	CMP  Byte ptr ACTTYP,FD5TYPE	;See if 5-1/4 inch disk selected
+	JNC	FPYFNL2		;All tracks the same for 5-1/4 inch formats
+    endif
+	OR	DL,DL		;See if cylinder #0
+	JNZ	FPYFNL2		;Normal operation if not
+;
+; Fix parameters to match track 0 for 8 inch drives - always single density.
+	MOV  Byte ptr 5[SI],0	;Mark N field as type 0 (128 byte single dens)
+	MOV	AH,X8TABLE+4	;Get 8 inch drive single density End Of Track
+	MOV	AL,X8TABLE+2	;Get 8 inch drive single density Gap Field
+FPYFNL1:MOV  Byte ptr 8[SI],128	;+8 = Set DTL (data length) to single density
+	JMPS	FPYFNL3		;Set EOT, Gap in parameter block and execute
+;
+; Switch to double density if sector type not zero.
+FPYFNL2:MOV  Byte ptr 8[SI],255	;+8 = Set DTL (data length) to double density
+	OR   Byte ptr 0[SI],FD_MFM ;+0 = Set command to double density
+FPYFNL3:MOV	6[SI],AH	;+6 = Set ending sector number for track (EOT)
+	MOV	7[SI],AL	;+7 = Set GPL field
+	MOV  Byte ptr RTRY,MRTRY;Set retry count
+;
+; Floppy command main execution loop.
+FPYFNL4:CALL	GTREADY		;Ask for drive status
+	JNZ	FPYFNLX		;Abort if still not ready
+	DEC	Byte ptr RTRY	;Bump retry count
+	JS	FPYFNLX		;Abort if retried specified number of times
+;
+; Seek to correct cylinder.
+	MOV	AL,CIOPB+2	;Get cylinder number from parameter block
+	CALL	DOSEEK		;Seek to proper track
+	JNZ	FPYFNL4		;Retry if seek error
+;
+; Set up 24 bit DMA value for data transfer.
+	CALL	GETDMA		;Get 24 bit DMA into "AL,BX"
+DMAPT	RS	0
+	MOV	DX,FD8PORT+FDMA	;Load "DX" with DMA port number of DISK1
+	OUT	DX,AL		;High order byte out
+	MOV AL,BH  !  OUT DX,AL	;Mid byte out
+	MOV AL,BL  !  OUT DX,AL	;Low byte out
+;
+; Execute disk data transfer command, check for valid completion.
+	MOV  BX,offset CIOPB	;Point to Command Input/Output Parameter Block
+	MOV  CX,(CIOPL*256) + 7	;Set command length, get 7 status bytes
+	CALL	EXEC1		;Perform data transfer operation
+	CMP	AL,40h		;Remove abnormal end bit from completion status
+	JNZ	FPYFNL4		;Try again if error
+	MOV	AL,TEMPBF+1	;Get second result status byte
+	SUB	AL,FD_EOC	;Remove sector past end of cylinder bit
+	JNZ	FPYFNL5		;Check for write protection error if one found
+	RET
+;
+; WRITE ERROR - Get drive write protect status, ask to unprotect if necessary.
+FPYFNL5:AND	AL,FD_NWRT	;See if write error specified
+	JZ	FPYFNL4		;Try another time if not
+	CALL	GTDSTS		;Get drive ready status
+	TEST Byte ptr TEMPBF,FD_WRTP ;Test write protect status bit
+	JZ	FPYFNL4		;If not protected, normal error -- try again
+	MOV  BX,offset WRTPMSG	;Write protected disk detected message
+	CALL	PRINT		; sent to console
+;
+; Wait for write protect condition to be corrected, or abort if console input.
+FPYFNL6:CALL	CIS		;See if character at console
+	JZ	FPYFNL7		;Test for correction of write protect if not
+FPYFNLX:OR	AL,255		;Show hard error
+	RET
+;
+FPYFNL7:CALL	GTDSTS		;Get drive status
+	JNZ	FPYFNL6		;Loop if drive now not ready
+	TEST Byte ptr TEMPBF,FD_WRTP ;Test write protect status bit
+	JNZ	FPYFNL6		;If drive still protected, check again
+	CALL	GTDSTS		;Get drive ready status
+	JNZ	FPYFNL6		;Continue waiting for both conditions true
+	MOV	CX,8000		;Wait for things to settle a little
+FPYFNL8:PUSH	AX!	POP AX	;Context switch to slow processor a little
+	LOOP	FPYFNL8		;Loop for delay count
+	JMPS	FPYFNL4		;Try again now that write protect corrected
+;
+	eject
+;================================
+;
+;	SELFPPY - Continuation of SELDSK as applies to floppy disk format
+;		type determination.
+;
+SELFPPY:ADD	CL,'A'		;Add drive ID to ASCII letter bias
+	MOV  Byte ptr NRDYM2,CL	;Set drive letter into "not ready" message
+	MOV	SI,BX		;Save DPH start in "SI"
+	MOV  DI,offset DPB8TBL+1 ;Get base of DPB's to get correct one
+	MOV  CX,offset X8TABLE	;Show format parameter table base
+    if (FLOPPY5 and not LOADER) or (BOOT5X and LOADER)
+	CMP	AL,FD5TYPE	;See if 5 1/4 inch disk type
+	JB	SELFPY8		;Use that format table if so
+	MOV  DI,offset DPB5TBL+1 ;Get base of DPB's to get correct one
+	MOV  CX,offset X5TABLE	;5 1/4 format parameter table base
+    endif
+SELFPY8:TEST	DL,1		;Mask "previously selected" bit
+	JNZ	FIXDPH		;Set DPH, Gap size, EOT to current type
+	PUSH	CX		;Save XLATE table base address
+    if (FDXBUF and not LOADER)
+	MOV	BL,SEKDSK	;Get current desired drive unit select
+	AND	BX,3		;Clear upper part of offset
+	SHL  BX,1  !  SHL  BX,1	;4 bytes per control entry
+	MOV  Byte ptr FDDBUFS[BX],0 ;Show selected drive directory inactive
+    endif
+	CALL	TREAD		;Determine disk type
+	POP	CX		;Restore XLATE table address
+	JZ	FIXDPH		;Continue with DPH fix if valid type determined
+	MOV	BX,0		;Indicate drive not active
+	RET			; return with status set
+;
+; Fix DPH if disk type determined.
+FIXDPH:	AND	AX,07h		;Get disk type for DPB locate in "AX"
+	MOV	BX,AX		;Duplicate in "BX" for another calculation
+	SHL  AX,1  !  SHL  AX,1	;4 bit shift to the left
+	SHL  AX,1  !  SHL  AX,1	; is multiply by 16 (bytes/DPB)
+	ADD	AX,DI		;Add base of DPB's to get correct one in "BX"
+	MOV	10[SI],AX	;Set DPB address into DPH
+	AND	BX,06h		;Remove sided bit (effectively 2X sector type)
+	MOV	AX,BX		;Duplicate in "AX"
+	SHL  BX,1  !  ADD BX,AX	;Shift to double value, add itself to make 3X
+	ADD	BX,CX		;Add sector translation table base to offset
+	MOV	AX,[BX]		;Get sector translation address for this type
+	MOV	[SI],AX		;Saved as word value at start of DPH
+	MOV	AL,2[BX]	;Point to associated Gap 3 Length, get it
+	MOV	AH,4[BX]	;Get the associated final sector number (+1)
+	MOV  Word ptr SEKGPL,AX	;Save for read/write operations
+	MOV	BX,SI		;Restore DPH start address in "BX"
+	RET
+;
+	eject
+;================================
+;
+;	TREAD - Determine floppy disk type.
+;
+;Exit:	Zbit set = no error and
+;	A = disk type (00h - 07h) if 8 inch.
+;		      (20h - 3Fh) if 5 1/4 inch.
+;
+TREAD:
+    if (FLOPPY5 and not LOADER) or (BOOT5X and LOADER)
+	CALL	FIX58		;Switch drive ports
+    endif
+	CALL	GTREADY		;Ask for drive status
+	JNZ	TRD0		;Abort if still not ready
+	MOV	AL,TEMPBF	;Get status byte
+	AND	AL,FD2SIDE	;Mask TS (two sided) bit, add to seek type
+	MOV	CL,3		;3 bit shift
+	ROR	AL,CL		;Shift Two Sided bit to far right of byte
+	AND  Byte ptr SEKTYP,38h ;Mask mini-floppy drive bit, translate offset 
+	OR	SEKTYP,AL	;Add two sided bit into drive type
+	MOV  BX,offset RECAL	;Home to track 0, verify there
+	MOV	CH,LRECAL	;No status bytes for command
+	CALL	MOVETO		;Process command
+	JNZ	TRD0		;Abort if error
+	MOV	AL,2		;Seek to track two
+	CALL	DOSEEK	
+	JNZ	TRD0		;Abort if error
+	MOV  BX,offset DRID	;Get disk ID (format info, FM first)
+	MOV  Byte ptr [BX],FD_DRID
+TRD2:	PUSH	BX		;Save the command pointer
+	MOV  CX,(DRIDL*256) + 7	;Command length + 7 bytes of status
+	CALL	EXEC		;Process command
+	POP	BX		;Recover command pointer
+	JZ	TRD3		;Get proper drive type if successful
+	XOR  Byte ptr [BX],FD_MFM ;Compliment MFM/FM bit
+	TEST Byte ptr [BX],FD_MFM ;Get it's current status
+	JNZ	TRD2		;Loop for MFM if read not valid
+	OR	AL,0FFh		;Abort if both FM and MFM tried
+	RET
+;
+TRD3:	MOV	AL,TEMPBF+6	;Get number of bytes/sector factor
+	SHL	AL,1		;Shifted left 1 bit
+	OR	AL,SEKTYP	;Add to sided, master type select bits	
+	MOV	SEKTYP,AL	;Save active disk type
+	CMP	AL,AL		;Set zero flag (show no error)
+TRD0:	RET
+;
+	eject
+;================================
+;
+;	GTREADY -- See if floppy drive is ready; if not, show message and
+;	wait until so:
+;
+; Wait until drive is ready or console driven abort (any char typed).
+GTREADY:MOV	AL,80h		;Turn on drives
+FDCMOT	RS	0
+	OUT	FD8PORT+FDON,AL	;Serial port used as "motor on" control bit
+	CALL	GTDSTS		;Ask for drive status, ignore first reading
+	CALL	GTDSTS		;Ask for drive status
+	JZ	GTRDY0		;Done if ready
+	MOV  BX,offset NRDYM1	;Show not ready
+	CALL	PRINT
+GTRDY1:	CALL	GTDSTS		;Get drive status
+	JZ	GTRDY0		;Done if now ready
+	CALL	CIS		;See if character at console (abort)
+	JZ	GTRDY1		;Loop until console abort or drive ready
+GTRDY0:	RET
+;
+;================================
+;
+;	GTDSTS	- Get drive ready status of ACTDSK:
+;
+;Exit:	Z-flag set if ready.
+;
+GTDSTS:	MOV  BX,offset DSTS	;Ask for drive status
+	MOV	CH,DSTSL	;Command length and 1 status byte
+	CALL	EXECP		;Perform command
+	INC	CX		;Get 1 status byte
+	CALL	GCMPS
+	NOT	AL		;Flip polarity of status byte
+	AND	AL,FD_RDY	;Mask ready bit
+	RET
+;
+	eject
+;================================
+;
+;	DOSEEK -- Seek to specified Track:
+;
+;Entry:	AL = Track number to seek to.
+;
+DOSEEK:	MOV  BX,offset DSEKC	;Seek command pointer
+	MOV	2[BX],AL	;Save desired cylinder number
+	MOV	CH,DSEKL	;Seek command with no status bytes recieved
+;
+;	MOVETO -- Move head according to command:
+;
+;Entry:	BX = Address of command buffer.
+;	CH = Length of command buffer.
+;
+;Exit:	Z-flag set if no error.
+;
+MOVETO:	CALL	EXECP		;Perform seek
+SEEKI:	CALL	INTREQ		;Wait for an Interrupt Request from the FDC
+	MOV	AL,FD_RSTS	;Request interrupt result status
+FDCD0	RS	0
+	OUT	FD8PORT+FDCD,AL	;To determine the success of the seek operation
+	MOV	CL,2		;2 status bytes recieved
+	CALL	GCMPS		;Get status
+	SUB	AL,FDC_SKE	;Remove seek end bit
+	JZ	MOVTO0		;Verify seek end, no other errors -- done if so
+	MOV	AL,TEMPBF	;Get first result status byte
+	AND	AL,11b		;Mask the drive select bits for sampled drive
+	CMP	AL,ACTDSK	;See if disk sampled matches desired
+	JNZ	SEEKI		;Try again if not
+	OR	AL,1		;Show error
+MOVTO0:	RET
+;
+	eject
+;================================
+;
+;	EXEC, execute normal floppy disk controller command sequence:
+;	EXECP, execute floppy disk controller command sequence with no
+;	status check afterwards ("CL" = 0):
+;
+;Entry:	BX = Pointer to first byte of command buffer,
+;	CH = Number of bytes to output to controller in sequence,
+;	CL = Number of bytes to input to status buffer.
+;
+EXECP:	XOR	CL,CL		;No status bytes for this execution
+EXEC:	MOV	AL,ACTDSK	;Set drive into command buffer
+	MOV	1[BX],AL	; at second byte
+EXEC1:	CALL	GETRQM		;Wait for request to service master
+	MOV	AL,[BX]		;Get command byte
+FDCD1	RS	0
+	OUT	FD8PORT+FDCD,AL	;Send to controller
+	INC	BX!	DEC CH	;Point to next, bump xmit count
+	JNZ	EXEC1		;Loop if more bytes
+	JCXZ	EXEC0		;Done if no status bytes
+;
+; Command phase complete, now wait for execution phase completion indication.
+	CALL	INTREQ		;Wait for an Interrupt Request from the FDC
+;
+;	Get completion status byte(s) into TEMPBF buffer.
+;
+;Entry:	CX = Number of status bytes to read.
+;Exit:	AL = First status byte anded with 0F8h with flags set accordingly.
+;
+GCMPS:	MOV  BX,offset TEMPBF	;Set status buffer address
+GCMPS2:	CALL	GETRQM		;Wait for request to service master
+FDCD2	RS	0
+	IN	AL,FD8PORT+FDCD	;Get status byte
+	MOV	[BX],AL		; in status buffer	
+	INC	BX		;Point to next location
+	LOOP	GCMPS2		;Decrement status byte counter, loop until done
+	MOV	AL,TEMPBF	;Get first status byte data
+	AND  AL,not(FD_HDS+FD_DRVS) ;Set normal completion status bits
+EXEC0:	RET
+;
+; Wait for "Request to Service Master" bit indicates FDC is ready.
+FDCS1	RS	0
+GETRQM:	IN	AL,FD8PORT+FDCS	;See if command accepted
+	TEST	AL,80h		;Most significant bit set when FDC ready
+	JZ	GETRQM		;Loop if disk controller not ready
+	RET
+;
+; Wait for "Interrupt Request" signal from FDC (execution phase complete).
+INTS1	RS	0
+INTREQ:	IN	AL,FD8PORT+INTS	;Wait for Interrupt Request bit
+	TEST	AL,80h		;(bit 7)
+	JZ	INTREQ		;Loop if still in execution phase
+	RET
+;
+;================================
+;
+;	Self modifying code to fix ports for 8 or 5 inch disk controller.
+;
+    if (FLOPPY5 and not LOADER) or (BOOT5X and LOADER)
+FIX58:	PUSH	AX		;Save active floppy type
+	CMP	AL,FD5TYPE	;See if 8 inch drive selected
+	MOV	AL,FD8PORT
+	JB	FIXPORT
+	MOV	AL,FD5PORT	;Use 5 1/4 inch controller if not
+FIXPORT:MOV  CS:FDCS1+1,AL	;Control port output
+	INC	AL
+	MOV  CS:FDCD0+1,AL	;Data ports
+	MOV  CS:FDCD1+1,AL
+	MOV  CS:FDCD2+1,AL
+	INC	AL
+	MOV  CS:DMAPT+1,AL	;DMA setup port
+	MOV  CS:INTS1+1,AL	;Interrupt status port
+	INC	AL
+	MOV  CS:FDCMOT+1,AL	;Motor on control port
+	POP	AX		;Recover type
+	RET
+    endif
+;
+	eject
+;----------------------------------
+DS1D1	EQU	offset $
+    DSEG 0
+	ORG	DS1D1
+RTRY	DB	10		;Retry counter 
+;
+;	Floppy Disk commands followed by data storage bytes.
+;
+DSEKC	DB	FD_SEEK,0,0	;Seek track command
+DSEKL	EQU	(offset $)-(offset DSEKC)
+;
+DSTS	DB	FD_DSTS,0	;Get drive status command
+DSTSL	EQU	(offset $)-(offset DSTS)
+;
+RECAL	DB	FD_RECA,0	;Recalibrate (seek to home track) command
+LRECAL	EQU	(offset $)-(offset RECAL)
+;
+DRID	DB	FD_DRID,0	;Read disk ID command to get sector size
+DRIDL	EQU	(offset $)-(offset DRID)
+;
+    if (FDXBUF and not LOADER)
+FDDBUFS	DB	0,	0	;Drive 0 directory buffer active flag
+	DW	DIRFD0		;Pointer to buffer area
+	DB	0,	0	;Drive 1
+	DW	DIRFD1
+      if FLOPPY5
+	DB	0,	0	;Drive 2
+	DW	DIRFD2
+	DB	0,	0	;Drive 3
+	DW	DIRFD3
+      endif
+    endif
+;
+;	Drive error messages altered to indicate the drive (unit) in question.
+;
+WRTPMSG	DB	CR,LF,'Disk WRITE protected - Fix and'
+NRDYM1	DB	CR,LF,'Load Drive '
+NRDYM2	DB	'x: - any key aborts'
+	DB	CR,LF,0
+;================================
+

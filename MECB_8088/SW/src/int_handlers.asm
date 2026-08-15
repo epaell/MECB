@@ -27,70 +27,73 @@ int1_3:  push     bp
                      
          mov      ax,ss:[bp+4]                ; Get user CS
          mov      es,ax                       ; Used for restoring bp replaced opcode
-         mov      es:[ucs],ax                    ; Save User CS            
+         mov      ss:[ucs],ax                    ; Save User CS            
         
          mov      ax,ss:[bp+2]                ; Save User IP
-         mov      es:[uip],ax
+         mov      ss:[uip],ax
                                 
          mov      di,sp                       ; SS:SP=AX
          mov      bx,uax                      ; Update User registers, DI=pointing to AX
          mov      cx,11
 nextureg:   
          mov      ax,ss:[di]                  ; Get register
-         mov      [es:bx],ax                  ; Write it to user reg
+         mov      ss:[bx],ax                  ; Write it to user reg
          add      bx,2
          add      di,2
          loop     nextureg
          
          mov      ax,bp                       ; Save User SP
          add      ax,8                        
-         mov      es:[usp],ax
+         mov      ss:[usp],ax
 
          mov      ax,ss:[bp]
-         mov      es:[ubp],ax                 ; Restore real BP value
+         mov      ss:[ubp],ax                 ; Restore real BP value
          
          mov      ax,ss:[bp+6]                ; Save Flags            
-         mov      es:[ufl],ax
-         and      word es:[ufl],0FEFFh        ; Clear TF
+         mov      ss:[ufl],ax
+         and      word ss:[ufl],0FEFFh        ; Clear TF
          test     ax,0100h                    ; Check If Trace flag set then
          jz       contbpc                     ; No, check which bp triggered it
                      
          jmp      exitint3                    ; Exit, Display regs, Cmd prompt
             
-contbpc: dec      word es:[uip]               ; No, IP-1 and save
+contbpc: dec      word ss:[uip]               ; No, IP-1 and save
                                  
-         mov      si,str_breakp               ; Display "***** BreakPoint # *****
+         mov      si,str_breakp1              ; Display "***** BreakPoint # *****
+         call     puts
 
          mov      bx,bptab                    ; Check which breakpoint triggered
          mov      cx,8                        ; and restore opcode
+         mov      dh,'?'
 intnextbp:
          mov      ax,8
          sub      al,cl
 
-         test     byte es:[bx+3],1            ; Check enable/disable flag
+         test     byte ss:[bx+3],1            ; Check enable/disable flag
          jz       int3resbp
                          
-         mov      di,es:[bx]                  ; Get Breakpoint Address
-         cmp      es:[uip],di
+         mov      di,ss:[bx]                  ; Get Breakpoint Address
+         cmp      ss:[uip],di
          jne      int3res
          
          add      al, '0'                     ; Add the numeric bias
-         mov      [si+18],al                  ; Save number
+         mov      dh, al                      ; save the found BP in ah
            
-int3res: mov      al,byte [bx+2]              ; Get original Opcode
+int3res: mov      al,byte ss:[bx+2]           ; Get original Opcode
          mov      es:[di],al                  ; Write it back
 
 int3resbp:
          add      bx,4                        ; Next entry
          loop     intnextbp
-
+         mov      al,dh                       ; write the BP number
+         call     putch
+         mov      si,str_breakp2
          call     puts                        ; Write BP Number message                 
 
 exitint3:
-         mov      ax,cs                       ; Restore Monitor settings
-         mov      ss,ax
-         mov      ax, tos                     ; Top of Stack
-         mov      sp,ax                       ; Restore Monitor Stack pointer
+         mov      ax, INIT_SS                 ; set up the stack
+         mov      ss, ax
+         mov      sp, INIT_SP                 ; Set the stack pointer (SP) to the top of the stack
          mov      ax,ss:baseseg               ; Restore Base Pointer
          mov      es,ax
          
@@ -184,8 +187,11 @@ int_1F:  mov      ax,01Fh
 ;
 int_20:  mov      ax,020h
          jmp      int_unhandled
+;
 int_21:  mov      ax,021h
          jmp      int_unhandled
+;%include 'src/int21.asm'
+
 int_22:  mov      ax,022h
          jmp      int_unhandled
 int_23:  mov      ax,023h
@@ -771,7 +777,7 @@ initial_ivt:
          dw    putch_int, ROMCS              ; INT 06h: character output
          dw    puts_int, ROMCS               ; INT 07h: string output
          dw    getch_int, ROMCS              ; INT 08h: character input
-         dw    start, ROMCS                  ; INT 09h: return control to monitor
+         dw    warm_start, ROMCS             ; INT 09h: return control to monitor
          dw    int_0A, ROMCS                 ; INT 0Ah:
          dw    int_0B, ROMCS                 ; INT 0Bh:
          dw    int_0C, ROMCS                 ; INT 0Ch:

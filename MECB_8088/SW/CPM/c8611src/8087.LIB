@@ -1,0 +1,658 @@
+nolist
+
+;       *****************************
+;       * Codemacros for 8087     *
+;       * numeric data processor: *
+;       ***************************
+;
+                        ; stack references:
+st      equ     0       ; stack top (= register 0)
+st0     equ     0       ; register 0
+st1     equ     1       ; register 1
+st2     equ     2       ; register 2
+st3     equ     3       ; register 3
+st4     equ     4       ; register 4
+st5     equ     5       ; register 5
+st6     equ     6       ; register 6
+st7     equ     7       ; register 7
+;
+;
+codemacro       FLD     src:Mb
+        segfix  src
+        db      0d9h
+        modrm   0,src
+endm
+
+codemacro       FLD     src:Mw
+        segfix  src
+        db      0ddh
+        modrm   0,src
+endm
+
+codemacro       FLD     src:Db(0,7)
+        db      0d9h
+        dbit    5(18h),3(src(0))
+endm
+
+codemacro       FLDTR   src:M
+        segfix  src
+        db      0dbh
+        modrm   5,src
+endm
+
+codemacro       FST     dst:Mb
+        segfix  dst
+        db      0d9h
+        modrm   2,dst
+endm
+
+codemacro       FST     dst:Mw
+        segfix  dst
+        db      0ddh
+        modrm   2,dst
+endm
+
+codemacro       FST     dst:Db(0,7)
+        db      0ddh
+        dbit    5(1ah),3(dst(0))
+endm
+
+codemacro       FSTP    dst:Mb
+        segfix  dst
+        db      0d9h
+        modrm   3,dst
+endm
+
+codemacro       FSTP    dst:Mw
+        segfix  dst
+        db      0ddh
+        modrm   3,dst
+endm
+
+codemacro       FSTP    dst:Db(0,7)
+        db      0ddh
+        dbit    5(1bh),3(dst(0))
+endm
+
+codemacro       FSTPTR  dst:M
+        segfix  dst
+        db      0dbh
+        modrm   7,dst
+endm
+
+codemacro       FXCH
+        dw      0c9d9h
+endm
+
+codemacro       FXCH    dst:Db(0,7)
+        db      0d9h
+        dbit    5(19h),3(dst(0))
+endm
+
+codemacro       FILD    src:Mb
+        segfix  src
+        db      0dbh
+        modrm   0,src
+endm
+
+codemacro       FILDLI  src:Mw
+        segfix  src
+        db      0dfh
+        modrm   5,src
+endm
+
+codemacro       FILD    src:Mw
+        segfix  src
+        db      0dfh
+        modrm   0,src
+endm
+
+codemacro       FIST    dst:Mb
+        segfix  dst
+        db      0dbh
+        modrm   2,dst
+endm
+
+codemacro       FIST    dst:Mw
+        segfix  dst
+        db      0dfh
+        modrm   2,dst
+endm
+
+codemacro       FISTP   dst:Mb
+        segfix  dst
+        db      0dbh
+        modrm   3,dst
+endm
+
+codemacro       FISTPLI dst:Mw
+        segfix  dst
+        db      0dfh
+        modrm   7,dst
+endm
+
+codemacro       FISTP   dst:Mw
+        segfix  dst
+        db      0dfh
+        modrm   3,dst
+endm
+
+codemacro       FBLD    src:Mb
+        segfix  src
+        db      0dfh
+        modrm   4,src
+endm
+
+codemacro       FBSTP   dst:Mb
+        segfix  dst
+        db      0dfh
+        modrm   6,dst
+endm
+
+codemacro       FADD
+        dw      0c1d8h
+endm
+
+codemacro       FADD    dst:Db(0),src:Db(0,7)
+        db      0d8h
+        dbit    5(18h),3(src(0))
+endm
+
+codemacro       FADD    src:Mb
+        segfix  src
+        db      0d8h
+        modrm   0,src
+endm
+
+codemacro       FADD    src:Mw
+        segfix  src
+        db      0dch
+        modrm   0,src
+endm
+
+codemacro       FADD    dst:Db(0,7),src:Db(0)
+        db      0dch
+        dbit    5(18h),3(dst(0))
+endm
+
+codemacro       FADDP   dst:Db(0,7),src:Db(0)
+        db      0deh
+        dbit    5(18h),3(dst(0))
+endm
+
+codemacro       FIADD   src:Mb
+        segfix  src
+        db      0dah
+        modrm   0,src
+endm
+
+codemacro       FIADD   src:Mw
+        segfix  src
+        db      0deh
+        modrm   0,src
+endm
+
+codemacro       FSUB
+        dw      0e1d8h
+endm
+
+codemacro       FSUB    dst:Db(0),src:Db(0,7)
+        db      0d8h
+        dbit    5(1ch),3(src(0))
+endm
+
+codemacro       FSUB    src:Mb
+        segfix  src
+        db      0d8h
+        modrm   4,src
+endm
+
+codemacro       FSUB    src:Mw
+        segfix  src
+        db      0dch
+        modrm   4,src
+endm
+
+codemacro       FSUB    dst:Db(0,7),src:Db(0)
+        db      0dch
+        dbit    5(1ch),3(dst(0))
+endm
+
+codemacro       FSUBP   dst:Db(0,7),src:Db(0)
+        db      0deh
+        dbit    5(1ch),3(dst(0))
+endm
+
+codemacro       FISUB   src:Mb
+        segfix  src
+        db      0dah
+        modrm   4,src
+endm
+
+codemacro       FISUB   src:Mw
+        segfix  src
+        db      0deh
+        modrm   4,src
+endm
+
+codemacro       FSUBR
+        dw      0e9d8h
+endm
+
+codemacro       FSUBR   dst:Db(0),src:Db(0,7)
+        db      0d8h
+        dbit    5(1dh),3(src(0))
+endm
+
+codemacro       FSUBR   src:Mb
+        segfix  src
+        db      0d8h
+        modrm   5,src
+endm
+
+codemacro       FSUBR   src:Mw
+        segfix  src
+        db      0dch
+        modrm   5,src
+endm
+
+codemacro       FSUBR   dst:Db(0,7),src:Db(0)
+        db      0dch
+        dbit    5(1dh),3(dst(0))
+endm
+
+codemacro       FSUBRP  dst:Db(0,7),src:Db(0)
+        db      0deh
+        dbit    5(1dh),3(dst(0))
+endm
+
+codemacro       FISUBR  src:Mb
+        segfix  src
+        db      0dah
+        modrm   5,src
+endm
+
+codemacro       FISUBR  src:Mw
+        segfix  src
+        db      0deh
+        modrm   5,src
+endm
+
+codemacro       FMUL
+        dw      0c9d8h
+endm
+
+codemacro       FMUL    dst:Db(0),src:Db(0,7)
+        db      0d8h
+        dbit    5(19h),3(src(0))
+endm
+
+codemacro       FMUL    src:Mb
+        segfix  src
+        db      0d8h
+        modrm   1,src
+endm
+
+codemacro       FMUL    src:Mw
+        segfix  src
+        db      0dch
+        modrm   1,src
+endm
+
+codemacro       FMUL    dst:Db(0,7),src:Db(0)
+        db      0dch
+        dbit    5(19h),3(dst(0))
+endm
+
+codemacro       FMULP   dst:Db(0,7),src:Db(0)
+        db      0deh
+        dbit    5(19h),3(dst(0))
+endm
+
+codemacro       FIMUL   src:Mb
+        segfix  src
+        db      0dah
+        modrm   1,src
+endm
+
+codemacro       FIMUL   src:Mw
+        segfix  src
+        db      0deh
+        modrm   1,src
+endm
+
+codemacro       FDIV
+        dw      0f1d8h
+endm
+
+codemacro       FDIV    dst:Db(0),src:Db(0,7)
+        db      0d8h
+        dbit    5(1eh),3(src(0))
+endm
+
+codemacro       FDIV    src:Mb
+        segfix  src
+        db      0d8h
+        modrm   6,src
+endm
+
+codemacro       FDIV    src:Mw
+        segfix  src
+        db      0dch
+        modrm   6,src
+endm
+
+codemacro       FDIV    dst:Db(0,7),src:Db(0)
+        db      0dch
+        dbit    5(1eh),3(dst(0))
+endm
+
+codemacro       FDIVP   dst:Db(0,7),src:Db(0)
+        db      0deh
+        dbit    5(1eh),3(dst(0))
+endm
+
+codemacro       FIDIV   src:Mb
+        segfix  src
+        db      0dah
+        modrm   6,src
+endm
+
+codemacro       FIDIV   src:Mw
+        segfix  src
+        db      0deh
+        modrm   6,src
+endm
+
+codemacro       FDIVR
+        dw      0f9d8h
+endm
+
+codemacro       FDIVR   dst:Db(0),src:Db(0,7)
+        db      0d8h
+        dbit    5(1fh),3(src(0))
+endm
+
+codemacro       FDIVR   src:Mb
+        segfix  src
+        db      0d8h
+        modrm   7,src
+endm
+
+codemacro       FDIVR   src:Mw
+        segfix  src
+        db      0dch
+        modrm   7,src
+endm
+
+codemacro       FDIVR   dst:Db(0,7),src:Db(0)
+        db      0dch
+        dbit    5(1fh),3(dst(0))
+endm
+
+codemacro       FDIVRP  dst:Db(0,7),src:Db(0)
+        db      0deh
+        dbit    5(1fh),3(dst(0))
+endm
+
+codemacro       FIDIVR  src:Mb
+        segfix  src
+        db      0dah
+        modrm   7,src
+endm
+
+codemacro       FIDIVR  src:Mw
+        segfix  src
+        db      0deh
+        modrm   7,src
+endm
+
+codemacro       FSQRT
+        dw      0fad9h
+endm
+
+codemacro       FSCALE
+        dw      0fdd9h
+endm
+
+codemacro       FPREM
+        dw      0f8d9h
+endm
+
+codemacro       FRNDINT
+        dw      0fcd9h
+endm
+
+codemacro       FXTRACT
+        dw      0f4d9h
+endm
+
+codemacro       FABS
+        dw      0e1d9h
+endm
+
+codemacro       FCHS
+        dw      0e0d9h
+endm
+
+codemacro       FCOM
+        dw      0d1d8h
+endm
+
+codemacro       FCOM    src:Db(0,7)
+        db      0d8h
+        dbit    5(1ah),3(src(0))
+endm
+
+codemacro       FCOM    src:Mb
+        segfix  src
+        db      0d8h
+        modrm   2,src
+endm
+
+codemacro       FCOM    src:Mw
+        segfix  src
+        db      0dch
+        modrm   2,src
+endm
+
+codemacro       FCOMP
+        dw      0d9d8h
+endm
+
+codemacro       FCOMP   src:Db(0,7)
+        db      0d8h
+        dbit    5(1bh),3(src(0))
+endm
+
+codemacro       FCOMP    src:Mb
+        segfix  src
+        db      0d8h
+        modrm   3,src
+endm
+
+codemacro       FCOMP    src:Mw
+        segfix  src
+        db      0dch
+        modrm   3,src
+endm
+
+codemacro       FCOMPP
+        dw      0c9deh
+endm
+
+codemacro       FICOM   src:Mb
+        segfix  src
+        db      0dah
+        modrm   2,src
+endm
+
+codemacro       FICOM   src:Mw
+        segfix  src
+        db      0deh
+        modrm   2,src
+endm
+
+codemacro       FICOMP  src:Mb
+        segfix  src
+        db      0dah
+        modrm   3,src
+endm
+
+codemacro       FICOMP  src:Mw
+        segfix  src
+        db      0deh
+        modrm   3,src
+endm
+
+codemacro       FTST
+        dw      0e4d9h
+endm
+
+codemacro       FXAM
+        dw      0e5d9h
+endm
+
+codemacro       FPTAN
+        dw      0f2d9h
+endm
+
+codemacro       FPATAN
+        dw      0f3d9h
+endm
+
+codemacro       F2XM1
+        dw      0f0d9h
+endm
+
+codemacro       FYL2X
+        dw      0f1d9h
+endm
+
+codemacro       FYL2XP1
+        dw      0f9d9h
+endm
+
+codemacro       FLDZ
+        dw      0eed9h
+endm
+
+codemacro       FLD1
+        dw      0e8d9h
+endm
+
+codemacro       FLDPI
+        dw      0ebd9h
+endm
+
+codemacro       FLDL2T
+        dw      0e9d9h
+endm
+
+codemacro       FLDL2E
+        dw      0ead9h
+endm
+
+codemacro       FLDLG2
+        dw      0ecd9h
+endm
+
+codemacro       FLDLN2
+        dw      0edd9h
+endm
+
+codemacro       FINIT
+        dw      0e3dbh
+endm
+
+FNINIT  equ     FINIT
+
+codemacro       FDISI
+        dw      0e1dbh
+endm
+
+FNDISI  equ     FDISI
+
+codemacro       FENI
+        dw      0e0dbh
+endm
+
+FNENI   equ     FENI
+
+codemacro       FLDCW   src:Mw
+        segfix  src
+        db      0d9h
+        modrm   5,src
+endm
+
+codemacro       FSTCW   dst:Mw
+        segfix  dst
+        db      0d9h
+        modrm   7,dst
+endm
+
+FNSTCW  equ     FSTCW
+
+codemacro       FSTSW   dst:Mw
+        segfix  dst
+        db      0ddh
+        modrm   7,dst
+endm
+
+FNSTSW  equ     FSTSW
+
+codemacro       FCLEX
+        dw      0e2dbh
+endm
+
+FNCLEX  equ     FCLEX
+
+codemacro       FSAVE   dst:M
+        segfix  dst
+        db      0ddh
+        modrm   6,dst
+endm
+
+FNSAVE  equ     FSAVE
+
+codemacro       FRSTOR  src:M
+        segfix  src
+        db      0ddh
+        modrm   4,src
+endm
+
+codemacro       FSTENV  dst:M
+        segfix  dst
+        db      0d9h
+        modrm   6,dst
+endm
+
+FNSTENV equ     FSTENV
+
+codemacro       FLDENV  src:M
+        segfix  src
+        db      0d9h
+        modrm   4,src
+endm
+
+codemacro       FINCSTP
+        dw      0f7d9h
+endm
+
+codemacro       FDECSTP
+        dw      0f6d9h
+endm
+
+codemacro       FFREE   dst:Db(0,7)
+        db      0ddh
+        dbit    5(18h),3(dst(0))
+endm
+
+codemacro       FNOP
+        dw      0d0ddh
+endm
+
+FWAIT   equ     WAIT
+
+list
+

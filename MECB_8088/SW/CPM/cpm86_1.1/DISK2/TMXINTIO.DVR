@@ -1,0 +1,549 @@
+;
+CRTILEN	EQU	64		;Length of input (type-ahead) buffer
+CRTOLEN	EQU	128		;Length of output buffer
+CRT_DC	EQU	FALSE 		;XON/XOFF software protocol active
+CRT_DSR	EQU	TRUE  		;DSR control line used for xmit enable
+;
+DS0IO	EQU	Offset $
+    DSEG 0
+	ORG	DS0IO
+;************************************************
+;*	CONSOLE,READER,PUNCH,LIST ROUTINES	*
+;************************************************
+;
+IOBYTE	DB	10000001b	;Main I/O control byte
+IOCNTL	DB	00000101b	;Auxilary I/O control byte
+;
+CS0IO	EQU	Offset $
+    CSEG 0
+	ORG	CS0IO
+;--------------------------------
+;
+;	IOBYTE (and IOCNTL) GET AND PUT ROUTINES:
+;
+;Enter:	CL = IOBYTE value,
+;
+SETIOB:	MOV  Byte ptr IOBYTE,CL	;Save both values from the "CX" word register
+	RET
+;
+;Exit:	AL = IOBYTE value,
+;	AH = IOCNTL value.
+;
+GETIOB:	MOV  AX,Word ptr IOBYTE	;Get both values into the "AX" register pair
+	RET
+;
+	eject
+;****************************************
+;*	CONSOLE STATUS INPUT ROUTINE	*
+;****************************************
+;
+;Exit:	AL = 0 (zero), means no character currently ready to read.
+;	AL = FFh (255), means character currently ready to read.
+; IOBYTE selects device to use as follows:
+; 0 = TTY:,	1 = CRT:,	2 = BAT:,	3 = UC1:
+;    USER 6	    xxx		    xxx		   USER 7
+; -----	If CRT, secondary select done using IOCNTL byte:
+; 0 = USER 0,	1 = SysSup 1,	2 = IF1P0,	3 = Custom.
+; -----	If BAT, secondary select done using READER of IOBYTE:
+; 0 = USER 0	1 = USER 1,	2 = USER 2,	3 = USER 3
+;
+CONST:	MOV  AL,Byte ptr IOBYTE	;Get I/O Byte (0=TTY,1=CRT,2=BAT,3=UC1)
+	AND	AL,3		;Select console bits
+	JNZ	CONST1		;If not TTY, check for others
+;
+; T T Y -- Used by all six logical device vectors.
+TTYST:	MOV	AL,6		;TTY is always Interfacer 3,4 USER 6
+IF3STS:	OUT	IF3UX,AL	;Select mux
+	IN	AL,IF3US	;Get TTY status
+IFXST:	AND	AL,UDAV		;Mask data available
+XCRTST:	JZ	ZCRTST		;Show not ready
+	OR	AL,0FFh		;Show ready
+ZCRTST:	RET
+;
+CONST1:	DEC	AL		;See if CRT selected
+	JNZ	CONST2		;Check for UC1 or BATCH if not
+;
+; C R T -- Video Display Terminal.
+CRTST:	MOV  AL,Byte ptr IOCNTL	;Get I/O control select byte
+	AND	AL,00000011b	;Check on CRT select bits  
+	JZ	IF3STS		;If zero, CRT is Interfacer 3,4 USER 0
+	DEC	AL		;See if System Support I UART
+	JNZ	CRTST2		;Try devices 2,3 if not
+;===
+	MOV  AL,Byte ptr CRTICNT ;See if any characters in input buffer
+	OR	AL,AL		;Set status bits
+	JMPS	XCRTST		;Return with proper values for status
+;===
+;
+CRTST2:	DEC	AL		;See if UART 0 of IF 1,2
+	JNZ	CRTST3		;Use device 3 if not
+	IN	AL,IF1US0	;switch selects Interfacer I,II port at 00h
+	JMPS	IFXST		;All CompuPro input status masks are identical
+;
+; Custom CRT routine, initially set for Interfacer I,II UART 1.
+CRTST3:	IN	AL,IF1US1	;BUILD YOUR OWN CUSTOM CRT DRIVER HERE
+	AND	AL,UDAV		;Select status bit(s)
+	XOR	AL,0		;Optional compliment of data
+	JMPS	XCRTST		;Universal return from status check
+;
+; More checks on regular console devices.
+CONST2:	DEC	AL		;See if UC1 selected
+;
+; U C 1 -- Optional user console device.
+UC1ST:	MOV	AL,7		;Get optional user 7 console status
+	JNZ	IF3STS		;Complete status mask if not BATCH selected
+;
+; B A T -- BATCH Mode (use READER select bits to chose USER 0-3).
+	MOV  AL,Byte ptr IOBYTE	;Get I/O select byte
+	ROR AL,1  !  ROR AL,1	;Put READER select bits in lower 2 bits
+	AND	AL,3		;To select low user #
+	JMPS	IF3STS		;And get IF3 status
+;
+	eject
+;****************************************
+;*	CONSOLE DATA INPUT ROUTINE:	*
+;****************************************
+;
+; Read the next character into the AL register, clearing
+; the high order bit.  If no character currently ready to
+; read then wait for a character to arrive before returning.
+;
+; IOBYTE selects device to use as follows:
+; 0 = TTY:,	1 = CRT:,	2 = BAT:,	3 = UC1:
+;    USER 6	    xxx		    xxx		   USER 7
+;-----	If CRT, secondary select done using IOCNTL byte:
+; 0 = USER 0,	1 = SysSup 1,	2 = IF1P0,	3 = Custom.
+;-----	If BAT, secondary select done using READER of IOBYTE:
+; 0 = USER 0	1 = USER 1,	2 = USER 2,	3 = USER 3
+;
+;Exit:	AL = Character read from terminal.
+;
+CONIN:	MOV  AL,Byte ptr IOBYTE ;Get I/O Byte (0=TTY,1=CRT,2=BAT,3=UC1)
+	AND	AL,3		;Select console bits
+	JNZ	CONIN1		;If not TTY, check for others
+;
+; T T Y -- Used by all six logical device vecotrs.
+TTYIN:	MOV	AL,6		;TTY is always Interfacer 3,4 USER 6
+IF3IN:	OUT	IF3UX,AL	;Select mux
+IF3IN2:	IN	AL,IF3US	;Get TTY status
+	AND	AL,UDAV		;Mask data available
+	JZ	IF3IN2		;Loop until ready
+	IN	AL,IF3UD	;Get data
+	AND	AL,7Fh		;Strip out parity
+	RET
+;
+CONIN1:	DEC	AL		;See if CRT
+	JNZ	CONIN2		;Try UC1 or BATCH if not
+;
+; C R T -- Video Display Terminal.
+CRTIN:	MOV  AL,Byte ptr IOCNTL	;Get I/O control select byte
+	AND	AL,00000011b	;Check on CRT select bits  
+	JZ	IF3IN		;If zero, CRT is Interfacer 3,4 USER 0
+	DEC	AL		;See if System Support I UART
+	JNZ	CRTIN2		;Try devices 2,3 if not
+;===
+	CMP  Byte ptr CRTNULL,0	;See if output null control on
+	JNZ	CRTIN0		;Check for character ready if not
+	DEC  Byte ptr CRTNULL	;Turn off for next pass
+CRTSTW:	CMP  Byte ptr CRTXDIF,0	;See if any characters left in xmit buffer
+	JNZ	CRTSTW		;Wait until none
+CRTIN0:	LEA	BX,CRTICNT	;Point to input buffer counter
+	CMP  Byte ptr [BX],0	;See if any characters in receive buffer
+	JZ	CRTIN0		;Loop until a character is there
+	PUSHF!	CLI		;Save state of machine, disable interrupts
+	MOV	CL,[BX]		;Get number of characters in buffer
+	MOV	CH,0		;Zero upper half of counter
+	DEC  Byte ptr [BX]	;Bump input buffer counter
+	ADD	BX,CX		;Add count to base of buffer area
+CRTIN1:	MOV	AH,[BX]		;Get tail character
+	MOV	[BX],AL		;Replace with one further back in tail
+	MOV	AL,AH		;Place new final character in "AL"
+	DEC	BX		;Point to next location towards front of buffer
+	LOOP	CRTIN1		;Loop until at front of buffer
+	POPF			;Recover state of machine including interrupts
+	RET
+;===
+CRTIN2:	DEC	AL		;See if Interfacer I,II UART 0
+	JNZ	CRTIN3		;Use alternate CRT device 3 if not
+CRTIN2X:IN	AL,IF1US0	;switch selects Interfacer I,II
+	AND	AL,UDAV
+	JZ	CRTIN2X		;Loop if data not available
+	IN	AL,IF1UD0	;Get data
+	AND	AL,7Fh		;Strip out parity
+	RET
+;
+; Custom CRT routine, initially set for Interfacer I,II UART 1.
+CRTIN3:	IN	AL,IF1US1	;BUILD YOUR OWN CUSTOM CRT INPUT ROUTINE
+	AND	AL,UDAV		;Strip out console status bits
+	XOR	AL,0		;Flip status bits as necessary
+	JZ	CRTIN3		;Loop if data not available
+	IN	AL,IF1UD1	;Get data
+	AND	AL,7Fh		;Strip out parity
+	RET
+;
+; Check for other console devices.
+CONIN2:	DEC	AL		;See if UC1 selected
+;
+; U C 1 -- Optional user console device.
+UC1CI:	MOV	AL,7		;Get optional user 7 console status
+	JNZ	IF3IN		;Complete data input if not BATCH selected
+;
+; B A T -- BATCH Mode (use READER select bits to chose USER 0-3).
+	MOV  AL,Byte ptr IOBYTE
+	ROR AL,1  !  ROR AL,1	;Put READER select bits in lower 2 bits
+	AND	AL,3		;To select low user #
+	JMPS	IF3IN		;And get IF3 data input
+;
+	eject
+;********************************************************
+;*	AUXILARY LOGICAL DEVICE DATA INPUT ROUTINE:	*
+;********************************************************
+;
+; Read the next character from the currently assigned auxilary character input
+; (formerly Reader) device into the "AL" register, no parity bit is stripped.
+;
+; IOBYTE selects device to use as follows:
+; 0 = TTY:,	1 = PTP:,	2 = UP1:,	3 = UP2:
+;    USER 6	   USER 1	   USER 2	   USER 3
+;
+;Exit:	AL = Character read from the auxilary input device.
+;
+AUXIN:	MOV  AL,Byte ptr IOBYTE	;Get I/O BYTE value
+	ROR AL,1  !  ROR AL,1	;Move select to lower two bits
+	AND	AL,3		;Mask select bits (0=TTY,1=PTR,2=UR1,3=UR2)
+	JNZ	IF3AI		;Else get USER 1-3 as aux inputs
+	MOV	AL,6		;TTY is USER 6
+IF3AI:	OUT	IF3UX,AL	;Select mux
+IF3AI2:	IN	AL,IF3US	;Get character device status
+	AND	AL,UDAV		;Mask data available
+	JZ	IF3AI2		;Loop until ready
+	IN	AL,IF3UD	;Get data
+	RET
+;
+;****************************************************************
+;*	AUXILARY LOGICAL DEVICE CHARACTER OUTPUT ROUTINE:	*
+;****************************************************************
+;
+; Send a character (8 bits) to the selected auxilary (formerly Punch) device.
+;
+; IOBYTE selects device to use as follows:
+; 0 = TTY:,	1 = PTP:,	2 = UP1:,	3 = UP2:
+;    USER 6	   USER 1	   USER 2	   USER 3
+;
+;Entry:	CL = ASCII character or byte to output.
+;
+AUXOUT:	MOV  AL,Byte ptr IOBYTE	;Get I/O BYTE
+	AND	AL,00110000b	;Mask out aux device select bits   
+	JZ	TTYOUT		;Use TTY if zero
+AUXOUT2:ROR AL,1  !  ROR AL,1
+	ROR AL,1  !  ROR AL,1	;Move select to lower two bits
+	AND	AL,3		;Mask select bits
+	JMPS	IF3OUT		;Select USER for Interfacer 3,4
+;
+	eject
+;****************************************
+;*	CONSOLE DATA OUTPUT ROUTINE:	*
+;****************************************
+;
+; Send a character to the console.  If the console is not ready
+; to output a character, wait until it is, then do transmission.
+;
+; IOBYTE selects device to use as follows:
+; 0 = TTY:,	1 = CRT:,	2 = BAT:,	3 = UC1:
+;    USER 6	    xxx		    xxx		   USER 7
+;-----	If CRT, secondary select done using IOCNTL byte:
+; 0 = USER 0,	1 = SysSup 1,	2 = IF1-P0,	3 = Custom.
+;-----	If BAT, secondary select done using PUNCH of IOBYTE:
+; 0 = USER 0	1 = USER 1,	2 = USER 2,	3 = USER 3
+;
+;Entry:	CL = ASCII character to output to console.
+;
+CONOUT:	MOV  AL,Byte ptr IOBYTE	;Get I/O Byte (0=TTY,1=CRT,2=BAT,3=UC1)
+	AND	AL,3		;Mask select bits
+	JNZ	CONOUT1		;If not TTY, check for others
+;
+; T T Y -- Used by all six logical device vectors.
+TTYOUT:	MOV	AL,6		;TTY is always Interfacer 3,4 USER 6
+IF3OUT:	OUT	IF3UX,AL	;Select mux
+IF3OUT2:IN	AL,IF3US	;Get TTY status
+	AND	AL,IF3TMSK	;Mask TBE, DSR bits
+	XOR	AL,IF3FMSK	;Flip status of both
+	JNZ	IF3OUT2		;Loop until ready
+	MOV	AL,CL
+	OUT	IF3UD,AL	;Xmit data
+	RET
+;
+CONOUT1:DEC	AL		;See if CRT
+	JNZ	CONOUT2		;Try UC1 or BATCH if not
+;
+; C R T -- Video Display Terminal.
+CRTOUT:	MOV  AL,Byte ptr IOCNTL	;Get I/O control select byte
+	AND	AL,00000011b	;Check on CRT select bits  
+	JZ	IF3OUT		;If zero, CRT is Interfacer 3,4 USER 0
+	DEC	AL		;See if System Support I UART
+	JNZ	CRTOUT2		;Try devices 2,3 if not
+;===
+SS1CRT0:CMP  Byte ptr CRTXDIF,CRTOLEN ;See if difference at length of buffer
+	JNC	SS1CRT0		;Wait until xmitter makes room there if so
+	PUSHF!	CLI		;Save state of machine, disable interrupts
+	INC  Byte ptr CRTXDIF	;Show one more character in buffer
+	LEA	BX,CRTOCNT	;Point at load position counter
+	SUB  Byte ptr [BX],1	;Back down one position in buffer
+	JNS	SS1CRT1		;Proceed if not below bottom of buffer
+	MOV  Byte ptr [BX],CRTOLEN-1 ;Place pointer/counter at rear of buffer
+SS1CRT1:MOV	BL,[BX]		;Place offset within buffer in "AX"
+	MOV	BH,0		;Zero upper half of counter
+	MOV	CRTOBUF[BX],CL	;Place character to xmit in buffer
+	CMP  Byte ptr CRTNULL,0	;See if NULL control byte active
+	JZ	SS1CRT2		;Skip status storage if so
+	MOV  Byte ptr CRTNULL,CL ;Save current xmit character as control status
+SS1CRT2:
+    if CRT_DC			;If this console utilizes XON/XOFF protocol
+	CMP  Byte ptr CRTXCTL,XOFF ;See if xmit is software enabled
+	JZ	SS1CRT3		;Don't turn on xmitter if not
+    endif
+	IN	AL,SS1SP1	;Get current active slave interrupt mask
+	AND	AL,10111111b	;Enable UART xmit interrupt bit
+	OUT	SS1SP1,AL	;So interrupts are processed for output
+SS1CRT3:POPF			;Recover state of machine including interrupts
+	RET
+;===
+CRTOUT2:
+;	DEC	AL		;See if device 3 selected
+;	JNZ	CRTOUT3		;Use custom CRT routine if so
+CRTO2LP:IN	AL,IF1US0	;Switch selects Interfacer I,II
+	AND	AL,IF1TMSK	;Mask data xmit flags
+	XOR	AL,IF1FMSK	;Flip TBE status bit
+	JZ	CRTO2LP		;Loop if xmit buffer not empty
+	MOV	AL,CL		;Get character to xmit
+	OUT	IF1UD0,AL	;Send it on it's way
+	RET
+;
+; Custom CRT routine, initially set for Interfacer I,II UART 1.
+;CRTOUT3:IN	AL,IF1US1	;BUILD YOUR OWN CUSTOM CRT OUTPUT ROUTINE
+;	AND	AL,IF1TMSK	;Mask data xmit flags
+;	XOR	AL,IF1FMSK	;Flip TBE status bit
+;	JZ	CRTOUT3		;Loop if xmit buffer not empty
+;	MOV	AL,CL		;Get character to xmit
+;	OUT	IF1UD1,AL	;Send it on it's way
+;	RET
+;
+; Check for other console devices.
+CONOUT2:DEC	AL		;See if UC1 selected
+;
+; U C 1 -- Optional user console device.
+UC1CO:	MOV	AL,7		;Get USER 7 console status if UC1 selected
+	JNZ	IF3OUT		;Complete data input if so
+;
+; B A T -- BATCH Mode (use aux output select bits to chose USER 0-3).
+	MOV  AL,Byte ptr IOBYTE	;Get I/O byte value again for aux out select
+	JMP	AUXOUT2		;And use their value to select the USER number
+;
+	eject
+;********************************************************
+;*	OUTPUT CHARACTER TO LIST LOGICAL DEVICE:	*
+;********************************************************
+;
+; Send a character to the list device.  If the list device is not
+; ready to receive a character wait until the device is ready.
+;
+; IOBYTE selects device to use as follows:
+; 0 = TTY:,	1 = CRT:,	2 = LPT:,	3 = UL1:
+;    USER 6	    xxx		    xxx		   USER 5.
+;-----	If CRT, secondary select done using IOCNTL byte:
+; 0 = USER 0,	1 = SysSup 1,	2 = IF1-P0,	3 = Custom.
+;-----	If LPT, secondary select done using IOCNTL byte:
+; 0 = USER 4	1 = IF1-P1,	2,3 = Custom.
+;
+;Entry:	CL = ASCII character to be output.
+;
+LISTOUT:MOV  AL,Byte ptr IOBYTE	;Get IOBYTE status
+	ROL AL,1  !  ROL AL,1	;Move select to lower two bits
+	AND	AL,3		;Mask out select bits
+	CMP	AL,1		;See if CRT output
+	JZ	CRTOUT		;Use it if so
+	CMP	AL,2		;See if LPT or UL1
+	JZ	LPTOUT		;Line printer if 2
+	JNC	UL1OUT		;User list device if 3
+	JMP	TTYOUT		;Use TTY if zero
+;
+; L P T -- Line printer list output.
+LPTOUT:	MOV  AL,Byte ptr IOCNTL	;Get I/O control switch byte
+	AND	AL,11000000b	;Mask out LPT control bits  
+	JZ	LPTUSR4		;If control value was zero, USER 4
+	JNS	LPTIF1		;If not custom, use Interfacer 1, port 1
+;
+; Custom list routine for LPT selection.
+LPTCUST:IN	AL,IF1US2	;Get status
+	AND	AL,IF1TMSK	;Mask ready bits
+	XOR	AL,IF1FMSK	;Flip TBE bit
+	JNZ	LPTCUST		;Loop until ready
+	MOV	AL,CL		;Get char
+	OUT	IF1UD2,AL	;Xmit it
+	RET
+;
+LPTIF1:	IN	AL,IF1US1	;Get status
+	AND	AL,IF1TMSK	;Mask ready bits
+	XOR	AL,IF1FMSK	;Flip TBE bit
+	JNZ	LPTIF1		;Loop until ready
+	MOV	AL,CL		;Get char
+	OUT	IF1UD1,AL	;Xmit it
+	RET
+;
+LPTUSR4:MOV	AL,4		;USER 4 as list device if so
+	OUT	IF3UX,AL	;Select mux in Interfacer 3,4
+	MOV  AL,Byte ptr IOCNTL	;Get I/O control byte
+	SHL AL,1  !  SHL AL,1	;Shift left 2 bits to mask USER 4 routine
+	JMPS	LSTSPCL		;Check for special list protocol
+;
+; U L 1 -- User device list output.
+UL1OUT:	MOV	AL,5		;USER 5 is special list device
+	OUT	IF3UX,AL	;Select mux in Interfacer 3,4
+	MOV  AL,Byte ptr IOCNTL	;Get I/O control byte
+LSTSPCL:AND	AL,00110000b	;Mask out USER 5 output routine select bits   
+	JZ	LSTIF3		;Normal transmit if zero
+	SHL AL,1  !  SHL AL,1	;Shift left 2 bits
+	JS	ETX@ACK		;Use ETX/ACK protocol if higher bit set
+;
+; XON/XOFF (DC1/DC3) software protocol in use.
+DC1@DC3:IN	AL,IF3US	;Get status
+	AND	AL,UDAV
+	JZ	LSTIF3		;List if no char ready on input
+	IN	AL,IF3UD	;Get character
+	AND	AL,7Fh		;Strip out parity bit
+	CMP	AL,XOFF		;^S? (XOFF)
+	JNZ	LSTIF3		;Continue if not
+DC1X2:	IN	AL,IF3US	;Get status
+	AND	AL,UDAV
+	JZ	DC1X2		;Wait for data from printer
+	IN	AL,IF3UD	;Get it
+	AND	AL,7Fh
+	CMP	AL,XON		;^Q? (XON)
+	JNZ	DC1X2		;Loop until found
+LSTIF3:	JMP	IF3OUT2		;Xmit data using usual Interfacer 3,4 output
+;
+; ---  ETX/ACK software protocol in use.
+ETX@ACK:MOV	AL,CL		;Get character to transmit
+	CMP	AL,LF		;See if line feed (always last character if in
+				; an ESCAPE sequence)
+	JNZ	LSTIF3		;Transmit data if not
+	CALL	IF3OUT2		;Transmit Line Feed and return for more
+	MOV	CL,ETX		;Show end of line (End of Transmission, ETX)
+	CALL	IF3OUT2		;Transmit and return to wait for ACK
+ACKX2:	IN	AL,IF3US	;Get status
+	AND	AL,UDAV
+	JZ	ACKX2		;Wait for data from printer
+	IN	AL,IF3UD	;Get it
+	AND	AL,7Fh		;Strip out parity bit
+	CMP	AL,ACK		;See if ACKnowledge of buffer empty
+	JNZ	ACKX2		;Loop until found
+	RET
+;
+;********************************************************
+;*	LIST DEVICE OUTPUT READY STATUS ROUTINE:	*
+;********************************************************
+;
+; Return the ready status for the assigned list device.
+LISTST:	MOV	AL,0		;Follow DR example, always show not ready
+	RET
+;
+;****************************************
+;*	INTERRUPT HANDLER ROUTINES:	*
+;****************************************
+;
+CRTXMIT:PUSH	DS		;Save the entering data segment value
+	MOV  DS,CS:Word ptr DATASEG	;Use the BIOS segment instead
+	MOV  Word ptr SS_HOLD,SS ;Save the stack segment
+	MOV  Word ptr SP_HOLD,SP ; and the corresponding stack pointer
+	MOV  SS,Word ptr DATASEG ;Start a new stack in the BIOS
+	MOV  SP,offset INTSTK	; with it's corresponding stack pointer
+	PUSH	AX		;Save the condition of entering registers
+	PUSH	BX!	PUSH	CX!	PUSH	DX
+    if CRT_DSR
+CRTXM0:	IN	AL,SS1US	;Get UART status register
+	AND	AL,SS1DSR	;See if Data Set Ready bit set
+	JZ	CRTXM0		;Wait if not
+    endif
+    if CRT_DC
+	CMP  Byte ptr CRTXCTL,XOFF ;See if transmission is software disabled
+	JZ	CRTXM2		;Return without sending anything if so
+    endif
+	LEA	BX,CRTXCNT	;Point to transmission counter/pointer
+	SUB  Byte ptr [BX],1	;Back up one for character to xmit
+	JNS	CRTXM1		;If still positive, proceed
+	MOV  Byte ptr [BX],CRTOLEN-1 ;Re-initialize counter at end of buffer
+CRTXM1:	SUB  Byte ptr 1[BX],1	;Decrement "total characters in buffer"
+	MOV	BL,[BX]		;Place offset to buffer area for character
+	MOV	BH,0		; in "BX"
+	MOV	AL,CRTOBUF[BX]	;Get character from buffer area
+	OUT	SS1UD,AL	;Send to UART
+	JNZ	CRTXM3		;If "total characters" not zero, continue xmit
+CRTXM2:	IN	AL,SS1SP1	;Get slave interrupt mask
+	OR	AL,01000000b	;Disable xmitter interrupt
+	OUT	SS1SP1,AL	;Update mask
+CRTXM3:	MOV	AL,SEOI+6	;Selective end of interrupt for xmit
+	JMP	SLVEOI		;Finish cleaning up from interrupt
+;
+;========
+CRTRCVR:PUSH	DS		;Save the entering data segment value
+	MOV  DS,CS:Word ptr DATASEG	;Use the BIOS segment instead
+	MOV  Word ptr SS_HOLD,SS ;Save the stack segment
+	MOV  Word ptr SP_HOLD,SP ; and the corresponding stack pointer
+	MOV  SS,Word ptr DATASEG ;Start a new stack in the BIOS
+	MOV  SP,offset INTSTK	; with it's corresponding stack pointer
+	PUSH	AX		;Save the condition of entering registers
+	PUSH	BX!	PUSH	CX!	PUSH	DX
+	IN	AL,SS1UD	;Get character from UART
+	AND	AL,7Fh		;Remove parity bit
+    if CRT_DC
+	CMP	AL,XON		;See if XON character for protocol
+	JZ	CRTRX0		;Restore transmission enable if so
+	CMP	AL,XOFF		;See if XOFF character for protocol
+	JNZ	CRTRX1		;Save character in buffer if not
+	MOV  Byte ptr CRTXCTL,AL ;Save protocol character in control byte
+	JMPS	CRTRX2		;And return from interrupt without buffering
+;
+CRTRX0:	MOV  Byte ptr CRTXCTL,AL ;Save protocol character in control byte
+	CMP  Byte ptr CRTXDIF,0	;See if any characters ready to xmit
+	JZ	CRTRX2		;Return from interrupt if not
+	IN	AL,SS1SP1	;Get slave interrupt enable mask
+	AND	AL,10111111b	;Turn on data transmission again for UART
+	OUT	SS1SP1,AL	; in interrupt mask
+	JMPS	CRTRX2		;Return without buffering character
+    endif
+;
+CRTRX1:	CMP  Byte ptr CRTICNT,CRTILEN	;See if input buffer full
+	JNC	CRTRX2		;Return without buffering character if so
+	MOV  BL,Byte ptr CRTICNT ;Get position to place this character in "BX"
+	MOV	BH,0
+	INC  Byte ptr CRTICNT	;Bump input pointer/counter to show loaded
+	MOV	CRTIBUF[BX],AL	;Save character in buffer area
+CRTRX2:	MOV	AL,SEOI+7	;Selective end of interrupt for receive
+SLVEOI:	OUT	SS1SP0,AL	; to slave PIC
+	MOV	AL,EOI		;General end of interrupt
+	OUT	SS1MP0,AL	; to master PIC to clear for next
+	POP	DX!	POP	CX!	POP	BX
+	POP	AX		;Recover condition of entering registers
+	MOV  SS,Word ptr SS_HOLD ;Recover entering stack segment
+	MOV  SP,Word ptr SP_HOLD ; and corresponding stack pointer
+	POP	DS		;Recover entering data segment
+	IRET			;And return from interrupt
+;========
+CRTICHR	DB	0	;Temp storage for input character
+CRTICNT	DB	0	;Initially no characters in buffer
+CRTIBUF	RS  CRTILEN	;Length of input buffer
+;
+CRTNULL	DB	0FFh	;Null control byte, initially inactive
+CRTXCTL	DB	XON	;XON/XOFF software protocol output control byte
+CRTOCNT	DB  CRTOLEN-1	;Output load counter/pointer (at end of buffer)
+CRTXCNT	DB  CRTOLEN-1	;Output xmitted character pointer (also at end)
+CRTXDIF	DB	0	;Difference byte of the two output counters
+CRTOBUF	RS  CRTOLEN	;Length of output buffer
+;
+DATASEG	RS	2	;Active data segment of BIOS
+SS_HOLD	RS	2	;Storage for entering stack segment on interrupt
+SP_HOLD	RS	2	;Storage for entering stack pointer on interrupt
+	RS	64	;Length of interrupt handler stack
+INTSTK	RS	0	;Top of interrupt handler stack
+;
+

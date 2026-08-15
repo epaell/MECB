@@ -1,0 +1,527 @@
+;****************************************************************
+;                                                               *
+;  Overlay Management Module for Pascal/MT+ 5.25.2              *
+;                                                               *
+;  Created:        March 18, 1981                               *
+;  Updated:        February 03, 1986    by Gerhard Stegemann    *
+;                                                               *
+;  Note: to properly operate this version of the OVLMGR         *
+;  module requires a @INI routine of Release >= 5.25.1          *
+;                                                               *
+;****************************************************************
+
+        NAME    OVERLAY_MANAGER
+        
+
+DATA    SEGMENT PUBLIC
+
+DMAPTR  DW      ?               ;DMA address for input xfer
+PROCNAME DB     8 DUP(?)        ;Name of procedure which we are calling
+OVLGNUM DB      ?               ;Overlay number
+PROCADR DW      ?               ;Procedure address
+MYFCB   DB      36 DUP(?)       ;FCB for file opening
+
+;       USRRET Stack contains return address and
+;       saved overlay area address
+;       and overlay group number (max. nesting 25)
+
+        DB      129 DUP(?)      ;Saved return addresses
+USRRET:
+
+OVLAREA DW      ?               ;Location of most recent OVL area
+
+DATA    ENDS
+
+
+CODE    SEGMENT PUBLIC
+
+        ASSUME  CS:CODE, DS:DATA
+
+;****************************************************************
+;       Equates for pertinant information                       *
+;****************************************************************
+
+;       The following three equates describe data placed at
+;       the beginning of the .CMD file by LINK/MT+86 after the
+;       stack pointer initialization code.
+;       They must be referenced with a CS override.
+
+
+NCBPTR  EQU     000CH
+ovlbase EQU     0001H           ;Base prefix for file name
+namelen EQU     0000H           ;Length of names (6 or 7 characters)
+@XXXX1  EQU     000EH           ;Ptr to base of OVL_AREA_TAB
+
+M       EQU     Byte Ptr 0[BX]
+
+TRUE    EQU     -1
+FALSE   EQU     0               ;For conditional assembly
+RELOAD  EQU     OFF             ;Non-recursive overlay calling
+
+;****************************************************************
+;       PUBLIC AND EXTRN SYMBOLS                                *
+;****************************************************************
+
+        PUBLIC  @OVL            ;OVERLAY LOADER
+        PUBLIC  @OVS            ;OVERLAY DISK SET
+
+;****************************************************************
+;                                                               *
+;       MAIN ROUTINE - @OVL                                     *
+;       PURPOSE      - LOAD OVERLAY AND CALL PROCEDURE          *
+;                                                               *
+;       ON ENTRY TO @OVL, RETURN ADDRESS POINTS TO OVERLAY CALL *
+;       DATA BLOCK:                                             *
+;                                                               *
+;       +0 : OVERLAY GROUP NUMBER --- 1 BYTE                    *
+;       +1 : OVERLAY PROCEDURE NAME-- 8 BYTES                   *
+;                                                               *
+;****************************************************************
+
+@OVL    PROC    NEAR
+
+        POP     BX		;Get parameter block
+        MOV     AL,CS:M		;Overlay number
+        MOV     Byte Ptr OVLGNUM,AL
+        INC     BX
+        MOV     CX,8
+        MOV     SI,Offset PROCNAME
+	CALL	MOVETODS	;Copy procedure name 
+
+        CALL    PSHUSRRET       ;SAVE USER'S RETURN ADDRESSES
+        CALL    LOADOVLY        ;GO LOAD IT (IF NECESSARY)
+        CALL    FINDPROC        ;GO SEARCH FOR AND FIND PROCNAME
+				;DOES NOT RETURN IF PROC NOT FOUND
+
+        MOV     BX,Offset OURRET ;PUSH OUR RETURN ADDRESS ON THE STACK
+        PUSH    BX
+        JMP     Word Ptr PROCADR ;GET ADDRESS OF PROC WITHIN OVERLAY AREA
+				 ;AND OFF TO USER ROUTINE
+
+OURRET:	PUSH    AX
+        PUSH    BX      	;SAVE POSSIBLE RETURN VALUES
+        CALL    POPUSRRET 	;MAY RELOAD OLD OVERLAY GROUP
+        POP     BX
+        POP     AX      	;GET POSSIBLE RETURN VALUES BACK AGAIN
+        JMP     CX      	;AND BACK TO THE USER (SIMPLE CASE)
+
+@OVL    ENDP
+
+
+;****************************************************************
+;                                                               *
+;       MAIN ROUTINE - @OVS                                     *
+;       PURPOSE      - SET DRIVE NUMBER FOR A SPECIFIC OVERLAY  *
+;       INPUT        - ON STACK: OVLNUM, DRIVE                  *
+;                         OVLNUM: 1 .. 50                       *
+;                         DRIVE : '@' .. 'O'                    *
+;                                                               *
+;       PASCAL DEFINITION:                                      *
+;                                                               *
+;       EXTERNAL PROCEDURE @OVS(OVNUM : INTEGER; DRNUM : CHAR); *
+;                                                               *
+;****************************************************************
+
+@OVS    PROC    NEAR
+
+        POP     BX                      ;RET ADR
+        POP     AX                      ;DRIVE NUMBER
+        POP     DX                      ;OVERLAY NUMBER
+        PUSH    BX			;Put return address back onto stack
+
+        SUB     AL,'@'                  ;MAKE 0..19
+        MOV     BX,Offset DRIVETAB
+	DEC	DX			;MAKE OVLNUM COMPATABLE
+        ADD     BX,DX
+        MOV     CS:M,AL
+
+        RET
+
+@OVS    ENDP
+
+
+;****************************************************************
+;                                                               *
+;       SUBROUTINE: CALCADDR                                    *
+;       PURPOSE   : CALC OVERLAY AREA ADDRESS BASED ON OVLGNUM  *
+;                                                               *
+;****************************************************************
+
+CALCADDR PROC   NEAR
+
+        MOV     AL,Byte Ptr OVLGNUM     ;GET REQUESTED GROUP NUMBER
+        DEC     AL
+        RCR     AL,1
+        RCR     AL,1
+        RCR     AL,1                    ;DIVIDE BY 8
+        AND     AX,1EH
+        MOV     BX,CS:Word Ptr @XXXX1   ;GET ADDR OF OVERLAY AREA TABLE
+        ADD     BX,AX
+
+        MOV     BX,CS:Word Ptr [BX]	;BX NOW POINTS TO OVERLAY AREA
+        MOV     Word Ptr OVLAREA,BX     ;SAVE IT FOR LATER
+
+        RET
+
+CALCADDR ENDP
+
+
+;****************************************************************
+;                                                               *
+;       SUBROUTINE: PSHUSRRET                                   *
+;       PURPOSE   : SAVE CONTENTS OF HL, OVERLAY AREA ADDR      *
+;                   AND OVERLAY GROUP NUMBER ON USRRET STACK    *
+;                                                               *
+;****************************************************************
+
+PSHUSRRET PROC NEAR
+
+        PUSH    BX			;Save user return address
+        CALL    CALCADDR
+        MOV     SI,BX			;Save overlay area address
+
+        MOV     BX,CS:Word Ptr USRSP    ;GET STACK POINTER
+        POP     DX			;Restore user ret addr
+        MOV     Word Ptr [BX-2],DX      ;STORE RET ADDR
+
+        MOV     Word Ptr [BX-4],SI      ;STORE OVERLAY AREA ADDR
+
+        MOV     AL,CS:Byte Ptr [SI]	;Get current overlay number
+        MOV     Byte Ptr [BX-5],AL
+
+	SUB	BX,5
+        MOV     CS:Word Ptr USRSP,BX
+
+        RET
+
+PSHUSRRET ENDP
+
+
+;****************************************************************
+;                                                               *
+;       SUBROUTINE: POPUSRRET                                   *
+;       PURPOSE   : POP RET ADDR, OVERLAY AREA ADDR AND NUMBER  *
+;                   IF RELOAD IS SET TO TRUE THEN THIS ROUTINE  *
+;                   WILL CALL LOADOVLY TO RE-LOAD PREVIOUS      *
+;                   OVERLAY IF NECESSARY                        *
+;                                                               *
+;****************************************************************
+
+POPUSRRET PROC NEAR
+
+	CLD
+        MOV     SI,CS:Word Ptr USRSP
+        LODSB
+        MOV     Byte Ptr OVLGNUM,AL     ;SAVE OVERLAY GROUP NUMBER
+
+        LODSW				;AX has now overlay area address
+        MOV     Word Ptr OVLAREA,AX
+
+        LODSW                           ;AX NOW CONTAINS CALLERS RET ADDRESS
+        XCHG    CX,AX                   ;PUT RET ADDR INTO CX, TO RETURN IT
+
+        MOV     CS:Word Ptr USRSP,SI
+
+;----------------------------------------------------------------
+
+	IF RELOAD		;THEN RELOAD OLD OVERLAY IF NECESSARY
+        PUSH    CX
+        MOV     AL,Byte Ptr OVLGNUM
+        OR      AL,AL
+        JZ      L@1     
+        CALL    LOADOVLY                ;ELSE GO LOAD IT IN AGAIN
+
+L@1:	POP     CX                      ;GET RET ADDR BACK AGAIN
+	ENDIF
+
+;----------------------------------------------------------------
+
+        RET                     ;BACK TO MAIN @OVL ROUTINE
+
+POPUSRRET ENDP
+
+
+;****************************************************************
+;                                                               *
+;       SUBROUTINE: LOADOVLY                                    *
+;       PURPOSE   : USING OVLADDR AND OVLBASE LOAD THE OVERLAY  *
+;                                                               *
+;****************************************************************
+
+LOADOVLY PROC   NEAR
+
+        CALL    CALCADDR               ;SETS OVLAREA AND HL-REG
+        MOV     AL,Byte Ptr OVLGNUM    ;GET GROUP NUMBER BACK AGAIN
+        CMP     AL,CS:M                ;IS REQUESTED OVERLAY IN THE AREA?
+        JNZ     L@2     
+
+        RET                            ;RETURN IF ALREADY LOADED
+
+;       If not loaded then construct name and load it
+
+L@2:
+;       MOVE    OVLBASE,MYFCB+1,8
+        MOV     BX,CS:Word Ptr NCBPTR
+        ADD     BX,OVLBASE
+        MOV     SI,(Offset MYFCB)+1
+        MOV     CX,8
+	CALL	MOVETODS		;GET BYTE OF NAME FROM CODE SEG
+                                        ;AND STORE IN DATA SEG
+
+        MOV     AL,Byte Ptr OVLGNUM
+        DEC     AL
+        MOV     AH,0
+        MOV     BX,Offset DRIVETAB
+        ADD     BX,AX
+        MOV     AL,CS:M                 ;GET DRIVE NUMBER FROM TABLE
+        MOV     Byte Ptr MYFCB,AL       ;FOR NOW DEFAULT DRIVE ONLY
+        MOV     AL,'0'
+        MOV     Byte Ptr MYFCB+9,AL
+        MOV     AL,Byte Ptr OVLGNUM
+        RCR     AL,1
+        RCR     AL,1
+        RCR     AL,1
+        RCR     AL,1
+        CALL    CV2HX                   ;CONVERT HIGH NIBBLE
+        MOV     Byte Ptr MYFCB+10,AL
+        MOV     AL,Byte Ptr OVLGNUM
+        CALL    CV2HX                   ;CONVERT LOW NIBBLE
+        MOV     Byte Ptr MYFCB+11,AL
+        MOV     BX,(Offset MYFCB)+12
+        MOV     CX,23                   ;NUMBER OF EXTRA BYTES
+
+LO2:    MOV     M,0
+        INC     BX
+        LOOP    LO2
+
+        MOV     DX,Offset MYFCB
+        MOV     CL,15                   ;FILE OPEN
+        INT     224                     ;GO OPEN THE FILE
+
+        CMP     AL,255
+        JZ      NOFILE                  ;BR IF FILE NOT FOUND
+
+;       Ok, now load it until EOF
+
+L@3:	MOV     BX,Word Ptr OVLAREA     ;GET OVERLAY AREA ADDRESS
+        MOV     Word Ptr DMAPTR,BX
+
+	MOV     DX,CS
+        MOV     CL,51
+        INT     224                     ;We read overlay into CSEG
+
+LO3:	MOV     DX,Word Ptr DMAPTR
+        MOV     CL,26
+        INT     224                     ;SET DMA
+
+        ADD     Word Ptr DMAPTR,128
+
+        MOV     DX,Offset MYFCB
+        MOV     CL,20                   ;SEQUENTIAL READ
+        INT     224
+        OR      AL,AL
+        JZ      LO3                     ;IF MORE TO DO THEN GO-ON
+
+        MOV     DX,Offset MYFCB
+        MOV     CL,16                   ;Close file
+        INT     224
+
+        RET                             ;ELSE ALL DONE, EXIT
+
+LOADOVLY ENDP
+
+
+;****************************************************************
+;                                                               *
+;       SUBROUTINE:     FINDPROC                                *
+;       PURPOSE   :     GIVEN PROCEDURE NAME IN PROCNAME        *
+;                       RETURN ADDRESS OF THIS PROCEDURE IN     *
+;                       PROCADR                                 *
+;                                                               *
+;****************************************************************
+
+FINDPROC PROC   NEAR
+
+        MOV     BX,Word Ptr OVLAREA     ;GET ADDR OF OVERLAY AREA
+        MOV     BX,CS:Word Ptr 1[BX]	;Point to symbol table
+
+FP1:	MOV     AL,CS:M
+        OR      AL,AL
+        JZ      NOPROC
+
+L@5:	MOV     SI,CS:Word Ptr NCBPTR
+        MOV     CL,CS:Byte Ptr [SI] 	;# of characters to be compared
+	XOR	CH,CH
+	MOV     SI,Offset PROCNAME
+        PUSH    BX                      ;SAVE ADDR OF TABLE ENTRY
+
+FP2:	MOV     AL,Byte Ptr [SI]
+        CMP     AL,CS:M
+        JNZ     FP3                     ;BR IF NO MATCH
+        INC     BX
+        INC     SI
+        LOOP    FP2                     ;BR IF MORE TO COMPARE
+
+;       We found it...
+
+        POP     BX                      ;GET BASE ADDR OF TABLE ENTRY
+        MOV     BX,CS:Word Ptr 8[BX]
+        MOV     Word Ptr PROCADR,BX	;Procedure address
+        RET                             ;AND EXIT
+
+FP3:	POP     BX
+        ADD     BX,10			;Compare next entry
+        JMP     SHORT FP1
+
+FINDPROC ENDP
+
+
+;****************************************************************
+;       Error message printing routines                         *
+;****************************************************************
+
+NOFILE:                                 ;***OVERLAY FILE NOT FOUND***
+;       MOVE    MYFCB+1,NFMSG1+2,8      ;MOVE IN NAME
+        MOV     BX,(Offset MYFCB)+1
+        MOV     SI,(Offset NFMSG1)+2
+        MOV     CX,8
+	CALL    MOVETOCS
+
+;       MOVE    MYFCB+9,NFMSG1+11,3     ;MOVE IN EXTENSION
+        MOV     BX,(Offset MYFCB)+9
+        MOV     SI,(Offset NFMSG1)+11
+        MOV     CX,3
+   	CALL    MOVETOCS
+
+        MOV     AL,Byte Ptr MYFCB
+        ADD     AL,'@'
+        MOV     CS:Byte Ptr NFMSG1,AL
+        MOV     DX,Offset NFMSG
+        CMP     AL,'@'
+        JNZ     WMSG
+        MOV     BX,'  '
+        MOV     Word Ptr NFMSG1,BX      ;Change "@:" to "  "
+
+WMSG:	PUSH    DS
+        MOV     AX,CS
+        MOV     DS,AX
+        MOV     CL,9                    ;PRINT STRING
+        INT     224
+        POP     DS
+        MOV     CL,0                    ;Terminate program
+        INT     224
+
+NOPROC:                                 ;***PROCEDURE NAME NOT FOUND***
+;       MOVE    MYFCB+1,NPMSG2+2,8      ;MOVE IN NAME
+        MOV     BX,(Offset MYFCB)+1
+        MOV     SI,(Offset NPMSG2)+2
+        MOV     CX,8
+	CALL    MOVETOCS
+
+;       MOVE    MYFCB+9,NPMSG2+11,3     ;MOVE IN EXTENSION
+        MOV     BX,(Offset MYFCB)+9
+        MOV     SI,(Offset NPMSG2)+11
+        MOV     CX,3
+	CALL    MOVETOCS
+
+        MOV     AL,Byte Ptr MYFCB
+        ADD     AL,'@'
+        MOV     CS:Byte Ptr NPMSG2,AL
+        CMP     AL,'@'
+        JNZ     NP1
+        MOV     BX,'  '
+        MOV     CS:Word Ptr NPMSG2,BX
+
+NP1:	
+;       MOVE    PROCNAME,NPMSG1,8
+        MOV     BX,Offset PROCNAME
+        MOV     SI,Offset NPMSG1
+        MOV     CX,8
+	CALL    MOVETOCS
+
+        MOV     DX,Offset NPMSG
+        JMP     SHORT WMSG
+
+NFMSG  	DB      13,10,'Unable to open: '
+NFMSG1  DB      '@:        .   ', 13,10,'$'
+
+NPMSG   DB      13,10,'Proc: "'
+NPMSG1  DB      '        " not found ovl:'
+NPMSG2  DB      '@:        .   ', 13,10,'$'
+
+
+;****************************************************************
+;                                                               *
+;       Internal routine - CV2HX                                *
+;       Low order 4 bits of A-REG contain binary number         *
+;       Returns ASCII character in A-REG                        *
+;                                                               *
+;****************************************************************
+
+CV2HX   PROC    NEAR
+
+        AND     AL,0FH
+        ADD     AL,'0'
+        CMP     AL,03AH
+        JNB     L@4     
+        RET                             ;Return if a valid digit
+
+L@4:	ADD     AL,7
+        RET
+
+CV2HX   ENDP
+
+
+;****************************************************************
+;       Move a string into data segment                         *
+;****************************************************************
+
+MOVETODS PROC	NEAR
+
+?1:	MOV     AL,CS:M		;BX has source address
+        INC     BX
+        MOV     Byte Ptr [SI],AL
+        INC     SI		;SI has destination address
+        LOOP    ?1
+
+	RET
+
+MOVETODS ENDP
+
+
+;****************************************************************
+;       Move a string into code segment                         *
+;****************************************************************
+
+MOVETOCS PROC	NEAR
+
+?2:	MOV     AL,M		;BX points to source
+        INC     BX
+        MOV     CS:Byte Ptr [SI],AL
+        INC     SI		;SI points to destination
+        LOOP    ?2
+
+	RET
+
+MOVETOCS ENDP
+
+
+;****************************************************************
+;                                                               *
+; 	Data area for Overlay Manager                           *
+;                                                               *
+;****************************************************************
+
+;       Note: This table must be in the CSEG area because it must
+;       be initialized via DB and LINKMT will not support
+;       initialized data in the DSEG.
+
+DRIVETAB:                       ;Drive table for 50 overlays
+        DB      50 DUP(0)
+
+USRSP  	DW      Offset USRRET   ;USRRET stack pointer
+				;this must also be in the CSEG
+CODE    ENDS
+
+        END
+

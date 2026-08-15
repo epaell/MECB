@@ -1,0 +1,236 @@
+
+Pascal/MT+86 3.1 - July  1, 1982 -  (c) 1982 by Digital Research  Page    1
+Disassembly of: TEST
+
+
+
+Stmt  Nest    Source Statement / Symbolic Object Code
+
+   1     0    program test;   
+
+0000'            DB      90,90,90,90,90,90,90,90
+0008'            DB      90,90,90,90,90,90,90,90
+0010'            JMP 0013
+0013'            JMP 0016
+
+   2     0       
+   3     0    procedure test;   
+   4     1       
+   5     1    var   
+   6     2        f : text;   
+   7     2        d : packed array[1..2] of char;   
+   8     2        s : string[255];   
+   9     2        c : char;   
+  10     2        i : integer;   
+  11     2        r : integer;   
+  12     2       
+  13     2    begin   
+       TEST:
+
+0016'            PUSH BP
+0017'            MOV BP,SP
+0019'            PUSH BP
+001A'            SUBI SP,014A
+
+  14     2      open(f, 'FOTOSMSG.TXT', r);   
+
+001E'            PUSH SS
+001F'            LEA AX,FFBD[BP]
+0022'            PUSH AX
+0023'            MOVI AX,FFFF
+0026'            PUSH AX
+0027'            PUSH CS
+0028'            CALL 000D
+002B'            DB      0C,46,4F,54,4F,53,4D,53
+0033'            DB      47,2E,54,58,54
+0038'            PUSH SS
+0039'            LEA AX,FEB6[BP]
+003D'            PUSH AX
+003E'            CALL 0000
+
+  15     2      if r <> 0 then   
+
+0041'            CMP FEB6[BP],0000
+0047'            JNZ 004C
+0049'            JMP 004F
+
+  16     2        exit;   
+
+004C'            JMP 0111
+
+  17     2       
+Pascal/MT+86 3.1 - July  1, 1982 -  (c) 1982 by Digital Research  Page    2
+Disassembly of: TEST
+
+
+
+Stmt  Nest    Source Statement / Symbolic Object Code
+
+  18     2      writeln('.');   
+
+004F'            PUSH DS
+0050'            MOVI AX,0000
+0053'            PUSH AX
+0054'            CALL 0000
+0057'            MOVI AX,002E
+005A'            PUSH AX
+005B'            MOVI AX,FFFF
+005E'            PUSH AX
+005F'            MOVI AX,FFFF
+0062'            PUSH AX
+0063'            CALL 0000
+0066'            CALL 0000
+
+  19     2      while not eof(f) and (r = 0) do   
+
+0069'            PUSH SS
+006A'            LEA AX,FFBD[BP]
+006D'            PUSH AX
+006E'            MOVI AX,0001
+0071'            PUSH AX
+0072'            CALL 0000
+0075'            NOT AX
+0077'            PUSH AX
+0078'            CMP FEB6[BP],0000
+007E'            MOVI AX,0000
+0081'            JNZ 0084
+0083'            INC AX
+0084'            POP BX
+0085'            AND AX,BX
+0087'            RCR AL,1
+0089'            JB 008E
+008B'            JMP 00E5
+
+  20     2        begin   
+  21     3          readln(f, d[1], d[2], c, s);   
+
+008E'            PUSH SS
+008F'            LEA AX,FFBD[BP]
+0092'            PUSH AX
+0093'            CALL 0055'
+0096'            PUSH SS
+0097'            LEA AX,FFBB[BP]
+009A'            ADDI AX,0000
+009D'            PUSH AX
+009E'            CALL 0000
+00A1'            PUSH SS
+00A2'            LEA AX,FFBB[BP]
+00A5'            ADDI AX,0001
+00A8'            PUSH AX
+00A9'            CALL 009F'
+00AC'            PUSH SS
+Pascal/MT+86 3.1 - July  1, 1982 -  (c) 1982 by Digital Research  Page    3
+Disassembly of: TEST
+
+
+
+Stmt  Nest    Source Statement / Symbolic Object Code
+
+00AD'            LEA AX,FEBA[BP]
+00B1'            PUSH AX
+00B2'            CALL 00AA'
+00B5'            PUSH SS
+00B6'            LEA AX,FEBB[BP]
+00BA'            PUSH AX
+00BB'            MOVI AX,00FF
+00BE'            PUSH AX
+00BF'            CALL 0000
+00C2'            CALL 0000
+
+  22     3          r := ioresult;   
+
+00C5'            CALL 0000
+00C8'            MOV FEB6[BP],AX
+
+  23     3          write('.');   
+
+00CC'            PUSH DS
+00CD'            MOVI AX,0051'
+00D0'            PUSH AX
+00D1'            CALL 0094'
+00D4'            MOVI AX,002E
+00D7'            PUSH AX
+00D8'            MOVI AX,FFFF
+00DB'            PUSH AX
+00DC'            MOVI AX,FFFF
+00DF'            PUSH AX
+00E0'            CALL 0064'
+
+  24     3        end;   
+
+00E3'            JMPS 0169
+
+  25     2      writeln('.');   
+
+00E5'            PUSH DS
+00E6'            MOVI AX,00CE'
+00E9'            PUSH AX
+00EA'            CALL 00D2'
+00ED'            MOVI AX,002E
+00F0'            PUSH AX
+00F1'            MOVI AX,FFFF
+00F4'            PUSH AX
+00F5'            MOVI AX,FFFF
+00F8'            PUSH AX
+00F9'            CALL 00E1'
+00FC'            CALL 0067'
+
+  26     2       
+  27     2      close(f, r);   
+
+00FF'            PUSH SS
+Pascal/MT+86 3.1 - July  1, 1982 -  (c) 1982 by Digital Research  Page    4
+Disassembly of: TEST
+
+
+
+Stmt  Nest    Source Statement / Symbolic Object Code
+
+0100'            LEA AX,FFBD[BP]
+0103'            PUSH AX
+0104'            MOVI AX,0001
+0107'            PUSH AX
+0108'            PUSH SS
+0109'            LEA AX,FEB6[BP]
+010D'            PUSH AX
+010E'            CALL 0000
+
+  28     2       
+  29     2    end;   
+
+0111'            MOV SP,BP
+0113'            POP BP
+0114'            RET
+
+  30     1       
+  31     1    begin   
+
+0115'            CALL 0000
+0118'            MOV BP,SP
+011A'            DEC BP
+011B'            DEC BP
+011C'            PUSH BP
+
+  32     1      test;   
+
+011D'            CALL FEF3
+
+  33     1       
+  34     1    end.   
+
+0120'            CALL 0000
+
+External reference chain @CHW    --> 00FA
+External reference chain @RCH    --> 00B3
+External reference chain @CRL    --> 00FD
+External reference chain @CWT    --> 00C3
+External reference chain @SFB    --> 00EB
+External reference chain @INI    --> 0116
+External reference chain @HLT    --> 0121
+External reference chain @RST    --> 00C0
+External reference chain OUTPUT  --> 00E7
+External reference chain OPEN    --> 003F
+External reference chain IORESU  --> 00C6
+External reference chain EOF     --> 0073
+External reference chain CLOSE   --> 010F
+
